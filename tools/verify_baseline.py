@@ -24,15 +24,17 @@ BOOTSTRAP_ENV = ROOT / ".tools" / "uv-bootstrap"
 
 
 def _required_uv_version() -> str:
-    required = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["tool"]["uv"][
-        "required-version"
-    ]
+    required = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))[
+        "tool"
+    ]["uv"]["required-version"]
     if not required.startswith("=="):
         raise RuntimeError("tool.uv.required-version must be an exact == pin")
     return required.removeprefix("==")
 
 
-def _run(command: Sequence[str], *, capture: bool = False) -> subprocess.CompletedProcess[str]:
+def _run(
+    command: Sequence[str], *, capture: bool = False
+) -> subprocess.CompletedProcess[str]:
     print("+", subprocess.list2cmdline(list(command)), flush=True)
     return subprocess.run(
         list(command),
@@ -99,7 +101,9 @@ def _git_identity() -> dict[str, object]:
     commit = _run(["git", "rev-parse", "HEAD"], capture=True)
     status = _run(["git", "status", "--porcelain=v1"], capture=True)
     return {
-        "commit": commit.stdout.strip() if commit.returncode == 0 and commit.stdout else "UNBORN",
+        "commit": commit.stdout.strip()
+        if commit.returncode == 0 and commit.stdout
+        else "UNBORN",
         "clean": status.returncode == 0 and not (status.stdout or "").strip(),
         "status": (status.stdout or "").splitlines(),
     }
@@ -109,7 +113,9 @@ def _write_report(
     *, uv: Path, steps: list[dict[str, object]], started_at: float, success: bool
 ) -> None:
     ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)
-    freeze = _run([str(uv), "pip", "freeze", "--python", str(ROOT / ".venv")], capture=True)
+    freeze = _run(
+        [str(uv), "pip", "freeze", "--python", str(ROOT / ".venv")], capture=True
+    )
     report = {
         "schema_version": 1,
         "success": success,
@@ -119,16 +125,22 @@ def _write_report(
         "source": _git_identity(),
         "dependencies": {
             "uv_lock_sha256": _optional_sha256(ROOT / "uv.lock"),
-            "installed": (freeze.stdout or "").splitlines() if freeze.returncode == 0 else [],
+            "installed": (freeze.stdout or "").splitlines()
+            if freeze.returncode == 0
+            else [],
         },
         "interpreters": {
-            "python_pin": (ROOT / ".python-version").read_text(encoding="utf-8").strip(),
+            "python_pin": (ROOT / ".python-version")
+            .read_text(encoding="utf-8")
+            .strip(),
             "uv": _version_of(uv),
             "platform": sys.platform,
         },
         "steps": steps,
     }
-    REPORT_PATH.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    REPORT_PATH.write_text(
+        json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
     print(f"Baseline evidence: {REPORT_PATH.relative_to(ROOT)}")
 
 
@@ -140,9 +152,30 @@ def main(argv: list[str] | None = None) -> int:
     steps: list[dict[str, object]] = []
     commands = [
         [str(uv), "lock", "--check"],
-        [str(uv), "sync", "--locked", "--all-packages", "--all-groups", "--no-editable"],
-        [str(uv), "run", "--locked", "--no-sync", "python", "tools/version_contract.py"],
-        [str(uv), "run", "--locked", "--no-sync", "python", "tools/check_architecture.py"],
+        [
+            str(uv),
+            "sync",
+            "--locked",
+            "--all-packages",
+            "--all-groups",
+            "--no-editable",
+        ],
+        [
+            str(uv),
+            "run",
+            "--locked",
+            "--no-sync",
+            "python",
+            "tools/version_contract.py",
+        ],
+        [
+            str(uv),
+            "run",
+            "--locked",
+            "--no-sync",
+            "python",
+            "tools/check_architecture.py",
+        ],
         [
             str(uv),
             "run",
@@ -161,7 +194,7 @@ def main(argv: list[str] | None = None) -> int:
             "-m",
             "pytest",
             "--cov=gridlab",
-            "--cov=backend",
+            "--cov=gridlab-studio",
             "--cov-branch",
             "--cov-report=json:.artifacts/coverage.json",
             "tests/baseline",

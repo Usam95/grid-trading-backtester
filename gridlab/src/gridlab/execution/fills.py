@@ -21,7 +21,6 @@ Key rules (vs. the optimistic-only old engine):
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Final
 
 from gridlab.config.models import FillConfig
 from gridlab.core.enums import Side, OrderType, Liquidity
@@ -37,7 +36,8 @@ class FillResult:
     reason: str = ""
 
 
-_NO_FILL: Final = FillResult(False)
+def _no_fill() -> FillResult:
+    return FillResult(False)
 
 
 def resolve_fill(
@@ -56,7 +56,7 @@ def resolve_fill(
         return FillResult(True, price, Liquidity.TAKER, "market")
     if order.type in (OrderType.STOP, OrderType.STOP_LIMIT):
         return _resolve_stop(order, candle, fill_cfg, slip)
-    return _NO_FILL
+    return _no_fill()
 
 
 def _touches(level: float, candle: Candle, on_touch: bool) -> bool:
@@ -72,7 +72,7 @@ def _resolve_limit(order: Order, candle: Candle, cfg: FillConfig) -> FillResult:
         # Buy limit fills if price drops to/below the limit.
         touched = candle.low <= price if cfg.fill_on_touch else candle.low < price
         if not touched:
-            return _NO_FILL
+            return _no_fill()
         # Gap down through the limit: fill at the better (lower) open.
         fill_price = (
             min(price, candle.open) if (cfg.fill_gaps_at_open and candle.open < price) else price
@@ -81,7 +81,7 @@ def _resolve_limit(order: Order, candle: Candle, cfg: FillConfig) -> FillResult:
     else:
         touched = candle.high >= price if cfg.fill_on_touch else candle.high > price
         if not touched:
-            return _NO_FILL
+            return _no_fill()
         # Gap up through the limit: fill at the better (higher) open.
         fill_price = (
             max(price, candle.open) if (cfg.fill_gaps_at_open and candle.open > price) else price
@@ -97,7 +97,7 @@ def _resolve_stop(order: Order, candle: Candle, cfg: FillConfig, slip: SlippageM
     else:
         triggered = candle.low <= stop
     if not triggered:
-        return _NO_FILL
+        return _no_fill()
     if order.type is OrderType.STOP:
         # Stop-market: execute at the stop price with adverse slippage.
         exec_price = slip.apply(stop, order.side)
@@ -108,4 +108,4 @@ def _resolve_stop(order: Order, candle: Candle, cfg: FillConfig, slip: SlippageM
     res = _resolve_limit(limit_order, candle, cfg)
     if res.filled:
         return FillResult(True, res.price, Liquidity.TAKER, "stop_limit")
-    return _NO_FILL
+    return _no_fill()

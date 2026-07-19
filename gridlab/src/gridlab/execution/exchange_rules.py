@@ -16,7 +16,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 from types import MappingProxyType
-from typing import Final, Mapping
+from typing import Mapping
 
 from gridlab.config.models import ExchangeRulesConfig
 
@@ -120,13 +120,6 @@ _BINANCE_SPOT: Mapping[str, ExchangeRulesConfig] = MappingProxyType(
     }
 )
 
-# Interactive Brokers US equities: penny tick above $1, whole-share lots, and a
-# practical minimum order. Real IBKR has sub-penny ticks below $1 and tiered
-# commissions handled separately by FeeConfig.
-_IBKR_STOCK: Final = ExchangeRulesConfig(
-    enabled=True, tick_size=0.01, step_size=1.0, min_qty=1.0, min_notional=1.0
-)
-
 
 def preset(name: str, symbol: str = "") -> ExchangeRulesConfig:
     """Return exchange rules for a venue/symbol.
@@ -140,7 +133,15 @@ def preset(name: str, symbol: str = "") -> ExchangeRulesConfig:
     if key in ("binance", "binance_spot"):
         return _BINANCE_SPOT.get(symbol.upper(), _BINANCE_SPOT["_DEFAULT"])
     if key in ("ibkr", "ibkr_stock", "interactive_brokers"):
-        return _IBKR_STOCK
+        # Penny tick above $1 and whole-share lots. Real IBKR has additional
+        # sub-penny and commission rules supplied by outside adapters.
+        return ExchangeRulesConfig(
+            enabled=True,
+            tick_size=0.01,
+            step_size=1.0,
+            min_qty=1.0,
+            min_notional=1.0,
+        )
     if key in ("", "none", "off"):
         return ExchangeRulesConfig(enabled=False)
     return ExchangeRulesConfig(enabled=False)

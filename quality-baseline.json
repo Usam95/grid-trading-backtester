@@ -9,6 +9,7 @@
       "gridlab-studio/backend/presets.py",
       "gridlab-studio/backend/schemas.py",
       "gridlab-studio/backend/service.py",
+      "gridlab-studio/run.py",
       "gridlab/src/gridlab/accounting/__init__.py",
       "gridlab/src/gridlab/accounting/ledger.py",
       "gridlab/src/gridlab/api/__init__.py",
@@ -91,10 +92,28 @@
       "gridlab/src/gridlab/strategy/policies/spacing.py:45:var-annotated"
     ],
     "coverage": {
-      "line_percent": 84.5077,
-      "branch_percent": 65.13,
-      "covered_lines": 3311,
-      "covered_branches": 551
+      "overall": {
+        "line_percent": 85.7943,
+        "branch_percent": 62.9676,
+        "covered_lines": 2603,
+        "covered_branches": 505
+      },
+      "packages": {
+        "gridlab": {"line_percent": 100.0, "branch_percent": 100.0, "covered_lines": 16, "covered_branches": 0},
+        "gridlab-studio.backend": {"line_percent": 82.205, "branch_percent": 46.3235, "covered_lines": 425, "covered_branches": 63},
+        "gridlab-studio.entrypoint": {"line_percent": 0.0, "branch_percent": 0.0, "covered_lines": 0, "covered_branches": 0},
+        "gridlab.accounting": {"line_percent": 92.5926, "branch_percent": 82.1429, "covered_lines": 125, "covered_branches": 23},
+        "gridlab.api": {"line_percent": 90.7285, "branch_percent": 69.0476, "covered_lines": 137, "covered_branches": 29},
+        "gridlab.config": {"line_percent": 88.7097, "branch_percent": 56.25, "covered_lines": 110, "covered_branches": 18},
+        "gridlab.core": {"line_percent": 95.7447, "branch_percent": 81.25, "covered_lines": 225, "covered_branches": 13},
+        "gridlab.data": {"line_percent": 58.1006, "branch_percent": 35.1852, "covered_lines": 104, "covered_branches": 19},
+        "gridlab.engine": {"line_percent": 91.4754, "branch_percent": 69.4444, "covered_lines": 279, "covered_branches": 75},
+        "gridlab.execution": {"line_percent": 87.6596, "branch_percent": 72.973, "covered_lines": 206, "covered_branches": 54},
+        "gridlab.indicators": {"line_percent": 85.7143, "branch_percent": 100.0, "covered_lines": 36, "covered_branches": 0},
+        "gridlab.research": {"line_percent": 90.4348, "branch_percent": 71.875, "covered_lines": 208, "covered_branches": 46},
+        "gridlab.results": {"line_percent": 87.6993, "branch_percent": 64.8649, "covered_lines": 385, "covered_branches": 96},
+        "gridlab.strategy": {"line_percent": 85.258, "branch_percent": 71.875, "covered_lines": 347, "covered_branches": 69}
+      }
     }
   }
 }

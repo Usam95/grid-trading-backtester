@@ -151,17 +151,16 @@ def _is_mutable(value: ast.expr | None) -> bool:
             return False
     return isinstance(
         value,
-        (ast.Call, ast.Dict, ast.List, ast.Set, ast.ListComp, ast.DictComp, ast.SetComp),
+        (
+            ast.Call,
+            ast.Dict,
+            ast.List,
+            ast.Set,
+            ast.ListComp,
+            ast.DictComp,
+            ast.SetComp,
+        ),
     )
-
-
-def _is_final_annotation(node: ast.Assign | ast.AnnAssign) -> bool:
-    if not isinstance(node, ast.AnnAssign):
-        return False
-    annotation = node.annotation
-    if isinstance(annotation, ast.Subscript):
-        annotation = annotation.value
-    return isinstance(annotation, ast.Name) and annotation.id == "Final"
 
 
 def _mutable_state_assignments(tree: ast.Module, module: str) -> list[str]:
@@ -171,10 +170,8 @@ def _mutable_state_assignments(tree: ast.Module, module: str) -> list[str]:
     if not critical_domain and not studio:
         return findings
     for node in tree.body:
-        if (
-            not isinstance(node, (ast.Assign, ast.AnnAssign))
-            or _is_final_annotation(node)
-            or not _is_mutable(node.value)
+        if not isinstance(node, (ast.Assign, ast.AnnAssign)) or not _is_mutable(
+            node.value
         ):
             continue
         for name in _assigned_names(node):
@@ -199,7 +196,10 @@ def findings() -> dict[str, list[str]]:
             if target and target != module:
                 graph[module].add(target)
             root_import = imported.split(".", 1)[0]
-            if module.startswith(DOMAIN_PREFIXES) and root_import in FORBIDDEN_DOMAIN_IMPORTS:
+            if (
+                module.startswith(DOMAIN_PREFIXES)
+                and root_import in FORBIDDEN_DOMAIN_IMPORTS
+            ):
                 forbidden.append(f"{module}: imports {imported}")
             if module.startswith("gridlab") and root_import == "backend":
                 forbidden.append(f"{module}: imports {imported}")
@@ -214,7 +214,9 @@ def findings() -> dict[str, list[str]]:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--json", action="store_true", help="print current findings as JSON")
+    parser.add_argument(
+        "--json", action="store_true", help="print current findings as JSON"
+    )
     args = parser.parse_args(argv)
     current = findings()
     if args.json:

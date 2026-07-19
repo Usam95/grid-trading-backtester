@@ -10,7 +10,9 @@ ROOT = Path(__file__).resolve().parents[2]
 PERSONAL_EMAIL = "usam.sersultanov@gmail.com"
 
 
-def _git(repo: Path, *args: str, env: dict[str, str] | None = None) -> subprocess.CompletedProcess[str]:
+def _git(
+    repo: Path, *args: str, env: dict[str, str] | None = None
+) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         ["git", *args],
         cwd=repo,

@@ -29,3 +29,7 @@ pythonpath = [
     "gridlab-studio",
 ]
 addopts = "-q"
+
+[tool.coverage.run]
+branch = true
+omit = ["*/tests/*"]

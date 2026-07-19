@@ -67,8 +67,8 @@ remains visible until a later, explicitly scoped dependency/API migration.
 | Product/API stack | FastAPI `0.139.2`; httpx `0.28.1` |
 | Test tools | pytest `9.1.1`; pytest-cov `7.1.0`; Hypothesis `6.157.0` |
 | Static tools | Ruff `0.15.22`; mypy `2.3.0` |
-| Static legacy baseline | 43 formatting files; 15 lint findings; 21 typing findings |
-| Coverage baseline | **84.5077% lines**; **65.13% branches** (3,311 lines / 551 branches covered) |
+| Static legacy baseline | 44 formatting files; 15 lint findings; 21 typing findings |
+| Coverage baseline | **85.7943% lines**; **62.9676% branches** (2,603 lines / 505 branches covered), ratcheted across 14 production package classifications |
 | Locked result, 2026-07-19 | **102 passed**, one pre-existing Starlette deprecation warning |
 | Architecture result | 0 cycles; 0 forbidden imports; 0 process-global mutable trading-state findings |
 
@@ -80,12 +80,13 @@ does not add that dependent modernization work prematurely.
 ### Recorded legacy quality debt
 
 `quality-baseline.json` is the machine-readable ratchet. The canonical
-maintainer owns its 43 formatting, 15 lint, and 21 typing findings and the gap
-between the measured 65.13% overall branch coverage and the 80% production
+maintainer owns its 44 formatting, 15 lint, and 21 typing findings and the gap
+between the measured 62.9676% overall branch coverage and the 80% production
 target. The risk is explicitly bounded: this baseline has no online authority
 and cannot qualify a release. A changed module may not add findings or reduce
-coverage; qualifying online modules must remove applicable debt, and critical
-packages must reach 90% branch coverage before Level B. Those milestones belong
+overall or owner-package coverage; qualifying online modules must remove
+applicable debt, and critical packages (currently including `gridlab.accounting`
+at 82.1429% branch coverage) must reach 90% before Level B. Those milestones belong
 to the later owning implementation tickets rather than being waived here.
 
 ## Frozen architecture baseline

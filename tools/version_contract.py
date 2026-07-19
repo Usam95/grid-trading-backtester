@@ -11,7 +11,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 VERSION_FILE = ROOT / "VERSION"
-PACKAGE_PROJECTS = (ROOT / "gridlab" / "pyproject.toml", ROOT / "gridlab-studio" / "pyproject.toml")
+PACKAGE_PROJECTS = (
+    ROOT / "gridlab" / "pyproject.toml",
+    ROOT / "gridlab-studio" / "pyproject.toml",
+)
 GENERATED_MODULE = ROOT / "gridlab" / "src" / "gridlab" / "_version.py"
 SEMVER = re.compile(r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$")
 
@@ -53,16 +56,22 @@ def check() -> list[str]:
     for path in PACKAGE_PROJECTS:
         actual = tomllib.loads(path.read_text(encoding="utf-8"))["project"]["version"]
         if actual != expected:
-            errors.append(f"{path.relative_to(ROOT)} reports {actual}; expected {expected}")
+            errors.append(
+                f"{path.relative_to(ROOT)} reports {actual}; expected {expected}"
+            )
     expected_assignment = f'__version__ = "{expected}"'
     if expected_assignment not in GENERATED_MODULE.read_text(encoding="utf-8"):
-        errors.append(f"{GENERATED_MODULE.relative_to(ROOT)} is not generated from VERSION")
+        errors.append(
+            f"{GENERATED_MODULE.relative_to(ROOT)} is not generated from VERSION"
+        )
     return errors
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--sync", action="store_true", help="regenerate declared version surfaces")
+    parser.add_argument(
+        "--sync", action="store_true", help="regenerate declared version surfaces"
+    )
     args = parser.parse_args(argv)
     if args.sync:
         sync()
@@ -76,4 +85,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

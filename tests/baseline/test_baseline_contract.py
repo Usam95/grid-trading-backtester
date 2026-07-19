@@ -26,7 +26,9 @@ def test_canonical_workspace_contract_is_declared_at_repository_root() -> None:
 
 def test_one_product_version_drives_every_visible_surface() -> None:
     expected = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
-    engine_config = tomllib.loads((ROOT / "gridlab" / "pyproject.toml").read_text(encoding="utf-8"))
+    engine_config = tomllib.loads(
+        (ROOT / "gridlab" / "pyproject.toml").read_text(encoding="utf-8")
+    )
     studio_config = tomllib.loads(
         (ROOT / "gridlab-studio" / "pyproject.toml").read_text(encoding="utf-8")
     )
@@ -89,5 +91,9 @@ def test_architecture_analysis_detects_critical_and_studio_mutable_state() -> No
         "gridlab.execution.rules: module-level mutable _VENUE_PRESETS"
     ]
     assert _mutable_state_assignments(studio, "backend.runtime") == [
+        "backend.runtime: module-level mutable active_orders"
+    ]
+    final_container = ast.parse("active_orders: Final[list[int]] = []")
+    assert _mutable_state_assignments(final_container, "backend.runtime") == [
         "backend.runtime: module-level mutable active_orders"
     ]
