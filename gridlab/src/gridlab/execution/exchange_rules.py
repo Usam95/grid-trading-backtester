@@ -10,10 +10,13 @@ fills that Binance / Interactive Brokers would have permitted.
 ``preset(name)`` returns realistic filters for common spot symbols so users can
 opt in with one line instead of hand-entering exchange metadata.
 """
+
 from __future__ import annotations
 
 import math
 from dataclasses import dataclass
+from types import MappingProxyType
+from typing import Final, Mapping
 
 from gridlab.config.models import ExchangeRulesConfig
 
@@ -38,10 +41,11 @@ def _round_to_increment(value: float, increment: float) -> float:
 @dataclass(frozen=True, slots=True)
 class QuantizedOrder:
     """Result of applying symbol filters to a candidate order."""
+
     price: float
     qty: float
     ok: bool
-    reason: str = "ok"   # ok | min_qty | min_notional | zero_qty
+    reason: str = "ok"  # ok | min_qty | min_notional | zero_qty
 
 
 class ExchangeQuantizer:
@@ -92,27 +96,36 @@ class ExchangeQuantizer:
 # realistic defaults for research, not a live source of truth — fetch the
 # exchange's current filters before trading real size.
 
-_BINANCE_SPOT: dict[str, ExchangeRulesConfig] = {
-    "BTCUSDT": ExchangeRulesConfig(enabled=True, tick_size=0.01, step_size=0.00001,
-                                   min_qty=0.00001, min_notional=5.0),
-    "ETHUSDT": ExchangeRulesConfig(enabled=True, tick_size=0.01, step_size=0.0001,
-                                   min_qty=0.0001, min_notional=5.0),
-    "BNBUSDT": ExchangeRulesConfig(enabled=True, tick_size=0.01, step_size=0.001,
-                                   min_qty=0.001, min_notional=5.0),
-    "SOLUSDT": ExchangeRulesConfig(enabled=True, tick_size=0.01, step_size=0.001,
-                                   min_qty=0.001, min_notional=5.0),
-    "XRPUSDT": ExchangeRulesConfig(enabled=True, tick_size=0.0001, step_size=1.0,
-                                   min_qty=1.0, min_notional=5.0),
-    # Generic USDT pair fallback (Binance default min_notional is 5 USDT).
-    "_DEFAULT": ExchangeRulesConfig(enabled=True, tick_size=0.0001, step_size=0.0001,
-                                    min_qty=0.0001, min_notional=5.0),
-}
+_BINANCE_SPOT: Mapping[str, ExchangeRulesConfig] = MappingProxyType(
+    {
+        "BTCUSDT": ExchangeRulesConfig(
+            enabled=True, tick_size=0.01, step_size=0.00001, min_qty=0.00001, min_notional=5.0
+        ),
+        "ETHUSDT": ExchangeRulesConfig(
+            enabled=True, tick_size=0.01, step_size=0.0001, min_qty=0.0001, min_notional=5.0
+        ),
+        "BNBUSDT": ExchangeRulesConfig(
+            enabled=True, tick_size=0.01, step_size=0.001, min_qty=0.001, min_notional=5.0
+        ),
+        "SOLUSDT": ExchangeRulesConfig(
+            enabled=True, tick_size=0.01, step_size=0.001, min_qty=0.001, min_notional=5.0
+        ),
+        "XRPUSDT": ExchangeRulesConfig(
+            enabled=True, tick_size=0.0001, step_size=1.0, min_qty=1.0, min_notional=5.0
+        ),
+        # Generic USDT pair fallback (Binance default min_notional is 5 USDT).
+        "_DEFAULT": ExchangeRulesConfig(
+            enabled=True, tick_size=0.0001, step_size=0.0001, min_qty=0.0001, min_notional=5.0
+        ),
+    }
+)
 
 # Interactive Brokers US equities: penny tick above $1, whole-share lots, and a
 # practical minimum order. Real IBKR has sub-penny ticks below $1 and tiered
 # commissions handled separately by FeeConfig.
-_IBKR_STOCK = ExchangeRulesConfig(enabled=True, tick_size=0.01, step_size=1.0,
-                                  min_qty=1.0, min_notional=1.0)
+_IBKR_STOCK: Final = ExchangeRulesConfig(
+    enabled=True, tick_size=0.01, step_size=1.0, min_qty=1.0, min_notional=1.0
+)
 
 
 def preset(name: str, symbol: str = "") -> ExchangeRulesConfig:

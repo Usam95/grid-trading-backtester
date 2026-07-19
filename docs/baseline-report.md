@@ -14,7 +14,8 @@ python tools/verify_baseline.py
 
 The entry point bootstraps only the pinned `uv` tool, verifies the committed
 lock, performs an exact non-editable workspace sync, checks the shared product
-version and architecture ratchet, and runs both canonical suites. It writes a
+version, architecture and static-quality ratchets, and runs both canonical
+suites with statement and branch coverage. It writes a
 machine-readable `.artifacts/baseline-report.json` containing the exact commit,
 clean-tree assertion, lock digest, installed dependency inventory, interpreter
 and tool identities, commands, exit codes, and duration for that invocation.
@@ -60,18 +61,32 @@ remains visible until a later, explicitly scoped dependency/API migration.
 | Product | `1.0.0` |
 | Python | CPython `3.12.10` |
 | uv | `0.11.16` |
-| `uv.lock` SHA-256 | `92087b2bb3a78803eac560d56714b49ec65f2cefcbe5fdb117486aab8235ce3f` |
-| Resolution | 42 locked packages; 38 installed distributions |
+| `uv.lock` SHA-256 | `86c696f6bcc35612a83ecf1cad366e1676203d54a40c8ffe37fe8e458a4c2b9f` |
+| Resolution | 48 locked packages; 44 installed distributions |
 | Core numerical stack | NumPy `2.4.6`; pandas `3.0.3` |
 | Product/API stack | FastAPI `0.139.2`; httpx `0.28.1` |
 | Test tools | pytest `9.1.1`; pytest-cov `7.1.0`; Hypothesis `6.157.0` |
-| Locked result, 2026-07-19 | **100 passed**, one pre-existing Starlette deprecation warning |
+| Static tools | Ruff `0.15.22`; mypy `2.3.0` |
+| Static legacy baseline | 43 formatting files; 15 lint findings; 21 typing findings |
+| Coverage baseline | **84.5077% lines**; **65.13% branches** (3,311 lines / 551 branches covered) |
+| Locked result, 2026-07-19 | **102 passed**, one pre-existing Starlette deprecation warning |
 | Architecture result | 0 cycles; 0 forbidden imports; 0 process-global mutable trading-state findings |
 
 The current frontend is static HTML/CSS/JavaScript and has no package manager or
 dependency graph. A committed `package-lock.json` and pinned Node/npm line become
 mandatory when the accepted React/TypeScript frontend is introduced; Ticket 01
 does not add that dependent modernization work prematurely.
+
+### Recorded legacy quality debt
+
+`quality-baseline.json` is the machine-readable ratchet. The canonical
+maintainer owns its 43 formatting, 15 lint, and 21 typing findings and the gap
+between the measured 65.13% overall branch coverage and the 80% production
+target. The risk is explicitly bounded: this baseline has no online authority
+and cannot qualify a release. A changed module may not add findings or reduce
+coverage; qualifying online modules must remove applicable debt, and critical
+packages must reach 90% branch coverage before Level B. Those milestones belong
+to the later owning implementation tickets rather than being waived here.
 
 ## Frozen architecture baseline
 

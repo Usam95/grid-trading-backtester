@@ -17,9 +17,11 @@ Key rules (vs. the optimistic-only old engine):
 * Eligibility (same-bar vs next-bar) and adverse intrabar ordering are decided
   by the engine; this function only answers "does it fill, and where".
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Final
 
 from gridlab.config.models import FillConfig
 from gridlab.core.enums import Side, OrderType, Liquidity
@@ -35,11 +37,17 @@ class FillResult:
     reason: str = ""
 
 
-_NO_FILL = FillResult(False)
+_NO_FILL: Final = FillResult(False)
 
 
-def resolve_fill(order: Order, candle: Candle, fill_cfg: FillConfig,
-                 slip: SlippageModel, *, market_ref_price: float) -> FillResult:
+def resolve_fill(
+    order: Order,
+    candle: Candle,
+    fill_cfg: FillConfig,
+    slip: SlippageModel,
+    *,
+    market_ref_price: float,
+) -> FillResult:
     """Resolve a single order against a single candle."""
     if order.type is OrderType.LIMIT:
         return _resolve_limit(order, candle, fill_cfg)
@@ -66,19 +74,22 @@ def _resolve_limit(order: Order, candle: Candle, cfg: FillConfig) -> FillResult:
         if not touched:
             return _NO_FILL
         # Gap down through the limit: fill at the better (lower) open.
-        fill_price = min(price, candle.open) if (cfg.fill_gaps_at_open and candle.open < price) else price
+        fill_price = (
+            min(price, candle.open) if (cfg.fill_gaps_at_open and candle.open < price) else price
+        )
         return FillResult(True, fill_price, Liquidity.MAKER, "limit")
     else:
         touched = candle.high >= price if cfg.fill_on_touch else candle.high > price
         if not touched:
             return _NO_FILL
         # Gap up through the limit: fill at the better (higher) open.
-        fill_price = max(price, candle.open) if (cfg.fill_gaps_at_open and candle.open > price) else price
+        fill_price = (
+            max(price, candle.open) if (cfg.fill_gaps_at_open and candle.open > price) else price
+        )
         return FillResult(True, fill_price, Liquidity.MAKER, "limit")
 
 
-def _resolve_stop(order: Order, candle: Candle, cfg: FillConfig,
-                  slip: SlippageModel) -> FillResult:
+def _resolve_stop(order: Order, candle: Candle, cfg: FillConfig, slip: SlippageModel) -> FillResult:
     stop = order.stop_price
     assert stop is not None
     if order.side is Side.BUY:

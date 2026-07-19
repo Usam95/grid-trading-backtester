@@ -6,6 +6,7 @@ on it:
     from gridlab import run_backtest, BacktestConfig, GridStrategy
     result = run_backtest(spec)          # JSON-serializable dict
 """
+
 from __future__ import annotations
 
 from gridlab._version import __version__

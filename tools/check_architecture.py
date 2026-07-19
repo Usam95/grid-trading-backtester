@@ -18,14 +18,15 @@ SOURCE_ROOTS = (
     (ROOT / "gridlab-studio", ""),
 )
 DOMAIN_PREFIXES = (
+    "gridlab.accounting",
     "gridlab.api",
     "gridlab.config",
     "gridlab.core",
     "gridlab.engine",
     "gridlab.execution",
-    "gridlab.ledger",
     "gridlab.strategy",
 )
+STUDIO_PREFIXES = ("backend", "run")
 FORBIDDEN_DOMAIN_IMPORTS = {
     "azure",
     "backend",
@@ -75,8 +76,8 @@ def _sources() -> dict[str, Path]:
     return modules
 
 
-def _imports(tree: ast.AST, module: str) -> Iterable[str]:
-    package = module.split(".")[:-1]
+def _imports(tree: ast.AST, module: str, *, is_package: bool) -> Iterable[str]:
+    package = module.split(".") if is_package else module.split(".")[:-1]
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
             yield from (alias.name for alias in node.names)
@@ -145,10 +146,44 @@ def _assigned_names(node: ast.Assign | ast.AnnAssign) -> list[str]:
 
 
 def _is_mutable(value: ast.expr | None) -> bool:
+    if isinstance(value, ast.Call) and isinstance(value.func, ast.Name):
+        if value.func.id in {"MappingProxyType", "frozenset", "tuple"}:
+            return False
     return isinstance(
         value,
         (ast.Call, ast.Dict, ast.List, ast.Set, ast.ListComp, ast.DictComp, ast.SetComp),
     )
+
+
+def _is_final_annotation(node: ast.Assign | ast.AnnAssign) -> bool:
+    if not isinstance(node, ast.AnnAssign):
+        return False
+    annotation = node.annotation
+    if isinstance(annotation, ast.Subscript):
+        annotation = annotation.value
+    return isinstance(annotation, ast.Name) and annotation.id == "Final"
+
+
+def _mutable_state_assignments(tree: ast.Module, module: str) -> list[str]:
+    findings: list[str] = []
+    critical_domain = module.startswith(DOMAIN_PREFIXES)
+    studio = module.startswith(STUDIO_PREFIXES)
+    if not critical_domain and not studio:
+        return findings
+    for node in tree.body:
+        if (
+            not isinstance(node, (ast.Assign, ast.AnnAssign))
+            or _is_final_annotation(node)
+            or not _is_mutable(node.value)
+        ):
+            continue
+        for name in _assigned_names(node):
+            if name == "__all__":
+                continue
+            words = {part.lower() for part in name.strip("_").split("_")}
+            if critical_domain or words & TRADING_STATE_WORDS:
+                findings.append(f"{module}: module-level mutable {name}")
+    return findings
 
 
 def findings() -> dict[str, list[str]]:
@@ -159,7 +194,7 @@ def findings() -> dict[str, list[str]]:
     mutable_state: list[str] = []
     for module, path in sorted(modules.items()):
         tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
-        for imported in _imports(tree, module):
+        for imported in _imports(tree, module, is_package=path.name == "__init__.py"):
             target = _internal_target(imported, module_names)
             if target and target != module:
                 graph[module].add(target)
@@ -169,15 +204,7 @@ def findings() -> dict[str, list[str]]:
             if module.startswith("gridlab") and root_import == "backend":
                 forbidden.append(f"{module}: imports {imported}")
         graph.setdefault(module, set())
-        if not module.startswith("gridlab"):
-            continue
-        for node in tree.body:
-            if not isinstance(node, (ast.Assign, ast.AnnAssign)) or not _is_mutable(node.value):
-                continue
-            for name in _assigned_names(node):
-                words = {part.lower() for part in name.strip("_").split("_")}
-                if words & TRADING_STATE_WORDS:
-                    mutable_state.append(f"{module}: module-level mutable {name}")
+        mutable_state.extend(_mutable_state_assignments(tree, module))
     return {
         "dependency_cycles": _cycles(graph),
         "forbidden_imports": sorted(set(forbidden)),

@@ -81,6 +81,7 @@ decision record, that record controls until both are reconciled explicitly.
 | Promotion evidence freshness | complete Paper and Testnet/reconciliation endpoints each **≤ 24 h** old | comprehensive spec acceptance 20 |
 | Live confirmation | re-authenticate and confirm within **15 domain minutes**; single use; **2** fresh fail-closed preflights | comprehensive spec acceptance 21 |
 | First-live probation | **30 days**, extend unchanged to **90 days** only for activity | comprehensive spec acceptance 23–24 |
+| First-live probation activity | **≥ 1** real cumulative paired cycle and ordinary live fills on **≥ 2 UTC dates** | comprehensive spec acceptance 24 |
 | Probation review cadence | daily for first **7 UTC observation days**, then at least once per **7-day** interval | comprehensive spec acceptance 23 |
 
 ## Retention, recovery, infrastructure, and cost
@@ -118,4 +119,3 @@ The following retained historical decisions are **excluded** from implementation
 | Key Vault credential materializer and early access variants | restricted direct Key Vault access; resolve `latest` once during frozen startup and pin exact version | security/Azure records |
 | Scheduled OS updates, Livepatch, and reboot policy | accepted visible `SECURITY_MAINTENANCE_DEFERRED` exception for MVP1 | Azure record |
 | Scrubber-only observability | approved fields/types plus centralized recursive redaction and canary tests | security record |
-

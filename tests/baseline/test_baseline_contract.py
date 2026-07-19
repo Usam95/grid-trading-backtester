@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import json
+import ast
 import tomllib
 from pathlib import Path
 
 from backend.app import app, health
+from tools.check_architecture import _imports, _mutable_state_assignments
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -49,6 +51,7 @@ def test_baseline_has_one_operator_entry_point_and_inspectable_contracts() -> No
     catalogue = ROOT / "docs" / "current-normative-values.md"
     report = ROOT / "docs" / "baseline-report.md"
     architecture_baseline = ROOT / "architecture-baseline.json"
+    quality_baseline = ROOT / "quality-baseline.json"
 
     assert runner.is_file()
     assert "python tools/verify_baseline.py" in report.read_text(encoding="utf-8")
@@ -61,6 +64,8 @@ def test_baseline_has_one_operator_entry_point_and_inspectable_contracts() -> No
         "forbidden_imports",
         "process_global_mutable_trading_state",
     }
+    quality = json.loads(quality_baseline.read_text(encoding="utf-8"))
+    assert set(quality["checks"]) == {"formatting", "lint", "typing", "coverage"}
 
 
 def test_legacy_repositories_are_named_read_only_and_not_workspace_members() -> None:
@@ -68,3 +73,21 @@ def test_legacy_repositories_are_named_read_only_and_not_workspace_members() -> 
     for legacy_name in ("backtester_old", "grid-backtest-core", "grid-backtest-saas"):
         assert f"`{legacy_name}`" in report
         assert "read-only" in report
+
+
+def test_architecture_analysis_resolves_package_relative_imports() -> None:
+    tree = ast.parse("from .ledger import Ledger")
+    assert list(_imports(tree, "gridlab.accounting", is_package=True)) == [
+        "gridlab.accounting.ledger"
+    ]
+
+
+def test_architecture_analysis_detects_critical_and_studio_mutable_state() -> None:
+    critical = ast.parse("_VENUE_PRESETS = {'BTCUSDT': object()}")
+    studio = ast.parse("active_orders = []")
+    assert _mutable_state_assignments(critical, "gridlab.execution.rules") == [
+        "gridlab.execution.rules: module-level mutable _VENUE_PRESETS"
+    ]
+    assert _mutable_state_assignments(studio, "backend.runtime") == [
+        "backend.runtime: module-level mutable active_orders"
+    ]

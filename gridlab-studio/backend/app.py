@@ -4,6 +4,7 @@ Run with ``python run.py`` or ``uvicorn backend.app:app``. All compute routes
 are thin wrappers around :mod:`backend.service`; engine ``ValueError`` (bad
 config) is surfaced as a clean HTTP 400 so the UI can show a friendly message.
 """
+
 from __future__ import annotations
 
 import io
@@ -11,18 +12,27 @@ from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
 from backend import __version__
 from backend import service
 from backend.presets import (
-    ECONOMICS_METRICS, GUIDE, HEADLINE_METRICS, METRIC_META,
-    PRESET_INDEX, PRESETS, VENUES,
+    ECONOMICS_METRICS,
+    GUIDE,
+    HEADLINE_METRICS,
+    METRIC_META,
+    PRESET_INDEX,
+    PRESETS,
+    VENUES,
 )
 from backend.schemas import (
-    BacktestRequest, GridPreviewBody, GridSearchBody, MonteCarloBody,
-    RobustnessBody, RunBacktestBody, WalkForwardBody,
+    GridPreviewBody,
+    GridSearchBody,
+    MonteCarloBody,
+    RobustnessBody,
+    RunBacktestBody,
+    WalkForwardBody,
 )
 
 FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
@@ -48,12 +58,15 @@ def _guard(fn, *args, **kwargs):
     except (ValueError, KeyError) as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except Exception as exc:  # noqa: BLE001
-        raise HTTPException(status_code=500, detail=f"{type(exc).__name__}: {exc}") from exc
+        raise HTTPException(
+            status_code=500, detail=f"{type(exc).__name__}: {exc}"
+        ) from exc
 
 
 # ---------------------------------------------------------------------------
 # Metadata
 # ---------------------------------------------------------------------------
+
 
 @app.get("/api/health")
 def health() -> dict:
@@ -73,7 +86,12 @@ def meta() -> dict:
             "market_type": ["spot"],
             "spacing": ["arithmetic", "geometric", "atr"],
             "direction": ["neutral", "long"],
-            "sizing_mode": ["fixed_quote", "fixed_base", "percent_equity", "martingale"],
+            "sizing_mode": [
+                "fixed_quote",
+                "fixed_base",
+                "percent_equity",
+                "martingale",
+            ],
             "fill_mode": ["conservative", "optimistic"],
             "regime": ["range", "trend", "random"],
             "filter_kind": ["none", "trend", "regime", "rsi"],
@@ -84,7 +102,12 @@ def meta() -> dict:
         "venues": VENUES,
         "economics_metrics": ECONOMICS_METRICS,
         "objectives": [
-            "deflated_sharpe", "sharpe", "total_return", "calmar", "profit_factor", "sortino",
+            "deflated_sharpe",
+            "sharpe",
+            "total_return",
+            "calmar",
+            "profit_factor",
+            "sortino",
         ],
     }
 
@@ -93,12 +116,16 @@ def meta() -> dict:
 # Backtest
 # ---------------------------------------------------------------------------
 
+
 @app.post("/api/backtest")
 def backtest(body: RunBacktestBody) -> dict:
     spec = body.spec.to_spec()
-    return _guard(service.run_backtest, spec,
-                  with_report=body.options.with_report,
-                  include_trades=body.options.include_trades)
+    return _guard(
+        service.run_backtest,
+        spec,
+        with_report=body.options.with_report,
+        include_trades=body.options.include_trades,
+    )
 
 
 @app.post("/api/grid-preview")
@@ -115,40 +142,64 @@ def report(body: RunBacktestBody) -> StreamingResponse:
     buf = io.BytesIO(html.encode("utf-8"))
     fname = f"gridlab-report-{body.spec.symbol}.html"
     return StreamingResponse(
-        buf, media_type="text/html",
-        headers={"Content-Disposition": f'attachment; filename="{fname}"'})
+        buf,
+        media_type="text/html",
+        headers={"Content-Disposition": f'attachment; filename="{fname}"'},
+    )
 
 
 # ---------------------------------------------------------------------------
 # Research
 # ---------------------------------------------------------------------------
 
+
 @app.post("/api/research/grid-search")
 def research_grid_search(body: GridSearchBody) -> dict:
     base = body.base.to_spec()
-    return _guard(service.run_grid_search, base, body.space,
-                  objective=body.objective, maximize=body.maximize, top_k=body.top_k)
+    return _guard(
+        service.run_grid_search,
+        base,
+        body.space,
+        objective=body.objective,
+        maximize=body.maximize,
+        top_k=body.top_k,
+    )
 
 
 @app.post("/api/research/walk-forward")
 def research_walk_forward(body: WalkForwardBody) -> dict:
     base = body.base.to_spec()
-    return _guard(service.run_walk_forward, base, body.space,
-                  n_splits=body.n_splits, objective=body.objective)
+    return _guard(
+        service.run_walk_forward,
+        base,
+        body.space,
+        n_splits=body.n_splits,
+        objective=body.objective,
+    )
 
 
 @app.post("/api/research/monte-carlo")
 def research_monte_carlo(body: MonteCarloBody) -> dict:
     base = body.base.to_spec()
-    return _guard(service.run_monte_carlo, base,
-                  method=body.method, n_sims=body.n_sims, seed=body.seed)
+    return _guard(
+        service.run_monte_carlo,
+        base,
+        method=body.method,
+        n_sims=body.n_sims,
+        seed=body.seed,
+    )
 
 
 @app.post("/api/research/robustness")
 def research_robustness(body: RobustnessBody) -> dict:
     base = body.base.to_spec()
-    return _guard(service.run_robustness, base, body.space,
-                  n_splits=body.n_splits, mc_sims=body.mc_sims)
+    return _guard(
+        service.run_robustness,
+        base,
+        body.space,
+        n_splits=body.n_splits,
+        mc_sims=body.mc_sims,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -161,6 +212,7 @@ if FRONTEND_DIR.exists():
 
 def main() -> None:
     import uvicorn
+
     uvicorn.run("backend.app:app", host="127.0.0.1", port=8000, reload=False)
 
 
