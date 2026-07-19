@@ -1,0 +1,246 @@
+Yes—the implementation should be UI-first and delivered as complete vertical slices. The user should never need YAML files, CLI commands, or manual follow-up backtests.
+Target user journey
+The final frontend flow should be:
+Research Setup
+→ Search Space
+→ Validation & Budget
+→ Review Estimate
+→ Live Execution
+→ Candidate Results
+→ Candidate Details
+→ Export / Open Exact Backtest
+Actions in implementation order
+Phase 1 — Define the UI contract
+Create one shared experiment model used by the frontend, API and workers.
+The UI must distinguish:
+	• Fixed — use one value.
+	• Options — test selected values.
+	• Range — generate values between minimum and maximum.
+	• Disabled — do not use the feature.
+Example control:
+Stop Loss:  [Off | Fixed | Search]
+When Search:
+Minimum: 5%
+Maximum: 20%
+Step:    5%
+This pattern should apply to levels, spacing, ATR, recentering, filters, SL/TP, bootstrap and other available features.
+Phase 2 — Build the research wizard
+Screen 1: Market and data
+User selects:
+	• Symbol
+	• One or more timeframes
+	• Start and end dates
+	• Starting capital
+	• Fees and slippage
+Show:
+	• Available candle count
+	• Data coverage
+	• Missing-data warnings
+Screen 2: Strategy universe
+Use strategy cards:
+☑ Simple Grid
+☑ Dynamic Grid
+☐ Future strategy types
+Each card opens its searchable options.
+Provide presets:
+	• Conservative
+	• Balanced
+	• Broad exploration
+	• Custom
+Screen 3: Parameter search space
+Organize parameters into collapsible sections:
+	• Grid structure
+	• Range
+	• Spacing
+	• Recentering
+	• Bootstrap
+	• Stop loss and take profit
+	• RSI filter
+	• Trend filter
+	• ADX filter
+	• Execution assumptions
+Show the number of generated combinations continuously:
+Potential combinations: 84,672
+Valid combinations:     61,340
+Hide irrelevant fields conditionally. ATR parameters, for example, should only appear when ATR behavior is enabled.
+Screen 4: Goal and constraints
+User chooses:
+Primary goal:
+○ Highest return
+● Best Sharpe ratio
+○ Lowest drawdown
+○ Best robustness
+Then specifies constraints:
+	• Maximum drawdown
+	• Minimum number of trades
+	• Minimum forward return
+	• Maximum capital utilization
+	• Minimum profitable validation folds
+The UI must explain whether a metric is minimized or maximized.
+Screen 5: Validation
+Offer progressively advanced modes:
+Quick
+Single training period only
+Recommended
+Train/forward split
+Advanced
+Rolling walk-forward validation
+Default to the recommended train/forward mode.
+Screen 6: Compute budget
+Instead of exposing infrastructure terminology, present:
+Quick scan       ~5 minutes
+Balanced         ~30 minutes
+Deep research    ~2 hours
+Custom
+Display estimated:
+	• Screening trials
+	• Exact backtests
+	• Robustness candidates
+	• Duration
+	• Resource consumption
+Screen 7: Review and launch
+Show a plain-language summary:
+This experiment will:
+• Explore Simple and Dynamic Grid strategies
+• Test 61,340 potential configurations
+• Validate the best 500 with the exact engine
+• Walk-forward test the best 30
+• Return 5 recommended candidates
+The user then clicks Start Research.
+Phase 3 — Make research asynchronous
+The current research endpoint runs synchronously. Replace it with:
+POST   /research/jobs
+GET    /research/jobs
+GET    /research/jobs/{id}
+GET    /research/jobs/{id}/results
+POST   /research/jobs/{id}/cancel
+POST   /research/jobs/{id}/resume
+Connect the existing ResearchJob database model to a Celery worker.
+The frontend needs a Research Jobs page showing:
+	• Queued, running, completed and failed jobs
+	• Current phase
+	• Percentage complete
+	• Estimated remaining time
+	• Cancel/resume actions
+	• Partial best result
+Progress can initially use polling every few seconds. WebSockets can follow after the workflow is stable.
+Phase 4 — Implement the unified research pipeline
+Behind the UI, build:
+	1. Search-space expansion and validation.
+	2. Fast screening.
+	3. Promotion of promising candidates.
+	4. Exact canonical backtests.
+	5. Train/forward validation.
+	6. Walk-forward and stress testing.
+	7. Final robust ranking.
+	8. Artifact and deployable-config generation.
+The UI should call one pipeline. It should not separately invoke the fast and canonical engines.
+Phase 5 — Build the results workspace
+Overview
+Display:
+	• Number screened and validated
+	• Best candidate
+	• Duration
+	• Rejected candidates
+	• Train versus forward performance
+	• Experiment warnings
+Candidate leaderboard
+Columns should include:
+	• Rank
+	• Strategy
+	• Timeframe
+	• Final score
+	• Train return
+	• Forward return
+	• Sharpe
+	• Maximum drawdown
+	• Trades
+	• Robustness
+	• Status
+Provide filters and sorting.
+Visual analysis
+Add:
+	• Return versus drawdown scatter plot
+	• Train versus forward chart
+	• Parameter heatmaps
+	• Walk-forward fold chart
+	• Equity curves
+	• Drawdown curves
+	• Parameter-stability chart
+Candidate detail drawer/page
+For each candidate show:
+	• Exact configuration
+	• Why it was selected
+	• Weaknesses and warnings
+	• Exact backtest metrics
+	• Validation-fold results
+	• Stress-test results
+	• Trades and equity curve
+	• Neighboring parameter performance
+Actions:
+Open Exact Backtest
+Compare Candidates
+Duplicate as New Research
+Download Configuration
+Download Full Results
+Mark as Preferred
+Phase 6 — Integrate with the existing backtest UI
+The research and individual-backtest forms should use the same configuration components.
+For example:
+Research candidate
+      ↓
+Open Exact Backtest
+      ↓
+Existing form is prefilled
+      ↓
+User may inspect or modify it
+This prevents configuration drift between research and individual execution.
+Reusable frontend components should include:
+	• Market selector
+	• Engine configuration
+	• Grid configuration
+	• Dynamic-grid options
+	• Indicator filters
+	• SL/TP controls
+	• Bootstrap controls
+	• Metric cards
+	• Equity and drawdown charts
+Recommended delivery sequence
+Weeks 1–2
+	• Shared experiment API model
+	• Objective-direction fixes
+	• Research/backtest feature parity
+	• Reusable frontend parameter controls
+	• Market, strategy and search-space wizard screens
+Weeks 3–4
+	• Persistent research jobs
+	• Celery worker integration
+	• Progress polling
+	• Job history
+	• Cancellation and error presentation
+	• Train/forward support
+Weeks 5–6
+	• Fast-screening/exact-validation pipeline
+	• Candidate promotion
+	• Deduplication and resume
+	• Results leaderboard
+	• Candidate details
+	• Exact-backtest handoff
+Weeks 7–8
+	• Walk-forward validation
+	• Robustness scoring
+	• Sensitivity heatmaps
+	• Candidate comparison
+	• Reports and configuration export
+	• UX polish and end-to-end tests
+First concrete development batch
+I recommend beginning with this vertical slice:
+	1. Create the shared ResearchExperiment schema.
+	2. Add train/forward settings and full backtest feature parity.
+	3. Correct metric ranking direction.
+	4. Implement POST /research/jobs and job-status retrieval.
+	5. Convert the existing research frontend into a multi-step wizard.
+	6. Run a small experiment asynchronously.
+	7. Display progress and a persisted leaderboard.
+	8. Open a selected result in the existing exact-backtest screen.
+Once that slice works, every subsequent feature extends an already usable UI workflow rather than producing disconnected backend functionality.

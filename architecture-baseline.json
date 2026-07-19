@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "scope": [
+    "gridlab/src",
+    "gridlab-studio"
+  ],
+  "checks": {
+    "dependency_cycles": [],
+    "forbidden_imports": [],
+    "process_global_mutable_trading_state": []
+  }
+}

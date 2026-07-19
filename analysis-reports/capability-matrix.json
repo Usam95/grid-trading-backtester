@@ -1,0 +1,207 @@
+{
+  "meta": {
+    "title": "grid-backtest-core capability matrix vs grid-trading research needs",
+    "target": "C:/Users/W4TV5V8/PROJECTS/backtester/grid-backtest-core",
+    "package": "grid_backtest",
+    "version": "0.1.0",
+    "generated_for": "Deep technical, strategic and market analysis",
+    "legend": {
+      "present": ["yes", "partial", "no"],
+      "importance": ["critical", "high", "medium", "low"]
+    }
+  },
+  "capabilities": [
+    {
+      "capability": "Limit orders",
+      "present": "yes",
+      "evidence": "models.OrderType.LIMIT; engine._simulate_fills_for_candle (engine.py:542-550) fills BUY at price if low<=price, SELL if high>=price",
+      "importance": "critical",
+      "missing": "No queue position, no liquidity check, fills are all-or-nothing",
+      "recommendation": "Add a fill model abstraction with optional volume-participation cap and conservative intrabar fill option"
+    },
+    {
+      "capability": "Maker / taker fee distinction",
+      "present": "no",
+      "evidence": "config.trading_fee_pct is a single rate applied to every fill (engine.py:179, 456)",
+      "importance": "high",
+      "missing": "Limit (maker) vs market (taker) fees; fee tiers; rebates",
+      "recommendation": "Split into maker_fee_pct / taker_fee_pct; charge maker on LIMIT fills, taker on MARKET/stop fills"
+    },
+    {
+      "capability": "Partial fills",
+      "present": "no",
+      "evidence": "_simulate_fills_for_candle records one full-qty fill per order; no residual handling",
+      "importance": "high",
+      "missing": "Volume-aware partials, residual order persistence",
+      "recommendation": "Allow fill qty = min(order.qty, participation_rate*candle.volume); keep residual open"
+    },
+    {
+      "capability": "OHLCV vs tick-level simulation",
+      "present": "partial",
+      "evidence": "Engine is candle-driven only (engine._to_candles). No tick path",
+      "importance": "high",
+      "missing": "Tick/L2 replay; sub-bar sequencing",
+      "recommendation": "Document OHLCV limitation; optionally support a finer auxiliary series for fill sequencing"
+    },
+    {
+      "capability": "Intrabar order execution assumptions",
+      "present": "partial",
+      "evidence": "Orders placed in on_candle for bar N are matched against the SAME bar N OHLC (documented engine.py:516-520). No intrabar ordering between simultaneous buy/sell touches",
+      "importance": "critical",
+      "missing": "Pessimistic / conservative fill mode; lookahead-within-bar guard",
+      "recommendation": "Add config flag: fill orders only from bar N+1, and resolve buy-before-sell ambiguity by worst-case ordering"
+    },
+    {
+      "capability": "Slippage modeling",
+      "present": "partial",
+      "evidence": "config.slippage_pct applied to MARKET fills only (engine.py:539-541); LIMIT fills have zero slippage; no spread",
+      "importance": "high",
+      "missing": "Spread, slippage on stops, volatility/volume-scaled slippage",
+      "recommendation": "Model bid/ask spread and apply slippage to stop/forced-exit fills"
+    },
+    {
+      "capability": "Grid order ladder management",
+      "present": "yes",
+      "evidence": "SimpleGridStrategy builds levels, seeds buys below / sells above, replaces filled rung with neighbor (grid_simple.py:213-257)",
+      "importance": "critical",
+      "missing": "Replenish original rung after a round-trip; configurable ladder refill policy",
+      "recommendation": "Add policy to re-arm the original level after the paired close completes"
+    },
+    {
+      "capability": "Inventory tracking",
+      "present": "yes",
+      "evidence": "_base_inventory_cache, FIFO position queue, AccountState (engine.py:90-92, 575-668)",
+      "importance": "critical",
+      "missing": "Inventory caps as a first-class risk control",
+      "recommendation": "Add max_base_inventory / max_notional_exposure guardrails enforced in constraints"
+    },
+    {
+      "capability": "Capital allocation",
+      "present": "partial",
+      "evidence": "Reservations lock funds for open orders; constraints skip/resize on insufficient funds (execution/)",
+      "importance": "high",
+      "missing": "Per-grid budget, fixed-fraction sizing, compounding control",
+      "recommendation": "Add allocation policy (fixed qty vs fixed quote vs % equity per rung)"
+    },
+    {
+      "capability": "Leverage / margin support",
+      "present": "no",
+      "evidence": "Spot-only; AccountState has no margin fields used; bootstrap only buys base",
+      "importance": "high",
+      "missing": "Initial/maintenance margin, borrow, funding rate",
+      "recommendation": "Introduce a MarginModel; required to represent futures grids accurately"
+    },
+    {
+      "capability": "Liquidation modeling",
+      "present": "no",
+      "evidence": "No margin engine, no forced-liquidation path",
+      "importance": "high",
+      "missing": "Maintenance-margin liquidation, bankruptcy price",
+      "recommendation": "Add liquidation check per bar once margin model exists; critical for leveraged grid honesty"
+    },
+    {
+      "capability": "Short / neutral grid",
+      "present": "partial",
+      "evidence": "PositionSide.SHORT enum exists but engine only opens LONG positions (engine.py:576-590); neutral bootstrap only buys base",
+      "importance": "high",
+      "missing": "Short legs, true direction-neutral grid",
+      "recommendation": "Implement short position lifecycle and a neutral grid that can short above mid"
+    },
+    {
+      "capability": "Stop-loss / take-profit",
+      "present": "partial",
+      "evidence": "SLTPPolicy percent/ATR (sltp.py); GRID_EXIT flattens, but exit fills at candle.close not at the stop/target price (engine._force_flatten_and_cancel:450)",
+      "importance": "high",
+      "missing": "Fill at the actual SL/TP trigger price; gap handling",
+      "recommendation": "Execute forced exits at the trigger price (with slippage), not the bar close"
+    },
+    {
+      "capability": "Dynamic grid recalculation",
+      "present": "yes",
+      "evidence": "DynamicGridStrategy + RangePolicy/SpacingPolicy/RecenterPolicy (ATR/percent, band-break/time) (grid_dynamic.py)",
+      "importance": "high",
+      "missing": "Inventory-aware recentering (recenter cancels orders but leaves inventory unmanaged)",
+      "recommendation": "On recenter, reconcile open inventory against the new ladder; optionally rebalance"
+    },
+    {
+      "capability": "Multi-symbol backtests",
+      "present": "no",
+      "evidence": "BacktestEngine is single symbol/strategy (engine.py:48-72)",
+      "importance": "medium",
+      "missing": "Shared portfolio across symbols, correlation, cross-margin",
+      "recommendation": "Add a portfolio layer running N engines against one cash account"
+    },
+    {
+      "capability": "Parameter sweeps",
+      "present": "yes",
+      "evidence": "GridResearchRunner (ProcessPoolExecutor) + grid_search_fast (Numba) (research/)",
+      "importance": "high",
+      "missing": "Sweep result persistence/version, overfitting controls",
+      "recommendation": "Couple sweeps with train/test split and deflated-Sharpe selection"
+    },
+    {
+      "capability": "Walk-forward testing",
+      "present": "no",
+      "evidence": "No rolling train/test window orchestration in research/",
+      "importance": "critical",
+      "missing": "Anchored/rolling walk-forward, out-of-sample scoring",
+      "recommendation": "Add WalkForwardRunner wrapping GridResearchRunner over time slices"
+    },
+    {
+      "capability": "Monte Carlo / robustness testing",
+      "present": "no",
+      "evidence": "No resampling/bootstrap or parameter-perturbation tooling",
+      "importance": "high",
+      "missing": "Trade/return bootstrap, path simulation, parameter jitter",
+      "recommendation": "Add Monte Carlo of trade sequence + start-date sensitivity reporting"
+    },
+    {
+      "capability": "Reporting / output",
+      "present": "partial",
+      "evidence": "metrics registry; repository writes summary.json/trades.csv/equity_curve.csv; print_result_summary (results/)",
+      "importance": "high",
+      "missing": "Visual HTML/PDF report, drawdown chart, per-rung analytics",
+      "recommendation": "Add a report renderer (HTML) consuming BacktestResult; this is also the monetizable artifact"
+    },
+    {
+      "capability": "Benchmark comparison",
+      "present": "partial",
+      "evidence": "Buy & hold benchmark computed (benchmarks.py; engine.py:226-237)",
+      "importance": "medium",
+      "missing": "Risk-adjusted alpha, multiple benchmarks, DCA benchmark",
+      "recommendation": "Add DCA and 50/50 rebalanced benchmarks plus alpha/beta"
+    },
+    {
+      "capability": "Drawdown analytics",
+      "present": "partial",
+      "evidence": "max_drawdown(_pct) on per-candle CLOSE equity (metrics.py:52-78); intrabar lows ignored",
+      "importance": "high",
+      "missing": "Intrabar drawdown, drawdown duration, underwater curve, recovery time",
+      "recommendation": "Compute DD on intrabar lows; add time-in-drawdown and recovery metrics"
+    },
+    {
+      "capability": "Risk-adjusted metrics",
+      "present": "partial",
+      "evidence": "Sharpe/Sortino/Calmar present but annualised from median candle interval (metrics.py:132-202); per-candle returns inflate factor for 1m data",
+      "importance": "high",
+      "missing": "Deflated Sharpe, fee/turnover-aware metrics, exposure-adjusted return",
+      "recommendation": "Add deflated Sharpe; annualise on a sane periodicity; report turnover and fee drag"
+    },
+    {
+      "capability": "Tax / accounting considerations",
+      "present": "no",
+      "evidence": "Realized PnL net of fees only; no tax-lot or wash-sale logic",
+      "importance": "low",
+      "missing": "Tax lots, jurisdiction rules",
+      "recommendation": "Out of scope for research; only needed for a retail accounting product"
+    },
+    {
+      "capability": "Fast vs full engine parity",
+      "present": "no",
+      "evidence": "FastBacktestEngine/_numba_engine ignore reservations, constraints, bootstrap, SL/TP, filters, ATR range; dynamic kernel uses only band_pct+interval (engine_fast.py:190-227). No parity tests reference FastBacktestEngine",
+      "importance": "critical",
+      "missing": "Numerical parity tests; documented feature gap",
+      "recommendation": "Add parity test suite asserting fast == full within tolerance for the supported subset; restrict fast engine to the subset it truly models"
+    }
+  ]
+}

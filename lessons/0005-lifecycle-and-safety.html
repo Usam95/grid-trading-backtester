@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Learn grid lifecycle states, reconciliation, stops, configuration identity, and allocation isolation."><title>Lifecycle and safety</title><link rel="stylesheet" href="../assets/course.css"></head>
+<body>
+  <header class="hero shell"><p class="eyebrow">Lesson 0005 · Operations · 18 minutes</p><h1>Pause, range exhaustion, stop, and emergency are different contracts.</h1><p class="lede">You will decide which orders survive, when reconciliation is mandatory, which states resume, and which events permanently end the run.</p><p class="breadcrumb"><a href="grid-semantics-module.html">Module home</a> → Lifecycle and safety</p></header>
+  <main class="shell">
+    <section class="chapter" id="lifecycle">
+      <div class="chapter-head"><div><p class="eyebrow">Run identity</p><h2>Open-ended does not mean immortal.</h2></div><p>A successfully activated run has no preset duration or cycle count. It ends only through an approved terminal condition.</p></div>
+      <table class="decision-table"><thead><tr><th>Event</th><th>Terminal?</th><th>Same run may continue?</th></tr></thead><tbody>
+        <tr><td>Price leaves range</td><td>No</td><td>Yes, normal cycling resumes on re-entry.</td></tr>
+        <tr><td>Exposure-reducing pause</td><td>No</td><td>Yes, after explicit reconciled resume.</td></tr>
+        <tr><td>Zero current inventory</td><td>No</td><td>Yes, the continuing strategy may buy again.</td></tr>
+        <tr><td>Operator stop</td><td>Yes</td><td>No; future activity needs a new run.</td></tr>
+        <tr><td>Global stop-loss</td><td>Yes</td><td>No; liquidation permanently closes it.</td></tr>
+        <tr><td>Emergency termination</td><td>Yes</td><td>No; incident handling follows.</td></tr>
+      </tbody></table>
+    </section>
+
+    <section class="chapter" id="range">
+      <div class="chapter-head"><div><p class="eyebrow">Boundary state</p><h2>Range-exhausted is still an active run.</h2></div><p>The price is outside, but no new exposure is created beyond the configured outer rung.</p></div>
+      <div class="grid-2"><article class="card term buy"><h3>Price falls below the lower bound</h3><p>Planned buys may already have filled, so inventory may be near its maximum. No lower buy is invented. Valid in-range sells remain as recovery-side orders and normal cycling resumes if price returns.</p></article><article class="card term sell"><h3>Price rises above the upper bound</h3><p>Planned sells may have reduced inventory. No higher sell is invented. Valid in-range buys remain recovery-side orders and normal cycling resumes if price returns.</p></article></div>
+      <p class="notice">Leaving the range does not itself trigger liquidation, pause, range shifting, or global stop-loss. The separately configured stop-loss may still trigger if its own threshold is crossed.</p>
+    </section>
+
+    <section class="chapter" id="pause">
+      <div class="chapter-head"><div><p class="eyebrow">Exposure reduction</p><h2>Pause stops growth, not all execution.</h2></div><p>The safe default preserves valid inventory-reducing opportunities.</p></div>
+      <table class="decision-table"><thead><tr><th>During pause</th><th>Buy order</th><th>Valid reducing sell</th><th>Bootstrap/config edit</th></tr></thead><tbody><tr><td>Behavior</td><td>Cancel and block</td><td>May remain</td><td>Block</td></tr></tbody></table>
+      <article class="card worked stack-gap"><h3>reconciled resume after ten minutes</h3><p>The operator requests resume. Before rebuilding anything, the engine compares venue orders, all fills including late fills, balances, grid inventory, current price state, refreshed venue filters, and risk limits. It rebuilds only missing valid orders. If price is now below the range, the same run resumes into <strong>range-exhausted</strong>, not a fresh bootstrap.</p></article>
+    </section>
+
+    <section class="chapter" id="stop">
+      <div class="chapter-head"><div><p class="eyebrow">Permanent endings</p><h2>Operator stop is deliberate; emergency stop is defensive.</h2></div><p>Both cancel all managed orders and reconcile racing fills, but inventory disposition differs.</p></div>
+      <div class="grid-2"><article class="card term warn"><h3>Operator stop</h3><p>Cancel all buys and sells, reconcile responses and late fills, calculate final grid inventory, then choose retain or liquidate. Retain is the default; liquidation needs separate confirmation with estimated costs. The run is closed.</p></article><article class="card term sell"><h3>Emergency stop</h3><p>Block new commands, cancel all managed orders, reconcile authoritative venue state, and retain inventory. Automatic liquidation is unsafe when data, connectivity, or balances may be unreliable.</p></article></div>
+      <article class="card worked stack-gap"><h3>a fill races with cancellation</h3><p>A 0.010 BTC sell is being canceled, but 0.004 BTC fills first. Final truth is 0.004 sold and 0.006 canceled. Reconciliation records proceeds, fee asset, and inventory reduction before any retained-holding or liquidation decision. “Cancel requested” is not evidence that nothing executed.</p></article>
+    </section>
+
+    <section class="chapter" id="exits">
+      <div class="chapter-head"><div><p class="eyebrow">Two kinds of selling</p><h2>A paired sell cycles; a global stop-loss exits.</h2></div><p>They may both sell base, but their intent and lifecycle effect are opposite.</p></div>
+      <div class="grid-2"><article class="card term buy"><h3>Paired rung sell</h3><p>Sells net base one rung above its filled buy. It realizes one normal cycle, creates the replacement buy, and keeps the run open.</p></article><article class="card term sell"><h3>Global stop-loss</h3><p>At its configured adverse threshold: block new orders, cancel all, reconcile late fills, aggressively liquidate remaining grid inventory, record actual costs, and permanently close the run.</p></article></div>
+      <p class="notice">The lower grid bound is not automatically a stop-loss. Exact threshold form and approval constraints belong to the risk specification.</p>
+    </section>
+
+    <section class="chapter" id="identity">
+      <div class="chapter-head"><div><p class="eyebrow">Evidence identity</p><h2>The run keeps the configuration it was validated with.</h2></div><p>Bounds, count, spacing, sizing, bootstrap, and stop-loss cannot mutate mid-run.</p></div>
+      <table class="decision-table"><thead><tr><th>Requested change</th><th>Allowed in current version?</th><th>Required action</th></tr></thead><tbody>
+        <tr><td>Widen bounds</td><td>No</td><td>Create version, evidence, and new run.</td></tr>
+        <tr><td>Change geometric to arithmetic</td><td>No</td><td>Create version, evidence, and new run.</td></tr>
+        <tr><td>Increase rung quote value</td><td>No</td><td>Create version, evidence, and new run.</td></tr>
+        <tr><td>Tighten capital or loss limit</td><td>Yes</td><td>Record approved risk tightening.</td></tr>
+        <tr><td>Loosen a risk limit</td><td>No</td><td>Require new approval/version evidence.</td></tr>
+      </tbody></table>
+    </section>
+
+    <section class="chapter" id="isolation">
+      <div class="chapter-head"><div><p class="eyebrow">Existing account</p><h2>Shared account does not mean shared allocation.</h2></div><p>The MVP may use your Binance account, but this grid needs exclusive ownership of its active symbol and reserved assets.</p></div>
+      <article class="card worked"><h3>manual BTC sale during a running grid</h3><p>The account contained 2 BTC before activation; 0.8 BTC was allocated to the grid. A manual sale removes 0.2 BTC. Total account balance cannot reveal whether grid inventory or unrelated holdings were consumed. This is <strong>foreign activity</strong>: the engine pauses and reconciles rather than guessing ownership.</p><p>Concurrent algorithms later need Binance subaccount isolation or a portfolio allocator that owns shared reservations and cross-strategy risk.</p></article>
+    </section>
+
+    <section class="chapter"><div class="chapter-head"><div><p class="eyebrow">Retrieval</p><h2>Choose the correct state contract.</h2></div><p>Predict before selecting.</p></div><div class="card quiz">
+      <div class="question" data-hint="Range exhaustion preserves inward recovery behavior."><h3>1. Price falls below the range. What remains valid?</h3><div class="answers"><button class="btn answer" data-correct="true" data-explain="Correct. Existing inward sells support recovery.">In-range recovery-side sell orders</button><button class="btn answer" data-correct="false">New below-range buy orders</button></div><p class="feedback" aria-live="polite"></p></div>
+      <div class="question" data-hint="Pause blocks exposure growth while allowing reduction."><h3>2. Which order may survive pause?</h3><div class="answers"><button class="btn answer" data-correct="false">Any currently resting buy</button><button class="btn answer" data-correct="true" data-explain="Correct. A valid sell reduces inventory.">Valid inventory-reducing sell order</button></div><p class="feedback" aria-live="polite"></p></div>
+      <div class="question" data-hint="Emergency behavior avoids aggressive exposure changes amid uncertainty."><h3>3. What is emergency inventory disposition?</h3><div class="answers"><button class="btn answer" data-correct="true" data-explain="Correct. Reconcile and await deliberate follow-up.">Retain after authoritative reconciliation</button><button class="btn answer" data-correct="false">Liquidate before authoritative reconciliation</button></div><p class="feedback" aria-live="polite"></p></div>
+      <div class="question" data-hint="Bounds are part of immutable strategy identity."><h3>4. You want wider bounds. What is required?</h3><div class="answers"><button class="btn answer" data-correct="false">Modify the current run</button><button class="btn answer" data-correct="true" data-explain="Correct. Changed geometry needs new evidence.">Validate a new version</button></div><p class="feedback" aria-live="polite"></p></div>
+    </div></section>
+    <section class="chapter"><h2>Primary sources</h2><p><a href="../analysis/domain-grid-semantics.md">Canonical decision record</a> · <a href="https://developers.binance.com/en/docs/products/spot/rest-api">Binance Spot API operational guidance</a>. Ask your agent whenever cancel, pause, or stop behavior remains ambiguous.</p></section>
+  </main>
+  <footer class="footer shell"><a href="0004-fills-fees-and-cycle-economics.html">← Previous</a> · <a href="grid-semantics-module.html">Return to module coverage →</a></footer>
+  <script src="../assets/grid-lesson.js"></script>
+</body></html>

@@ -1,0 +1,5 @@
+#!/bin/sh
+
+set -eu
+
+exec python tools/check_git_identity.py

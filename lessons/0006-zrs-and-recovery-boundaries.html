@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Understand what Azure ZRS protects and what still requires backups, verification, and deletion safeguards."><title>ZRS and recovery boundaries</title><link rel="stylesheet" href="../assets/course.css"></head>
+<body>
+  <header class="hero shell"><p class="eyebrow">Lesson 0006 · Infrastructure · 4 minutes</p><h1>ZRS keeps several zone copies of one stored object.</h1><p class="lede">It helps when an Azure availability zone fails. It does not run a second trading system, validate your data, or undo every deletion.</p></header>
+  <main class="shell">
+    <section class="chapter">
+      <div class="chapter-head"><div><p class="eyebrow">The acronym</p><h2>Zone-redundant storage</h2></div><p>Azure synchronously stores a Blob object across three or more availability zones inside one Azure region.</p></div>
+      <div class="grid-3">
+        <article class="card term buy"><h3>Zone A</h3><p>A copy of the verified recovery object exists here.</p></article>
+        <article class="card term buy"><h3>Zone B</h3><p>Azure maintains another synchronized copy here.</p></article>
+        <article class="card term buy"><h3>Zone C</h3><p>A zone outage can leave other copies available.</p></article>
+      </div>
+      <p class="notice">The copies are one Azure Blob object from your perspective. The application does not select or reconcile three files.</p>
+    </section>
+    <section class="chapter">
+      <div class="chapter-head"><div><p class="eyebrow">Concrete failure</p><h2>Your VM's zone becomes unavailable.</h2></div><p>The VM and its LRS disk may be unavailable, while the previously verified ZRS recovery point remains available from another zone.</p></div>
+      <div class="timeline">
+        <div class="timeline-step"><span class="step-no">1</span><div><strong>Before failure</strong><br>The runtime publishes a verified SQLite recovery point and manifest to ZRS Blob.</div></div>
+        <div class="timeline-step"><span class="step-no">2</span><div><strong>Zone fails</strong><br>The single trading VM stops. ZRS does not keep it running.</div></div>
+        <div class="timeline-step"><span class="step-no">3</span><div><strong>Frozen rebuild</strong><br>Infrastructure is recreated and restores a verified ZRS object, then replays, checks invariants, and reconciles Binance.</div></div>
+        <div class="timeline-step"><span class="step-no">4</span><div><strong>Operator review</strong><br>Recovery ends frozen. It never resumes trading automatically.</div></div>
+      </div>
+    </section>
+    <section class="chapter">
+      <div class="chapter-head"><div><p class="eyebrow">Boundary</p><h2>Replication repeats both good and bad changes.</h2></div><p>If an authorized operation deletes an object, Azure can replicate that deletion too. Separate controls are still required.</p></div>
+      <table class="decision-table"><thead><tr><th>Scenario</th><th>Does ZRS solve it?</th><th>Required protection</th></tr></thead><tbody>
+        <tr><td>One availability zone fails</td><td>Yes, for published Blob availability</td><td>ZRS plus tested restore</td></tr>
+        <tr><td>VM process crashes</td><td>No</td><td>Supervisor, replay, reconciliation</td></tr>
+        <tr><td>Bad data is uploaded</td><td>No</td><td>Checksums, reader verification, manifest</td></tr>
+        <tr><td>Object is accidentally deleted</td><td>No</td><td>Versioning and soft delete</td></tr>
+        <tr><td>Whole Azure region is lost</td><td>No</td><td>Later cross-region design</td></tr>
+      </tbody></table>
+    </section>
+    <section class="chapter"><div class="chapter-head"><div><p class="eyebrow">Retrieval</p><h2>Test the boundary.</h2></div><p>Choose before revealing the feedback.</p></div><div class="card quiz">
+      <div class="question" data-hint="ZRS is storage redundancy, not compute redundancy."><h3>The VM's zone fails. What does ZRS keep running?</h3><div class="answers"><button class="btn answer" data-correct="false">The trading process</button><button class="btn answer" data-correct="true" data-explain="Correct. ZRS protects published storage objects, not the VM process.">The stored Blob object</button></div><p class="feedback" aria-live="polite"></p></div>
+      <div class="question" data-hint="Replication can copy a valid deletion operation."><h3>An authorized lifecycle rule deletes an object. Is ZRS a backup of it?</h3><div class="answers"><button class="btn answer" data-correct="true" data-explain="Correct. Soft delete/versioning is a separate protection.">No, deletion can replicate</button><button class="btn answer" data-correct="false">Yes, another zone retains it</button></div><p class="feedback" aria-live="polite"></p></div>
+    </div></section>
+    <section class="chapter"><h2>Primary source</h2><p><a href="https://learn.microsoft.com/en-us/azure/storage/common/storage-redundancy">Microsoft: Azure Storage redundancy</a>. For the project decision, see <a href="../analysis/azure-minimal-deployment-spec.md">the minimal Azure deployment specification</a>. Ask your agent whenever the difference between redundancy, backup, and high availability is unclear.</p></section>
+  </main>
+  <footer class="footer shell"><a href="grid-semantics-module.html">Return to the learning module →</a></footer>
+  <script src="../assets/grid-lesson.js"></script>
+</body></html>

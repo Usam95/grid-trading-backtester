@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Interactive lesson on the canonical semantics of the personal Binance Spot grid system.">
+  <title>Canonical grid semantics: from capital to safe shutdown</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+  <header class="hero shell">
+    <p class="eyebrow">Lesson 0001 · 20–30 minutes</p>
+    <h1>Understand the grid before it touches capital.</h1>
+    <p class="lede">Your goal is to predict what the grid owns, which orders may exist, and what the system must do in normal and abnormal states. This is the overview; the <a href="grid-semantics-module.html">complete module</a> contains four focused lessons with worked examples for every concept.</p>
+  </header>
+
+  <nav class="progress-wrap" aria-label="Lesson chapters">
+    <div class="progress shell">
+      <a href="#capital">1. Capital</a><a href="#geometry">2. Geometry</a><a href="#fills">3. Fills</a><a href="#lifecycle">4. Lifecycle</a><a href="#safety">5. Safety</a><a href="#check">6. Check</a>
+      <a href="grid-semantics-module.html">Complete module</a><a href="../reference/grid-semantics-reference.html">Quick reference</a>
+    </div>
+  </nav>
+
+  <main class="shell">
+    <section class="chapter" id="capital">
+      <div class="chapter-head"><div><p class="eyebrow">Chapter 1</p><h2>Capital has an owner and a job.</h2></div><p>A grid cannot safely use “whatever is in the account.” It owns an explicit allocation and must explain every base and quote unit.</p></div>
+      <div class="grid-3">
+        <article class="card term"><span class="tag">Pair</span><h3>Base and quote</h3><p>In BTC/USDT, BTC is the <strong>base asset</strong> being traded. USDT is the <strong>quote asset</strong> used to price and pay for BTC.</p></article>
+        <article class="card term buy"><span class="tag buy">Ownership</span><h3>Grid inventory</h3><p>BTC explicitly owned by this grid. Other BTC in the Binance account is merely a base holding and cannot be silently claimed.</p></article>
+        <article class="card term warn"><span class="tag warn">Isolation</span><h3>Grid allocation</h3><p>Reserved BTC and USDT that manual trading or another algorithm must not consume while this run is open.</p></article>
+      </div>
+      <div class="grid-2 stack-gap">
+        <article class="card">
+          <h3>Neutral spot bootstrap</h3>
+          <p>“Neutral” does not mean zero price exposure. It means the grid can place buys below and sells above immediately. To back those sells, it performs a real, journaled <strong>bootstrap acquisition</strong>.</p>
+          <div class="formula">required bootstrap base = Σ(initial sell-rung quantities) + fee/rounding shortfall</div>
+          <p>The market purchase pays real fees and slippage. No synthetic balance conversion is allowed in live mode.</p>
+        </article>
+        <article class="card">
+          <h3>Fixed quote sizing</h3>
+          <p>Every rung commits approximately the same quote value. A 100 USDT rung buys more BTC at 80 than at 120.</p>
+          <div class="formula">base quantity ≈ fixed quote value ÷ rung price</div>
+          <p>When a buy fills, its sell uses the <em>actual net base received</em>. Profit stays as uncommitted quote; the MVP does not compound it automatically.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="chapter" id="geometry">
+      <div class="chapter-head"><div><p class="eyebrow">Chapter 2</p><h2>The approved ladder is a boundary, not a suggestion.</h2></div><p>Explore how bounds, rung count, spacing, and activation price determine initial orders and required backing inventory.</p></div>
+      <div class="card">
+        <div class="controls">
+          <div class="control"><label for="lower">Lower bound</label><input id="lower" type="number" value="80" min="1" step="1"></div>
+          <div class="control"><label for="upper">Upper bound</label><input id="upper" type="number" value="120" min="2" step="1"></div>
+          <div class="control"><label for="rungs">Rung count</label><input id="rungs" type="number" value="9" min="2" max="20" step="1"></div>
+          <div class="control"><label for="market">Activation price</label><input id="market" type="number" value="103" min="1" step="1"></div>
+          <div class="control"><label for="quote">Quote per rung</label><input id="quote" type="number" value="100" min="1" step="10"></div>
+          <div class="control"><label for="spacing">Spacing</label><select id="spacing"><option value="geometric">Geometric</option><option value="arithmetic">Arithmetic</option></select></div>
+        </div>
+        <div class="ladder-wrap">
+          <div id="ladder" class="ladder" role="img" aria-label="Interactive grid ladder showing buy and sell rungs around the activation price"></div>
+          <aside class="stats" aria-live="polite">
+            <div class="stat"><span>Activation</span><strong id="eligibility">Eligible</strong></div>
+            <div class="stat"><span>Initial buy rungs</span><strong id="buyCount">0</strong></div>
+            <div class="stat"><span>Initial sell rungs</span><strong id="sellCount">0</strong></div>
+            <div class="stat"><span>Approx. backing inventory</span><strong id="backing">0 base</strong></div>
+            <div class="stat"><span>Gross rung commitments</span><strong id="committed">0 quote</strong></div>
+            <p id="rangeMessage" class="notice" hidden>Rejected: activation price must be strictly inside both bounds. No bootstrap and no orders occur.</p>
+          </aside>
+        </div>
+      </div>
+      <div class="grid-3 stack-gap">
+        <article class="card term"><h3>Rung count</h3><p>Counts actual prices, including both bounds. Five rungs from 80 to 120 arithmetic means 80, 90, 100, 110, 120.</p></article>
+        <article class="card term"><h3>Geometric default</h3><p>Equal percentage steps. Arithmetic remains supported but uses equal absolute price steps.</p></article>
+        <article class="card term"><h3>Activation rung</h3><p>If market price exactly equals a rung, that rung begins inactive. Orders start strictly above and below it.</p></article>
+      </div>
+    </section>
+
+    <section class="chapter" id="fills">
+      <div class="chapter-head"><div><p class="eyebrow">Chapter 3</p><h2>Fills—not wishes—move inventory.</h2></div><p>Every venue-confirmed fill changes ownership immediately. The paired order follows the actual executed quantity.</p></div>
+      <div class="grid-2">
+        <article class="card">
+          <h3>A partial-fill cycle</h3>
+          <div class="timeline">
+            <div class="timeline-step"><span class="step-no">1</span><div><strong>Intent</strong><br>A post-only buy requests 0.010 BTC at rung 90.</div></div>
+            <div class="timeline-step"><span class="step-no">2</span><div><strong>Partial fill</strong><br>Only 0.004 BTC executes. Ownership and accounting change now—not after the order completes.</div></div>
+            <div class="timeline-step"><span class="step-no">3</span><div><strong>Net inventory</strong><br>If the fee is charged in BTC, the paired amount is net base received, not gross filled quantity.</div></div>
+            <div class="timeline-step"><span class="step-no">4</span><div><strong>Cumulative pair</strong><br>One sell at the next rung is created or updated. Below-minimum quantity remains pending until tradeable.</div></div>
+            <div class="timeline-step"><span class="step-no">5</span><div><strong>Cycle closes</strong><br>After the sell fills, the replacement buy returns one rung lower using the original fixed quote commitment.</div></div>
+          </div>
+        </article>
+        <article class="card">
+          <h3>Rules that prevent drift</h3>
+          <ul>
+            <li>One managed order per rung; never buy and sell simultaneously at one price.</li>
+            <li>Lowest rung stays buy-only; highest stays sell-only.</li>
+            <li>Interior rungs may change side through fill pairing.</li>
+            <li>No fill is synthesized because price merely touched a level.</li>
+            <li>Actual fee asset and fee quantity are recorded.</li>
+            <li>Each adjacent cycle must remain positive after conservative costs.</li>
+          </ul>
+          <div class="notice"><strong>Post-only:</strong> normal rungs should rest as maker orders. Bootstrap and stop-loss liquidation are aggressive because completion matters more than maker status.</div>
+        </article>
+      </div>
+    </section>
+
+    <section class="chapter" id="lifecycle">
+      <div class="chapter-head"><div><p class="eyebrow">Chapter 4</p><h2>“Not trading” has several meanings.</h2></div><p>Select a scenario. Notice which states may resume and which permanently end a run.</p></div>
+      <div class="card">
+        <div class="scenario-controls" aria-label="Lifecycle scenarios">
+          <button class="btn active" data-scenario="active">Active</button>
+          <button class="btn" data-scenario="low">Below range</button>
+          <button class="btn" data-scenario="pause">Pause</button>
+          <button class="btn" data-scenario="stop">Operator stop</button>
+          <button class="btn" data-scenario="emergency">Emergency</button>
+        </div>
+        <div class="state-flow" aria-label="Grid lifecycle states">
+          <span class="state-node" data-state="bootstrapping">Bootstrapping</span><span class="arrow">→</span>
+          <span class="state-node current" data-state="active">Active</span><span class="arrow">↔</span>
+          <span class="state-node" data-state="exhausted">Range-exhausted</span><span class="arrow">↔</span>
+          <span class="state-node" data-state="paused">Paused</span><span class="arrow">→</span>
+          <span class="state-node" data-state="closed">Closed</span>
+          <span class="state-node" data-state="emergency">Emergency</span>
+        </div>
+        <h3 id="scenarioTitle">Active inside range</h3>
+        <p id="scenarioText">Buy rungs rest below price and backed sell rungs rest above it. Fills pair inward by one rung.</p>
+      </div>
+      <div class="grid-3 stack-gap">
+        <article class="card term"><h3>Pause</h3><p>Cancel and block buys, keep valid inventory-reducing sells. Resume only after reconciliation and explicit approval.</p></article>
+        <article class="card term warn"><h3>Operator stop</h3><p>Cancel all orders, reconcile late fills, then deliberately retain or liquidate. The run cannot resume.</p></article>
+        <article class="card term sell"><h3>Emergency stop</h3><p>Block commands, cancel all managed orders, reconcile, and retain inventory. Do not auto-liquidate during uncertain state.</p></article>
+      </div>
+      <div class="card stack-gap">
+        <h3>Late-fill reconciliation</h3>
+        <p>You cancel a 0.010 BTC sell. While cancellation is being processed, 0.004 BTC executes. Final truth is 0.004 sold and 0.006 canceled—not 0.010 retained. Reconciliation applies that fill, fee, quote proceeds, and inventory reduction before deciding what remains.</p>
+      </div>
+    </section>
+
+    <section class="chapter" id="safety">
+      <div class="chapter-head"><div><p class="eyebrow">Chapter 5</p><h2>Safety preserves truth before it preserves activity.</h2></div><p>The MVP favors explainable state and bounded exposure over uninterrupted trading.</p></div>
+      <div class="grid-2">
+        <article class="card">
+          <h3>Immutable configuration</h3>
+          <p>Bounds, rungs, sizing, spacing, bootstrap, and stop-loss belong to one configuration version. Editing them creates a new version, new evidence, and a new run.</p>
+          <p>Risk limits may tighten during a run, but loosening them requires new approval.</p>
+        </article>
+        <article class="card">
+          <h3>Existing-account isolation</h3>
+          <p>Your existing Binance account is allowed, but allocated BTC/USDT and the active symbol are exclusive to this grid. Unknown activity triggers a safety pause and reconciliation.</p>
+          <p>Concurrent algorithms later need subaccount isolation or a portfolio allocator.</p>
+        </article>
+        <article class="card">
+          <h3>Positive net cycle</h3>
+          <p>Every adjacent cycle must remain profitable after maker fees, conservative execution allowance, venue rounding, and safety margin. Otherwise activation is rejected.</p>
+        </article>
+        <article class="card">
+          <h3>Global stop-loss</h3>
+          <p>Paired sells take normal rung profit. A configured global stop-loss cancels, reconciles, liquidates remaining grid inventory, and permanently closes the run.</p>
+          <p>A stop trigger is not a guaranteed execution price; gaps can create additional slippage.</p>
+        </article>
+        <article class="card">
+          <h3>Open-ended lifecycle</h3>
+          <p>A run has no preset expiry. It continues cycling until an explicit terminal event such as operator stop, emergency closure procedure, or global stop-loss permanently ends it.</p>
+        </article>
+        <article class="card">
+          <h3>Outer-rung cycling</h3>
+          <p>The lowest rung remains buy-only and the highest remains sell-only. Fills may cycle back toward the ladder, but the system never adds a rung or creates exposure beyond the configured bounds.</p>
+        </article>
+      </div>
+      <p class="notice">Official Binance documentation warns that a timeout or server error can leave execution status unknown. Production code must query or stream authoritative order status rather than treating every error as a failed order. See <a href="https://developers.binance.com/en/docs/products/spot/rest-api">Binance Spot REST API</a>.</p>
+    </section>
+
+    <section class="chapter" id="check">
+      <div class="chapter-head"><div><p class="eyebrow">Retrieval practice</p><h2>Can you predict the safe behavior?</h2></div><p>Answer without scrolling up. Immediate feedback helps fluency; revisit tomorrow for storage strength.</p></div>
+      <div class="card quiz">
+        <div class="question" data-hint="Activation outside approved bounds must not spend capital.">
+          <h3>1. Price is above the upper bound before activation. What happens?</h3>
+          <div class="answers"><button class="btn answer" data-correct="true" data-explain="Correct. Activation is rejected before bootstrap or order placement.">Reject the activation now</button><button class="btn answer" data-correct="false">Shift the range upward</button></div><p class="feedback" aria-live="polite"></p>
+        </div>
+        <div class="question" data-hint="The grid needs enough owned base to satisfy every initial sell.">
+          <h3>2. What determines bootstrap quantity?</h3>
+          <div class="answers"><button class="btn answer" data-correct="false">Always half the capital</button><button class="btn answer" data-correct="true" data-explain="Correct. Initial sell obligations determine required backing inventory.">All initial sell obligations</button></div><p class="feedback" aria-live="polite"></p>
+        </div>
+        <div class="question" data-hint="A partial execution changes ownership immediately.">
+          <h3>3. A buy fills only 40%. When does accounting change?</h3>
+          <div class="answers"><button class="btn answer" data-correct="true" data-explain="Correct. Every confirmed fill changes assets immediately.">At confirmed partial fill</button><button class="btn answer" data-correct="false">At complete order fill</button></div><p class="feedback" aria-live="polite"></p>
+        </div>
+        <div class="question" data-hint="Pause blocks exposure growth but may allow inventory reduction.">
+          <h3>4. Which orders survive an exposure-reducing pause?</h3>
+          <div class="answers"><button class="btn answer" data-correct="false">All current grid orders</button><button class="btn answer" data-correct="true" data-explain="Correct. Valid sells may reduce existing inventory.">Valid inventory reducing sells</button></div><p class="feedback" aria-live="polite"></p>
+        </div>
+        <div class="question" data-hint="Emergency behavior should avoid aggressive action during uncertain state.">
+          <h3>5. What is the emergency-stop inventory default?</h3>
+          <div class="answers"><button class="btn answer" data-correct="true" data-explain="Correct. Reconcile first; liquidation remains deliberate.">Retain after full reconciliation</button><button class="btn answer" data-correct="false">Liquidate before any reconciliation</button></div><p class="feedback" aria-live="polite"></p>
+        </div>
+        <div class="question" data-hint="A configuration version must remain linked to its evidence.">
+          <h3>6. You want wider bounds during a run. What is required?</h3>
+          <div class="answers"><button class="btn answer" data-correct="false">Edit the active version</button><button class="btn answer" data-correct="true" data-explain="Correct. Strategy changes require a new immutable version and run.">Create a validated version</button></div><p class="feedback" aria-live="polite"></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter">
+      <h2>Your next move</h2>
+      <p>Continue with the <a href="grid-semantics-module.html">complete learning module</a>, then use the <a href="../reference/grid-semantics-reference.html">quick reference</a> while reviewing the specification. Ask your agent about any scenario you cannot predict—for example, “What happens if a post-only replacement is rejected after a partial fill?”</p>
+      <p>Primary exchange source: <a href="https://developers.binance.com/en/docs/products/spot/rest-api">Binance Spot REST API</a>. Project authorities: <a href="../analysis/domain-grid-semantics.md">decision record</a> and <a href="../docs/domain/trading-engine/CONTEXT.md">glossary</a>.</p>
+    </section>
+  </main>
+  <footer class="footer shell">Educational material for system design. Backtests and examples are not investment advice.</footer>
+  <script src="../assets/grid-lesson.js"></script>
+</body>
+</html>

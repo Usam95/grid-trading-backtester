@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Grid semantics quick reference</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <p class="eyebrow">Quick reference</p>
+      <h1>Canonical grid semantics</h1>
+      <p class="lede">A compact operating reference for the first spot-grid MVP. For explanations and exercises, use the <a href="../lessons/grid-semantics-module.html">complete learning module</a>. The full canonical vocabulary remains in <a href="../docs/domain/trading-engine/CONTEXT.md">the project glossary</a>.</p>
+    </section>
+    <section class="chapter">
+      <div class="grid-3">
+        <article class="card term"><h3>Activation</h3><p>Price must be strictly inside immutable bounds. Bootstrap acquires real backing inventory. No ladder appears until inventory is confirmed.</p></article>
+        <article class="card term buy"><h3>Normal cycle</h3><p>Post-only buy fills pair one rung higher. Paired sells use actual net base received. Replacement buys keep fixed quote value.</p></article>
+        <article class="card term warn"><h3>Post-only rejection</h3><p>Reconcile and refresh, then retry maker-safe within strict bounds and never worse than rung economics. Never fall back to taker; pause and alert when limits are exhausted.</p></article>
+<article class="card term sell"><h3>Outer bounds</h3><p>Lowest rung is buy-only; highest is sell-only. They cycle only inward; no rung, order, or exposure is created outside the approved ladder.</p></article>
+        <article class="card term"><h3>Range-exhausted</h3><p>Outside the range, create no new outer exposure. Retain inventory and valid inward recovery-side orders.</p></article>
+        <article class="card term warn"><h3>Pause</h3><p>Cancel and block buys; keep valid inventory-reducing sells. Resume only after reconciliation and explicit approval.</p></article>
+        <article class="card term warn"><h3>Stop</h3><p>Cancel all managed orders, reconcile late fills, then explicitly retain or liquidate. Retain is the safe default.</p></article>
+        <article class="card term sell"><h3>Emergency</h3><p>Block commands, cancel all orders, reconcile, and retain inventory. Do not automatically liquidate during uncertain state.</p></article>
+        <article class="card term"><h3>Configuration</h3><p>One immutable configuration version per run. Strategy changes create a new version and new evidence.</p></article>
+        <article class="card term buy"><h3>Viability</h3><p>Every adjacent cycle must remain positive after fees, conservative execution allowance, rounding, and safety margin.</p></article>
+      </div>
+    </section>
+    <section class="chapter">
+      <h2>State distinction</h2>
+      <table class="decision-table">
+        <thead><tr><th>State</th><th>Buys</th><th>Sells</th><th>Inventory</th><th>Can resume?</th></tr></thead>
+        <tbody>
+          <tr><td>Active</td><td>Allowed in range</td><td>Allowed in range</td><td>Grid-owned</td><td>Already running</td></tr>
+          <tr><td>Range-exhausted</td><td>No outer exposure</td><td>Recovery-side valid</td><td>Retained</td><td>Automatic on re-entry</td></tr>
+          <tr><td>Paused</td><td>Canceled/blocked</td><td>Reducing only</td><td>Retained</td><td>Reconciled approval</td></tr>
+          <tr><td>Operator stopped</td><td>Canceled</td><td>Canceled</td><td>Retain or liquidate</td><td>No; new run</td></tr>
+          <tr><td>Emergency stopped</td><td>Canceled</td><td>Canceled</td><td>Retained by default</td><td>Incident process</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

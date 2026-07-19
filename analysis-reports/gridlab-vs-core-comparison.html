@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>gridlab vs grid-backtest-core — Engine Comparison &amp; Gap Analysis</title>
+<style>
+  :root{
+    --bg:#0b0e14; --bg2:#11151f; --surface:#151a26; --surface2:#1a2030; --border:#232b3d;
+    --text:#e6e9f0; --dim:#aeb6c7; --mute:#7e87a0;
+    --brand:#6366f1; --brand2:#22d3ee; --brand3:#a78bfa;
+    --pos:#22c55e; --neg:#f43f5e; --warn:#f59e0b; --info:#38bdf8;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:linear-gradient(180deg,#0b0e14,#0d1018 40%,#0b0e14);color:var(--text);
+    font:15px/1.65 'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;}
+  .wrap{max-width:1100px;margin:0 auto;padding:0 24px 96px}
+  header.hero{padding:64px 24px 40px;max-width:1100px;margin:0 auto}
+  .eyebrow{letter-spacing:.18em;text-transform:uppercase;font-size:12px;color:var(--brand2);font-weight:700}
+  h1{font-size:38px;line-height:1.1;margin:14px 0 10px;font-weight:800;letter-spacing:-.02em}
+  h1 .g{background:linear-gradient(90deg,var(--brand3),var(--brand2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .lede{color:var(--dim);font-size:17px;max-width:760px}
+  .meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+  .pill{background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:6px 14px;font-size:13px;color:var(--dim)}
+  .pill b{color:var(--text)}
+  h2{font-size:25px;margin:54px 0 8px;font-weight:800;letter-spacing:-.01em;scroll-margin-top:20px}
+  h2 .num{color:var(--brand);font-weight:800;margin-right:10px}
+  h3{font-size:18px;margin:30px 0 8px;font-weight:700}
+  p{color:var(--dim)}
+  a{color:var(--brand2);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .sub{color:var(--mute);font-size:14px;margin-top:-2px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px 24px;margin:18px 0}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  @media(max-width:820px){.grid2,.grid3{grid-template-columns:1fr}}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{color:var(--mute);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em;background:var(--bg2)}
+  tbody tr:hover{background:var(--surface2)}
+  td code,p code,li code{background:#0d1220;border:1px solid var(--border);border-radius:5px;padding:1px 6px;font:12.5px/1.5 'JetBrains Mono',ui-monospace,Menlo,monospace;color:#c7d2fe}
+  .tag{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:700;white-space:nowrap}
+  .t-yes{background:rgba(34,197,94,.14);color:#4ade80;border:1px solid rgba(34,197,94,.3)}
+  .t-no{background:rgba(244,63,94,.14);color:#fb7185;border:1px solid rgba(244,63,94,.3)}
+  .t-part{background:rgba(245,158,11,.14);color:#fbbf24;border:1px solid rgba(245,158,11,.3)}
+  .t-info{background:rgba(56,189,248,.14);color:#7dd3fc;border:1px solid rgba(56,189,248,.3)}
+  .sev{font-weight:700;font-size:12px;padding:2px 8px;border-radius:6px}
+  .sev-high{background:rgba(244,63,94,.16);color:#fb7185}
+  .sev-med{background:rgba(245,158,11,.16);color:#fbbf24}
+  .sev-low{background:rgba(148,163,184,.16);color:#cbd5e1}
+  .layout{display:grid;grid-template-columns:230px minmax(0,1fr);gap:40px;align-items:start}
+  .toc-side{position:sticky;top:24px;max-height:calc(100vh - 48px);overflow:auto}
+  .toc-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 16px}
+  .toc-card strong{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+  .toc-card ol{margin:12px 0 0;padding:0;list-style:none;counter-reset:toc}
+  .toc-card li{counter-increment:toc;margin:2px 0}
+  .toc-card a{display:block;color:var(--dim);font-size:13px;line-height:1.4;padding:6px 8px 6px 28px;border-radius:8px;position:relative;border-left:2px solid transparent}
+  .toc-card a::before{content:counter(toc);position:absolute;left:9px;top:6px;font-size:11px;color:var(--mute);font-variant-numeric:tabular-nums}
+  .toc-card a:hover{background:var(--surface2);text-decoration:none;color:var(--text)}
+  .toc-card a.active{background:var(--surface2);color:var(--text);font-weight:600;border-left-color:var(--brand2)}
+  .toc-card a.active::before{color:var(--brand2)}
+  .content{min-width:0}
+  .totop{position:fixed;right:22px;bottom:22px;width:42px;height:42px;border-radius:12px;background:var(--surface2);border:1px solid var(--border);color:var(--text);display:flex;align-items:center;justify-content:center;font-size:18px;text-decoration:none;box-shadow:0 6px 20px rgba(0,0,0,.4);z-index:50}
+  .totop:hover{background:var(--brand);border-color:var(--brand);text-decoration:none}
+  @media(max-width:960px){.layout{grid-template-columns:1fr;gap:10px}.toc-side{position:static;max-height:none;margin-bottom:10px}}
+  .kpi{background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:16px}
+  .kpi .l{font-size:12px;color:var(--mute);text-transform:uppercase;letter-spacing:.05em}
+  .kpi .v{font-size:26px;font-weight:800;margin-top:6px}
+  .kpi .s{font-size:12.5px;color:var(--dim);margin-top:2px}
+  .callout{border-left:3px solid var(--brand);background:var(--surface2);border-radius:0 12px 12px 0;padding:14px 18px;margin:16px 0}
+  .callout.warn{border-color:var(--warn)}
+  .callout.good{border-color:var(--pos)}
+  ul.clean{list-style:none;padding-left:0}
+  ul.clean li{padding:6px 0 6px 26px;position:relative;color:var(--dim)}
+  ul.clean li::before{content:"";position:absolute;left:4px;top:13px;width:7px;height:7px;border-radius:2px;background:var(--brand2)}
+  .foot{margin-top:60px;padding-top:24px;border-top:1px solid var(--border);color:var(--mute);font-size:13px}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--dim);margin:8px 0 0}
+  .num-col{font-variant-numeric:tabular-nums}
+  .src{font-size:12px;color:var(--mute)}
+  h2 a.anchor{opacity:0;margin-left:8px;font-size:15px}
+  h2:hover a.anchor{opacity:.5}
+</style>
+</head>
+<body>
+
+<header class="hero" id="top">
+  <div class="eyebrow">Engine Comparison · Senior-Engineer Audit</div>
+  <h1><span class="g">gridlab</span> vs <span style="color:var(--dim)">grid-backtest-core</span></h1>
+  <p class="lede">A deep, evidence-based comparison of the original grid-trading backtester
+  and its ground-up rewrite — what changed, what got <b>better</b>, what was <b>not carried
+  over</b>, and what should be built next.</p>
+  <div class="meta-row">
+    <span class="pill">Old: <b>grid_backtest</b> · 33 modules · ~4,330 LOC · numpy/pandas/<b>numba</b></span>
+    <span class="pill">New: <b>gridlab</b> · 44 modules · ~3,320 LOC · numpy/pandas</span>
+    <span class="pill">Generated <b>2026-06-28</b></span>
+  </div>
+</header>
+
+<div class="wrap">
+ <div class="layout">
+  <aside class="toc-side">
+   <nav class="toc-card">
+    <strong>Contents</strong>
+    <ol>
+      <li><a href="#summary">Executive summary</a></li>
+      <li><a href="#glance">At a glance</a></li>
+      <li><a href="#lineage">Lineage &amp; design philosophy</a></li>
+      <li><a href="#correctness">Correctness fixes (old flaw → gridlab fix)</a></li>
+      <li><a href="#gaps">Gaps: features in the old engine <em>not</em> in gridlab</a></li>
+      <li><a href="#parity">Full capability matrix</a></li>
+      <li><a href="#upgrades">gridlab-only upgrades</a></li>
+      <li><a href="#backlog">Enhancement backlog — what to add next</a></li>
+      <li><a href="#research">Grid-trading research summary</a></li>
+      <li><a href="#verdict">Verdict &amp; recommended next step</a></li>
+    </ol>
+   </nav>
+  </aside>
+  <main class="content">
+
+  <!-- 1 -->
+  <h2 id="summary"><span class="num">1</span>Executive summary</h2>
+  <p><b>gridlab is a correctness-first rewrite of grid-backtest-core.</b> It throws away the
+  original's biggest liabilities — same-bar (lookahead) fills, a dual-ledger that let trades
+  and equity disagree, a flat fee model, and close-only drawdown — and adds the things a serious
+  grid study needs: maker/taker fees, slippage, futures (shorting, leverage, isolated-margin
+  liquidation), walk-forward, Monte-Carlo, deflated Sharpe, an HTML report, and a clean
+  JSON <code>run_backtest(spec)</code> facade that a web frontend can sit on (which is exactly what
+  <b>gridlab-studio</b> does).</p>
+
+  <p>But the rewrite traded breadth for trustworthiness in a few places. The original's
+  <b>Numba JIT engine</b>, <b>multiprocessing + multi-timeframe parameter sweeps</b>,
+  <b>order-expiry/TTL</b>, an <b>RSI filter</b>, <b>ATR-scaled stop-loss/take-profit</b>, a
+  <b>results-persistence layer</b>, and a couple of niche bootstrap/sizing behaviours were
+  <b>not ported</b>. None block correct single backtests; several matter a lot once you scale to
+  large research sweeps or want to archive runs.</p>
+
+  <div class="callout">
+    <b>One-line verdict:</b> gridlab is the engine you should <em>trust</em> and build a product on.
+    grid-backtest-core is faster at brute-force sweeps and broader in a few research conveniences —
+    but its numbers are less defensible. The highest-value next moves are re-adding
+    <b>sweep parallelism/speed</b> and a couple of <b>cheap feature ports</b> (RSI filter, ATR SL/TP,
+    a results store).
+  </div>
+
+  <!-- 2 -->
+  <h2 id="glance"><span class="num">2</span>At a glance</h2>
+  <div class="grid3">
+    <div class="kpi"><div class="l">Correctness</div><div class="v" style="color:var(--pos)">gridlab</div><div class="s">single ledger, anti-lookahead fills, intrabar DD</div></div>
+    <div class="kpi"><div class="l">Sweep speed / scale</div><div class="v" style="color:var(--warn)">old engine</div><div class="s">Numba JIT + multiprocessing (gridlab: serial)</div></div>
+    <div class="kpi"><div class="l">Product-readiness</div><div class="v" style="color:var(--pos)">gridlab</div><div class="s">JSON facade + HTML report + studio UI</div></div>
+  </div>
+  <table>
+    <thead><tr><th>Dimension</th><th>grid-backtest-core</th><th>gridlab</th></tr></thead>
+    <tbody>
+      <tr><td>Package</td><td><code>grid_backtest</code> v0.1.0</td><td><code>gridlab</code> v1.0.0</td></tr>
+      <tr><td>Modules / LOC</td><td class="num-col">33 / ~4,330</td><td class="num-col">44 / ~3,320</td></tr>
+      <tr><td>Engines</td><td>Reference (Python) <b>+ Numba fast</b> (no shared core)</td><td>One reference engine (no fast path yet)</td></tr>
+      <tr><td>Dependencies</td><td>numpy, pandas, <b>numba</b></td><td>numpy, pandas (numba optional, unused)</td></tr>
+      <tr><td>Markets</td><td>Spot / long-only</td><td><b>Spot + Futures</b> (short, leverage, liquidation)</td></tr>
+      <tr><td>Fee model</td><td>Flat <code>trading_fee_pct</code></td><td><b>Maker / taker</b></td></tr>
+      <tr><td>Fill realism</td><td>Same-bar (lookahead)</td><td><b>Conservative</b> (next-bar) / optimistic; partial fills</td></tr>
+      <tr><td>Ledger</td><td>Two FIFO ledgers (can diverge)</td><td><b>One <code>Ledger</code></b> — trades ≡ equity</td></tr>
+      <tr><td>Robustness research</td><td>Param sweep only</td><td>Sweep + <b>walk-forward + Monte-Carlo + deflated Sharpe</b></td></tr>
+      <tr><td>Sweep execution</td><td><b>Multiprocess + multi-timeframe</b></td><td>Single-process, single-timeframe</td></tr>
+      <tr><td>Output</td><td>JSON/CSV files (repository)</td><td><b>JSON dict + HTML report</b> (no run store)</td></tr>
+      <tr><td>API shape</td><td>Object construction (Config + Strategy + Engine)</td><td><b><code>run_backtest(spec: dict) → dict</code></b> facade</td></tr>
+      <tr><td>Tests</td><td>7 unit test files</td><td>8 files incl. <b>property-based (hypothesis)</b></td></tr>
+    </tbody>
+  </table>
+
+  <!-- 3 -->
+  <h2 id="lineage"><span class="num">3</span>Lineage &amp; design philosophy</h2>
+  <p>grid-backtest-core (author tag <em>Usam95</em>) optimised for <b>speed and feature breadth</b>:
+  two engines, a Numba kernel claiming ~200–400× speedups, multi-timeframe multiprocessing sweeps,
+  and a rich dynamic-grid strategy. The cost was correctness debt and two engines that could silently
+  disagree (the fast engine models a <em>reduced</em> feature set).</p>
+  <p>gridlab inverts the priorities: <b>one</b> engine that is provably consistent (a single
+  <code>Ledger</code> is the source of truth for both trades and equity), explicit cost/risk modelling,
+  overfitting-aware research, and a serialisable contract designed so a UI/REST layer never has to reach
+  into engine internals. It is fewer lines across more modules — tighter, more decomposed, easier for a
+  human or an agent to navigate.</p>
+
+  <!-- 4 -->
+  <h2 id="correctness"><span class="num">4</span>Correctness fixes</h2>
+  <p class="sub">These are the reasons the rewrite exists. Each is a defect verified in the old engine during the original analysis.</p>
+  <table>
+    <thead><tr><th>grid-backtest-core flaw</th><th>gridlab fix</th><th>Evidence</th></tr></thead>
+    <tbody>
+      <tr><td>Trade ledger and equity curve kept in <b>two</b> FIFO ledgers that could disagree (<code>Σ trade.net_pnl ≠ Δequity</code>)</td><td>One <code>Ledger</code> is the single source of truth; equity <em>and</em> trades derive from the same fills</td><td><code>accounting/ledger.py</code></td></tr>
+      <tr><td>Bootstrap inventory never registered with the trade builder</td><td>Bootstrap inventory flows through <code>apply_fill</code> like any other fill</td><td><code>BootstrapConfig</code> docstring</td></tr>
+      <tr><td>Same-bar fills bake in lookahead bias</td><td>Pluggable fill model: <code>conservative</code> (next-bar eligibility) vs <code>optimistic</code></td><td><code>execution/fills.py</code>, <code>FillConfig</code></td></tr>
+      <tr><td>Flat fee model misprices a maker-heavy strategy</td><td>Maker on resting limit fills, taker on market/stop fills</td><td><code>execution/fees.py</code>, <code>FeeConfig</code></td></tr>
+      <tr><td>No slippage / spread</td><td>Spread + market-impact slippage on aggressive fills only</td><td><code>execution/slippage.py</code></td></tr>
+      <tr><td>Stops filled at bar <b>close</b></td><td>Stops fill at the <b>trigger price</b> (+ slippage)</td><td><code>execution/fills.py</code></td></tr>
+      <tr><td>Close-only drawdown (understated)</td><td><b>Intrabar</b> max drawdown + drawdown duration</td><td><code>results/metrics.py</code></td></tr>
+      <tr><td><code>profit_factor = +∞</code> with no losers; <code>avg_trade_pnl = Δequity/n</code></td><td>Correct trade stats; <code>profit_factor = None</code> when undefined</td><td><code>results/metrics.py</code></td></tr>
+      <tr><td>Fragile per-call annualisation</td><td>Explicit / inferred <code>periods_per_year</code>; deflated Sharpe</td><td><code>results/metrics.py</code></td></tr>
+    </tbody>
+  </table>
+
+  <!-- 5 -->
+  <h2 id="gaps"><span class="num">5</span>Gaps: features in the old engine <em>not</em> in gridlab</h2>
+  <p class="sub">The core of this report. These existed in grid-backtest-core and were <b>not</b> (or only partly) carried into gridlab. Severity = impact on serious grid research, not on a single correct backtest.</p>
+  <table>
+    <thead><tr><th>Capability (old engine)</th><th>gridlab status</th><th>Sev.</th><th>What it costs you / notes</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b>Numba JIT fast engine</b><br><span class="src"><code>engine_fast.py</code>, <code>_numba_engine.py</code>: <code>simulate_grid_full / _dynamic / _advanced</code></span></td>
+        <td><span class="tag t-no">Missing</span><br><span class="src">declared as optional <code>[fast]</code> extra; engine comment says “can later”</span></td>
+        <td><span class="sev sev-high">HIGH</span></td>
+        <td>~200–400× faster sweeps in the old engine. gridlab runs the full Python engine for every trial → large parameter grids are slow. Biggest scale gap.</td>
+      </tr>
+      <tr>
+        <td><b>Parallel (multiprocessing) sweeps</b><br><span class="src"><code>research/grid_search.py</code> <code>GridResearchRunner</code>: <code>ProcessPoolExecutor</code> + thread fallback, progress/skip/cancel hooks, <code>max_trials</code></span></td>
+        <td><span class="tag t-no">Missing</span><br><span class="src"><code>grid_search.py</code> is a serial <code>for</code> loop</span></td>
+        <td><span class="sev sev-high">HIGH</span></td>
+        <td>No CPU parallelism and no progress/cancellation. Compounds the Numba gap on large grids.</td>
+      </tr>
+      <tr>
+        <td><b>Multi-timeframe research</b><br><span class="src"><code>GridResearchRunner</code> sweeps across timeframes (52 refs)</span></td>
+        <td><span class="tag t-no">Missing</span></td>
+        <td><span class="sev sev-med">MED</span></td>
+        <td>gridlab has no timeframe axis in research; you can’t sweep 5m vs 1h vs 4h in one run.</td>
+      </tr>
+      <tr>
+        <td><b>RSI filter</b><br><span class="src"><code>strategy/policies/filter.py</code>: <code>use_rsi_filter, rsi_min, rsi_max</code></span></td>
+        <td><span class="tag t-part">Partial</span><br><span class="src">gridlab <em>computes</em> <code>rsi()</code> but ships only <code>TrendFilter</code> (EMA) + <code>RegimeFilter</code> (ADX)</span></td>
+        <td><span class="sev sev-low">LOW</span></td>
+        <td>The indicator exists; only a small <code>RsiFilter</code> policy is missing. Cheap to add.</td>
+      </tr>
+      <tr>
+        <td><b>ATR-based SL/TP</b><br><span class="src"><code>grid_dynamic.py</code>: <code>stop_loss_type/take_profit_type = "percent"|"atr"</code></span></td>
+        <td><span class="tag t-part">Partial</span><br><span class="src">gridlab SL/TP are fraction-of-bound only (<code>StopTakeExit</code>) — but it adds <code>TrailingStopExit</code></span></td>
+        <td><span class="sev sev-med">MED</span></td>
+        <td>Volatility-scaled exits aren’t available; you can only place stops a fixed % outside the grid.</td>
+      </tr>
+      <tr>
+        <td><b>Order expiry / TTL</b><br><span class="src"><code>OrderExpiryConfig.max_age_bars</code>; <code>engine._expire_open_orders()</code></span></td>
+        <td><span class="tag t-no">Missing</span></td>
+        <td><span class="sev sev-med">MED</span></td>
+        <td>Resting rungs never auto-cancel by age. Matters for dynamic grids and stale-order hygiene.</td>
+      </tr>
+      <tr>
+        <td><b>Results persistence / repository</b><br><span class="src"><code>results/repository.py</code>: <code>summary.json + trades.csv + equity_curve.csv</code>, <code>result_to_dataframes()</code></span></td>
+        <td><span class="tag t-part">Partial</span><br><span class="src">gridlab returns a JSON dict + HTML report, but has no run store / archive</span></td>
+        <td><span class="sev sev-med">MED</span></td>
+        <td>No timestamped run directory or DataFrame export; harder to archive/compare many runs.</td>
+      </tr>
+      <tr>
+        <td><b>Insufficient-funds RESIZE</b><br><span class="src"><code>InsufficientFundsMode.RESIZE</code> shrinks an order to fit available funds</span></td>
+        <td><span class="tag t-no">Missing</span><br><span class="src">gridlab <code>ConstraintChecker</code> only <em>rejects</em> (with a typed reason)</span></td>
+        <td><span class="sev sev-low">LOW</span></td>
+        <td>gridlab’s rejection is arguably more honest, but auto-resize is a convenience some users expect.</td>
+      </tr>
+      <tr>
+        <td><b>Bootstrap NEUTRAL_TOPUP</b><br><span class="src">buy base up to <code>target_base_qty / target_base_value_pct</code>, capped by <code>max_topup_quote</code></span></td>
+        <td><span class="tag t-part">Partial</span><br><span class="src">gridlab bootstrap = <code>base_fraction</code> split only (≈ NEUTRAL_SPLIT)</span></td>
+        <td><span class="sev sev-low">LOW</span></td>
+        <td>Can’t seed “top up to a target inventory”; only a percentage split is supported.</td>
+      </tr>
+      <tr>
+        <td><b>Re-entry after global SL/TP</b><br><span class="src"><code>allow_reentry</code> rebuilds the grid next candle</span></td>
+        <td><span class="tag t-no">Missing</span></td>
+        <td><span class="sev sev-low">LOW</span></td>
+        <td>After a global stop gridlab stays flat; the old engine could rearm the grid.</td>
+      </tr>
+      <tr>
+        <td><b>Config-level conveniences</b><br><span class="src"><code>WarmupConfig</code>, metric-selection list, percent-step spacing mode</span></td>
+        <td><span class="tag t-part">Partial</span></td>
+        <td><span class="sev sev-low">LOW</span></td>
+        <td>Minor ergonomics; gridlab covers the substance differently (e.g. ATR/geometric spacing).</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="callout warn">
+    <b>Reading this table fairly:</b> the only <span class="sev sev-high">HIGH</span> items are about
+    <em>scale</em> (sweep speed/parallelism), not correctness. Everything a single trustworthy backtest
+    needs is present in gridlab; what was dropped is mostly research throughput and a few niche knobs.
+  </div>
+
+  <!-- 6 -->
+  <h2 id="parity"><span class="num">6</span>Full capability matrix</h2>
+  <div class="legend">
+    <span><span class="tag t-yes">Yes</span> present</span>
+    <span><span class="tag t-part">Part</span> partial / different</span>
+    <span><span class="tag t-no">No</span> absent</span>
+  </div>
+  <table>
+    <thead><tr><th>Capability</th><th>old</th><th>gridlab</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Arithmetic / geometric spacing</td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-yes">Yes</span></td><td>both</td></tr>
+      <tr><td>ATR spacing</td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-yes">Yes</span></td><td><code>spacing="atr"</code></td></tr>
+      <tr><td>Adaptive range (ATR / rolling)</td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-yes">Yes</span></td><td><code>GridConfig.adaptive</code></td></tr>
+      <tr><td>Neutral / long direction</td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-yes">Yes</span></td><td></td></tr>
+      <tr><td>Short grid</td><td><span class="tag t-no">No</span></td><td><span class="tag t-yes">Yes</span></td><td>gridlab futures</td></tr>
+      <tr><td>Recenter / floating grid (band-break + time)</td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-yes">Yes</span></td><td><code>recenter_drift_frac</code> / recenter policy</td></tr>
+      <tr><td>EMA trend filter</td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-yes">Yes</span></td><td><code>TrendFilter</code></td></tr>
+      <tr><td>ADX regime filter</td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-yes">Yes</span></td><td><code>RegimeFilter</code></td></tr>
+      <tr><td>RSI filter</td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-no">No</span></td><td>indicator exists, no policy</td></tr>
+      <tr><td>SL/TP — fixed %</td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-yes">Yes</span></td><td><code>StopTakeExit</code></td></tr>
+      <tr><td>SL/TP — ATR-scaled</td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-no">No</span></td><td>gap</td></tr>
+      <tr><td>Trailing stop</td><td><span class="tag t-no">No</span></td><td><span class="tag t-yes">Yes</span></td><td><code>TrailingStopExit</code></td></tr>
+      <tr><td>Maker/taker fees</td><td><span class="tag t-no">No</span></td><td><span class="tag t-yes">Yes</span></td><td></td></tr>
+      <tr><td>Slippage (spread + impact)</td><td><span class="tag t-part">Part</span></td><td><span class="tag t-yes">Yes</span></td><td>old: flat market-only</td></tr>
+      <tr><td>Conservative (anti-lookahead) fills</td><td><span class="tag t-no">No</span></td><td><span class="tag t-yes">Yes</span></td><td></td></tr>
+      <tr><td>Partial fills (volume / participation)</td><td><span class="tag t-no">No</span></td><td><span class="tag t-yes">Yes</span></td><td><code>FillConfig.participation</code></td></tr>
+      <tr><td>Futures: leverage + isolated-margin liquidation</td><td><span class="tag t-no">No</span></td><td><span class="tag t-yes">Yes</span></td><td><code>execution/margin.py</code></td></tr>
+      <tr><td>Inventory / exposure / order-count caps</td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-yes">Yes</span></td><td>both have constraints</td></tr>
+      <tr><td>Insufficient-funds resize</td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-no">No</span></td><td>gridlab rejects only</td></tr>
+      <tr><td>Order expiry / TTL</td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-no">No</span></td><td>gap</td></tr>
+      <tr><td>Bootstrap: split</td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-yes">Yes</span></td><td></td></tr>
+      <tr><td>Bootstrap: top-up-to-target</td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-no">No</span></td><td>gap</td></tr>
+      <tr><td>Param sweep</td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-yes">Yes</span></td><td></td></tr>
+      <tr><td>Multiprocessing sweeps</td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-no">No</span></td><td>gap</td></tr>
+      <tr><td>Multi-timeframe sweeps</td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-no">No</span></td><td>gap</td></tr>
+      <tr><td>Walk-forward (OOS)</td><td><span class="tag t-no">No</span></td><td><span class="tag t-yes">Yes</span></td><td><code>research/walk_forward.py</code></td></tr>
+      <tr><td>Monte-Carlo robustness</td><td><span class="tag t-no">No</span></td><td><span class="tag t-yes">Yes</span></td><td><code>research/monte_carlo.py</code></td></tr>
+      <tr><td>Deflated Sharpe / PSR</td><td><span class="tag t-no">No</span></td><td><span class="tag t-yes">Yes</span></td><td>overfitting guard</td></tr>
+      <tr><td>Numba fast engine</td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-no">No</span></td><td>biggest scale gap</td></tr>
+      <tr><td>Buy &amp; Hold benchmark</td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-yes">Yes</span></td><td></td></tr>
+      <tr><td>DCA benchmark</td><td><span class="tag t-no">No</span></td><td><span class="tag t-yes">Yes</span></td><td></td></tr>
+      <tr><td>Results persistence (files / store)</td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-part">Part</span></td><td>gridlab: JSON+HTML, no store</td></tr>
+      <tr><td>HTML report</td><td><span class="tag t-no">No</span></td><td><span class="tag t-yes">Yes</span></td><td><code>results/report.py</code></td></tr>
+      <tr><td>JSON <code>run_backtest(spec)</code> facade</td><td><span class="tag t-no">No</span></td><td><span class="tag t-yes">Yes</span></td><td>frontend-ready</td></tr>
+      <tr><td>Indicators: ATR/EMA/RSI/ADX</td><td><span class="tag t-yes">Yes</span></td><td><span class="tag t-yes">Yes</span></td><td>gridlab adds Bollinger/SMA</td></tr>
+      <tr><td>Property-based tests (hypothesis)</td><td><span class="tag t-no">No</span></td><td><span class="tag t-yes">Yes</span></td><td><code>tests/test_properties.py</code></td></tr>
+      <tr><td>Multi-symbol / portfolio</td><td><span class="tag t-no">No</span></td><td><span class="tag t-no">No</span></td><td>neither</td></tr>
+      <tr><td>Funding-rate model (perp carry)</td><td><span class="tag t-no">No</span></td><td><span class="tag t-no">No</span></td><td>neither</td></tr>
+    </tbody>
+  </table>
+
+  <!-- 7 -->
+  <h2 id="upgrades"><span class="num">7</span>gridlab-only upgrades</h2>
+  <div class="grid2">
+    <div class="card">
+      <h3 style="margin-top:0">Correctness &amp; realism</h3>
+      <ul class="clean">
+        <li>Single <code>Ledger</code> — trades and equity provably reconcile</li>
+        <li>Conservative (next-bar) fill mode kills the worst lookahead bias</li>
+        <li>Maker/taker fees + spread/impact slippage</li>
+        <li>Stops fill at trigger price; gaps fill at open</li>
+        <li>Partial fills via volume participation</li>
+        <li>Intrabar drawdown + duration; corrected trade stats</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">Markets, research &amp; product</h3>
+      <ul class="clean">
+        <li>Futures: shorting, leverage, isolated-margin liquidation</li>
+        <li>Walk-forward (OOS) + Monte-Carlo + deflated Sharpe</li>
+        <li>DCA benchmark &amp; trailing-stop exit</li>
+        <li>Self-contained HTML report (no build step)</li>
+        <li>JSON <code>run_backtest(spec)→dict</code> facade → powers gridlab-studio</li>
+        <li>Property-based tests for cash/FIFO invariants</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 8 -->
+  <h2 id="backlog"><span class="num">8</span>Enhancement backlog — what to add next</h2>
+  <p class="sub">Combines the un-ported old features with net-new ideas from the grid-trading research. Effort: S ≤1d · M 2–5d · L 1–3wk.</p>
+
+  <h3>Tier A — restore research scale (highest ROI)</h3>
+  <table>
+    <thead><tr><th>Item</th><th>Why</th><th>Touch-points</th><th>Effort</th></tr></thead>
+    <tbody>
+      <tr><td><b>Parallelise <code>grid_search</code></b> (ProcessPool / joblib) + progress &amp; cancel hooks</td><td>Sweeps are serial today; this is the cheapest big win</td><td><code>research/grid_search.py</code></td><td>S–M</td></tr>
+      <tr><td><b>Vectorised / Numba fast path</b> for the inner grid loop (behind a parity test vs the reference engine)</td><td>Re-enables large grids without re-introducing the old two-engine divergence risk</td><td>new <code>engine/fast.py</code>, <code>tests/test_engine_parity.py</code></td><td>L</td></tr>
+      <tr><td><b>Multi-timeframe research</b> (resample + sweep TFs)</td><td>Timeframe is a first-order grid parameter</td><td><code>research/</code>, <code>data/source.py</code></td><td>M</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Tier B — cheap feature ports (close the gap table)</h3>
+  <table>
+    <thead><tr><th>Item</th><th>Why</th><th>Touch-points</th><th>Effort</th></tr></thead>
+    <tbody>
+      <tr><td><b>RSI filter policy</b></td><td>Indicator already exists; just a policy class + wiring</td><td><code>strategy/policies/filters.py</code></td><td>S</td></tr>
+      <tr><td><b>ATR-scaled SL/TP</b></td><td>Volatility-aware exits; matches old <code>stop_loss_type="atr"</code></td><td><code>strategy/policies/sltp.py</code></td><td>S</td></tr>
+      <tr><td><b>Order expiry / TTL</b></td><td>Stale-rung hygiene for dynamic grids</td><td><code>engine/engine.py</code>, config</td><td>S–M</td></tr>
+      <tr><td><b>Results store</b> (parquet/SQLite) + run comparison</td><td>Archive &amp; diff many runs; foundation for a research dashboard</td><td>new <code>results/store.py</code></td><td>M</td></tr>
+      <tr><td><b>Bootstrap top-up-to-target</b> + optional fund-resize</td><td>Restores the two niche behaviours users may expect</td><td><code>execution/*</code>, config</td><td>S</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Tier C — net-new (research-driven differentiators)</h3>
+  <table>
+    <thead><tr><th>Item</th><th>Why</th><th>Effort</th></tr></thead>
+    <tbody>
+      <tr><td><b>Multi-symbol / portfolio layer</b> (N grids, one cash account, correlation)</td><td>Cross-asset grids; neither engine has it</td><td>L</td></tr>
+      <tr><td><b>Funding-rate model</b> for perpetual futures (carry cost over time)</td><td>Honest perp-grid economics; missing from both</td><td>M</td></tr>
+      <tr><td><b>Real data loaders</b> (CCXT / CSV / parquet) behind a <code>DataSource</code> + caching</td><td>Move beyond synthetic + ad-hoc records</td><td>M</td></tr>
+      <tr><td><b>Bollinger-band adaptive range</b> &amp; regime-tagged parameter recommendation</td><td>Indicator exists; volatility-adaptive grids are the literature’s “robust” recipe</td><td>M–L</td></tr>
+      <tr><td><b>PBO</b> (probability of backtest overfitting) + parameter-stability heatmaps</td><td>Strengthens the honesty story beyond deflated Sharpe</td><td>M</td></tr>
+    </tbody>
+  </table>
+
+  <!-- 9 -->
+  <h2 id="research"><span class="num">9</span>Grid-trading research summary</h2>
+  <p>The empirical literature and bot-vendor documentation converge on a few hard truths that
+  directly shape the backlog above:</p>
+  <ul class="clean">
+    <li><b>Grids harvest volatility inside a range and bleed in strong trends.</b> Their natural habitat is sideways / mean-reverting markets; a long grid in a downtrend “buys a falling knife” and accumulates an underwater bag.</li>
+    <li><b>Costs decide marginal profitability.</b> Hundreds of round-trips make maker/taker fees and slippage first-order — which is precisely why gridlab’s fee/slippage model matters and a flat fee misleads.</li>
+    <li><b>Robustness comes from filters + caps + adaptivity:</b> trend/regime filters (EMA/ADX), inventory &amp; gross-exposure caps, ATR-based spacing/exits, and walk-forward/Monte-Carlo validation. gridlab already has most of these; ATR SL/TP and the RSI filter are the cheap missing pieces.</li>
+    <li><b>Most grid backtests over-fit.</b> A grid tuned to one window often dies out-of-sample — hence deflated Sharpe + walk-forward + Monte-Carlo are non-negotiable for a defensible result (gridlab ✓; old engine ✗).</li>
+  </ul>
+  <p class="src">Sources (full annotations in <code>analysis-reports/grid-trading-research-sources.md</code>): Investopedia — Grid Trading; Binance Academy — What Is Grid Trading; Pionex — Grid Trading Bot guide; Bailey &amp; López de Prado — The Deflated Sharpe Ratio / The Probability of Backtest Overfitting.</p>
+
+  <!-- 10 -->
+  <h2 id="verdict"><span class="num">10</span>Verdict &amp; recommended next step</h2>
+  <div class="callout good">
+    <p style="margin:0 0 8px"><b>Use gridlab.</b> It is the more correct, more honest, more product-ready engine, and it already
+    powers gridlab-studio. grid-backtest-core remains useful only as a reference for the <em>scale</em> features
+    that weren’t ported (Numba speed, parallel/multi-TF sweeps) and a couple of niche knobs.</p>
+    <p style="margin:0"><b>Recommended next step:</b> ship <b>Tier A.1 — parallelise <code>grid_search</code></b>
+    (a 1-day win that immediately makes the Research tab usable on large grids), then the <b>Tier B cheap ports</b>
+    (RSI filter, ATR SL/TP, order TTL, results store). Defer the full Numba fast engine until after a
+    <code>test_engine_parity.py</code> exists, so you never re-create the old engine’s two-engines-disagree bug.</p>
+  </div>
+
+  <div class="foot">
+    gridlab vs grid-backtest-core · senior-engineer audit · evidence drawn from a full read of both
+    source trees and the prior analysis in <code>analysis-reports/</code>. Backtest results are research
+    artifacts, not investment advice.
+  </div>
+
+  </main>
+ </div>
+</div>
+
+<a href="#top" class="totop" title="Back to top">↑</a>
+<script>
+  (function(){
+    var links=[].slice.call(document.querySelectorAll('.toc-card a'));
+    var map={}; links.forEach(function(a){ map[a.getAttribute('href').slice(1)]=a; });
+    if(!('IntersectionObserver' in window)) return;
+    var obs=new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){
+          links.forEach(function(l){ l.classList.remove('active'); });
+          var a=map[e.target.id]; if(a) a.classList.add('active');
+        }
+      });
+    },{rootMargin:'-12% 0px -80% 0px'});
+    document.querySelectorAll('.content h2[id]').forEach(function(h){ obs.observe(h); });
+  })();
+</script>
+</body>
+</html>

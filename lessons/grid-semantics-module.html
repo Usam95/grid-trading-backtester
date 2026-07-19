@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Complete learning path for the canonical Binance Spot grid semantics.">
+  <title>Grid semantics learning module</title>
+  <link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+  <header class="hero shell">
+    <p class="eyebrow">Learning module · 5 short lessons</p>
+    <h1>From “I recognize the term” to “I can predict the system.”</h1>
+    <p class="lede">Use the overview first, then complete the four focused lessons. Every requested concept below has a definition, worked example or decision scenario, and retrieval check.</p>
+  </header>
+  <main class="shell">
+    <section class="chapter">
+      <div class="chapter-head"><div><p class="eyebrow">Recommended path</p><h2>One mental model at a time.</h2></div><p>Each lesson is deliberately smaller than the original all-in-one page.</p></div>
+      <div class="grid-2">
+        <article class="card"><span class="tag">00 · Orientation</span><h3><a href="0001-canonical-grid-semantics.html">System overview</a></h3><p>See the complete flow from capital allocation to permanent closure.</p></article>
+        <article class="card"><span class="tag buy">01 · Capital</span><h3><a href="0002-inventory-bootstrap-and-sizing.html">Inventory, bootstrap, and sizing</a></h3><p>Calculate what the grid must acquire and why profit does not resize the MVP.</p></article>
+        <article class="card"><span class="tag">02 · Ladder</span><h3><a href="0003-ladder-and-order-semantics.html">Geometry and order semantics</a></h3><p>Build the ladder and predict which single order belongs on each rung.</p></article>
+        <article class="card"><span class="tag buy">03 · Execution</span><h3><a href="0004-fills-fees-and-cycle-economics.html">Fills, fees, and cycle economics</a></h3><p>Follow actual assets through partial fills and test net profitability.</p></article>
+        <article class="card"><span class="tag warn">04 · Operations</span><h3><a href="0005-lifecycle-and-safety.html">Lifecycle and safety</a></h3><p>Distinguish range exhaustion, pause, resume, stop, emergency, and stop-loss.</p></article>
+        <article class="card"><span class="tag sell">Reference</span><h3><a href="../reference/grid-semantics-reference.html">Operating cheat sheet</a></h3><p>Use after the lessons when reviewing specifications or incidents.</p></article>
+      </div>
+    </section>
+
+    <section class="chapter">
+      <div class="chapter-head"><div><p class="eyebrow">Coverage contract</p><h2>All 20 requested concepts.</h2></div><p>“Covered” means more than mentioned: the linked section explains behavior and gives an example or decision check.</p></div>
+      <div class="coverage">
+        <div class="coverage-row"><span class="concept-no">1</span><a href="0002-inventory-bootstrap-and-sizing.html#bootstrap">Neutral spot bootstrap through a real acquisition</a><span class="coverage-proof">Definition + 900 USDT example</span><span class="verdict">Full lesson</span></div>
+        <div class="coverage-row"><span class="concept-no">2</span><a href="0002-inventory-bootstrap-and-sizing.html#backing">Backing inventory from initial sell obligations</a><span class="coverage-proof">Formula + fee reserve</span><span class="verdict">Full lesson</span></div>
+        <div class="coverage-row"><span class="concept-no">3</span><a href="0002-inventory-bootstrap-and-sizing.html#sizing">Fixed quote sizing and non-compounded profit</a><span class="coverage-proof">Two-cycle ledger</span><span class="verdict">Full lesson</span></div>
+        <div class="coverage-row"><span class="concept-no">4</span><a href="0003-ladder-and-order-semantics.html#spacing-semantics">Arithmetic and geometric spacing</a><span class="coverage-proof">Interactive comparison</span><span class="verdict">Full lesson</span></div>
+        <div class="coverage-row"><span class="concept-no">5</span><a href="0003-ladder-and-order-semantics.html#activation">Strict activation eligibility</a><span class="coverage-proof">Boundary scenarios</span><span class="verdict">Full lesson</span></div>
+        <div class="coverage-row"><span class="concept-no">6</span><a href="0005-lifecycle-and-safety.html#range">Range-exhausted behavior</a><span class="coverage-proof">Below/above examples</span><span class="verdict">Full lesson</span></div>
+        <div class="coverage-row"><span class="concept-no">7</span><a href="0004-fills-fees-and-cycle-economics.html#partial">Partial fills and cumulative paired orders</a><span class="coverage-proof">Three-fill ledger</span><span class="verdict">Full lesson</span></div>
+        <div class="coverage-row"><span class="concept-no">8</span><a href="0004-fills-fees-and-cycle-economics.html#fees">Actual fee assets and net inventory</a><span class="coverage-proof">Base/quote/BNB cases</span><span class="verdict">Full lesson</span></div>
+        <div class="coverage-row"><span class="concept-no">9</span><a href="0005-lifecycle-and-safety.html#pause">Pause and reconciled resume</a><span class="coverage-proof">Order survival matrix</span><span class="verdict">Full lesson</span></div>
+        <div class="coverage-row"><span class="concept-no">10</span><a href="0005-lifecycle-and-safety.html#stop">Operator and emergency stop</a><span class="coverage-proof">Late-fill comparison</span><span class="verdict">Full lesson</span></div>
+        <div class="coverage-row"><span class="concept-no">11</span><a href="0005-lifecycle-and-safety.html#exits">Paired sells and global stop-loss</a><span class="coverage-proof">Normal vs terminal exit</span><span class="verdict">Full lesson</span></div>
+        <div class="coverage-row"><span class="concept-no">12</span><a href="0005-lifecycle-and-safety.html#identity">Immutable configuration versions</a><span class="coverage-proof">Change classification</span><span class="verdict">Full lesson</span></div>
+        <div class="coverage-row"><span class="concept-no">13</span><a href="0005-lifecycle-and-safety.html#lifecycle">Open-ended run lifecycle</a><span class="coverage-proof">Terminal/nonterminal table</span><span class="verdict">Full lesson</span></div>
+        <div class="coverage-row"><span class="concept-no">14</span><a href="0003-ladder-and-order-semantics.html#rung-semantics">Exact rung-count meaning</a><span class="coverage-proof">Five-rung enumeration</span><span class="verdict">Full lesson</span></div>
+        <div class="coverage-row"><span class="concept-no">15</span><a href="0003-ladder-and-order-semantics.html#rung-semantics">Activation-rung behavior</a><span class="coverage-proof">Exact-price example</span><span class="verdict">Full lesson</span></div>
+        <div class="coverage-row"><span class="concept-no">16</span><a href="0003-ladder-and-order-semantics.html#orders">Post-only normal orders</a><span class="coverage-proof">Maker rejection example</span><span class="verdict">Full lesson</span></div>
+        <div class="coverage-row"><span class="concept-no">17</span><a href="0003-ladder-and-order-semantics.html#occupancy">One order per rung</a><span class="coverage-proof">Occupancy invariant</span><span class="verdict">Full lesson</span></div>
+        <div class="coverage-row"><span class="concept-no">18</span><a href="0005-lifecycle-and-safety.html#isolation">Existing-account allocation isolation</a><span class="coverage-proof">Foreign-activity scenario</span><span class="verdict">Full lesson</span></div>
+        <div class="coverage-row"><span class="concept-no">19</span><a href="0004-fills-fees-and-cycle-economics.html#viability">Positive net cycle requirement</a><span class="coverage-proof">Accept/reject calculation</span><span class="verdict">Full lesson</span></div>
+        <div class="coverage-row"><span class="concept-no">20</span><a href="0003-ladder-and-order-semantics.html#outer">Outer-rung cycling without expansion</a><span class="coverage-proof">Both boundary cycles</span><span class="verdict">Full lesson</span></div>
+      </div>
+    </section>
+  </main>
+  <footer class="footer shell">Project semantics, not investment advice. Ask your agent whenever you cannot predict the next state or asset movement.</footer>
+</body>
+</html>

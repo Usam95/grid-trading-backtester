@@ -1,0 +1,5 @@
+[user]
+	email = usam.sersultanov@gmail.com
+	useConfigOnly = true
+[core]
+	hooksPath = .githooks

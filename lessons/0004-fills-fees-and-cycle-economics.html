@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Learn partial fill pairing, fee assets, net inventory, and positive net cycle validation."><title>Fills, fees, and cycle economics</title><link rel="stylesheet" href="../assets/course.css"></head>
+<body>
+  <header class="hero shell"><p class="eyebrow">Lesson 0004 · Execution · 15 minutes</p><h1>A confirmed fill moves assets immediately—even when the order remains open.</h1><p class="lede">You will update inventory after partial fills, derive a cumulative paired order from net base, and reject cycles whose spread cannot pay their costs.</p><p class="breadcrumb"><a href="grid-semantics-module.html">Module home</a> → Fills, fees, and cycle economics</p></header>
+  <main class="shell">
+    <section class="chapter" id="partial">
+      <div class="chapter-head"><div><p class="eyebrow">Event truth</p><h2>Partial does not mean provisional.</h2></div><p>Every venue-confirmed execution transfers ownership and enters the accounting ledger.</p></div>
+      <article class="card worked">
+        <h3>one buy, three execution reports</h3>
+        <p>A post-only buy requests 0.010 BTC at rung 90. Ignore fees for this first table.</p>
+        <table class="ledger"><thead><tr><th>Event</th><th>New fill</th><th>Cumulative buy fill</th><th>One paired sell at 100</th></tr></thead><tbody>
+          <tr><td>Execution 1</td><td>0.004</td><td>0.004</td><td>0.004</td></tr>
+          <tr><td>Execution 2</td><td>0.003</td><td>0.007</td><td>0.007</td></tr>
+          <tr><td>Execution 3</td><td>0.003</td><td>0.010</td><td>0.010</td></tr>
+        </tbody></table>
+        <p>The destination rung contains one managed sell whose desired cumulative quantity grows. If 0.004 is below a venue minimum, it stays as <strong>pending paired quantity</strong> until enough accumulates for a valid order.</p>
+      </article>
+      <div class="grid-2 stack-gap"><article class="card"><h3>Wrong: wait for completion</h3><p>Inventory acquired by earlier fills would exist without an accounting entry or paired intent.</p></article><article class="card"><h3>Wrong: one sell per fill</h3><p>Three separate orders fragment occupancy, create duplicated replacement logic, and complicate recovery.</p></article></div>
+    </section>
+
+    <section class="chapter" id="fees">
+      <div class="chapter-head"><div><p class="eyebrow">Asset conservation</p><h2>“The fee” is incomplete without its asset.</h2></div><p>The venue reports both quantity and asset; they affect different balances.</p></div>
+      <table class="decision-table"><thead><tr><th>Gross buy fill</th><th>Fee</th><th>Net base for paired sell</th><th>Other effect</th></tr></thead><tbody>
+        <tr><td>0.010 BTC</td><td>0.00001 BTC</td><td>0.00999 BTC</td><td>Fee reduces received inventory.</td></tr>
+        <tr><td>0.010 BTC</td><td>0.09 USDT</td><td>0.01000 BTC</td><td>Quote decreases separately.</td></tr>
+        <tr><td>0.010 BTC</td><td>0.0003 BNB</td><td>0.01000 BTC</td><td>Third-asset balance decreases.</td></tr>
+      </tbody></table>
+      <p class="notice">Strategy correctness cannot assume BNB fee payment is enabled. It records what Binance actually reports for each fill.</p>
+      <article class="card worked stack-gap"><h3>base fee changes the pair</h3><p>If a buy fills 0.010 BTC but 0.00001 BTC is deducted as fee, selling 0.010 BTC would overstate owned inventory. The cumulative paired sell is based on 0.00999 BTC, subject to venue rounding. The fee remains a separate ledger fact.</p></article>
+    </section>
+
+    <section class="chapter" id="viability">
+      <div class="chapter-head"><div><p class="eyebrow">Activation gate</p><h2>Positive spacing is not necessarily positive profit.</h2></div><p>Every adjacent rung pair must survive conservative cost assumptions.</p></div>
+      <article class="card worked"><h3>two candidate cycles</h3>
+        <table class="ledger"><thead><tr><th>Cycle</th><th>Gross spread</th><th>Fees</th><th>Execution allowance</th><th>Rounding</th><th>Safety margin</th><th>Net</th></tr></thead><tbody>
+          <tr><td>100 → 101</td><td>1.00</td><td>0.40</td><td>0.30</td><td>0.10</td><td>0.30</td><td>−0.10</td></tr>
+          <tr><td>100 → 103</td><td>3.00</td><td>0.40</td><td>0.30</td><td>0.10</td><td>0.30</td><td>+1.90</td></tr>
+        </tbody></table>
+        <p>The first cycle is rejected even though 101 is above 100. The validator reports the failing pair and never widens the grid automatically. Changing spacing creates a different configuration version requiring new evidence.</p>
+      </article>
+      <div class="formula">net cycle margin = expected sell proceeds − buy cost − fees − execution allowance − rounding loss − safety margin</div>
+    </section>
+
+    <section class="chapter"><div class="chapter-head"><div><p class="eyebrow">Retrieval</p><h2>Update the ledger.</h2></div><p>Choose before looking back.</p></div><div class="card quiz">
+      <div class="question" data-hint="Confirmed execution transfers assets immediately."><h3>1. When does a partial fill affect inventory?</h3><div class="answers"><button class="btn answer" data-correct="true" data-explain="Correct. Fill confirmation is the ownership event.">Immediately after venue confirmation</button><button class="btn answer" data-correct="false">Only after order completion</button></div><p class="feedback" aria-live="polite"></p></div>
+      <div class="question" data-hint="A base-denominated fee reduces received base."><h3>2. Gross fill is 0.010 BTC and base fee is 0.00001 BTC. What backs the sell?</h3><div class="answers"><button class="btn answer" data-correct="false">Gross filled base quantity</button><button class="btn answer" data-correct="true" data-explain="Correct. Pairing follows actually owned net base.">Net received base quantity</button></div><p class="feedback" aria-live="polite"></p></div>
+      <div class="question" data-hint="Costs can exceed a positive gross spread."><h3>3. One adjacent cycle has negative net margin. What happens?</h3><div class="answers"><button class="btn answer" data-correct="true" data-explain="Correct. Every adjacent pair must pass.">Reject the complete activation</button><button class="btn answer" data-correct="false">Warn then continue activation</button></div><p class="feedback" aria-live="polite"></p></div>
+    </div></section>
+    <section class="chapter"><h2>Primary sources</h2><p><a href="../analysis/domain-grid-semantics.md">Canonical decision record</a> · <a href="https://developers.binance.com/en/docs/products/spot/user-data-stream">Binance Spot execution reports</a>. Ask your agent about any balance movement you cannot reconcile.</p></section>
+  </main>
+  <footer class="footer shell"><a href="0003-ladder-and-order-semantics.html">← Previous</a> · <a href="0005-lifecycle-and-safety.html">Next: lifecycle and safety →</a></footer>
+  <script src="../assets/grid-lesson.js"></script>
+</body></html>

@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Learn grid allocation, real bootstrap acquisition, backing inventory, and fixed quote sizing.">
+  <title>Inventory, bootstrap, and sizing</title><link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+  <header class="hero shell">
+    <p class="eyebrow">Lesson 0002 · Capital · 12–15 minutes</p>
+    <h1>Every sell must be backed by BTC the grid actually owns.</h1>
+    <p class="lede">By the end, you can calculate bootstrap inventory, distinguish account holdings from grid inventory, and explain why MVP profit does not resize later orders.</p>
+    <p class="breadcrumb"><a href="grid-semantics-module.html">Module home</a> → Inventory, bootstrap, and sizing</p>
+  </header>
+  <main class="shell">
+    <section class="chapter" id="bootstrap">
+      <div class="chapter-head"><div><p class="eyebrow">Mental model</p><h2>Neutral means two-sided readiness—not zero risk.</h2></div><p>A spot grid owns BTC and therefore loses value when BTC falls. It is not market-neutral.</p></div>
+      <div class="grid-3">
+        <article class="card term"><h3>Account base holdings</h3><p>All BTC visible in the Binance account, including BTC unrelated to this grid.</p></article>
+        <article class="card term buy"><h3>Grid inventory</h3><p>BTC explicitly allocated to this run and tracked by its ledger.</p></article>
+        <article class="card term warn"><h3>Backing inventory</h3><p>The part reserved to fulfill every currently planned sell obligation.</p></article>
+      </div>
+      <article class="card worked stack-gap">
+        <h3>why a real acquisition is required</h3>
+        <p>A BTC/USDT grid activates near 100,000 USDT with initial sell rungs at 105,000, 110,000, and 115,000. Each sell represents 100 USDT of quote value. The grid needs approximately:</p>
+        <div class="formula">100/105,000 + 100/110,000 + 100/115,000 = 0.002731 BTC</div>
+        <p>Live activation submits an aggressive, journaled acquisition for the required net BTC plus approved fee and rounding shortfall. That order incurs real price, fee, and slippage. A database entry that merely changes USDT into BTC would be synthetic and cannot back live orders.</p>
+      </article>
+    </section>
+
+    <section class="chapter" id="backing">
+      <div class="chapter-head"><div><p class="eyebrow">Obligation first</p><h2>Bootstrap size comes from sells, not a percentage.</h2></div><p>“Use half the capital” is convenient but unrelated to the actual sell quantities.</p></div>
+      <div class="grid-2">
+        <article class="card">
+          <h3>Calculation sequence</h3>
+          <ol>
+            <li>Generate and venue-round every initial sell quantity.</li>
+            <li>Sum those base obligations.</li>
+            <li>Add the configured fee reserve or acquire a base-fee shortfall.</li>
+            <li>Confirm net credited base before placing any rung.</li>
+          </ol>
+          <div class="formula">required backing = Σ rounded sell quantities + approved shortfall reserve</div>
+        </article>
+        <article class="card">
+          <h3>Incomplete acquisition</h3>
+          <p>If 1.000 BTC is required but only 0.800 BTC is confirmed, the run stays <strong>bootstrapping</strong>. It does not silently shrink sells or place a partially backed ladder.</p>
+          <p>Retries are allowed only within approved price, slippage, and time limits. Any acquired 0.800 BTC remains grid-owned and journaled while the operator reviews the failure.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="chapter" id="sizing">
+      <div class="chapter-head"><div><p class="eyebrow">Stable commitments</p><h2>Fixed quote does not mean fixed BTC.</h2></div><p>Equal quote commitments make exposure comparable; BTC quantity changes with rung price.</p></div>
+      <article class="card worked">
+        <h3>two completed cycles</h3>
+        <table class="ledger"><thead><tr><th>Action</th><th>Price</th><th>Quote commitment</th><th>Approx. base</th><th>Uncommitted profit</th></tr></thead><tbody>
+          <tr><td>Buy</td><td>100</td><td>100 USDT</td><td>1.0000</td><td>0</td></tr>
+          <tr><td>Sell</td><td>105</td><td>—</td><td>1.0000</td><td>5 USDT before costs</td></tr>
+          <tr><td>Replacement buy</td><td>100</td><td>100 USDT</td><td>1.0000</td><td>5 USDT remains aside</td></tr>
+          <tr><td>Second sell</td><td>105</td><td>—</td><td>1.0000</td><td>10 USDT before costs</td></tr>
+        </tbody></table>
+        <p>The next replacement buy is still 100 USDT. Profit becomes <strong>uncommitted quote</strong> inside grid equity; it does not become a 105 or 110 USDT rung. Compounding is a later, separately validated sizing policy.</p>
+      </article>
+      <div class="grid-2 stack-gap">
+        <article class="card"><h3>At lower prices</h3><p>100 USDT at price 80 requests about 1.25 base units.</p></article>
+        <article class="card"><h3>At higher prices</h3><p>100 USDT at price 125 requests about 0.80 base units.</p></article>
+      </div>
+    </section>
+
+    <section class="chapter">
+      <div class="chapter-head"><div><p class="eyebrow">Retrieval</p><h2>Check the ownership logic.</h2></div><p>Choose before looking back.</p></div>
+      <div class="card quiz">
+        <div class="question" data-hint="Neutral spot needs owned inventory above the activation price."><h3>1. Why does neutral bootstrap buy real base?</h3><div class="answers"><button class="btn answer" data-correct="true" data-explain="Correct. Initial sells require owned base inventory.">Back initial sell obligations</button><button class="btn answer" data-correct="false">Remove all price exposure</button></div><p class="feedback" aria-live="polite"></p></div>
+        <div class="question" data-hint="Required quantity follows the concrete sell plan."><h3>2. What determines the acquisition quantity?</h3><div class="answers"><button class="btn answer" data-correct="false">Half the available account</button><button class="btn answer" data-correct="true" data-explain="Correct. The rounded sells plus reserve define it.">All rounded sell obligations</button></div><p class="feedback" aria-live="polite"></p></div>
+        <div class="question" data-hint="MVP rung commitment remains fixed by configuration."><h3>3. Where does completed-cycle profit go?</h3><div class="answers"><button class="btn answer" data-correct="true" data-explain="Correct. Profit remains uncommitted inside grid equity.">Into uncommitted grid quote</button><button class="btn answer" data-correct="false">Into larger replacement orders</button></div><p class="feedback" aria-live="polite"></p></div>
+      </div>
+    </section>
+    <section class="chapter"><h2>Primary project sources</h2><p><a href="../analysis/domain-grid-semantics.md">Canonical decision record</a> · <a href="../docs/domain/trading-engine/CONTEXT.md">Trading-engine glossary</a>. Ask your agent about any quantity or ownership step you cannot reproduce.</p></section>
+  </main>
+  <footer class="footer shell"><a href="0003-ladder-and-order-semantics.html">Next: ladder and order semantics →</a></footer>
+  <script src="../assets/grid-lesson.js"></script>
+</body>
+</html>

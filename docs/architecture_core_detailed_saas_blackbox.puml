@@ -1,0 +1,111 @@
+@startuml
+title Grid Backtester - Core Detailed View with SaaS Black Box
+
+' Compact visual architecture. Detailed file/interface inventory is in the side legend.
+left to right direction
+
+skinparam componentStyle rectangle
+skinparam shadowing false
+skinparam linetype ortho
+skinparam wrapWidth 95
+skinparam maxMessageSize 90
+skinparam nodesep 30
+skinparam ranksep 22
+skinparam defaultFontSize 10
+scale max 2400 width
+
+actor "User" as User
+
+package "grid-backtest-saas\nblack box except important interfaces" as SaaS {
+  component "REST/UI\n/api/v1/auth\n/api/v1/backtest\n/api/v1/research" as SaaSAPI
+  component "Orchestration\nbacktest + research services" as SaaSOrch
+  component "Async + Persistence\nDB session/models\nCelery worker" as SaaSInfra
+}
+
+folder "Market Data Files\nparquet/csv OHLCV" as MarketData
+database "Metadata DB\nusers, runs, jobs" as DB
+queue "Redis\nCelery broker/results" as Redis
+
+artifact "Core Inputs\nconfigs + strategy + DataFrame" as Inputs
+
+package "grid-backtest-core\nexpanded pure core" as Core {
+  component "Public API + Contracts\nmodels, config, actions,\nDataSource protocol" as Contracts
+  component "Simulation Engine\nBacktestEngine\nFast/Numba engine" as Engine
+  component "Strategies + Policies\nIStrategy\nSimpleGrid\nDynamicGrid\nfilters/range/spacing/recenter/SLTP" as Strategies
+  component "Execution + Indicators\nbootstrap\nconstraints\nreservations\nATR/EMA/RSI/ADX\nwarmup" as ExecInd
+  component "Results + Research\nBacktestResult\ntrades/metrics/benchmark\nrepository utilities\ngrid search" as ResultsResearch
+}
+
+artifact "Core Outputs\nBacktestResult\nmetrics, trades,\nequity curve,\nresearch results" as Outputs
+
+folder "SaaS Result File\nGRID_STORAGE_LOCAL_PATH/{run_id}.json" as SaaSResult
+folder "Optional Core Exports\nsummary.json\ntrades.csv\nequity_curve.csv\nextra.json" as CoreExports
+
+User --> SaaSAPI : REST/JSON
+SaaSAPI --> SaaSOrch : validated requests
+SaaSAPI --> SaaSInfra : auth/session/run metadata
+SaaSInfra --> DB : ORM persistence
+SaaSInfra --> Redis : async task state
+
+SaaSOrch --> MarketData : read/filter/resample
+MarketData --> Inputs : OHLCV DataFrame
+SaaSOrch --> Inputs : build core configs\nand strategy
+
+Inputs --> Contracts : public imports
+Contracts --> Engine : domain/config/action types
+Engine --> Strategies : IStrategy + EngineAction\nfill/cancel events
+Engine --> ExecInd : bootstrap, constraints,\nreservations, indicators
+Engine --> ResultsResearch : trades, metrics,\nbenchmark, research loop
+ResultsResearch --> Outputs : result objects
+Outputs --> SaaSOrch : return to app layer
+SaaSOrch --> SaaSResult : write/read details
+ResultsResearch --> CoreExports : optional export
+
+' Layout nudges
+SaaS -[hidden]right- MarketData
+MarketData -[hidden]right- Inputs
+Inputs -[hidden]right- Core
+Core -[hidden]right- Outputs
+Outputs -[hidden]right- SaaSResult
+
+legend right
+<b>SaaS visible files</b>
+frontend/static/index.html, frontend/static/app.js
+backend/app/main.py
+backend/app/api/v1/auth.py, backtest.py, research.py, deps.py
+backend/app/services/backtest_service.py, research_service.py
+backend/app/db/models.py, session.py
+backend/app/workers/celery_app.py, backtest_task.py
+backend/app/core/config.py, security.py
+
+<b>Exchanged inputs</b>
+Market data: {SYMBOL}.parquet.gzip or {SYMBOL}_{timeframe}.csv
+DataFrame: DatetimeIndex + Open, High, Low, Close, Volume
+Core configs: BacktestConfig, IndicatorSpec, OrderExpiryConfig, WarmupConfig
+Strategy configs: GridConfig, DynamicGridConfig
+
+<b>Core files by component</b>
+Contracts: __init__.py, models.py, config.py, engine_actions.py, data/protocols.py
+Engine: engine.py, engine_fast.py, _numba_engine.py
+Strategies: strategy/base.py, grid_simple.py, grid_dynamic.py, policies/*.py
+Execution/indicators: execution/bootstrap.py, constraints.py, reservations.py, indicators.py
+Results/research: results/models.py, trade_builder.py, metrics.py, benchmarks.py, repository.py, research/grid_search.py, grid_search_fast.py
+
+<b>Core interfaces/events</b>
+IStrategy.on_candle()
+IStrategy.on_order_filled()
+IStrategy.on_order_cancelled()
+EngineAction: PLACE_ORDER, GRID_EXIT, CANCEL_OPEN_ORDERS
+Events: OrderFilledEvent, OrderCancelledEvent
+DataSource protocol: load(symbol,timeframe,start,end) -> DataFrame
+
+<b>Generated outputs</b>
+SaaS: GRID_STORAGE_LOCAL_PATH/{run_id}.json with metrics, benchmark_buy_hold, equity_curve[], trades[]
+Core optional: summary.json, trades.csv, equity_curve.csv, extra.json
+
+<b>Boundary rule</b>
+Core has no FastAPI, SQLAlchemy, Redis/Celery, exchange SDK, or file data loader.
+It receives in-memory configs/strategies/DataFrames and returns BacktestResult/research outputs.
+endlegend
+
+@enduml

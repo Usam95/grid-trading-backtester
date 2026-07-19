@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Grid-Trading System — Profitability &amp; Worth-It Assessment</title>
+<style>
+  :root {
+    --bg: #0f1220; --card: #1a1e30; --ink: #e7e9f2; --muted: #a6abc4;
+    --accent: #6ea8fe; --good: #4ade80; --warn: #fbbf24; --bad: #f87171;
+    --border: #2b3050;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font: 16px/1.6 -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg); color: var(--ink); padding: 0 0 4rem;
+  }
+  header {
+    padding: 2.5rem 1.5rem 1.75rem; background: linear-gradient(160deg,#1c2340,#0f1220);
+    border-bottom: 1px solid var(--border);
+  }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 0 1.25rem; }
+  h1 { margin: 0 0 .3rem; font-size: 1.8rem; }
+  h2 { margin: 2.2rem 0 .8rem; font-size: 1.3rem; border-left: 3px solid var(--accent); padding-left: .6rem; }
+  h3 { margin: 1.4rem 0 .4rem; font-size: 1.05rem; color: var(--accent); }
+  .sub { color: var(--muted); font-size: .92rem; }
+  .verdict {
+    display: flex; flex-wrap: wrap; gap: 1rem; margin: 1.5rem 0;
+  }
+  .vcard {
+    flex: 1 1 240px; background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1rem 1.1rem;
+  }
+  .vcard .label { font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .vcard .val { font-size: 1.15rem; font-weight: 600; margin-top: .25rem; }
+  .no { color: var(--bad); } .yes { color: var(--good); } .maybe { color: var(--warn); }
+  table { border-collapse: collapse; width: 100%; margin: .8rem 0; font-size: .93rem; }
+  th, td { text-align: left; padding: .55rem .6rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; }
+  code { background: #11142400; color: var(--accent); font-size: .9em; }
+  .tag { display: inline-block; font-size: .72rem; padding: .1rem .45rem; border-radius: 999px; border: 1px solid var(--border); color: var(--muted); }
+  ul { margin: .4rem 0 .8rem; padding-left: 1.2rem; }
+  li { margin: .3rem 0; }
+  .callout {
+    background: #20182a; border: 1px solid #4b2f3a; border-left: 3px solid var(--bad);
+    border-radius: 10px; padding: .9rem 1.1rem; margin: 1rem 0;
+  }
+  .callout.good { background: #14261c; border-color: #2f4b38; border-left-color: var(--good); }
+  .callout.warn { background: #241f14; border-color: #4b422f; border-left-color: var(--warn); }
+  .num { font-variant-numeric: tabular-nums; }
+  footer { color: var(--muted); font-size: .82rem; margin-top: 2.5rem; border-top: 1px solid var(--border); padding-top: 1rem; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>Is it worth implementing? Is it promising?</h1>
+    <p class="sub">Financial-profitability assessment of the Comprehensive Grid-Trading System spec &middot;
+    prepared 2026-07-19 &middot; companion to <code>.scratch/comprehensive-grid-trading-system/spec-review/</code></p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="verdict">
+    <div class="vcard">
+      <div class="label">As a money-maker</div>
+      <div class="val no">No &mdash; not at this scale</div>
+    </div>
+    <div class="vcard">
+      <div class="label">As a learning / platform project</div>
+      <div class="val yes">Yes &mdash; genuinely valuable</div>
+    </div>
+    <div class="vcard">
+      <div class="label">Overall</div>
+      <div class="val maybe">Build it, but reframe &amp; de-scope</div>
+    </div>
+  </div>
+
+  <p><strong>Bottom line:</strong> the spec conflates two different projects &mdash; a <em>trading
+  strategy</em> and a <em>trading platform</em>. As a strategy it will not make money at 250&nbsp;USDT
+  (probably not much at any scale). As an engineering-and-learning exercise it is unusually strong.
+  It is, however, <em>production-grade ceremony for a 250&nbsp;USDT toy</em>: simultaneously
+  over-engineered and under-provisioned for real money.</p>
+
+  <h2>1. The strategy &mdash; will it make money?</h2>
+
+  <div class="callout">
+    <strong>The economics don&rsquo;t close.</strong> Infrastructure costs roughly
+    <span class="num">25&ndash;30&times;</span> the best-case annual profit at the tested capital.
+  </div>
+
+  <table>
+    <thead><tr><th>Item</th><th>Figure</th><th>Note</th></tr></thead>
+    <tbody>
+      <tr><td>Capital envelope (first live)</td><td class="num">250 USDT</td><td>hard max per the spec</td></tr>
+      <tr><td>Passing return bar</td><td class="num">~4&ndash;5% / yr</td><td>holdout &ge;4%, rolling annualized &ge;5%</td></tr>
+      <tr><td>Best-case annual profit</td><td class="num">~10&ndash;12.5 USDT</td><td>4&ndash;5% of 250</td></tr>
+      <tr><td>Azure running cost</td><td class="num">~EUR 288&ndash;360 / yr</td><td>EUR 24&ndash;30/mo, warn 35, review 50</td></tr>
+      <tr><td>Break-even capital (infra only)</td><td class="num">~6,000 USDT</td><td>EUR ~300/yr &divide; 5%, before fees/time</td></tr>
+      <tr><td>Realistic alternative</td><td class="num">~4&ndash;5% / yr</td><td>stablecoin earn / T-bill, lower risk</td></tr>
+    </tbody>
+  </table>
+
+  <p>So even a candidate that <em>passes</em> the gates returns about what a savings product yields,
+  at higher risk, while the server bill dwarfs the profit.</p>
+
+  <h3>The edge is thin and fragile</h3>
+  <ul>
+    <li><strong>Not actually &ldquo;neutral.&rdquo;</strong> The grid must pre-buy inventory to back
+      its sells, so it is really <em>long the asset + range-scalping</em>. Drawdown is dominated by
+      the asset falling, not by grid mechanics. <span class="tag">CON-3</span></li>
+    <li><strong>Venue quantization eats the margin.</strong> At 10&ndash;20&nbsp;USDT orders,
+      Binance <code>minNotional</code>/<code>stepSize</code>/<code>tickSize</code> rounding is a real
+      fraction of the few-tenths-of-a-percent per-cycle edge. <span class="tag">ECO-2</span></li>
+    <li><strong>Symbol mismatch.</strong> Grids want ranging mid-caps; the 5-year-clean-history rule
+      pushes the panel toward trend-heavy majors &mdash; the worst case. <span class="tag">VAL-2</span></li>
+    <li><strong>Bootstrap drag.</strong> A taker buy of the whole inventory at activation front-loads
+      fees + slippage against a tiny edge. <span class="tag">ECO-3</span></li>
+    <li><strong>Commodity space.</strong> Grid bots are well-trodden; nothing here shows an edge the
+      thousands of existing bots don&rsquo;t already have.</li>
+  </ul>
+
+  <h3>The promotion gates may be self-defeating</h3>
+  <p>A Deflated-Sharpe &ge;0.95 requirement across ~10<sup>5</sup> search trials, intersected with a
+  &ldquo;modest&rdquo; 5% return bar, may be <em>jointly unpassable</em> for a low-Sharpe grid
+  <span class="tag">VAL-1</span>. Combined with a single-use holdout and no runner-up substitution,
+  you could spend quarters and never legitimately promote a candidate. <span class="tag">VAL-3</span>
+  <span class="tag">VAL-4</span></p>
+
+  <h2>2. The system &mdash; is it worth building?</h2>
+
+  <div class="callout good">
+    <strong>Yes &mdash; if the goal is learning and a reusable platform, not profiting from this strategy.</strong>
+  </div>
+
+  <ul>
+    <li>The architecture is <strong>strategy-agnostic</strong>: a deterministic core, append-only
+      event journal, backtest/replay/paper/live parity, fail-closed safety, and real reconciliation.
+      That skeleton would serve any future strategy far better than the grid itself.</li>
+    <li>The operator is described as &ldquo;still learning.&rdquo; For that goal the payoff is large:
+      exchange mechanics, accounting invariants, walk-forward validation, and production ops at a
+      level most retail traders never reach.</li>
+    <li>The spec quality (rigor, cross-referencing, explicit residual-risk acceptance) is well above
+      typical hobby projects.</li>
+  </ul>
+
+  <div class="callout warn">
+    <strong>But it is over-built for its goal and under-provisioned for real money.</strong>
+    The mandatory stop-loss can&rsquo;t fire while the single VM is down <span class="tag">SAF-1</span>,
+    and the tiny B1ms node will likely fail its own capacity gate <span class="tag">RUN-1</span> &mdash;
+    production ceremony wrapped around a 250-USDT toy on hardware that may not hold it up.
+  </div>
+
+  <h2>3. Recommendation &mdash; build it, in this order</h2>
+  <ol>
+    <li><strong>Prove the premise cheaply first.</strong> Before any cloud/paper/promotion machinery,
+      run the full validation as a <em>dry run</em> on past history (a mock holdout) for 2&ndash;3
+      real symbols. If no candidate clears the joint gate stack, stop or change strategy &mdash;
+      you&rsquo;ve saved months. <span class="tag">VAL-3</span></li>
+    <li><strong>Call it what it is.</strong> One honest paragraph in the spec: net-long, and
+      net-negative vs infrastructure at 250&nbsp;USDT; it exists to prove correctness/parity/ops.
+      <span class="tag">IMP-3</span> <span class="tag">ECO-1</span></li>
+    <li><strong>Build the core, defer the cloud.</strong> The deterministic engine + journal +
+      accounting + backtester are the durable, reusable, low-risk assets. The always-on Azure/live
+      half is where the cost and the safety gaps live &mdash; defer until the strategy earns its keep.</li>
+    <li><strong>Only go live if you fix SAF-1</strong> (a venue-native protective stop, e.g. OCO,
+      mirroring the domain stop) and accept the economics as tuition. <span class="tag">SAF-1</span>
+      <span class="tag">ENH-1</span></li>
+  </ol>
+
+  <h2>Summary table</h2>
+  <table>
+    <thead><tr><th>Question</th><th>Answer</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Profitable at 250 USDT?</td><td class="no">No</td><td>infra ~25&ndash;30&times; best-case profit</td></tr>
+      <tr><td>Profitable at scale?</td><td class="maybe">Unlikely / marginal</td><td>thin edge, commodity space, beats cash only slightly</td></tr>
+      <tr><td>Can a candidate even pass the gates?</td><td class="maybe">Uncertain</td><td>DSR vs modest-return tension</td></tr>
+      <tr><td>Good learning project?</td><td class="yes">Yes</td><td>high-quality, real production concepts</td></tr>
+      <tr><td>Reusable platform value?</td><td class="yes">Yes</td><td>strategy-agnostic core</td></tr>
+      <tr><td>Safe for real money as specced?</td><td class="no">Not yet</td><td>SAF-1 stop-loss gap, B1ms capacity</td></tr>
+    </tbody>
+  </table>
+
+  <footer>
+    Finding IDs (SAF-, ECO-, VAL-, RUN-, IMP-, ENH-) reference the full review in
+    <code>.scratch/comprehensive-grid-trading-system/spec-review/</code> (see <code>README.md</code>
+    and per-category files). This document is an opinion/assessment, not financial advice.
+  </footer>
+
+</div>
+</body>
+</html>

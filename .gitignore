@@ -1,0 +1,22 @@
+.artifacts/
+.hypothesis/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.tools/
+.venv/
+**/__pycache__/
+*.py[cod]
+*.coverage
+.coverage
+htmlcov/
+
+# Useful legacy repositories are read-only characterization sources. They are
+# deliberately outside the canonical repository and dependency graph.
+backtester_old/
+grid-backtest-core/
+grid-backtest-saas/
+
+# Generated/reference binaries are not canonical source.
+*.pdf
+

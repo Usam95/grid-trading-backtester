@@ -1,0 +1,221 @@
+@startuml
+title Grid Backtester - Detailed Component and Interface View
+
+skinparam componentStyle rectangle
+skinparam shadowing false
+skinparam wrapWidth 240
+skinparam maxMessageSize 180
+
+left to right direction
+
+actor "User" as User
+
+package "Frontend Boundary\ncurrent static MVP" as FE {
+  component "Static UI\nindex.html\napp.js" as StaticUI
+}
+
+package "grid-backtest-saas/backend/app" as SaaS {
+  package "API Layer\nfiles: api/v1/*.py" as APILayer {
+    component "auth.py\nregister/login/JWT" as AuthAPI
+    component "backtest.py\nPOST /backtest\nGET /backtest/{id}\nGET /backtest/{id}/details" as BacktestAPI
+    component "research.py\nPOST /research" as ResearchAPI
+    component "deps.py\nget_db\nget_current_user" as Deps
+  }
+
+  package "Schemas\nfiles: schemas/*.py" as SchemaLayer {
+    artifact "GridConfigSchema\nBacktestRunResponse\nBacktestSubmitResponse\nschemas/backtest.py" as BacktestSchemas
+    artifact "ResearchConfigSchema\nResearchResponse\nResearchResultItem\nschemas/research.py" as ResearchSchemas
+    artifact "User schemas\nschemas/user.py" as UserSchemas
+  }
+
+  package "Services\nfiles: services/*.py" as Services {
+    component "create_backtest_run()\nexecute_backtest()\nget_backtest_details()\n_load_market_data()\n_resample()\n_store_result()\nservices/backtest_service.py" as BTService
+    component "execute_research()\n_execute_research_fast()\n_execute_research_python()\nstrategy factories\nservices/research_service.py" as RService
+  }
+
+  package "Persistence\nfiles: db/*.py" as Persistence {
+    component "Async DB Session\nget_db()\ndb/session.py" as DBSession
+    database "ORM Models\nUser\nBacktestRun\nResearchJob\ndb/models.py" as ORM
+    database "Runtime DB\nSQLite local:\n./data/grid_backtest.db\nor PostgreSQL via GRID_DATABASE_URL" as RuntimeDB
+  }
+
+  package "Worker Path\nfiles: workers/*.py" as WorkerLayer {
+    component "Celery app\nworkers/celery_app.py" as CeleryApp
+    component "run_backtest_task()\nworkers/backtest_task.py" as BTTask
+    queue "Redis broker/backend\nGRID_CELERY_BROKER_URL\nGRID_CELERY_RESULT_BACKEND" as Redis
+  }
+
+  component "Settings\nGRID_* env vars\ncore/config.py" as Settings
+  component "Security\nJWT + password hashing\ncore/security.py" as Security
+}
+
+package "grid-backtest-core/src/grid_backtest" as Core {
+  package "Public API" as PublicAPI {
+    component "__init__.py\nexports public symbols" as Init
+  }
+
+  package "Domain and Configuration" as Domain {
+    artifact "models.py\nCandle\nOrder\nPosition\nAccountState\nOrderFilledEvent\nOrderCancelledEvent" as Models
+    artifact "config.py\nBacktestConfig\nIndicatorSpec\nOrderExpiryConfig\nWarmupConfig\nBootstrapConfig\nConstraintConfig\nReservationConfig" as Config
+    artifact "engine_actions.py\nEngineAction\nPLACE_ORDER\nGRID_EXIT\nCANCEL_OPEN_ORDERS" as Actions
+  }
+
+  package "Engine Layer" as EngineLayer {
+    component "BacktestEngine\nengine.py\nsimulation loop\nfills\nfees\nslippage\nTTL expiry\nwarmup handling" as Engine
+    component "FastBacktestEngine\nengine_fast.py" as FastEngine
+    component "Numba kernels\n_numba_engine.py" as NumbaKernel
+  }
+
+  package "Strategies" as StrategyLayer {
+    interface "IStrategy\non_candle()\non_order_filled()\non_order_cancelled()" as IStrategy
+    component "BaseStrategy\nstrategy/base.py" as BaseStrategy
+    component "SimpleGridStrategy\nGridConfig\nGridLevel\nstrategy/grid_simple.py" as SimpleGrid
+    component "DynamicGridStrategy\nDynamicGridConfig\nFloatingGridConfig\nstrategy/grid_dynamic.py" as DynamicGrid
+  }
+
+  package "Strategy Policies" as Policies {
+    component "FilterPolicy\nRSI / EMA deviation / ADX regime gate\nstrategy/policies/filter.py" as FilterPolicy
+    component "RangePolicy\npercent / absolute / ATR range\nstrategy/policies/range.py" as RangePolicy
+    component "SpacingPolicy\nrange / percent / ATR step\nstrategy/policies/space.py" as SpacingPolicy
+    component "RecenterPolicy\nband-break / time\nstrategy/policies/recenter.py" as RecenterPolicy
+    component "SLTPPolicy\nstop-loss / take-profit\nstrategy/policies/sltp.py" as SLTPPolicy
+  }
+
+  package "Execution" as Execution {
+    component "bootstrap_portfolio()\nexecution/bootstrap.py" as Bootstrap
+    component "OrderConstraintPolicy\nexecution/constraints.py" as Constraints
+    component "ReservationBook\nexecution/reservations.py" as Reservations
+  }
+
+  package "Indicators" as IndicatorLayer {
+    component "enrich_indicators()\nadd_atr()\nadd_ema()\nadd_rsi()\nadd_adx()\nindicators.py" as Indicators
+  }
+
+  package "Results" as ResultLayer {
+    artifact "results/models.py\nBacktestResult\nTrade\nEquityPoint" as ResultModels
+    component "TradeBuilder\nresults/trade_builder.py" as TradeBuilder
+    component "MetricRegistry\ncreate_default_metric_registry()\nresults/metrics.py" as Metrics
+    component "Buy and Hold benchmark\nresults/benchmarks.py" as Benchmarks
+    component "Optional result repository\nsave_backtest_result()\nresult_to_dataframes()\nprint_result_summary()\nresults/repository.py" as CoreRepo
+  }
+
+  package "Research" as ResearchLayer {
+    component "GridResearchRunner\nGridResearchSummary\nresearch/grid_search.py" as GridSearch
+    component "run_fast_search()\nFastSearchConfig\nresearch/grid_search_fast.py" as FastSearch
+  }
+
+  package "Data Protocol" as DataProtocol {
+    interface "DataSource protocol\nload(symbol,timeframe,start,end) -> DataFrame\ndata/protocols.py" as DataSourceProtocol
+  }
+}
+
+folder "Input Market Data Files\nresolved by _load_market_data()\n\nPath:\nPath(GRID_STORAGE_LOCAL_PATH).parent / market_data\n\nFiles:\n{SYMBOL}.parquet.gzip\n{SYMBOL}_{timeframe}.csv\n\nColumns:\nOpen, High, Low, Close, Volume" as InputFiles
+
+folder "SaaS Generated Result Artifact\nwritten by _store_result()\n\nPath:\nGRID_STORAGE_LOCAL_PATH/{run_id}.json\n\nPayload:\nrun_id, symbol, timeframe,\ninitial_balance, final_equity,\ndata_start, data_end, n_bars,\nmetrics, benchmark_buy_hold,\nequity_curve[], trades[]" as SaaSResultJson
+
+folder "Core Optional Result Artifacts\nwritten only when save_backtest_result() is called\n\nsummary.json\ntrades.csv\nequity_curve.csv\nextra.json" as CoreArtifacts
+
+artifact "In-memory Exchange Objects\nbetween SaaS and core\n\npandas.DataFrame OHLCV\nBacktestConfig\nGridConfig / DynamicGridConfig\nSimpleGridStrategy / DynamicGridStrategy\nBacktestResult\nResearchResponse" as MemoryContracts
+
+User --> StaticUI : browser interaction
+StaticUI --> AuthAPI : JSON REST\nregister/login
+StaticUI --> BacktestAPI : JSON REST\nGridConfigSchema
+StaticUI --> ResearchAPI : JSON REST\nResearchConfigSchema
+
+AuthAPI --> UserSchemas : validate payloads
+AuthAPI --> Security : hash password\ncreate JWT
+AuthAPI --> DBSession
+DBSession --> ORM
+ORM --> RuntimeDB
+
+BacktestAPI --> Deps : authenticated User\nAsyncSession
+BacktestAPI --> BacktestSchemas : validate config\nserialize response
+BacktestAPI --> BTService : create_backtest_run()\nexecute_backtest()
+BacktestAPI --> ORM : create/update BacktestRun\nstatus + summary metrics\nresult_storage_key
+
+ResearchAPI --> Deps : authenticated User
+ResearchAPI --> ResearchSchemas : validate config\nserialize response
+ResearchAPI --> RService : execute_research()
+
+BTTask --> CeleryApp
+BTTask --> BTService : execute_backtest(run_id, config_dict)
+CeleryApp --> Redis : broker/result backend
+
+Settings --> BTService : storage_local_path
+Settings --> DBSession : database_url
+Settings --> CeleryApp : celery URLs
+
+BTService --> InputFiles : read parquet/csv
+RService --> InputFiles : read parquet/csv
+BTService --> MemoryContracts : builds DataFrame + configs
+RService --> MemoryContracts : builds DataFrame + param grid
+
+BTService --> Init : imports core API
+RService --> Init : imports core API
+Init --> Models
+Init --> Config
+Init --> Engine
+Init --> FastEngine
+Init --> SimpleGrid
+Init --> DynamicGrid
+Init --> GridSearch
+
+BTService --> Engine : BacktestEngine(config,strategy,data,symbol,timeframe).run()
+BTService --> SaaSResultJson : writes {run_id}.json
+BacktestAPI --> SaaSResultJson : reads details by result_storage_key
+
+RService --> FastSearch : preferred fast path\nrun_fast_search(data, FastSearchConfig)
+RService --> GridSearch : Python fallback\nGridResearchRunner.run()
+GridSearch --> Engine : repeated strategy backtests
+FastSearch --> NumbaKernel : vectorized simulation
+FastEngine --> NumbaKernel
+
+Engine --> Indicators : enrich_indicators()\nATR/EMA/RSI/ADX\nWarmupConfig controls NaN drop + bar skip
+Engine --> Bootstrap : initial portfolio setup
+Engine --> Constraints : order feasibility
+Engine --> Reservations : quote/base fund locks
+Engine --> IStrategy : on_candle(Candle,AccountState)\nreturns EngineAction[]
+Engine --> IStrategy : on_order_filled(OrderFilledEvent)
+Engine --> IStrategy : on_order_cancelled(OrderCancelledEvent)\nfor TTL/recenter/grid-exit cancellations
+Engine --> TradeBuilder : fills -> logical trades
+Engine --> Metrics : compute metrics
+Engine --> Benchmarks : buy-and-hold comparison
+Engine --> ResultModels : builds BacktestResult
+
+BaseStrategy ..|> IStrategy
+SimpleGrid ..|> IStrategy
+DynamicGrid ..|> IStrategy
+DynamicGrid --> SimpleGrid : wraps inner static grid
+DynamicGrid --> FilterPolicy
+DynamicGrid --> RangePolicy
+DynamicGrid --> SpacingPolicy
+DynamicGrid --> RecenterPolicy
+DynamicGrid --> SLTPPolicy
+
+Actions --> Models : Order command payload
+Engine --> Actions : consumes PLACE_ORDER\nGRID_EXIT\nCANCEL_OPEN_ORDERS
+Engine --> Models : mutates AccountState\nopen orders/positions
+
+CoreRepo --> CoreArtifacts : optional CSV/JSON export
+DataSourceProtocol ..> InputFiles : consumer implements file/API loading\ncore does not read files directly
+
+note right of InputFiles
+Current SaaS data loading lives in:
+backend/app/services/backtest_service.py
+
+This is outside core and may be replaced by
+a formal app-layer DataSource implementation.
+end note
+
+note bottom of Engine
+Current engine semantics:
+- single symbol
+- single timeframe DataFrame
+- spot-like long inventory
+- same-candle order fill simulation
+- LIMIT fills at order price
+- MARKET fills with slippage_pct
+- order TTL via max_age_bars
+end note
+
+@enduml

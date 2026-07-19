@@ -1,0 +1,80 @@
+@startuml
+title Grid Backtester - Current High-Level Component Architecture
+
+skinparam componentStyle rectangle
+skinparam shadowing false
+skinparam wrapWidth 220
+skinparam maxMessageSize 180
+
+actor "Authenticated User" as User
+
+node "Browser / Static Frontend\nfiles:\ngrid-backtest-saas/frontend/static/index.html\ngrid-backtest-saas/frontend/static/app.js" as Frontend
+
+package "grid-backtest-saas\nApplication Boundary (black box)" as SaaS {
+  component "FastAPI Backend\nfiles:\nbackend/app/main.py\nbackend/app/api/v1/*.py" as API
+  component "Backtest Service\nfile:\nbackend/app/services/backtest_service.py" as BacktestService
+  component "Research Service\nfile:\nbackend/app/services/research_service.py" as ResearchService
+  component "Celery Worker Path\nfiles:\nbackend/app/workers/celery_app.py\nbackend/app/workers/backtest_task.py" as Worker
+  database "App Database\nSQLite local / PostgreSQL prod\nmodels:\nusers\nbacktest_runs\nresearch_jobs\nfile:\nbackend/app/db/models.py" as DB
+  queue "Redis\nbroker/result backend\nconfigured by:\nGRID_CELERY_BROKER_URL\nGRID_CELERY_RESULT_BACKEND" as Redis
+}
+
+package "grid-backtest-core\nPure Python Library" as Core {
+  component "BacktestEngine\nfile:\ngrid_backtest/engine.py" as Engine
+  component "FastBacktestEngine / Numba Kernel\nfiles:\ngrid_backtest/engine_fast.py\ngrid_backtest/_numba_engine.py" as FastEngine
+  component "Strategies\nSimpleGridStrategy\nDynamicGridStrategy\nfiles:\nstrategy/grid_simple.py\nstrategy/grid_dynamic.py" as Strategies
+  component "Research Runner\nfiles:\nresearch/grid_search.py\nresearch/grid_search_fast.py" as Research
+  component "Domain + Config + Results\nfiles:\nmodels.py\nconfig.py\nresults/*.py" as Domain
+}
+
+folder "Market Data Inputs\nlocal files under:\ngrid-backtest-saas/data/market_data\n\nExpected names:\n{SYMBOL}.parquet.gzip\n{SYMBOL}_{timeframe}.csv\n\nShape:\nDatetimeIndex + Open, High, Low, Close, Volume" as MarketData
+
+folder "Generated Result Files\nlocal path from GRID_STORAGE_LOCAL_PATH\n(default ./data/results)\n\nSaaS MVP output:\n{run_id}.json\ncontains metrics, benchmark, equity_curve, trades\n\nCore optional repository outputs:\nsummary.json\ntrades.csv\nequity_curve.csv\nextra.json" as ResultFiles
+
+artifact "Request Schemas\nGridConfigSchema\nResearchConfigSchema\nfiles:\nbackend/app/schemas/backtest.py\nbackend/app/schemas/research.py" as Schemas
+
+User --> Frontend : use UI
+Frontend --> API : REST /api/v1/auth\nREST /api/v1/backtest\nREST /api/v1/research\nJSON over HTTP
+
+API --> Schemas : validates request/response payloads
+API --> DB : create/list/update run records\nusers, backtest_runs, research_jobs
+API --> BacktestService : MVP inline execute_backtest()\nGridConfigSchema JSON
+API --> ResearchService : run_in_threadpool execute_research()\nResearchConfigSchema JSON
+
+API ..> Worker : planned async dispatch\nrun_id + config_dict
+Worker --> Redis : task state/result transport
+Worker --> BacktestService : execute_backtest(run_id, config_dict)
+
+BacktestService --> MarketData : read parquet/csv\nfilter date range\nresample timeframe
+ResearchService --> MarketData : read parquet/csv\nfilter date range\nresample timeframe
+
+BacktestService --> Engine : BacktestConfig\nStrategy instance\npandas OHLCV DataFrame
+ResearchService --> Research : BacktestConfig\nstrategy_factory\nparam_grid\nOHLCV DataFrame
+ResearchService --> FastEngine : fast grid search path\nNumba arrays/config
+
+Engine --> Strategies : on_candle(AccountState, Candle)\nreturns EngineAction list
+Engine --> Strategies : on_order_filled(OrderFilledEvent)\non_order_cancelled(OrderCancelledEvent)
+Engine --> Domain : Candle, Order, Position,\nBacktestResult, metrics, config
+Research --> Engine : repeated backtest runs
+
+BacktestService --> ResultFiles : write {run_id}.json
+BacktestService --> DB : persist summary metrics\nresult_storage_key
+API --> ResultFiles : GET /backtest/{run_id}/details\nloads {run_id}.json
+
+note right of Core
+Core boundary rules:
+- no web framework imports
+- no database access
+- no exchange SDKs
+- accepts DataFrame, returns BacktestResult
+- DataSource is protocol only
+end note
+
+note bottom of SaaS
+Current MVP:
+backtest endpoint runs inline.
+Celery worker exists and calls the same service,
+but API dispatch is not yet wired for production async.
+end note
+
+@enduml

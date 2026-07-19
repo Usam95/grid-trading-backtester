@@ -1,0 +1,159 @@
+@startuml CAS_Monorepo_Complete_Integration
+!theme plain
+
+left to right direction
+
+skinparam shadowing false
+skinparam componentStyle rectangle
+skinparam packageStyle rectangle
+skinparam wrapWidth 220
+skinparam maxMessageSize 180
+skinparam linetype ortho
+skinparam ArrowColor #5a5a5a
+skinparam defaultTextAlignment center
+
+skinparam rectangle {
+  BackgroundColor<<test>> #fff3e0
+  BackgroundColor<<monorepo>> #eef7ff
+  BackgroundColor<<config>> #f4f1ff
+  BackgroundColor<<gateways>> #eefbf1
+  BackgroundColor<<collector>> #e8fde8
+  BackgroundColor<<storage>> #f5f5f5
+}
+
+title CAS Monorepo - Complete Integration View
+
+actor "Test Harness" as TEST
+
+rectangle "Test Infrastructure" <<test>> {
+  component "Test Server 1\nParallax Config\nEmulator" as TS1
+  component "Test Server 2\nTelemetry\nReceiver" as TS2
+}
+
+rectangle "CAS Monorepo" as MONO <<monorepo>> {
+
+  package "Configuration Package" <<config>> {
+    database "Static config file\n`data_collection_configuration_parameters.json`" as JSON
+    component "Configuration Layer\npackage boundary" as CL
+  }
+
+  package "Gateways Package" <<gateways>> {
+    component "Parallax Gateway" as PGW
+    component "Telemetry Agent Gateway" as TAG
+  }
+
+  package "CAS Data Collector Package" <<collector>> {
+    component "CAS Data Collector Gateway" as CDCGW
+    component "Detection Collector Runnable" as DCR
+    component "Event Detection Runnable" as EDR
+    component "CAS State Machine Runnable" as CSM
+    component "Aggregate Statistical Data Runnable" as ASD
+  }
+
+  package "Storage Package" <<storage>> {
+    database "Bytesoup Files\n`/data/field_data_storage/`\n`*.bytesoup`\n`*.write_complete`" as BS
+    database "Journal Files\n`/tmp/cas_journal.log`" as JL
+    database "NVM Counters\n`/data/counters.dat`" as NVM
+    component "File Upload Agent\n(Flea / Rust)" as FUA
+    cloud "Backend Upload Service" as BACKEND
+  }
+}
+
+' layout helpers
+CL -[hidden]-> PGW
+PGW -[hidden]-> TAG
+TAG -[hidden]-> CDCGW
+CDCGW -[hidden]-> DCR
+DCR -[hidden]-> EDR
+EDR -[hidden]-> CSM
+CSM -[hidden]-> ASD
+ASD -[hidden]-> BS
+BS -[hidden]-> JL
+JL -[hidden]-> NVM
+
+' External test communication stays unchanged
+TEST --> PGW : Campaign config\n(TCP / protobuf)
+TAG --> TS2 : Statistics JSON\n(TCP / UDP)
+
+' Configuration flow
+JSON --> PGW : writes baseline config\n`data_collection_configuration_parameters.json`
+PGW --> CL : load / update config
+CL --> CDCGW : resolved configuration
+
+' Internal package flow
+CDCGW --> CSM : configuration + commands
+CDCGW --> DCR : detection subscription
+CDCGW --> EDR : event routing
+DCR --> ASD : raw sensor data
+EDR --> PGW : event-triggered feedback
+EDR --> TAG : telemetry triggers
+
+CSM --> DCR : activate / shutdown
+CSM --> EDR : activate / shutdown
+CSM --> ASD : aggregate validation
+CSM --> CDCGW : command routing
+
+ASD --> TAG : statistics
+ASD --> NVM : counter persistence
+CSM --> JL : journal log
+CDCGW --> BS : detection artifacts
+BS --> FUA : file watcher
+FUA --> BACKEND : upload to backend
+
+' Visual emphasis on the write path
+PGW ..> JSON : writes
+
+note right of PGW
+  Parallax Gateway:
+  - keeps the same test harness contract
+  - writes the static JSON config file
+  - can still accept dynamic config updates
+  - consider a "writes" arrow on the file
+end note
+
+note right of TAG
+  Telemetry Agent Gateway:
+  - same test infrastructure connection
+  - publishes statistics JSON
+  - belongs in the gateways package
+end note
+
+note right of CDCGW
+  CAS Data Collector Gateway:
+  - configuration handler
+  - detection subscriber
+  - command router
+  - entry point for collector package integration
+end note
+
+note right of CSM
+  CAS State Machine:
+  - cross-validates CAS + DCF behavior
+  - emits aggregate validation
+  - logs state transitions
+  - useful for HIL debugging
+end note
+
+note right of ASD
+  Aggregate Statistical Data:
+  - COUNT, DURATION, MIN / MAX / AVG
+  - RAM counters + NVM persistence
+  - feeds the telemetry gateway
+end note
+
+note right of BS
+  Bytesoup files:
+  - recomputable recordings
+  - `.write_complete` handover
+  - watched by the upload agent
+end note
+
+note bottom of MONO
+  Suggested block view improvement:
+  - keep packages as the main visual unit
+  - show gateways as a shared package rather than inside the collector package
+  - use a dedicated config package for the static file and resolved config flow
+  - prefer a single left-to-right path with orthogonal lines
+end note
+
+@enduml

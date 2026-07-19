@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>grid-backtest-core — Grid Trading Analysis</title>
+<style>
+  :root{
+    --bg:#0f1419; --panel:#161c24; --panel2:#1d2530; --ink:#e6edf3; --muted:#9aa7b4;
+    --line:#2a3540; --accent:#4ea1ff; --accent2:#7c5cff;
+    --ok:#2ec27e; --warn:#f2b542; --bad:#ef5d6b; --info:#56b6c2;
+    --chip:#222c38;
+    --maxw:1080px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  code,kbd{font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    background:var(--chip);padding:.08em .4em;border-radius:5px;font-size:.86em;color:#cdd9e5}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px}
+  header.hero{background:linear-gradient(135deg,#13202e,#1a1340 70%);border-bottom:1px solid var(--line);
+    padding:46px 0 34px}
+  header.hero h1{margin:0 0 6px;font-size:30px;letter-spacing:.2px}
+  header.hero .sub{color:var(--muted);font-size:15px;max-width:760px}
+  .badges{margin-top:16px;display:flex;flex-wrap:wrap;gap:8px}
+  .badge{background:var(--chip);border:1px solid var(--line);border-radius:999px;
+    padding:4px 11px;font-size:12px;color:#cdd9e5}
+  .layout{display:grid;grid-template-columns:230px 1fr;gap:30px;align-items:start;margin-top:26px}
+  nav.toc{position:sticky;top:14px;background:var(--panel);border:1px solid var(--line);
+    border-radius:12px;padding:14px 14px;font-size:13.5px}
+  nav.toc h4{margin:2px 0 10px;font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}
+  nav.toc ol{margin:0;padding-left:18px}
+  nav.toc li{margin:6px 0}
+  nav.toc a{color:#c3d0dd}
+  main{min-width:0;padding-bottom:70px}
+  section{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:24px 26px;margin:0 0 22px}
+  section h2{margin:0 0 4px;font-size:22px}
+  section h2 .num{color:var(--accent2);font-weight:700;margin-right:8px}
+  section h3{margin:22px 0 8px;font-size:16.5px;color:#dbe6f1}
+  .lede{color:var(--muted);margin:.2em 0 1em}
+  p{margin:.7em 0}
+  ul,ol{margin:.5em 0;padding-left:22px}
+  li{margin:5px 0}
+  table{border-collapse:collapse;width:100%;margin:14px 0;font-size:13.5px}
+  th,td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top}
+  th{background:var(--panel2);color:#dbe6f1;font-weight:600}
+  tbody tr:nth-child(even){background:#141a22}
+  .pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:700;
+    white-space:nowrap;border:1px solid transparent}
+  .p-ok{background:rgba(46,194,126,.14);color:#7ee0b0;border-color:rgba(46,194,126,.35)}
+  .p-part{background:rgba(242,181,66,.14);color:#f4cf86;border-color:rgba(242,181,66,.35)}
+  .p-no{background:rgba(239,93,107,.14);color:#f4949e;border-color:rgba(239,93,107,.35)}
+  .p-crit{background:rgba(239,93,107,.18);color:#f4949e;border-color:rgba(239,93,107,.45)}
+  .p-high{background:rgba(242,181,66,.16);color:#f4cf86;border-color:rgba(242,181,66,.4)}
+  .p-med{background:rgba(86,182,194,.14);color:#9fe0e8;border-color:rgba(86,182,194,.35)}
+  .p-low{background:rgba(154,167,180,.14);color:#c2cdd8;border-color:rgba(154,167,180,.35)}
+  .callout{border-left:4px solid var(--accent);background:var(--panel2);border-radius:0 10px 10px 0;
+    padding:12px 16px;margin:14px 0}
+  .callout.bad{border-color:var(--bad)}
+  .callout.warn{border-color:var(--warn)}
+  .callout.ok{border-color:var(--ok)}
+  .callout.info{border-color:var(--info)}
+  .callout .t{font-weight:700;margin-bottom:3px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .card{background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:14px 16px}
+  .card h4{margin:0 0 8px;font-size:14px;color:#dbe6f1}
+  .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:8px 0 4px}
+  .kpi .k{background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:12px}
+  .kpi .k .v{font-size:23px;font-weight:800}
+  .kpi .k .l{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .v-ok{color:var(--ok)} .v-warn{color:var(--warn)} .v-bad{color:var(--bad)} .v-info{color:var(--info)}
+  /* architecture diagram */
+  .diagram{background:#0c1118;border:1px solid var(--line);border-radius:12px;padding:18px;margin:14px 0;overflow-x:auto}
+  .row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:8px 0}
+  .node{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:9px 12px;
+    min-width:120px;text-align:center;font-size:12.5px}
+  .node b{display:block;color:#eaf2fb;font-size:12.5px}
+  .node small{color:var(--muted);font-size:11px}
+  .node.acc{border-color:var(--accent)} .node.a2{border-color:var(--accent2)}
+  .node.warnx{border-color:var(--warn)} .node.badx{border-color:var(--bad)}
+  .arrow{color:var(--muted);text-align:center;font-size:18px;line-height:1}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:6px}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .dot{width:10px;height:10px;border-radius:3px;display:inline-block}
+  .score{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .ring{--p:0;width:96px;height:96px;border-radius:50%;
+    background:conic-gradient(var(--accent) calc(var(--p)*1%), #232c38 0);
+    display:grid;place-items:center;flex:0 0 auto}
+  .ring .inner{width:74px;height:74px;border-radius:50%;background:var(--panel);display:grid;place-items:center;
+    font-weight:800;font-size:19px}
+  footer{color:var(--muted);font-size:12.5px;text-align:center;padding:26px 0 40px;border-top:1px solid var(--line)}
+  .src{font-size:13px}
+  .src li{margin:7px 0}
+  .small{font-size:12.5px;color:var(--muted)}
+  hr.s{border:none;border-top:1px solid var(--line);margin:18px 0}
+  @media (max-width:900px){.layout{grid-template-columns:1fr}nav.toc{position:static}.grid2{grid-template-columns:1fr}.kpi{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <h1>grid&#8209;backtest&#8209;core — Deep Technical, Strategic &amp; Market Analysis</h1>
+    <div class="sub">A senior-engineer review of the <code>grid_backtest</code> engine: what it does,
+      how it's built, where it's optimistic or wrong, how it stacks up against grid-trading research and
+      commercial bots, and whether it can be monetized.</div>
+    <div class="badges">
+      <span class="badge">Package: grid_backtest v0.1.0</span>
+      <span class="badge">Python ≥ 3.11 · numpy · pandas · numba</span>
+      <span class="badge">~38 source files · 103 tests</span>
+      <span class="badge">License: MIT</span>
+      <span class="badge">Analysed: 2026-06-27</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+<div class="layout">
+
+<nav class="toc">
+  <h4>Contents</h4>
+  <ol>
+    <li><a href="#exec">Executive summary</a></li>
+    <li><a href="#overview">Codebase overview</a></li>
+    <li><a href="#arch">Architecture assessment</a></li>
+    <li><a href="#research">Grid-trading research</a></li>
+    <li><a href="#gap">Code vs grid-trading gap</a></li>
+    <li><a href="#judgment">Code judgment</a></li>
+    <li><a href="#monetize">Monetization</a></li>
+    <li><a href="#roadmap">Enhancement roadmap</a></li>
+    <li><a href="#recs">Top recommendations</a></li>
+    <li><a href="#sources">Sources</a></li>
+    <li><a href="#appendix">Appendix</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<!-- ============ EXEC ============ -->
+<section id="exec">
+  <h2><span class="num">1</span>Executive summary</h2>
+  <p class="lede">A well-structured, genuinely-engineered grid-trading research core — held back by an
+    optimistic fill model, a feature-thin "fast" engine, and the absence of overfitting controls.</p>
+
+  <div class="score">
+    <div class="ring" style="--p:62"><div class="inner">6.2<span style="font-size:11px">/10</span></div></div>
+    <div>
+      <strong>Overall engineering quality: solid (6–7/10).</strong> Clean architecture, real performance
+      work, good unit coverage. <strong>Decision-grade backtesting readiness: not yet.</strong>
+      The engine is an excellent <em>internal</em> research tool for single-symbol <em>spot long</em>
+      grids, but it is not safe to present as a paid, trustworthy backtest product without fixing fill
+      realism, stop accounting, fast/full parity, and adding walk-forward / robustness validation.
+    </div>
+  </div>
+
+  <div class="kpi">
+    <div class="k"><div class="v v-ok">Yes</div><div class="l">Static + ATR/percent adaptive grids, recentering, SL/TP, filters</div></div>
+    <div class="k"><div class="v v-warn">Optimistic</div><div class="l">Same-bar fills, no partials, no spread, single fee</div></div>
+    <div class="k"><div class="v v-bad">Missing</div><div class="l">Futures / short / leverage / liquidation</div></div>
+    <div class="k"><div class="v v-bad">Missing</div><div class="l">Walk-forward · Monte Carlo · deflated Sharpe</div></div>
+  </div>
+
+  <div class="callout bad">
+    <div class="t">Three issues verified by running the engine</div>
+    <ol style="margin:.3em 0">
+      <li><b>Trade ledger ≠ equity.</b> With bootstrap inventory, <code>sum(trade.net_pnl)=4.6010</code>
+        but equity change <code>=4.5000</code> — bootstrap lots are never registered with the trade builder.</li>
+      <li><b>Default static grid isn't two-sided.</b> Under <code>long_only</code> bootstrap, both initial
+        SELL rungs are <em>silently rejected</em> (no base to sell); a 5-level grid seeded only <code>['BUY','BUY']</code>.</li>
+      <li><b>No fast/full parity tests.</b> No test references <code>FastBacktestEngine</code>; the Numba
+        dynamic kernel ignores most of <code>DynamicGridConfig</code> — sweeps can rank the wrong candidate.</li>
+    </ol>
+  </div>
+
+  <p><strong>Monetization verdict:</strong> a standalone "grid backtester" has a <span class="pill p-high">thin moat</span>
+  (free native exchange bots; mature open-source frameworks). The realistic path is a
+  <em>grid-specialised research &amp; reporting product</em> — and a <code>grid-backtest-saas</code>
+  (FastAPI + workers + frontend) already exists in this repo, so productization is underway. Probability
+  of a sustainable niche business: <strong>moderate (~25–35%)</strong>, conditional on shipping
+  trustworthy validation and a polished report.</p>
+</section>
+
+<!-- ============ OVERVIEW ============ -->
+<section id="overview">
+  <h2><span class="num">2</span>Codebase overview — what it does</h2>
+  <p><code>grid_backtest</code> is a <strong>pure-computation library</strong>: the engine performs no
+  file or network I/O and has zero exchange knowledge — data is handed in as a pandas OHLCV
+  <code>DataFrame</code> (design principles in <code>README.md</code> are actually honoured). It ships:</p>
+  <ul>
+    <li><b>Two engines.</b> <code>BacktestEngine</code> (<code>engine.py</code>) is the accurate
+      per-candle Python loop; <code>FastBacktestEngine</code> (<code>engine_fast.py</code> +
+      <code>_numba_engine.py</code>) is a Numba-JIT kernel (~200–400× faster) for the two built-in grids only.</li>
+    <li><b>Two strategies.</b> <code>SimpleGridStrategy</code> (static spot grid, arithmetic/geometric
+      spacing) and <code>DynamicGridStrategy</code> (ATR/percent adaptive range &amp; spacing, SL/TP,
+      RSI/EMA/ADX filters, floating-grid recentering) — composed from isolated <em>policy</em> objects.</li>
+    <li><b>Research layer.</b> <code>GridResearchRunner</code> (multi-process parameter sweep across
+      params × timeframes) and <code>grid_search_fast.py</code> (Numba single-core sweep).</li>
+    <li><b>Results layer.</b> pluggable <code>MetricRegistry</code> (Sharpe/Sortino/Calmar/profit factor/
+      win rate/max DD), FIFO <code>TradeBuilder</code>, <code>repository</code> (JSON/CSV persistence),
+      Buy&amp;Hold <code>benchmark</code>.</li>
+  </ul>
+
+  <h3>Execution data flow</h3>
+  <div class="diagram">
+    <div class="row"><div class="node acc"><b>OHLCV DataFrame</b><small>Open/High/Low/Close/Volume + DatetimeIndex</small></div></div>
+    <div class="arrow">▼</div>
+    <div class="row">
+      <div class="node"><b>_prepare_data</b><small>validate cols · enrich ATR/EMA/RSI/ADX · warmup</small></div>
+      <div class="node"><b>_to_candles</b><small>fast object.__new__ path</small></div>
+      <div class="node"><b>_apply_bootstrap</b><small>long_only / neutral_split / neutral_topup</small></div>
+    </div>
+    <div class="arrow">▼ &nbsp; per-candle loop</div>
+    <div class="row">
+      <div class="node"><b>strategy.on_candle</b><small>→ EngineAction[]</small></div>
+      <div class="node a2"><b>constraints + reservations</b><small>feasibility &amp; fund locking</small></div>
+      <div class="node warnx"><b>_simulate_fills</b><small>SAME-bar fill (optimistic)</small></div>
+      <div class="node"><b>_apply_fill (FIFO)</b><small>cash + fee accounting</small></div>
+      <div class="node"><b>_update_equity</b><small>mark-to-market on close</small></div>
+    </div>
+    <div class="arrow">▼</div>
+    <div class="row"><div class="node acc"><b>BacktestResult</b><small>metrics · trades · equity_curve · benchmark</small></div></div>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--accent)"></i>data/result</span>
+      <span><i class="dot" style="background:var(--accent2)"></i>risk/execution</span>
+      <span><i class="dot" style="background:var(--warn)"></i>optimistic assumption</span>
+    </div>
+  </div>
+  <p class="small">Strategy ↔ engine communicate via a validated command object
+  <code>EngineAction</code> (<code>PLACE_ORDER</code> / <code>CANCEL_OPEN_ORDERS</code> /
+  <code>GRID_EXIT</code>) — a clean, testable boundary.</p>
+</section>
+
+<!-- ============ ARCH ============ -->
+<section id="arch">
+  <h2><span class="num">3</span>Architecture assessment</h2>
+  <div class="grid2">
+    <div class="card">
+      <h4>Strengths</h4>
+      <ul>
+        <li><b>True separation of concerns.</b> I/O-free engine; exchange-agnostic; <code>DataSource</code> protocol inverts data loading.</li>
+        <li><b>Command pattern</b> (<code>EngineAction</code>) with strict <code>__post_init__</code> validation.</li>
+        <li><b>Policy composition</b> — range/space/sltp/filter/recenter are independent and unit-testable; <code>DynamicGrid</code> wraps <code>SimpleGrid</code>.</li>
+        <li><b>Open/closed metrics</b> via <code>MetricRegistry</code>.</li>
+        <li><b>Real performance work</b> — Numba kernel, <code>object.__new__</code> candle path, insertion-order FIFO, multi-process sweeps.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Weaknesses</h4>
+      <ul>
+        <li><b>Two engines, no shared core</b> → every feature must be built twice or diverge.</li>
+        <li><b>Two FIFO ledgers</b> (engine cash vs <code>TradeBuilder</code>) that can disagree.</li>
+        <li><b>Fast engine is feature-thin</b> and hard-codes <code>isinstance</code> dispatch — custom strategies can't use it; dynamic kernel ignores ATR/SLTP/filters.</li>
+        <li><b>Vestigial state</b> — <code>AccountState.base_free/locked/quote_free/locked</code> unused.</li>
+        <li><b>Undocumented config interactions</b> (long-only seeding asymmetry).</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Module map &amp; quality</h3>
+  <table>
+    <thead><tr><th>Layer</th><th>Module(s)</th><th>Assessment</th></tr></thead>
+    <tbody>
+      <tr><td>Models</td><td><code>models.py</code></td><td><span class="pill p-ok">clean</span> dataclasses; <code>Candle</code> uses slots</td></tr>
+      <tr><td>Config</td><td><code>config.py</code></td><td><span class="pill p-ok">clean</span> frozen, layered, no Pydantic</td></tr>
+      <tr><td>Engine</td><td><code>engine.py</code>, <code>engine_fast.py</code>, <code>_numba_engine.py</code></td><td><span class="pill p-part">divergence risk</span> two engines, no shared kernel</td></tr>
+      <tr><td>Strategy</td><td><code>strategy/*</code></td><td><span class="pill p-ok">strong</span> interface + policy composition</td></tr>
+      <tr><td>Execution</td><td><code>execution/*</code></td><td><span class="pill p-ok">good</span> bootstrap/constraints/reservations</td></tr>
+      <tr><td>Results</td><td><code>results/*</code></td><td><span class="pill p-part">good, with metric bugs</span></td></tr>
+      <tr><td>Research</td><td><code>research/*</code></td><td><span class="pill p-part">pragmatic</span> sweeps, but no walk-forward/OOS</td></tr>
+      <tr><td>Data</td><td><code>data/protocols.py</code></td><td><span class="pill p-ok">clean</span> protocol-based</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============ RESEARCH ============ -->
+<section id="research">
+  <h2><span class="num">4</span>Grid-trading research summary</h2>
+  <p class="lede">What the literature and the live bot market say about when grids win, when they blow up,
+    and how to evaluate them. Full citations in <a href="#sources">§10</a>.</p>
+
+  <h3>Strategy taxonomy (and what the engine covers)</h3>
+  <table>
+    <thead><tr><th>Variant</th><th>Idea</th><th>In core?</th></tr></thead>
+    <tbody>
+      <tr><td>Arithmetic grid</td><td>equal price spacing</td><td><span class="pill p-ok">yes</span></td></tr>
+      <tr><td>Geometric grid</td><td>equal % spacing</td><td><span class="pill p-ok">yes</span></td></tr>
+      <tr><td>Neutral grid</td><td>direction-neutral, profits from chop</td><td><span class="pill p-part">partial</span> needs neutral bootstrap</td></tr>
+      <tr><td>Long-only / spot grid</td><td>accumulate &amp; sell rungs</td><td><span class="pill p-ok">yes</span></td></tr>
+      <tr><td>Short / futures grid</td><td>short legs, leverage, funding</td><td><span class="pill p-no">no</span></td></tr>
+      <tr><td>ATR / volatility-adaptive</td><td>spacing scales with ATR</td><td><span class="pill p-ok">yes</span></td></tr>
+      <tr><td>Trend-filtered / mean-reversion</td><td>pause in strong trends (ADX/EMA/RSI)</td><td><span class="pill p-ok">yes</span></td></tr>
+      <tr><td>Grid + SL/TP &amp; inventory limits</td><td>cap tail risk</td><td><span class="pill p-part">SL/TP yes; inventory caps no</span></td></tr>
+      <tr><td>Martingale grid / Grid + DCA</td><td>size up on losers / smooth entries</td><td><span class="pill p-no">no</span></td></tr>
+      <tr><td>Grid + ML / regime detection</td><td>switch params by regime</td><td><span class="pill p-no">no</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="grid2">
+    <div class="card">
+      <h4>When grids work</h4>
+      <ul>
+        <li>Range-bound, choppy, mean-reverting markets.</li>
+        <li>Moderate volatility; tight spreads &amp; low fees (grids are high-trade-count).</li>
+        <li>Adaptive spacing (ATR) + trend filter reduces blow-up risk.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>When grids fail</h4>
+      <ul>
+        <li>Strong one-directional trends / breakouts → underwater inventory, deep drawdown.</li>
+        <li>Leverage + trend → forced <b>liquidation</b> (often ignored in naive backtests).</li>
+        <li>Fat-tail / black-swan moves; martingale sizing → risk of ruin despite high win rate.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <div class="t">Realistic profitability expectations (practitioner consensus, not guarantees)</div>
+    Sustainable grid configs target roughly <b>~2–10%/month with &gt;30% drawdown risk</b> in adverse
+    trends; advertised "20%+/month" implies high ruin risk. <b>Most grids look great in-sample until a
+    persistent trend appears.</b> Evaluate with profit factor, Sharpe/Sortino/Calmar, max drawdown
+    &amp; duration, exposure/turnover, and — critically — <b>out-of-sample</b> performance.
+  </div>
+
+  <div class="callout info">
+    <div class="t">Methodology cautions that apply directly to this engine</div>
+    <ul style="margin:.3em 0">
+      <li><b>Intrabar fill optimism:</b> assuming a limit order fills whenever a bar's high/low touches
+        its price overstates fills (OHLC hides intrabar sequence) — exactly the engine's same-bar model.</li>
+      <li><b>Backtest overfitting / deflated Sharpe</b> (Bailey &amp; López de Prado): sweeping many
+        parameters inflates the "best" result; correct with walk-forward + deflated Sharpe.</li>
+      <li><b>Leverage/liquidation</b> must be modelled for any futures-grid claim to be honest.</li>
+    </ul>
+  </div>
+
+  <h3>Competitive landscape (grid bots, 2024–2026)</h3>
+  <table>
+    <thead><tr><th>Platform</th><th>Spot grid</th><th>Futures grid</th><th>Backtesting</th><th>Pricing</th></tr></thead>
+    <tbody>
+      <tr><td>Pionex</td><td>✔ (8 bot types)</td><td>✔ leveraged</td><td>limited / simulated</td><td>free, 0.05%/trade</td></tr>
+      <tr><td>3Commas</td><td>✔</td><td>✔</td><td>✔</td><td>~$15–140/mo</td></tr>
+      <tr><td>Bitsgap</td><td>✔</td><td>✔ (Pro)</td><td>✔</td><td>~$23–149/mo</td></tr>
+      <tr><td>Binance / OKX / KuCoin</td><td>✔ (AI setup)</td><td>✔</td><td>✔ native</td><td>free + trading fees</td></tr>
+    </tbody>
+  </table>
+  <p class="small">Takeaway: native exchange grid bots are <em>free</em>; paid value sits in
+  cross-exchange automation, analytics, and <b>backtesting</b> (3Commas/Bitsgap). A new entrant must
+  differentiate on research depth, trustworthy validation, and report quality — not on "we have a grid bot."</p>
+</section>
+
+<!-- ============ GAP ============ -->
+<section id="gap">
+  <h2><span class="num">5</span>Code vs grid-trading needs — gap analysis</h2>
+  <p class="lede">Present? <span class="pill p-ok">yes</span> <span class="pill p-part">partial</span>
+    <span class="pill p-no">no</span> &nbsp;·&nbsp; Importance:
+    <span class="pill p-crit">critical</span> <span class="pill p-high">high</span>
+    <span class="pill p-med">medium</span> <span class="pill p-low">low</span></p>
+  <table>
+    <thead><tr><th>Capability</th><th>Present</th><th>Evidence (file)</th><th>Importance</th><th>Missing → recommendation</th></tr></thead>
+    <tbody>
+      <tr><td>Limit orders</td><td><span class="pill p-ok">yes</span></td><td><code>engine.py:542-550</code></td><td><span class="pill p-crit">critical</span></td><td>no queue/liquidity → fill-model abstraction with participation cap</td></tr>
+      <tr><td>Maker/taker fees</td><td><span class="pill p-no">no</span></td><td>single <code>trading_fee_pct</code> <code>engine.py:179</code></td><td><span class="pill p-high">high</span></td><td>split maker (limit) vs taker (market) fees</td></tr>
+      <tr><td>Partial fills</td><td><span class="pill p-no">no</span></td><td>all-or-nothing in <code>_simulate_fills</code></td><td><span class="pill p-high">high</span></td><td>fill = min(qty, participation·volume); keep residual</td></tr>
+      <tr><td>OHLCV vs tick sim</td><td><span class="pill p-part">partial</span></td><td>candle-only <code>_to_candles</code></td><td><span class="pill p-high">high</span></td><td>document; optional finer series for sequencing</td></tr>
+      <tr><td>Intrabar exec assumptions</td><td><span class="pill p-part">partial</span></td><td>same-bar fill <code>engine.py:516-520</code></td><td><span class="pill p-crit">critical</span></td><td>conservative "fill from N+1" + worst-case buy/sell ordering</td></tr>
+      <tr><td>Slippage</td><td><span class="pill p-part">partial</span></td><td>market only <code>engine.py:539-541</code></td><td><span class="pill p-high">high</span></td><td>model spread; slippage on stops/forced exits</td></tr>
+      <tr><td>Grid ladder management</td><td><span class="pill p-ok">yes</span></td><td><code>grid_simple.py:213-257</code></td><td><span class="pill p-crit">critical</span></td><td>re-arm original rung after round-trip</td></tr>
+      <tr><td>Inventory tracking</td><td><span class="pill p-ok">yes</span></td><td><code>engine.py:575-668</code></td><td><span class="pill p-crit">critical</span></td><td>add max inventory/notional caps</td></tr>
+      <tr><td>Capital allocation</td><td><span class="pill p-part">partial</span></td><td>reservations/constraints</td><td><span class="pill p-high">high</span></td><td>fixed-qty / fixed-quote / %-equity sizing policy</td></tr>
+      <tr><td>Leverage / margin</td><td><span class="pill p-no">no</span></td><td>spot-only</td><td><span class="pill p-high">high</span></td><td>MarginModel — required for futures grids</td></tr>
+      <tr><td>Liquidation modeling</td><td><span class="pill p-no">no</span></td><td>none</td><td><span class="pill p-high">high</span></td><td>per-bar maintenance-margin liquidation</td></tr>
+      <tr><td>Short / neutral grid</td><td><span class="pill p-part">partial</span></td><td><code>PositionSide.SHORT</code> unused <code>engine.py:576-590</code></td><td><span class="pill p-high">high</span></td><td>implement short lifecycle + true neutral grid</td></tr>
+      <tr><td>Stop-loss / take-profit</td><td><span class="pill p-part">partial</span></td><td>exits at close not trigger <code>engine.py:450</code></td><td><span class="pill p-high">high</span></td><td>fill at SL/TP price + slippage; gap handling</td></tr>
+      <tr><td>Dynamic grid recalculation</td><td><span class="pill p-ok">yes</span></td><td><code>grid_dynamic.py</code> policies</td><td><span class="pill p-high">high</span></td><td>reconcile inventory on recenter</td></tr>
+      <tr><td>Multi-symbol</td><td><span class="pill p-no">no</span></td><td>single symbol <code>engine.py:48-72</code></td><td><span class="pill p-med">medium</span></td><td>portfolio layer over N engines</td></tr>
+      <tr><td>Parameter sweeps</td><td><span class="pill p-ok">yes</span></td><td><code>research/grid_search*.py</code></td><td><span class="pill p-high">high</span></td><td>couple with train/test + deflated Sharpe</td></tr>
+      <tr><td>Walk-forward testing</td><td><span class="pill p-no">no</span></td><td>none</td><td><span class="pill p-crit">critical</span></td><td>rolling/anchored OOS runner</td></tr>
+      <tr><td>Monte Carlo / robustness</td><td><span class="pill p-no">no</span></td><td>none</td><td><span class="pill p-high">high</span></td><td>trade/return bootstrap + start-date sensitivity</td></tr>
+      <tr><td>Reporting / output</td><td><span class="pill p-part">partial</span></td><td><code>results/repository.py</code></td><td><span class="pill p-high">high</span></td><td>HTML/PDF report renderer (the sellable artifact)</td></tr>
+      <tr><td>Benchmark comparison</td><td><span class="pill p-part">partial</span></td><td>Buy&amp;Hold <code>benchmarks.py</code></td><td><span class="pill p-med">medium</span></td><td>add DCA / 50-50 rebalanced + alpha/beta</td></tr>
+      <tr><td>Drawdown analytics</td><td><span class="pill p-part">partial</span></td><td>close-only DD <code>metrics.py:52-78</code></td><td><span class="pill p-high">high</span></td><td>intrabar DD + duration + recovery</td></tr>
+      <tr><td>Risk-adjusted metrics</td><td><span class="pill p-part">partial</span></td><td>annualise on median interval <code>metrics.py:132-202</code></td><td><span class="pill p-high">high</span></td><td>deflated Sharpe; sane annualisation; turnover/fee drag</td></tr>
+      <tr><td>Tax / accounting</td><td><span class="pill p-no">no</span></td><td>fees only</td><td><span class="pill p-low">low</span></td><td>out of scope unless a retail accounting product</td></tr>
+      <tr><td>Fast vs full parity</td><td><span class="pill p-no">no</span></td><td>no test refs <code>FastBacktestEngine</code>; kernel ignores config <code>engine_fast.py:190-227</code></td><td><span class="pill p-crit">critical</span></td><td>parity tests; restrict fast engine to modelled subset</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============ JUDGMENT ============ -->
+<section id="judgment">
+  <h2><span class="num">6</span>Code judgment (frank, evidence-based)</h2>
+
+  <h3>Correctness risks &amp; likely bugs</h3>
+  <table>
+    <thead><tr><th>#</th><th>Issue</th><th>Evidence</th><th>Severity</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Same-bar fill + no intrabar ordering → optimistic fills (lookahead within bar)</td><td><code>engine.py:516-520, 534-550</code></td><td><span class="pill p-crit">critical</span></td></tr>
+      <tr><td>2</td><td>Fast/full engines diverge; fast dynamic kernel uses only band_pct+interval, ignores ATR/SLTP/filters; no parity tests</td><td><code>engine_fast.py:190-227</code>; grep: 0 test refs</td><td><span class="pill p-crit">critical</span></td></tr>
+      <tr><td>3</td><td>Forced SL/TP exit fills at <code>candle.close</code>, not the trigger price → wrong stop PnL, hides gap risk</td><td><code>engine.py:439-460</code> vs <code>sltp.py:66-83</code></td><td><span class="pill p-high">high</span></td></tr>
+      <tr><td>4</td><td>Trade ledger ≠ equity with bootstrap (verified 4.6010 vs 4.5000); bootstrap lots never fed to TradeBuilder</td><td><code>trade_builder.py</code>, <code>bootstrap.py</code></td><td><span class="pill p-high">high</span></td></tr>
+      <tr><td>5</td><td>Default long-only grid is not two-sided at seeding (SELL seeds rejected; verified <code>['BUY','BUY']</code>)</td><td><code>grid_simple.py:213-231</code> + <code>constraints.py:57-63</code></td><td><span class="pill p-high">high</span></td></tr>
+      <tr><td>6</td><td>Sharpe/Sortino annualised from median candle interval → fragile on sub-hour data</td><td><code>metrics.py:132-202</code></td><td><span class="pill p-high">high</span></td></tr>
+      <tr><td>7</td><td>Close-only drawdown understates max DD (ignores intrabar lows)</td><td><code>metrics.py:52-78</code></td><td><span class="pill p-high">high</span></td></tr>
+      <tr><td>8</td><td><code>avg_trade_pnl</code> = equity Δ / n_trades (mixes unrealized+bootstrap); <code>profit_factor</code> returns inf with no losers</td><td><code>metrics.py:93-110</code></td><td><span class="pill p-med">medium</span></td></tr>
+      <tr><td>9</td><td>SELL FIFO scans <code>_position_fifo</code> per fill — comment claims O(1) but degrades with many tiny lots</td><td><code>engine.py:608-622</code></td><td><span class="pill p-low">low</span></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Hidden assumptions</h3>
+  <ul>
+    <li>Columns must be exactly <code>Open/High/Low/Close/Volume</code> with a <code>DatetimeIndex</code>.</li>
+    <li>Single symbol per engine; no cross-symbol portfolio or correlation.</li>
+    <li>Spot, long-only inventory; no funding/borrow → futures grids unrepresentable despite advanced-sounding config.</li>
+    <li>One equity point per candle (memory + annualisation implications on long 1m series).</li>
+  </ul>
+
+  <h3>Where the design is clean vs where it blocks future grid work</h3>
+  <div class="grid2">
+    <div class="card"><h4>Clean</h4><ul>
+      <li>I/O-free engine boundary &amp; command pattern.</li>
+      <li>Policy composition for adaptive grids.</li>
+      <li>Metric registry &amp; data protocol.</li>
+      <li>Real, measured performance optimisation.</li>
+    </ul></div>
+    <div class="card"><h4>Blocks future work</h4><ul>
+      <li>Fill model is the foundation and the weakest part — every metric inherits its optimism.</li>
+      <li>Two engines + two FIFO ledgers with no parity harness.</li>
+      <li>Fast path can't run custom strategies (isinstance dispatch).</li>
+      <li>No margin abstraction → futures/short is a large retrofit, not an add-on.</li>
+    </ul></div>
+  </div>
+  <div class="callout ok">
+    <div class="t">Test posture</div>
+    103 unit tests give good coverage of the Python engine, execution policies, metrics, and trade builder.
+    Gaps: <b>no fast/full parity tests</b>, <code>hypothesis</code> is a declared dev dep but <b>never used</b>
+    (no property-based invariants like cash conservation / FIFO equivalence), and no test pins the
+    trade-vs-equity reconciliation or the seeding asymmetry.
+  </div>
+</section>
+
+<!-- ============ MONETIZE ============ -->
+<section id="monetize">
+  <h2><span class="num">7</span>Monetization assessment</h2>
+  <p class="lede">Can this be sold? Yes, but not as "a grid bot." The defensible product is
+    <b>trustworthy grid research + presentable reports</b>, ideally with adaptive-parameter guidance.</p>
+
+  <div class="callout info">
+    <div class="t">Context: productization is already underway</div>
+    A sibling <code>grid-backtest-saas/</code> exists in this repo (FastAPI <code>backend</code> with
+    api/core/db/schemas/services/<b>workers</b>, <code>alembic</code> migrations, a <code>frontend</code>,
+    and <code>infra/docker</code>), consuming this core. So the question is less "can it be productized"
+    and more "is the core trustworthy enough to charge for."
+  </div>
+
+  <h3>Product options &amp; verdicts</h3>
+  <table>
+    <thead><tr><th>Product</th><th>Target</th><th>Viability</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Paid grid backtest tool / SaaS dashboard</td><td>retail/prosumer crypto traders</td><td><span class="pill p-part">moderate</span></td><td>Must beat free native bots + 3Commas/Bitsgap on validation &amp; reports.</td></tr>
+      <tr><td>Downloadable/paid reports (per-asset grid studies)</td><td>traders who won't code</td><td><span class="pill p-high">promising</span></td><td>Lowest-effort revenue; report renderer is the missing piece.</td></tr>
+      <tr><td>Strategy research platform / API</td><td>quant hobbyists, small funds</td><td><span class="pill p-part">moderate</span></td><td>Competes with vectorbt/nautilus/backtrader; needs a real edge.</td></tr>
+      <tr><td>Adaptive-grid research (regime-aware)</td><td>sophisticated retail</td><td><span class="pill p-high">differentiator</span></td><td>Hardest to copy; leverages existing sweep infra.</td></tr>
+      <tr><td>Educational product</td><td>beginners</td><td><span class="pill p-part">moderate</span></td><td>Crowded; works as funnel, not core revenue.</td></tr>
+      <tr><td>White-label engine / consulting</td><td>bot vendors, B2B</td><td><span class="pill p-low">niche</span></td><td>Possible but requires the correctness fixes first.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="grid2">
+    <div class="card"><h4>Differentiation that could work</h4><ul>
+      <li><b>Honest validation</b> (walk-forward, Monte Carlo, deflated Sharpe) — most retail tools don't.</li>
+      <li><b>Grid-specialised analytics</b>: per-rung profitability, inventory/exposure-over-time, fee drag, time-in-drawdown.</li>
+      <li><b>Regime-aware parameter recommendation</b> per asset/timeframe.</li>
+      <li><b>Beautiful, shareable reports</b> — the thing people actually pay for.</li>
+    </ul></div>
+    <div class="card"><h4>Gaps before commercial launch</h4><ul>
+      <li>Fix fill realism, stop accounting, fast/full parity, metric definitions (trust).</li>
+      <li>Add walk-forward + robustness (defensibility).</li>
+      <li>Report renderer + benchmark suite (presentability).</li>
+      <li>Clear disclaimers; <b>no performance guarantees</b> (compliance).</li>
+    </ul></div>
+  </div>
+
+  <div class="callout warn">
+    <div class="t">Trust, legal &amp; compliance</div>
+    Anything implying trading advice or returns invites regulatory and reputational risk. Position as
+    <b>research/education software</b>, not signals; ship explicit "past performance ≠ future results"
+    disclaimers; never auto-trade real funds without separate, heavily-disclaimed infrastructure. The
+    optimistic fill model is itself a <b>liability</b> if results are presented as decision-grade.
+  </div>
+
+  <div class="callout bad">
+    <div class="t">Realistic probability (not hype)</div>
+    <ul style="margin:.3em 0">
+      <li><b>Grid trading alone is not enough</b> to anchor a durable business — native bots are free and the moat is thin.</li>
+      <li><b>~15%</b> chance as a generic paid grid backtester (commoditised).</li>
+      <li><b>~25–35%</b> chance as a grid-specialised <em>research &amp; reporting</em> niche product <em>if</em> the correctness + validation gaps are closed and reports are excellent.</li>
+      <li><b>Higher</b> as an internal quant research tool / lead-gen for paid reports than as a standalone subscription.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ ROADMAP ============ -->
+<section id="roadmap">
+  <h2><span class="num">8</span>Enhancement roadmap (prioritised)</h2>
+  <h3>P0 — correctness &amp; trust (before any paid report)</h3>
+  <ul>
+    <li>Conservative intrabar fill mode (fill from bar N+1; worst-case buy/sell ordering).</li>
+    <li>Forced exits at the SL/TP trigger price (not the bar close), with slippage &amp; gap handling.</li>
+    <li>Reconcile trade ledger with equity (register bootstrap lots with <code>TradeBuilder</code>).</li>
+    <li>Fast/full parity tests; restrict the fast engine to the subset it truly models.</li>
+    <li>Maker/taker fees; fix Sharpe annualisation, intrabar drawdown, <code>avg_trade_pnl</code>, <code>profit_factor</code>.</li>
+    <li>Document (and offer a true-neutral alternative to) the long-only seeding asymmetry.</li>
+  </ul>
+  <h3>P1 — research completeness</h3>
+  <ul>
+    <li>Walk-forward runner; deflated Sharpe / PBO in sweep ranking; Monte Carlo robustness.</li>
+    <li>Inventory/exposure caps; spread + volume-aware partial fills; inventory-aware recentering.</li>
+  </ul>
+  <h3>P2 — new universes</h3>
+  <ul>
+    <li>Short lifecycle + neutral/short grid; margin + funding + liquidation; multi-symbol portfolio; DCA/martingale sizing with ruin guards.</li>
+  </ul>
+  <h3>P3 — product surface</h3>
+  <ul>
+    <li>HTML/PDF report renderer; regime tagging + adaptive-parameter recommendation; benchmark suite (DCA/50-50); property-based tests via the already-declared <code>hypothesis</code>.</li>
+  </ul>
+  <p class="small">Full table with effort estimates and file touch-points in <code>roadmap.md</code>.</p>
+</section>
+
+<!-- ============ RECS ============ -->
+<section id="recs">
+  <h2><span class="num">9</span>Top prioritised recommendations</h2>
+  <ol>
+    <li><b>Make fills honest first.</b> Add a conservative intrabar fill mode + fill the foundation once
+      (partials, spread, maker/taker). Everything downstream inherits this.</li>
+    <li><b>Fix stop accounting &amp; reconcile the trade ledger to equity.</b> These are correctness bugs,
+      not modelling choices, and they're cheap to fix.</li>
+    <li><b>Add walk-forward + Monte Carlo + deflated Sharpe.</b> The literature's clearest message:
+      without OOS validation, the "best" grid from a sweep is usually noise.</li>
+    <li><b>Lock the two engines together with parity tests</b> (and use the already-declared
+      <code>hypothesis</code> for cash-conservation/FIFO invariants), or collapse to one shared kernel.</li>
+    <li><b>Build the report renderer.</b> A polished, defensible HTML/PDF report is the actual sellable
+      artifact and the bridge to the existing SaaS.</li>
+  </ol>
+  <div class="callout bad">
+    <div class="t">Is it currently suitable for serious grid-trading backtesting?</div>
+    <b>No — not yet for decision-grade or leveraged work.</b> It is a strong tool for exploratory,
+    single-symbol <em>spot long</em> grid research. The same-bar fill optimism, stop-at-close accounting,
+    fast/full divergence, and absence of overfitting controls mean results should be treated as
+    indicative, not decision-grade, until P0+P1 land.
+  </div>
+  <div class="callout ok">
+    <div class="t">Recommended next implementation step</div>
+    Ship the <b>P0 "trust pass"</b> as one focused branch: (1) forced-exit-at-trigger price,
+    (2) trade-ledger/equity reconciliation, (3) fixed metric definitions + intrabar drawdown,
+    (4) a documented conservative fill flag — each with a regression test. This removes the
+    embarrassing/wrong behaviour with the least effort and unblocks credible reporting.
+  </div>
+</section>
+
+<!-- ============ SOURCES ============ -->
+<section id="sources">
+  <h2><span class="num">10</span>Sources &amp; citations</h2>
+  <p class="small">Gathered via live web search (2026-06). Vendor/affiliate pages are marked; treat their
+    performance claims as marketing. Full annotations in <code>grid-trading-research-sources.md</code>.</p>
+  <ol class="src">
+    <li>Binance Academy — <i>What Is Grid Trading?</i> ·
+      <a href="https://www.binance.com/en/academy/articles/what-is-grid-trading">binance.com/en/academy/articles/what-is-grid-trading</a></li>
+    <li>Babypips — <i>Grid Trading</i> ·
+      <a href="https://www.babypips.com/learn/forex/grid-trading">babypips.com/learn/forex/grid-trading</a></li>
+    <li>Investopedia — <i>Average True Range (ATR)</i> ·
+      <a href="https://www.investopedia.com/terms/a/averagetrueradge.asp">investopedia.com — ATR</a></li>
+    <li>Pionex (vendor) — <i>Best Grid Trading Bot Platforms</i> ·
+      <a href="https://www.pionex.com/blog/best-grid-trading-bot/">pionex.com/blog/best-grid-trading-bot</a></li>
+    <li>Altrady (vendor) — <i>Best Grid Trading Bots — Full Comparison</i> ·
+      <a href="https://www.altrady.com/blog/crypto-bots/best-grid-trading-bots">altrady.com — best grid trading bots</a></li>
+    <li>HedgeWithCrypto (vendor) — <i>Best Crypto Trading Bots 2025</i> ·
+      <a href="https://www.hedgewithcrypto.com/best-crypto-trading-bots/">hedgewithcrypto.com — best crypto trading bots</a></li>
+    <li>Wallet Reviewer (vendor) — <i>Pionex vs 3Commas</i> ·
+      <a href="https://walletreviewer.com/pionex-vs-3commas-comparison/">walletreviewer.com — pionex vs 3commas</a></li>
+    <li>M. López de Prado — <i>Advances in Financial Machine Learning</i> (Wiley, 2018) ·
+      <a href="https://www.wiley.com/en-us/Advances+in+Financial+Machine+Learning-p-9781119482086">wiley.com</a></li>
+    <li>D. Bailey &amp; M. López de Prado — <i>The Deflated Sharpe Ratio</i> (SSRN, 2014) ·
+      <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2460551">ssrn.com/abstract=2460551</a></li>
+    <li>Bailey, Borwein, López de Prado, Zhu — <i>The Probability of Backtest Overfitting</i> (2014/2016) ·
+      <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2308659">ssrn.com/abstract=2308659</a></li>
+    <li>Methodology syntheses (intrabar fill optimism; ATR grid + trend filter + SL; grid+DCA+ML regime;
+      martingale/leverage/fat-tail risk) — multi-source web-search syntheses; see sources file.</li>
+  </ol>
+</section>
+
+<!-- ============ APPENDIX ============ -->
+<section id="appendix">
+  <h2><span class="num">11</span>Appendix — detailed file map &amp; evidence</h2>
+  <table>
+    <thead><tr><th>File</th><th>Role</th><th>Key lines referenced</th></tr></thead>
+    <tbody>
+      <tr><td><code>engine.py</code></td><td>reference loop, fills, FIFO cash accounting, bootstrap</td><td>118-257 (run), 502-570 (fills), 575-668 (apply_fill), 439-460 (flatten)</td></tr>
+      <tr><td><code>engine_fast.py</code></td><td>Numba front-end; isinstance dispatch; trade reconstruction</td><td>107-115 (dispatch), 190-227 (dynamic config loss)</td></tr>
+      <tr><td><code>_numba_engine.py</code></td><td>JIT kernels</td><td>26-171 (simulate_grid_full), 174-290 (simulate_dynamic_grid)</td></tr>
+      <tr><td><code>models.py</code></td><td>Candle/Order/Position/AccountState/events</td><td>76-92 (Position), 99-116 (AccountState, unused locked fields)</td></tr>
+      <tr><td><code>config.py</code></td><td>BacktestConfig + sub-configs</td><td>102-127</td></tr>
+      <tr><td><code>engine_actions.py</code></td><td>command + validation</td><td>35-61 (__post_init__)</td></tr>
+      <tr><td><code>strategy/grid_simple.py</code></td><td>static ladder + neighbour replacement</td><td>213-257 (seed/neighbour)</td></tr>
+      <tr><td><code>strategy/grid_dynamic.py</code></td><td>adaptive grid via policies</td><td>135-204 (policy wiring), 348-388 (on_candle)</td></tr>
+      <tr><td><code>strategy/policies/*</code></td><td>range/space/sltp/filter/recenter</td><td>sltp.py:66-83 (trigger vs exit)</td></tr>
+      <tr><td><code>execution/*</code></td><td>bootstrap/constraints/reservations</td><td>constraints.py:57-70 (sell rejection)</td></tr>
+      <tr><td><code>results/metrics.py</code></td><td>metric registry &amp; implementations</td><td>52-110, 132-202 (annualisation)</td></tr>
+      <tr><td><code>results/trade_builder.py</code></td><td>FIFO trade ledger (separate from engine)</td><td>38-110</td></tr>
+      <tr><td><code>research/grid_search.py</code></td><td>multiproc sweep</td><td>126-408</td></tr>
+    </tbody>
+  </table>
+  <p class="small">Empirical checks were run against the real engine (Python 3.12.10) on synthetic
+    oscillating OHLCV; the throwaway verification script was removed after use. Companion artifacts:
+    <code>backtest-core-findings.md</code>, <code>grid-trading-research-sources.md</code>,
+    <code>roadmap.md</code>, <code>capability-matrix.json</code>.</p>
+</section>
+
+<footer>
+  Independent technical analysis of <code>grid-backtest-core</code> · generated 2026-06-27 ·
+  open this file directly in any browser (no build step required).
+</footer>
+
+</main>
+</div>
+</div>
+</body>
+</html>

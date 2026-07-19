@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Learn grid spacing, activation, rung count, order occupancy, and boundary cycles."><title>Ladder and order semantics</title><link rel="stylesheet" href="../assets/course.css"></head>
+<body>
+  <header class="hero shell"><p class="eyebrow">Lesson 0003 · Ladder · 15 minutes</p><h1>The ladder is immutable geometry with one order slot per rung.</h1><p class="lede">You will generate the exact prices, decide which rungs activate, and trace outer fills without ever expanding the range.</p><p class="breadcrumb"><a href="grid-semantics-module.html">Module home</a> → Ladder and order semantics</p></header>
+  <main class="shell">
+    <section class="chapter" id="spacing-semantics">
+      <div class="chapter-head"><div><p class="eyebrow">Explore</p><h2>Absolute distance versus percentage distance.</h2></div><p>Geometric is the default because equal ratios mean equal percentage moves. Arithmetic remains an explicit research option.</p></div>
+      <div class="card">
+        <div class="controls">
+          <div class="control"><label for="lower">Lower bound</label><input id="lower" type="number" value="80" min="1" step="1"></div>
+          <div class="control"><label for="upper">Upper bound</label><input id="upper" type="number" value="120" min="2" step="1"></div>
+          <div class="control"><label for="rungs">Rung count</label><input id="rungs" type="number" value="5" min="2" max="20" step="1"></div>
+          <div class="control"><label for="market">Activation price</label><input id="market" type="number" value="100" min="1" step="1"></div>
+          <div class="control"><label for="quote">Quote per rung</label><input id="quote" type="number" value="100" min="1" step="10"></div>
+          <div class="control"><label for="spacing">Spacing</label><select id="spacing"><option value="geometric">Geometric</option><option value="arithmetic">Arithmetic</option></select></div>
+        </div>
+        <div class="ladder-wrap"><div id="ladder" class="ladder" role="img" aria-label="Interactive grid ladder"></div><aside class="stats" aria-live="polite"><div class="stat"><span>Activation</span><strong id="eligibility">Eligible</strong></div><div class="stat"><span>Initial buy rungs</span><strong id="buyCount">0</strong></div><div class="stat"><span>Initial sell rungs</span><strong id="sellCount">0</strong></div><div class="stat"><span>Approx. backing inventory</span><strong id="backing">0 base</strong></div><div class="stat"><span>Gross rung commitments</span><strong id="committed">0 quote</strong></div><p id="rangeMessage" class="notice" hidden>Rejected: price must be strictly inside both bounds. Nothing is acquired and no automatic waiting begins.</p></aside></div>
+      </div>
+      <div class="grid-2 stack-gap"><article class="card"><h3>Arithmetic</h3><div class="formula">80, 90, 100, 110, 120</div><p>Every step is exactly 10 quote units.</p></article><article class="card"><h3>Geometric</h3><div class="formula">80 × r⁰, 80 × r¹ … 80 × r⁴ = 120</div><p>Every step uses the same multiplier; venue rounding is then applied deterministically.</p></article></div>
+    </section>
+
+    <section class="chapter" id="activation">
+      <div class="chapter-head"><div><p class="eyebrow">Eligibility gate</p><h2>Strictly inside means both comparisons are strict.</h2></div><p>The system validates a fresh market price before any bootstrap acquisition.</p></div>
+      <table class="decision-table"><thead><tr><th>Bounds</th><th>Price</th><th>Result</th><th>Consequence</th></tr></thead><tbody>
+        <tr><td>80–120</td><td>100</td><td><span class="verdict">Eligible</span></td><td>Continue to bootstrap validation.</td></tr>
+        <tr><td>80–120</td><td>80</td><td><span class="verdict warn">Rejected</span></td><td>No acquisition; fresh activation required.</td></tr>
+        <tr><td>80–120</td><td>121</td><td><span class="verdict warn">Rejected</span></td><td>No auto-shift and no armed waiting.</td></tr>
+      </tbody></table>
+    </section>
+
+    <section class="chapter" id="rung-semantics">
+      <div class="chapter-head"><div><p class="eyebrow">Exact meaning</p><h2>Five rungs means five prices—including both bounds.</h2></div><p>It does not mean five intervals, and the activation price is never inserted into the configured geometry.</p></div>
+      <article class="card worked"><h3>activation exactly equals a rung</h3><p>For arithmetic rungs 80, 90, 100, 110, 120 and activation price 100:</p><ul><li>80 and 90 initially carry buys.</li><li>110 and 120 initially carry sells backed by owned inventory.</li><li>100 is the <strong>activation rung</strong> and begins inactive.</li><li>It may later receive a paired order after a neighboring fill.</li></ul><p>Placing a buy or sell at 100 immediately would erase planned spacing and may execute as taker.</p></article>
+    </section>
+
+    <section class="chapter" id="orders">
+      <div class="chapter-head"><div><p class="eyebrow">Liquidity intent</p><h2>Normal rungs must rest as maker orders.</h2></div><p>Post-only is an execution constraint, not just a label.</p></div>
+      <div class="grid-2"><article class="card"><h3>Normal rung</h3><p>A post-only limit buy at 90 is accepted only if it can enter the book without immediately trading. There is no minimum resting duration: another trader may fill it immediately after acceptance and it still entered as maker liquidity.</p></article><article class="card"><h3>Aggressive exception</h3><p>Bootstrap acquisition and global stop-loss liquidation prioritize completion. Their cost model therefore includes spread, taker fees, and slippage.</p></article></div>
+      <article class="card worked stack-gap"><h3>a LIMIT_MAKER buy is rejected</h3><p>The configured buy rung is 90, but the fresh best sell is 89.95. A buy at 90 would take existing liquidity, so Binance rejects it. The engine reconciles the managed order identity, refreshes the order book and venue filters, and may retry below the best sell—but never above the configured 90 rung. It never converts the rung to a taker order.</p><p>Retries are bounded by approved attempt, time, and displacement limits. If a bound is exhausted, the rung remains unplaced, the grid enters an exposure-reducing safety pause, and the operator is alerted.</p></article>
+      <p class="notice">Exchange filters and order states are venue contracts. Production behavior must follow the current <a href="https://developers.binance.com/en/docs/catalog/core-trading-spot-trading/api/rest-api/trade">Binance Spot trading endpoints</a> and symbol filters.</p>
+    </section>
+
+    <section class="chapter" id="occupancy">
+      <div class="chapter-head"><div><p class="eyebrow">Invariant</p><h2>One rung, one cumulative order, one side.</h2></div><p>The slot may change side through fills, but it cannot contain separate per-fill orders.</p></div>
+      <article class="card worked"><h3>two partial fills share one destination</h3><p>A buy at 90 fills 0.004 base and later 0.003 base. The destination rung at 100 carries one sell whose cumulative quantity becomes 0.007 base after fee effects—not two sells. This avoids duplicated exposure and makes reconciliation bounded.</p></article>
+    </section>
+
+    <section class="chapter" id="outer">
+      <div class="chapter-head"><div><p class="eyebrow">Hard boundary</p><h2>Outer rungs only pair inward.</h2></div><p>The static grid never invents a price outside its approved bounds.</p></div>
+      <div class="grid-2"><article class="card term buy"><h3>Lowest rung at 80 fills</h3><p>It creates or enlarges a sell at 90. After that sell fills, a replacement buy may return to 80. It never creates a buy at 70.</p></article><article class="card term sell"><h3>Highest rung at 120 fills</h3><p>It creates or enlarges a buy at 110. After that buy fills, a sell may return to 120. It never creates a sell at 130.</p></article></div>
+    </section>
+
+    <section class="chapter"><div class="chapter-head"><div><p class="eyebrow">Retrieval</p><h2>Check the ladder.</h2></div><p>Predict before selecting.</p></div><div class="card quiz">
+      <div class="question" data-hint="Both configured bounds count as rungs."><h3>1. Five rungs contain how many configured prices?</h3><div class="answers"><button class="btn answer" data-correct="true" data-explain="Correct. Rungs count prices, not intervals.">Exactly five configured prices</button><button class="btn answer" data-correct="false">Exactly six configured prices</button></div><p class="feedback" aria-live="polite"></p></div>
+      <div class="question" data-hint="Equality with a bound fails strict eligibility."><h3>2. Price equals the lower bound. What happens?</h3><div class="answers"><button class="btn answer" data-correct="false">Start one-sided grid trading</button><button class="btn answer" data-correct="true" data-explain="Correct. The operator must activate afresh later.">Reject before any acquisition</button></div><p class="feedback" aria-live="polite"></p></div>
+      <div class="question" data-hint="The lower boundary pairs one rung upward."><h3>3. What follows a lowest-rung buy fill?</h3><div class="answers"><button class="btn answer" data-correct="true" data-explain="Correct. Boundary cycles always point inward.">Pair one rung inward</button><button class="btn answer" data-correct="false">Extend one rung outward</button></div><p class="feedback" aria-live="polite"></p></div>
+    </div></section>
+    <section class="chapter"><h2>Primary sources</h2><p><a href="../analysis/domain-grid-semantics.md">Canonical decision record</a> · <a href="https://developers.binance.com/en/docs/catalog/core-trading-spot-trading/api/rest-api/trade">Binance Spot trading endpoints</a>. Ask your agent about any ladder state you cannot predict.</p></section>
+  </main>
+  <footer class="footer shell"><a href="0002-inventory-bootstrap-and-sizing.html">← Previous</a> · <a href="0004-fills-fees-and-cycle-economics.html">Next: fills, fees, and economics →</a></footer>
+  <script src="../assets/grid-lesson.js"></script>
+</body></html>
