@@ -92,6 +92,10 @@ decision record, that record controls until both are reconciled explicitly.
 | Collected logs and spans | **30 days** | comprehensive spec §7 |
 | Low-cardinality metrics | **120 days** | comprehensive spec §7 |
 | Raw diff-depth ring | **5 min**, unless a material incident seals it | comprehensive spec §8 |
+| Complete authoritative evidence: journals, configurations, schemas, migrations, operator actions, accounting, reconciliation, risk, lifecycle, live venue facts, and incident history | **Life of the system** | comprehensive spec §8 |
+| Exact promotion datasets and captures | **Life of the system** | comprehensive spec §8 |
+| Qualifying Paper, Testnet, and first-live bundles | **Life of the system** | comprehensive spec §8 |
+| Critical incidents | **Life of the system** | comprehensive spec §8 |
 | Failed non-promoted Paper/Testnet evidence | **1 year** | comprehensive spec §8 |
 | Warning incident bundles and non-promoted full replays | **1 year** | comprehensive spec §8 |
 | Backup cadence while protected state advances | nominally every **10 min** | comprehensive spec §8 |

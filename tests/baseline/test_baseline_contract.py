@@ -57,7 +57,19 @@ def test_baseline_has_one_operator_entry_point_and_inspectable_contracts() -> No
 
     assert runner.is_file()
     assert "python tools/verify_baseline.py" in report.read_text(encoding="utf-8")
-    assert "Superseded values (not effective)" in catalogue.read_text(encoding="utf-8")
+    catalogue_text = catalogue.read_text(encoding="utf-8")
+    assert "Superseded values (not effective)" in catalogue_text
+    for system_life_evidence in (
+        "Complete authoritative evidence",
+        "Exact promotion datasets and captures",
+        "Qualifying Paper, Testnet, and first-live bundles",
+        "Critical incidents",
+    ):
+        assert any(
+            line.startswith(f"| {system_life_evidence}")
+            and "| **Life of the system** |" in line
+            for line in catalogue_text.splitlines()
+        )
 
     baseline = json.loads(architecture_baseline.read_text(encoding="utf-8"))
     assert baseline["schema_version"] == 1
