@@ -146,9 +146,13 @@ def _assigned_names(node: ast.Assign | ast.AnnAssign) -> list[str]:
 
 
 def _is_mutable(value: ast.expr | None) -> bool:
+    if isinstance(value, ast.Tuple):
+        return any(_is_mutable(element) for element in value.elts)
     if isinstance(value, ast.Call) and isinstance(value.func, ast.Name):
-        if value.func.id in {"MappingProxyType", "frozenset", "tuple"}:
-            return False
+        if value.func.id in {"frozenset", "tuple"}:
+            return any(_is_mutable(argument) for argument in value.args) or bool(
+                value.keywords
+            )
     return isinstance(
         value,
         (

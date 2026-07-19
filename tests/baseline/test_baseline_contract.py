@@ -97,3 +97,9 @@ def test_architecture_analysis_detects_critical_and_studio_mutable_state() -> No
     assert _mutable_state_assignments(final_container, "backend.runtime") == [
         "backend.runtime: module-level mutable active_orders"
     ]
+    nested_tuple = ast.parse("active_orders = ([],)")
+    constructed_tuple = ast.parse("active_orders = tuple([[]])")
+    for tree in (nested_tuple, constructed_tuple):
+        assert _mutable_state_assignments(tree, "backend.runtime") == [
+            "backend.runtime: module-level mutable active_orders"
+        ]

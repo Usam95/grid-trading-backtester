@@ -15,8 +15,6 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from types import MappingProxyType
-from typing import Mapping
 
 from gridlab.config.models import ExchangeRulesConfig
 
@@ -96,8 +94,9 @@ class ExchangeQuantizer:
 # realistic defaults for research, not a live source of truth — fetch the
 # exchange's current filters before trading real size.
 
-_BINANCE_SPOT: Mapping[str, ExchangeRulesConfig] = MappingProxyType(
-    {
+
+def _binance_spot_rules(symbol: str) -> ExchangeRulesConfig:
+    presets = {
         "BTCUSDT": ExchangeRulesConfig(
             enabled=True, tick_size=0.01, step_size=0.00001, min_qty=0.00001, min_notional=5.0
         ),
@@ -118,7 +117,7 @@ _BINANCE_SPOT: Mapping[str, ExchangeRulesConfig] = MappingProxyType(
             enabled=True, tick_size=0.0001, step_size=0.0001, min_qty=0.0001, min_notional=5.0
         ),
     }
-)
+    return presets.get(symbol.upper(), presets["_DEFAULT"])
 
 
 def preset(name: str, symbol: str = "") -> ExchangeRulesConfig:
@@ -131,7 +130,7 @@ def preset(name: str, symbol: str = "") -> ExchangeRulesConfig:
     """
     key = name.strip().lower()
     if key in ("binance", "binance_spot"):
-        return _BINANCE_SPOT.get(symbol.upper(), _BINANCE_SPOT["_DEFAULT"])
+        return _binance_spot_rules(symbol)
     if key in ("ibkr", "ibkr_stock", "interactive_brokers"):
         # Penny tick above $1 and whole-share lots. Real IBKR has additional
         # sub-penny and commission rules supplied by outside adapters.
