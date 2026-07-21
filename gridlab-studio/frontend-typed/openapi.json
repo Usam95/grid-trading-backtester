@@ -1,0 +1,1761 @@
+{
+  "components": {
+    "schemas": {
+      "BacktestOptions": {
+        "properties": {
+          "include_trades": {
+            "default": true,
+            "title": "Include Trades",
+            "type": "boolean"
+          },
+          "with_report": {
+            "default": false,
+            "title": "With Report",
+            "type": "boolean"
+          }
+        },
+        "title": "BacktestOptions",
+        "type": "object"
+      },
+      "BacktestRequest": {
+        "description": "A full declarative backtest spec accepted by the API.",
+        "properties": {
+          "bootstrap": {
+            "$ref": "#/components/schemas/BootstrapSpec"
+          },
+          "constraints": {
+            "$ref": "#/components/schemas/ConstraintsSpec"
+          },
+          "data": {
+            "$ref": "#/components/schemas/DataSpec"
+          },
+          "exchange_rules": {
+            "$ref": "#/components/schemas/ExchangeRulesSpec"
+          },
+          "fees": {
+            "$ref": "#/components/schemas/FeesSpec"
+          },
+          "fill": {
+            "$ref": "#/components/schemas/FillSpec"
+          },
+          "filter": {
+            "$ref": "#/components/schemas/FilterSpec"
+          },
+          "grid": {
+            "$ref": "#/components/schemas/GridSpec"
+          },
+          "initial_cash": {
+            "default": 10000.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Initial Cash",
+            "type": "number"
+          },
+          "margin": {
+            "$ref": "#/components/schemas/MarginSpec"
+          },
+          "market_type": {
+            "default": "spot",
+            "enum": [
+              "spot",
+              "futures"
+            ],
+            "title": "Market Type",
+            "type": "string"
+          },
+          "n_trials": {
+            "default": 1,
+            "minimum": 1.0,
+            "title": "N Trials",
+            "type": "integer"
+          },
+          "periods_per_year": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Periods Per Year"
+          },
+          "sizing": {
+            "$ref": "#/components/schemas/SizingSpec"
+          },
+          "slippage": {
+            "$ref": "#/components/schemas/SlippageSpec"
+          },
+          "symbol": {
+            "default": "BTCUSDT",
+            "title": "Symbol",
+            "type": "string"
+          },
+          "venue": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Venue"
+          }
+        },
+        "title": "BacktestRequest",
+        "type": "object"
+      },
+      "BootstrapSpec": {
+        "properties": {
+          "base_fraction": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Base Fraction"
+          },
+          "side": {
+            "anyOf": [
+              {
+                "enum": [
+                  "LONG",
+                  "SHORT"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Side"
+          }
+        },
+        "title": "BootstrapSpec",
+        "type": "object"
+      },
+      "ConstraintsSpec": {
+        "properties": {
+          "max_base_inventory": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Base Inventory"
+          },
+          "max_gross_exposure_frac": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Gross Exposure Frac"
+          },
+          "max_open_orders": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Open Orders"
+          },
+          "min_notional": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Notional"
+          },
+          "min_order_qty": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Order Qty"
+          }
+        },
+        "title": "ConstraintsSpec",
+        "type": "object"
+      },
+      "DataSpec": {
+        "properties": {
+          "end": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End"
+          },
+          "interval": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Interval"
+          },
+          "interval_minutes": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Interval Minutes"
+          },
+          "kind": {
+            "anyOf": [
+              {
+                "enum": [
+                  "synthetic",
+                  "dataframe",
+                  "binance",
+                  "csv"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kind"
+          },
+          "max_candles": {
+            "anyOf": [
+              {
+                "maximum": 200000.0,
+                "minimum": 50.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Candles"
+          },
+          "n": {
+            "anyOf": [
+              {
+                "maximum": 200000.0,
+                "minimum": 50.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N"
+          },
+          "path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Path"
+          },
+          "records": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Records"
+          },
+          "regime": {
+            "anyOf": [
+              {
+                "enum": [
+                  "range",
+                  "trend",
+                  "random"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Regime"
+          },
+          "seed": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seed"
+          },
+          "sigma": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "maximum": 1.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sigma"
+          },
+          "start": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start"
+          },
+          "start_price": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Price"
+          },
+          "symbol": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Symbol"
+          }
+        },
+        "title": "DataSpec",
+        "type": "object"
+      },
+      "ExchangeRulesSpec": {
+        "properties": {
+          "enabled": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Enabled"
+          },
+          "min_notional": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Notional"
+          },
+          "min_qty": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Qty"
+          },
+          "step_size": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Step Size"
+          },
+          "tick_size": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tick Size"
+          }
+        },
+        "title": "ExchangeRulesSpec",
+        "type": "object"
+      },
+      "FeesSpec": {
+        "properties": {
+          "maker": {
+            "anyOf": [
+              {
+                "maximum": 0.05,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maker"
+          },
+          "taker": {
+            "anyOf": [
+              {
+                "maximum": 0.05,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Taker"
+          }
+        },
+        "title": "FeesSpec",
+        "type": "object"
+      },
+      "FillSpec": {
+        "properties": {
+          "fill_gaps_at_open": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fill Gaps At Open"
+          },
+          "fill_on_touch": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fill On Touch"
+          },
+          "mode": {
+            "anyOf": [
+              {
+                "enum": [
+                  "optimistic",
+                  "conservative"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mode"
+          },
+          "participation": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Participation"
+          }
+        },
+        "title": "FillSpec",
+        "type": "object"
+      },
+      "FilterSpec": {
+        "properties": {
+          "adx_threshold": {
+            "anyOf": [
+              {
+                "maximum": 100.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Adx Threshold"
+          },
+          "kind": {
+            "anyOf": [
+              {
+                "enum": [
+                  "none",
+                  "trend",
+                  "regime",
+                  "rsi"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kind"
+          },
+          "overbought": {
+            "anyOf": [
+              {
+                "maximum": 100.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Overbought"
+          },
+          "oversold": {
+            "anyOf": [
+              {
+                "maximum": 100.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Oversold"
+          }
+        },
+        "title": "FilterSpec",
+        "type": "object"
+      },
+      "GridPreviewBody": {
+        "description": "Lightweight request to compute grid rung prices for the live preview.",
+        "properties": {
+          "spec": {
+            "$ref": "#/components/schemas/BacktestRequest"
+          }
+        },
+        "title": "GridPreviewBody",
+        "type": "object"
+      },
+      "GridSearchBody": {
+        "properties": {
+          "base": {
+            "$ref": "#/components/schemas/BacktestRequest"
+          },
+          "maximize": {
+            "default": true,
+            "title": "Maximize",
+            "type": "boolean"
+          },
+          "objective": {
+            "default": "deflated_sharpe",
+            "title": "Objective",
+            "type": "string"
+          },
+          "space": {
+            "additionalProperties": {
+              "items": {},
+              "type": "array"
+            },
+            "title": "Space",
+            "type": "object"
+          },
+          "top_k": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Top K"
+          }
+        },
+        "title": "GridSearchBody",
+        "type": "object"
+      },
+      "GridSpec": {
+        "properties": {
+          "adaptive": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Adaptive"
+          },
+          "atr_mult": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Atr Mult"
+          },
+          "atr_period": {
+            "anyOf": [
+              {
+                "minimum": 2.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Atr Period"
+          },
+          "direction": {
+            "anyOf": [
+              {
+                "enum": [
+                  "neutral",
+                  "long",
+                  "short"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Direction"
+          },
+          "levels": {
+            "anyOf": [
+              {
+                "maximum": 500.0,
+                "minimum": 2.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Levels"
+          },
+          "lookback": {
+            "anyOf": [
+              {
+                "minimum": 2.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lookback"
+          },
+          "lower": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lower"
+          },
+          "recenter_drift_frac": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recenter Drift Frac"
+          },
+          "spacing": {
+            "anyOf": [
+              {
+                "enum": [
+                  "arithmetic",
+                  "geometric",
+                  "atr"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spacing"
+          },
+          "stop_loss_frac": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stop Loss Frac"
+          },
+          "take_profit_frac": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Take Profit Frac"
+          },
+          "upper": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Upper"
+          }
+        },
+        "title": "GridSpec",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "MarginSpec": {
+        "properties": {
+          "allow_short": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Allow Short"
+          },
+          "leverage": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Leverage"
+          },
+          "liquidation_fee_frac": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Liquidation Fee Frac"
+          },
+          "maintenance_margin_frac": {
+            "anyOf": [
+              {
+                "exclusiveMaximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maintenance Margin Frac"
+          }
+        },
+        "title": "MarginSpec",
+        "type": "object"
+      },
+      "MonteCarloBody": {
+        "properties": {
+          "base": {
+            "$ref": "#/components/schemas/BacktestRequest"
+          },
+          "method": {
+            "default": "trades",
+            "enum": [
+              "trades",
+              "returns"
+            ],
+            "title": "Method",
+            "type": "string"
+          },
+          "n_sims": {
+            "default": 2000,
+            "maximum": 20000.0,
+            "minimum": 100.0,
+            "title": "N Sims",
+            "type": "integer"
+          },
+          "seed": {
+            "default": 0,
+            "title": "Seed",
+            "type": "integer"
+          }
+        },
+        "title": "MonteCarloBody",
+        "type": "object"
+      },
+      "RobustnessBody": {
+        "properties": {
+          "base": {
+            "$ref": "#/components/schemas/BacktestRequest"
+          },
+          "mc_sims": {
+            "default": 800,
+            "maximum": 10000.0,
+            "minimum": 100.0,
+            "title": "Mc Sims",
+            "type": "integer"
+          },
+          "n_splits": {
+            "default": 3,
+            "maximum": 12.0,
+            "minimum": 2.0,
+            "title": "N Splits",
+            "type": "integer"
+          },
+          "space": {
+            "additionalProperties": {
+              "items": {},
+              "type": "array"
+            },
+            "title": "Space",
+            "type": "object"
+          }
+        },
+        "title": "RobustnessBody",
+        "type": "object"
+      },
+      "RunBacktestBody": {
+        "properties": {
+          "options": {
+            "$ref": "#/components/schemas/BacktestOptions"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/BacktestRequest"
+          }
+        },
+        "title": "RunBacktestBody",
+        "type": "object"
+      },
+      "SizingSpec": {
+        "properties": {
+          "martingale_factor": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Martingale Factor"
+          },
+          "max_martingale_steps": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Martingale Steps"
+          },
+          "mode": {
+            "anyOf": [
+              {
+                "enum": [
+                  "fixed_quote",
+                  "fixed_base",
+                  "percent_equity",
+                  "martingale"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mode"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "title": "SizingSpec",
+        "type": "object"
+      },
+      "SlippageSpec": {
+        "properties": {
+          "impact_frac": {
+            "anyOf": [
+              {
+                "maximum": 0.1,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Impact Frac"
+          },
+          "spread_frac": {
+            "anyOf": [
+              {
+                "maximum": 0.1,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spread Frac"
+          }
+        },
+        "title": "SlippageSpec",
+        "type": "object"
+      },
+      "StudioBacktestResult": {
+        "additionalProperties": true,
+        "properties": {
+          "bars": {
+            "title": "Bars",
+            "type": "integer"
+          },
+          "fees_paid": {
+            "title": "Fees Paid",
+            "type": "number"
+          },
+          "final_equity": {
+            "title": "Final Equity",
+            "type": "number"
+          },
+          "initial_cash": {
+            "title": "Initial Cash",
+            "type": "number"
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/StudioMetrics"
+          },
+          "symbol": {
+            "title": "Symbol",
+            "type": "string"
+          },
+          "trades": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Trades",
+            "type": "array"
+          },
+          "verdict": {
+            "$ref": "#/components/schemas/StudioVerdict"
+          }
+        },
+        "required": [
+          "symbol",
+          "bars",
+          "initial_cash",
+          "final_equity",
+          "fees_paid",
+          "metrics",
+          "verdict",
+          "trades"
+        ],
+        "title": "StudioBacktestResult",
+        "type": "object"
+      },
+      "StudioBacktestRun": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "primary_result": {
+            "$ref": "#/components/schemas/StudioPrimaryResult"
+          },
+          "result": {
+            "$ref": "#/components/schemas/StudioBacktestResult"
+          },
+          "specification": {
+            "additionalProperties": true,
+            "title": "Specification",
+            "type": "object"
+          },
+          "status": {
+            "const": "completed",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "created_at",
+          "specification",
+          "primary_result",
+          "result"
+        ],
+        "title": "StudioBacktestRun",
+        "type": "object"
+      },
+      "StudioConfiguration": {
+        "properties": {
+          "data_regimes": {
+            "items": {
+              "enum": [
+                "range",
+                "trend",
+                "random"
+              ],
+              "type": "string"
+            },
+            "title": "Data Regimes",
+            "type": "array"
+          },
+          "default_spec": {
+            "$ref": "#/components/schemas/BacktestRequest"
+          },
+          "spacing": {
+            "items": {
+              "enum": [
+                "geometric",
+                "arithmetic"
+              ],
+              "type": "string"
+            },
+            "title": "Spacing",
+            "type": "array"
+          }
+        },
+        "required": [
+          "default_spec",
+          "spacing",
+          "data_regimes"
+        ],
+        "title": "StudioConfiguration",
+        "type": "object"
+      },
+      "StudioMetrics": {
+        "additionalProperties": true,
+        "properties": {
+          "max_drawdown": {
+            "title": "Max Drawdown",
+            "type": "number"
+          },
+          "n_trades": {
+            "title": "N Trades",
+            "type": "number"
+          },
+          "total_return": {
+            "title": "Total Return",
+            "type": "number"
+          },
+          "win_rate": {
+            "title": "Win Rate",
+            "type": "number"
+          }
+        },
+        "required": [
+          "total_return",
+          "max_drawdown",
+          "n_trades",
+          "win_rate"
+        ],
+        "title": "StudioMetrics",
+        "type": "object"
+      },
+      "StudioPrimaryResult": {
+        "properties": {
+          "completed_trades": {
+            "title": "Completed Trades",
+            "type": "integer"
+          },
+          "fees_paid": {
+            "title": "Fees Paid",
+            "type": "number"
+          },
+          "final_equity": {
+            "title": "Final Equity",
+            "type": "number"
+          },
+          "max_drawdown": {
+            "title": "Max Drawdown",
+            "type": "number"
+          },
+          "net_return": {
+            "title": "Net Return",
+            "type": "number"
+          },
+          "verdict": {
+            "title": "Verdict",
+            "type": "string"
+          }
+        },
+        "required": [
+          "net_return",
+          "final_equity",
+          "max_drawdown",
+          "completed_trades",
+          "fees_paid",
+          "verdict"
+        ],
+        "title": "StudioPrimaryResult",
+        "type": "object"
+      },
+      "StudioVerdict": {
+        "properties": {
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "max_score": {
+            "title": "Max Score",
+            "type": "integer"
+          },
+          "score": {
+            "title": "Score",
+            "type": "integer"
+          },
+          "tone": {
+            "enum": [
+              "good",
+              "warn",
+              "bad"
+            ],
+            "title": "Tone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "tone",
+          "score",
+          "max_score"
+        ],
+        "title": "StudioVerdict",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      },
+      "WalkForwardBody": {
+        "properties": {
+          "base": {
+            "$ref": "#/components/schemas/BacktestRequest"
+          },
+          "n_splits": {
+            "default": 4,
+            "maximum": 20.0,
+            "minimum": 2.0,
+            "title": "N Splits",
+            "type": "integer"
+          },
+          "objective": {
+            "default": "deflated_sharpe",
+            "title": "Objective",
+            "type": "string"
+          },
+          "space": {
+            "additionalProperties": {
+              "items": {},
+              "type": "array"
+            },
+            "title": "Space",
+            "type": "object"
+          }
+        },
+        "title": "WalkForwardBody",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "A beautiful, informative studio for the gridlab grid-trading backtester.",
+    "title": "gridlab studio",
+    "version": "1.0.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/backtest": {
+      "post": {
+        "operationId": "backtest_api_backtest_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RunBacktestBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Backtest Api Backtest Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Backtest"
+      }
+    },
+    "/api/grid-preview": {
+      "post": {
+        "operationId": "grid_preview_api_grid_preview_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GridPreviewBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Grid Preview Api Grid Preview Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Grid Preview"
+      }
+    },
+    "/api/health": {
+      "get": {
+        "operationId": "health_api_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Health Api Health Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health"
+      }
+    },
+    "/api/meta": {
+      "get": {
+        "description": "Everything the UI needs to render the configurator and explainers.",
+        "operationId": "meta_api_meta_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Meta Api Meta Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Meta"
+      }
+    },
+    "/api/report": {
+      "post": {
+        "operationId": "report_api_report_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RunBacktestBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Report"
+      }
+    },
+    "/api/research/grid-search": {
+      "post": {
+        "operationId": "research_grid_search_api_research_grid_search_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GridSearchBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Research Grid Search Api Research Grid Search Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Research Grid Search"
+      }
+    },
+    "/api/research/monte-carlo": {
+      "post": {
+        "operationId": "research_monte_carlo_api_research_monte_carlo_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MonteCarloBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Research Monte Carlo Api Research Monte Carlo Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Research Monte Carlo"
+      }
+    },
+    "/api/research/robustness": {
+      "post": {
+        "operationId": "research_robustness_api_research_robustness_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RobustnessBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Research Robustness Api Research Robustness Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Research Robustness"
+      }
+    },
+    "/api/research/walk-forward": {
+      "post": {
+        "operationId": "research_walk_forward_api_research_walk_forward_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WalkForwardBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Research Walk Forward Api Research Walk Forward Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Research Walk Forward"
+      }
+    },
+    "/api/studio/backtests": {
+      "post": {
+        "description": "Execute and durably record the typed Studio's migrated Research slice.",
+        "operationId": "create_studio_backtest_api_studio_backtests_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RunBacktestBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudioBacktestRun"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Studio Backtest"
+      }
+    },
+    "/api/studio/backtests/{run_id}": {
+      "get": {
+        "operationId": "get_studio_backtest_api_studio_backtests__run_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudioBacktestRun"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Studio Backtest"
+      }
+    },
+    "/api/studio/configuration": {
+      "get": {
+        "description": "Return the canonical defaults for Ticket 02's migrated static Spot slice.",
+        "operationId": "studio_configuration_api_studio_configuration_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudioConfiguration"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Studio Configuration"
+      }
+    }
+  }
+}

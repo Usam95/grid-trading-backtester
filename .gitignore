@@ -10,6 +10,10 @@
 *.coverage
 .coverage
 htmlcov/
+gridlab-studio/.studio/
+**/node_modules/
+*.tsbuildinfo
+**/test-results/
 
 # Useful legacy repositories are read-only characterization sources. They are
 # deliberately outside the canonical repository and dependency graph.
@@ -19,4 +23,3 @@ grid-backtest-saas/
 
 # Generated/reference binaries are not canonical source.
 *.pdf
-

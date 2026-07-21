@@ -8,9 +8,11 @@ config) is surfaced as a clean HTTP 400 so the UI can show a friendly message.
 from __future__ import annotations
 
 import io
+from datetime import datetime, timezone
 from pathlib import Path
+from uuid import uuid4
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
@@ -32,10 +34,15 @@ from backend.schemas import (
     MonteCarloBody,
     RobustnessBody,
     RunBacktestBody,
+    StudioBacktestRun,
+    StudioConfiguration,
+    StudioPrimaryResult,
     WalkForwardBody,
 )
+from backend.studio_runs import SqliteStudioRunStore, studio_run_store
 
 FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
+TYPED_FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend-typed-dist"
 
 app = FastAPI(
     title="gridlab studio",
@@ -128,6 +135,60 @@ def backtest(body: RunBacktestBody) -> dict:
     )
 
 
+@app.get("/api/studio/configuration", response_model=StudioConfiguration)
+def studio_configuration() -> StudioConfiguration:
+    """Return the canonical defaults for Ticket 02's migrated static Spot slice."""
+    return StudioConfiguration(
+        default_spec=PRESET_INDEX["spot-neutral-range"]["spec"],
+        spacing=["geometric", "arithmetic"],
+        data_regimes=["range", "trend", "random"],
+    )
+
+
+@app.post("/api/studio/backtests", response_model=StudioBacktestRun, status_code=201)
+def create_studio_backtest(
+    body: RunBacktestBody,
+    store: SqliteStudioRunStore = Depends(studio_run_store),
+) -> StudioBacktestRun:
+    """Execute and durably record the typed Studio's migrated Research slice."""
+    specification = body.spec.to_spec()
+    result = _guard(
+        service.run_backtest,
+        specification,
+        with_report=body.options.with_report,
+        include_trades=body.options.include_trades,
+    )
+    metrics = result["metrics"]
+    run = StudioBacktestRun(
+        id=str(uuid4()),
+        status="completed",
+        created_at=datetime.now(timezone.utc),
+        specification=specification,
+        primary_result=StudioPrimaryResult(
+            net_return=metrics["total_return"],
+            final_equity=result["final_equity"],
+            max_drawdown=metrics["max_drawdown"],
+            completed_trades=result["n_closed_trades"],
+            fees_paid=result["fees_paid"],
+            verdict=result["verdict"]["label"],
+        ),
+        result=result,
+    )
+    store.save(run)
+    return run
+
+
+@app.get("/api/studio/backtests/{run_id}", response_model=StudioBacktestRun)
+def get_studio_backtest(
+    run_id: str,
+    store: SqliteStudioRunStore = Depends(studio_run_store),
+) -> StudioBacktestRun:
+    run = store.get(run_id)
+    if run is None:
+        raise HTTPException(status_code=404, detail="Studio backtest run not found")
+    return run
+
+
 @app.post("/api/grid-preview")
 def grid_preview(body: GridPreviewBody) -> dict:
     spec = body.spec.to_spec()
@@ -203,8 +264,15 @@ def research_robustness(body: RobustnessBody) -> dict:
 
 
 # ---------------------------------------------------------------------------
-# Static SPA (mounted last so /api/* always wins)
+# Static SPAs (mounted last so /api/* always wins)
 # ---------------------------------------------------------------------------
+
+if TYPED_FRONTEND_DIR.exists():
+    app.mount(
+        "/studio",
+        StaticFiles(directory=str(TYPED_FRONTEND_DIR), html=True),
+        name="typed-frontend",
+    )
 
 if FRONTEND_DIR.exists():
     app.mount("/", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="frontend")

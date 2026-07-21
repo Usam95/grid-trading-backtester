@@ -174,6 +174,14 @@ def main(argv: list[str] | None = None) -> int:
             "--locked",
             "--no-sync",
             "python",
+            "tools/verify_frontend.py",
+        ],
+        [
+            str(uv),
+            "run",
+            "--locked",
+            "--no-sync",
+            "python",
             "tools/check_architecture.py",
         ],
         [

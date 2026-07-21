@@ -5,8 +5,10 @@ optional. We dump with ``exclude_none=True`` before handing the dict to gridlab,
 so the engine remains the single source of default values and validation — the
 API never silently disagrees with the engine about what a default is.
 """
+
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Any, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -32,7 +34,9 @@ class GridSpec(_Block):
 
 
 class SizingSpec(_Block):
-    mode: Optional[Literal["fixed_quote", "fixed_base", "percent_equity", "martingale"]] = None
+    mode: Optional[
+        Literal["fixed_quote", "fixed_base", "percent_equity", "martingale"]
+    ] = None
     value: Optional[float] = Field(default=None, gt=0)
     martingale_factor: Optional[float] = Field(default=None, ge=1)
     max_martingale_steps: Optional[int] = Field(default=None, ge=0)
@@ -111,9 +115,10 @@ class FilterSpec(_Block):
 
 class BacktestRequest(_Block):
     """A full declarative backtest spec accepted by the API."""
+
     symbol: str = "BTCUSDT"
     market_type: Literal["spot", "futures"] = "spot"
-    venue: Optional[str] = None        # "binance" | "ibkr" cost+filter preset
+    venue: Optional[str] = None  # "binance" | "ibkr" cost+filter preset
     initial_cash: float = Field(default=10_000.0, gt=0)
     grid: GridSpec = Field(default_factory=GridSpec)
     sizing: SizingSpec = Field(default_factory=SizingSpec)
@@ -146,8 +151,62 @@ class RunBacktestBody(_Block):
     options: BacktestOptions = Field(default_factory=BacktestOptions)
 
 
+class StudioMetrics(_Block):
+    model_config = ConfigDict(extra="allow")
+
+    total_return: float
+    max_drawdown: float
+    n_trades: float
+    win_rate: float
+
+
+class StudioVerdict(_Block):
+    label: str
+    tone: Literal["good", "warn", "bad"]
+    score: int
+    max_score: int
+
+
+class StudioBacktestResult(_Block):
+    model_config = ConfigDict(extra="allow")
+
+    symbol: str
+    bars: int
+    initial_cash: float
+    final_equity: float
+    fees_paid: float
+    metrics: StudioMetrics
+    verdict: StudioVerdict
+    trades: list[dict[str, Any]]
+
+
+class StudioPrimaryResult(_Block):
+    net_return: float
+    final_equity: float
+    max_drawdown: float
+    completed_trades: int
+    fees_paid: float
+    verdict: str
+
+
+class StudioBacktestRun(_Block):
+    id: str
+    status: Literal["completed"]
+    created_at: datetime
+    specification: dict[str, Any]
+    primary_result: StudioPrimaryResult
+    result: StudioBacktestResult
+
+
+class StudioConfiguration(_Block):
+    default_spec: BacktestRequest
+    spacing: list[Literal["geometric", "arithmetic"]]
+    data_regimes: list[Literal["range", "trend", "random"]]
+
+
 class GridPreviewBody(_Block):
     """Lightweight request to compute grid rung prices for the live preview."""
+
     spec: BacktestRequest = Field(default_factory=BacktestRequest)
 
 

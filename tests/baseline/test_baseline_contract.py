@@ -82,6 +82,21 @@ def test_baseline_has_one_operator_entry_point_and_inspectable_contracts() -> No
     assert set(quality["checks"]) == {"formatting", "lint", "typing", "coverage"}
 
 
+def test_baseline_verifies_the_exact_locked_typed_frontend() -> None:
+    package_path = ROOT / "gridlab-studio" / "frontend-typed" / "package.json"
+    package = json.loads(package_path.read_text(encoding="utf-8"))
+    runner = (ROOT / "tools" / "verify_baseline.py").read_text(encoding="utf-8")
+
+    assert (package_path.parent / "pnpm-lock.yaml").is_file()
+    assert "tools/verify_frontend.py" in runner.replace("\\", "/")
+    assert package["packageManager"].startswith("pnpm@")
+    for group in ("dependencies", "devDependencies"):
+        assert all(
+            not version.startswith(("^", "~", ">", "<", "*"))
+            for version in package[group].values()
+        )
+
+
 def test_legacy_repositories_are_named_read_only_and_not_workspace_members() -> None:
     report = (ROOT / "docs" / "baseline-report.md").read_text(encoding="utf-8")
     for legacy_name in ("backtester_old", "grid-backtest-core", "grid-backtest-saas"):
