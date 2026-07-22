@@ -39,6 +39,54 @@ const completedRun: StudioBacktestRun = {
   },
 };
 
+const preview = {
+  preview_id: "a".repeat(64),
+  venue: "binance" as const,
+  market: "spot-production-archive" as const,
+  symbol: "BTCUSDT",
+  interval: "1m" as const,
+  start: "2025-01-01T00:00:00Z",
+  end: "2025-01-02T00:00:00Z",
+  estimated_bytes: 123456,
+  sources: [{
+    date: "2025-01-01",
+    url: "https://data.binance.vision/data/spot/daily/klines/BTCUSDT/1m/BTCUSDT-1m-2025-01-01.zip",
+    checksum_url: "https://data.binance.vision/data/spot/daily/klines/BTCUSDT/1m/BTCUSDT-1m-2025-01-01.zip.CHECKSUM",
+    expected_sha256: "b".repeat(64),
+    estimated_bytes: 123456,
+  }],
+};
+
+const manifest = {
+  dataset_id: "c".repeat(64),
+  history_environment: "production" as const,
+  source_provider: "official Binance public archive",
+  quality: { rows: 1440, gaps: 0, duplicates: 0, out_of_order: 0, invalid_records: 0 },
+  normalization: { sha256: "d".repeat(64), candle_sequence_sha256: "e".repeat(64) },
+};
+
+const productionRun: StudioBacktestRun = {
+  ...completedRun,
+  id: "run-production-001",
+  result: { ...completedRun.result, symbol: "BTCUSDT", bars: 1440 },
+  provenance: {
+    dataset_id: manifest.dataset_id,
+    manifest_identity: manifest.dataset_id,
+    source_provider: manifest.source_provider,
+    history_environment: "production",
+    testnet_history_used: false,
+    symbol: "BTCUSDT",
+    interval: "1m",
+    requested_start: "2025-01-01T00:00:00Z",
+    requested_end: "2025-01-02T00:00:00Z",
+    retrieved_at: "2026-07-21T12:00:00Z",
+    source_urls: [preview.sources[0].url],
+    normalized_sha256: manifest.normalization.sha256,
+    candle_sequence_sha256: manifest.normalization.candle_sequence_sha256,
+    backtest_fingerprint: "f".repeat(64),
+  },
+};
+
 const configuration: StudioConfiguration = {
   default_spec: {
     symbol: "BTCUSDT",
@@ -74,6 +122,9 @@ function researchPort(): ResearchPort {
     getConfiguration: vi.fn().mockResolvedValue(configuration),
     executeBacktest: vi.fn().mockResolvedValue(completedRun),
     getBacktest: vi.fn().mockResolvedValue(completedRun),
+    previewProductionDataset: vi.fn().mockResolvedValue(preview),
+    importProductionDataset: vi.fn().mockResolvedValue(manifest),
+    executeManifestedBacktest: vi.fn().mockResolvedValue(productionRun),
   };
 }
 
@@ -118,5 +169,25 @@ describe("typed Studio shell", () => {
     expect(screen.getAllByText("GATEWAY NOT CONFIGURED")).toHaveLength(2);
     expect(screen.getAllByText("COMMAND AUTHORITY UNAVAILABLE")).toHaveLength(2);
     expect(screen.queryByRole("button", { name: /pause|stop|activate/i })).toBeNull();
+  });
+
+  it("previews, admits, and runs manifested production history with explicit provenance", async () => {
+    const research = researchPort();
+    render(<App research={research} />);
+
+    expect(await screen.findByText("Production history")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Preview official download" }));
+    expect(await screen.findByText("123,456 bytes")).toBeTruthy();
+    expect(screen.getByText("b".repeat(64))).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "Download, verify & normalize" }));
+    expect(await screen.findByText("QUALITY APPROVED")).toBeTruthy();
+    expect(screen.getByText(manifest.dataset_id)).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "Run production-history backtest" }));
+    expect(await screen.findByText("PRODUCTION HISTORY")).toBeTruthy();
+    expect(screen.getByText("TESTNET HISTORY NOT USED")).toBeTruthy();
+    expect(screen.getByText("f".repeat(64))).toBeTruthy();
+    expect(research.executeManifestedBacktest).toHaveBeenCalledOnce();
   });
 });

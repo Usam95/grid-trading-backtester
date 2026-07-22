@@ -1,6 +1,39 @@
 {
   "components": {
     "schemas": {
+      "ArchiveSourcePreview": {
+        "properties": {
+          "checksum_url": {
+            "title": "Checksum Url",
+            "type": "string"
+          },
+          "date": {
+            "title": "Date",
+            "type": "string"
+          },
+          "estimated_bytes": {
+            "title": "Estimated Bytes",
+            "type": "integer"
+          },
+          "expected_sha256": {
+            "title": "Expected Sha256",
+            "type": "string"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "date",
+          "url",
+          "checksum_url",
+          "expected_sha256",
+          "estimated_bytes"
+        ],
+        "title": "ArchiveSourcePreview",
+        "type": "object"
+      },
       "BacktestOptions": {
         "properties": {
           "include_trades": {
@@ -105,6 +138,101 @@
         "title": "BacktestRequest",
         "type": "object"
       },
+      "BinanceDatasetPreview": {
+        "properties": {
+          "end": {
+            "format": "date-time",
+            "title": "End",
+            "type": "string"
+          },
+          "estimated_bytes": {
+            "title": "Estimated Bytes",
+            "type": "integer"
+          },
+          "interval": {
+            "const": "1m",
+            "title": "Interval",
+            "type": "string"
+          },
+          "market": {
+            "const": "spot-production-archive",
+            "title": "Market",
+            "type": "string"
+          },
+          "preview_id": {
+            "title": "Preview Id",
+            "type": "string"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/ArchiveSourcePreview"
+            },
+            "title": "Sources",
+            "type": "array"
+          },
+          "start": {
+            "format": "date-time",
+            "title": "Start",
+            "type": "string"
+          },
+          "symbol": {
+            "title": "Symbol",
+            "type": "string"
+          },
+          "venue": {
+            "const": "binance",
+            "title": "Venue",
+            "type": "string"
+          }
+        },
+        "required": [
+          "preview_id",
+          "venue",
+          "market",
+          "symbol",
+          "interval",
+          "start",
+          "end",
+          "estimated_bytes",
+          "sources"
+        ],
+        "title": "BinanceDatasetPreview",
+        "type": "object"
+      },
+      "BinanceDatasetRequest": {
+        "properties": {
+          "end": {
+            "format": "date-time",
+            "title": "End",
+            "type": "string"
+          },
+          "interval": {
+            "const": "1m",
+            "default": "1m",
+            "title": "Interval",
+            "type": "string"
+          },
+          "start": {
+            "format": "date-time",
+            "title": "Start",
+            "type": "string"
+          },
+          "symbol": {
+            "maxLength": 20,
+            "minLength": 5,
+            "pattern": "^[A-Za-z0-9]+$",
+            "title": "Symbol",
+            "type": "string"
+          }
+        },
+        "required": [
+          "symbol",
+          "start",
+          "end"
+        ],
+        "title": "BinanceDatasetRequest",
+        "type": "object"
+      },
       "BootstrapSpec": {
         "properties": {
           "base_fraction": {
@@ -207,6 +335,17 @@
       },
       "DataSpec": {
         "properties": {
+          "dataset_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dataset Id"
+          },
           "end": {
             "anyOf": [
               {
@@ -248,7 +387,8 @@
                   "synthetic",
                   "dataframe",
                   "binance",
-                  "csv"
+                  "csv",
+                  "manifested_parquet"
                 ],
                 "type": "string"
               },
@@ -386,6 +526,258 @@
           }
         },
         "title": "DataSpec",
+        "type": "object"
+      },
+      "DatasetManifest": {
+        "properties": {
+          "coverage": {
+            "additionalProperties": {
+              "format": "date-time",
+              "type": "string"
+            },
+            "title": "Coverage",
+            "type": "object"
+          },
+          "dataset_id": {
+            "title": "Dataset Id",
+            "type": "string"
+          },
+          "event_kind": {
+            "const": "kline",
+            "title": "Event Kind",
+            "type": "string"
+          },
+          "fee_snapshot_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fee Snapshot Id"
+          },
+          "history_environment": {
+            "const": "production",
+            "title": "History Environment",
+            "type": "string"
+          },
+          "identity": {
+            "additionalProperties": true,
+            "title": "Identity",
+            "type": "object"
+          },
+          "interval": {
+            "const": "1m",
+            "title": "Interval",
+            "type": "string"
+          },
+          "manifest_sha256": {
+            "title": "Manifest Sha256",
+            "type": "string"
+          },
+          "market": {
+            "const": "spot",
+            "title": "Market",
+            "type": "string"
+          },
+          "normalization": {
+            "$ref": "#/components/schemas/DatasetNormalization"
+          },
+          "quality": {
+            "$ref": "#/components/schemas/DatasetQuality"
+          },
+          "requested_range": {
+            "additionalProperties": {
+              "format": "date-time",
+              "type": "string"
+            },
+            "title": "Requested Range",
+            "type": "object"
+          },
+          "retrieved_at": {
+            "format": "date-time",
+            "title": "Retrieved At",
+            "type": "string"
+          },
+          "schema_version": {
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "source_provider": {
+            "title": "Source Provider",
+            "type": "string"
+          },
+          "sources": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Sources",
+            "type": "array"
+          },
+          "symbol": {
+            "title": "Symbol",
+            "type": "string"
+          },
+          "timestamp": {
+            "additionalProperties": true,
+            "title": "Timestamp",
+            "type": "object"
+          },
+          "venue": {
+            "const": "binance",
+            "title": "Venue",
+            "type": "string"
+          },
+          "venue_rule_snapshot_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Venue Rule Snapshot Id"
+          }
+        },
+        "required": [
+          "dataset_id",
+          "manifest_sha256",
+          "schema_version",
+          "identity",
+          "venue",
+          "market",
+          "history_environment",
+          "source_provider",
+          "symbol",
+          "event_kind",
+          "interval",
+          "requested_range",
+          "coverage",
+          "retrieved_at",
+          "sources",
+          "timestamp",
+          "quality",
+          "normalization",
+          "venue_rule_snapshot_id",
+          "fee_snapshot_id"
+        ],
+        "title": "DatasetManifest",
+        "type": "object"
+      },
+      "DatasetNormalization": {
+        "properties": {
+          "candle_sequence_sha256": {
+            "title": "Candle Sequence Sha256",
+            "type": "string"
+          },
+          "format": {
+            "const": "parquet",
+            "title": "Format",
+            "type": "string"
+          },
+          "identity": {
+            "title": "Identity",
+            "type": "string"
+          },
+          "ordering": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Ordering",
+            "type": "array"
+          },
+          "parent_dataset_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Dataset Id"
+          },
+          "path": {
+            "title": "Path",
+            "type": "string"
+          },
+          "resampling_rule": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resampling Rule"
+          },
+          "rows": {
+            "title": "Rows",
+            "type": "integer"
+          },
+          "schema": {
+            "items": {
+              "$ref": "#/components/schemas/ParquetField"
+            },
+            "title": "Schema",
+            "type": "array"
+          },
+          "sha256": {
+            "title": "Sha256",
+            "type": "string"
+          }
+        },
+        "required": [
+          "identity",
+          "format",
+          "path",
+          "sha256",
+          "rows",
+          "schema",
+          "candle_sequence_sha256",
+          "ordering",
+          "parent_dataset_id",
+          "resampling_rule"
+        ],
+        "title": "DatasetNormalization",
+        "type": "object"
+      },
+      "DatasetQuality": {
+        "properties": {
+          "duplicates": {
+            "title": "Duplicates",
+            "type": "integer"
+          },
+          "gaps": {
+            "title": "Gaps",
+            "type": "integer"
+          },
+          "invalid_records": {
+            "title": "Invalid Records",
+            "type": "integer"
+          },
+          "out_of_order": {
+            "title": "Out Of Order",
+            "type": "integer"
+          },
+          "rows": {
+            "title": "Rows",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "rows",
+          "gaps",
+          "duplicates",
+          "out_of_order",
+          "invalid_records"
+        ],
+        "title": "DatasetQuality",
         "type": "object"
       },
       "ExchangeRulesSpec": {
@@ -820,6 +1212,45 @@
         "title": "HTTPValidationError",
         "type": "object"
       },
+      "ImportDatasetBody": {
+        "properties": {
+          "preview_id": {
+            "maxLength": 64,
+            "minLength": 64,
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Preview Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "preview_id"
+        ],
+        "title": "ImportDatasetBody",
+        "type": "object"
+      },
+      "ManifestedBacktestBody": {
+        "properties": {
+          "dataset_id": {
+            "maxLength": 64,
+            "minLength": 64,
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Dataset Id",
+            "type": "string"
+          },
+          "options": {
+            "$ref": "#/components/schemas/BacktestOptions"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/BacktestRequest"
+          }
+        },
+        "required": [
+          "dataset_id",
+          "spec"
+        ],
+        "title": "ManifestedBacktestBody",
+        "type": "object"
+      },
       "MarginSpec": {
         "properties": {
           "allow_short": {
@@ -902,6 +1333,116 @@
           }
         },
         "title": "MonteCarloBody",
+        "type": "object"
+      },
+      "ParquetField": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "nullable": {
+            "title": "Nullable",
+            "type": "boolean"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "type",
+          "nullable"
+        ],
+        "title": "ParquetField",
+        "type": "object"
+      },
+      "ProductionDatasetProvenance": {
+        "properties": {
+          "backtest_fingerprint": {
+            "title": "Backtest Fingerprint",
+            "type": "string"
+          },
+          "candle_sequence_sha256": {
+            "title": "Candle Sequence Sha256",
+            "type": "string"
+          },
+          "dataset_id": {
+            "title": "Dataset Id",
+            "type": "string"
+          },
+          "history_environment": {
+            "const": "production",
+            "title": "History Environment",
+            "type": "string"
+          },
+          "interval": {
+            "const": "1m",
+            "title": "Interval",
+            "type": "string"
+          },
+          "manifest_identity": {
+            "title": "Manifest Identity",
+            "type": "string"
+          },
+          "normalized_sha256": {
+            "title": "Normalized Sha256",
+            "type": "string"
+          },
+          "requested_end": {
+            "format": "date-time",
+            "title": "Requested End",
+            "type": "string"
+          },
+          "requested_start": {
+            "format": "date-time",
+            "title": "Requested Start",
+            "type": "string"
+          },
+          "retrieved_at": {
+            "format": "date-time",
+            "title": "Retrieved At",
+            "type": "string"
+          },
+          "source_provider": {
+            "title": "Source Provider",
+            "type": "string"
+          },
+          "source_urls": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Source Urls",
+            "type": "array"
+          },
+          "symbol": {
+            "title": "Symbol",
+            "type": "string"
+          },
+          "testnet_history_used": {
+            "const": false,
+            "title": "Testnet History Used",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "dataset_id",
+          "manifest_identity",
+          "source_provider",
+          "history_environment",
+          "testnet_history_used",
+          "symbol",
+          "interval",
+          "requested_start",
+          "requested_end",
+          "retrieved_at",
+          "source_urls",
+          "normalized_sha256",
+          "candle_sequence_sha256",
+          "backtest_fingerprint"
+        ],
+        "title": "ProductionDatasetProvenance",
         "type": "object"
       },
       "RobustnessBody": {
@@ -1102,6 +1643,16 @@
           },
           "primary_result": {
             "$ref": "#/components/schemas/StudioPrimaryResult"
+          },
+          "provenance": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProductionDatasetProvenance"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "result": {
             "$ref": "#/components/schemas/StudioBacktestResult"
@@ -1699,6 +2250,45 @@
         "summary": "Create Studio Backtest"
       }
     },
+    "/api/studio/backtests/manifested": {
+      "post": {
+        "description": "Replay one admitted production dataset without any network dependency.",
+        "operationId": "create_manifested_studio_backtest_api_studio_backtests_manifested_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ManifestedBacktestBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudioBacktestRun"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Manifested Studio Backtest"
+      }
+    },
     "/api/studio/backtests/{run_id}": {
       "get": {
         "operationId": "get_studio_backtest_api_studio_backtests__run_id__get",
@@ -1755,6 +2345,123 @@
           }
         },
         "summary": "Studio Configuration"
+      }
+    },
+    "/api/studio/datasets/binance/import": {
+      "post": {
+        "description": "Download and admit only checksum-verified, continuous production history.",
+        "operationId": "import_binance_dataset_api_studio_datasets_binance_import_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImportDatasetBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetManifest"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Import Binance Dataset"
+      }
+    },
+    "/api/studio/datasets/binance/preview": {
+      "post": {
+        "description": "Resolve official source identities and sizes before archive download.",
+        "operationId": "preview_binance_dataset_api_studio_datasets_binance_preview_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BinanceDatasetRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BinanceDatasetPreview"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Preview Binance Dataset"
+      }
+    },
+    "/api/studio/datasets/{dataset_id}": {
+      "get": {
+        "operationId": "get_studio_dataset_api_studio_datasets__dataset_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dataset_id",
+            "required": true,
+            "schema": {
+              "title": "Dataset Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetManifest"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Studio Dataset"
       }
     }
   }

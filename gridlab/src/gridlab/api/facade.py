@@ -232,7 +232,6 @@ def result_to_dict(result: EngineResult, metrics: dict, benchmarks: dict,
         "liquidated": result.liquidated,
     }
 
-
 # --------------------------------------------------------------------------
 # Public entry point
 # --------------------------------------------------------------------------
@@ -242,10 +241,15 @@ def run_backtest(spec: dict | BacktestSpec, *, with_report: bool = False,
     """Run a single backtest from a declarative spec. Returns a JSON-ready dict."""
     if isinstance(spec, dict):
         spec = BacktestSpec.from_dict(spec)
+    data = _build_data(spec)
+    return run_backtest_with_data(
+        spec, data, with_report=with_report, include_trades=include_trades)
 
+def run_backtest_with_data(spec: BacktestSpec, data: DataSource, *,
+                           with_report: bool, include_trades: bool) -> dict:
+    """Run a backtest against a caller-supplied, deterministic data source."""
     config = _build_config(spec)
     gc = GridConfig(**spec.grid)
-    data = _build_data(spec)
     if gc.adaptive or (spec.filter or {}).get("kind") in ("trend", "regime", "rsi"):
         data = _enrich_indicators(data, gc)
 

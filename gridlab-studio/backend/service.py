@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import bisect
 import math
+from pathlib import Path
 from typing import Any, Optional
 
 import numpy as np
@@ -20,20 +21,36 @@ from gridlab.api.facade import (
     _enrich_indicators, _config_summary,
 )
 from gridlab.config.models import GridConfig
+from gridlab.data.binance_archive import (
+    ArchiveClient as ArchiveClient,
+    ArchivePreview as ArchivePreview,
+    ArchiveRequest as ArchiveRequest,
+    ArchiveSource as ArchiveSource,
+    DataAdmissionError as DataAdmissionError,
+    OfficialBinanceArchiveClient as OfficialBinanceArchiveClient,
+    acquire_binance_archive as acquire_binance_archive,
+    preview_binance_archive as preview_binance_archive,
+)
 from gridlab.engine.engine import BacktestEngine, EngineResult
 from gridlab.indicators.indicators import atr as atr_ind, ema as ema_ind
 from gridlab.research.grid_search import ParamSpace, grid_search
 from gridlab.research.walk_forward import walk_forward
 from gridlab.research.monte_carlo import monte_carlo
+from gridlab.research.manifested import (
+    run_manifested_backtest as _fingerprint_manifested_backtest,
+)
 from gridlab.research.robustness import robustness_report
 from gridlab.results.benchmarks import buy_and_hold, dca_benchmark
 from gridlab.results.metrics import compute_metrics
 from gridlab.results.report import render_html_report
 
-from backend.presets import HEADLINE_METRICS, METRIC_META
-
 MAX_POINTS = 600
 MAX_TRADES = 2000
+
+
+def fingerprint_manifested_backtest(spec: dict, manifest_path: Path) -> dict:
+    """Fingerprint verified production history behind the Studio boundary."""
+    return _fingerprint_manifested_backtest(spec, manifest_path)
 
 
 # ---------------------------------------------------------------------------
@@ -68,7 +85,7 @@ def _ds_indices(n: int, max_points: int = MAX_POINTS) -> np.ndarray:
     return np.unique(np.linspace(0, n - 1, max_points).astype(int))
 
 
-def _pick(arr, idx) -> list[float]:
+def _pick(arr, idx) -> list[Optional[float]]:
     a = np.asarray(arr, dtype=float)
     return [(_f(v) if math.isfinite(v) else None) for v in a[idx]]
 
@@ -126,6 +143,8 @@ def compute_grid_levels(spec_dict: dict) -> dict:
             upper = float(np.max(win))
             source = "derived"
 
+    if lower is None or upper is None:
+        return {"error": "grid bounds could not be resolved"}
     lower = float(lower)
     upper = float(upper)
     if lower >= upper or lower <= 0:
@@ -184,9 +203,36 @@ def _serialize_trades(trades, full_ts: list, ds_idx: np.ndarray) -> list[dict]:
 def run_backtest(spec_dict: dict, *, with_report: bool = False,
                  include_trades: bool = True) -> dict:
     spec = BacktestSpec.from_dict(spec_dict)
+    data = _build_data(spec)
+    return _run_backtest_with_data(
+        spec_dict, spec, data, with_report=with_report,
+        include_trades=include_trades)
+
+
+def run_manifested_backtest(spec_dict: dict, manifest_path: Path, *,
+                            include_trades: bool = True) -> dict:
+    """Render the rich Studio result from verified offline Parquet candles."""
+    import json
+
+    from gridlab.data.binance_archive import load_manifested_candles
+    from gridlab.data.source import InMemoryDataSource
+
+    spec = BacktestSpec.from_dict(spec_dict)
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    if spec.symbol != manifest["symbol"]:
+        raise ValueError(
+            f"backtest symbol {spec.symbol} does not match dataset {manifest['symbol']}")
+    data = InMemoryDataSource(
+        symbol=spec.symbol, _candles=load_manifested_candles(manifest_path))
+    return _run_backtest_with_data(
+        spec_dict, spec, data, with_report=False,
+        include_trades=include_trades)
+
+
+def _run_backtest_with_data(spec_dict: dict, spec: BacktestSpec, data, *,
+                            with_report: bool, include_trades: bool) -> dict:
     config = _build_config(spec)
     gc = GridConfig(**spec.grid)
-    data = _build_data(spec)
     if gc.adaptive or (spec.filter or {}).get("kind") in ("trend", "regime", "rsi"):
         data = _enrich_indicators(data, gc)
 
@@ -418,6 +464,10 @@ def _data_source_summary(spec_dict: dict, result) -> dict:
     elif kind == "dataframe":
         label = "Custom data"
         desc = "Records supplied directly."
+        real = True
+    elif kind == "manifested_parquet":
+        label = "Manifested Binance production history"
+        desc = "Checksum-verified production candles loaded from typed Parquet."
         real = True
     else:
         label = f"Synthetic · {d.get('regime', 'range')}"

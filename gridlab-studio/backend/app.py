@@ -8,6 +8,7 @@ config) is surfaced as a clean HTTP 400 so the UI can show a friendly message.
 from __future__ import annotations
 
 import io
+from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
@@ -29,9 +30,15 @@ from backend.presets import (
     VENUES,
 )
 from backend.schemas import (
+    BinanceDatasetPreview,
+    BinanceDatasetRequest,
+    DatasetManifest,
     GridPreviewBody,
     GridSearchBody,
+    ImportDatasetBody,
+    ManifestedBacktestBody,
     MonteCarloBody,
+    ProductionDatasetProvenance,
     RobustnessBody,
     RunBacktestBody,
     StudioBacktestRun,
@@ -39,6 +46,7 @@ from backend.schemas import (
     StudioPrimaryResult,
     WalkForwardBody,
 )
+from backend.studio_datasets import StudioDatasetRepository, studio_dataset_repository
 from backend.studio_runs import SqliteStudioRunStore, studio_run_store
 
 FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
@@ -145,6 +153,42 @@ def studio_configuration() -> StudioConfiguration:
     )
 
 
+@app.post("/api/studio/datasets/binance/preview", response_model=BinanceDatasetPreview)
+def preview_binance_dataset(
+    body: BinanceDatasetRequest,
+    repository: StudioDatasetRepository = Depends(studio_dataset_repository),
+) -> BinanceDatasetPreview:
+    """Resolve official source identities and sizes before archive download."""
+    preview = _guard(
+        repository.preview,
+        service.ArchiveRequest(body.symbol, body.interval, body.start, body.end),
+    )
+    return BinanceDatasetPreview.model_validate(asdict(preview))
+
+
+@app.post(
+    "/api/studio/datasets/binance/import",
+    response_model=DatasetManifest,
+    status_code=201,
+)
+def import_binance_dataset(
+    body: ImportDatasetBody,
+    repository: StudioDatasetRepository = Depends(studio_dataset_repository),
+) -> DatasetManifest:
+    """Download and admit only checksum-verified, continuous production history."""
+    manifest = _guard(repository.acquire, body.preview_id)
+    manifest.pop("manifest_path", None)
+    return DatasetManifest.model_validate(manifest)
+
+
+@app.get("/api/studio/datasets/{dataset_id}", response_model=DatasetManifest)
+def get_studio_dataset(
+    dataset_id: str,
+    repository: StudioDatasetRepository = Depends(studio_dataset_repository),
+) -> DatasetManifest:
+    return DatasetManifest.model_validate(_guard(repository.manifest, dataset_id))
+
+
 @app.post("/api/studio/backtests", response_model=StudioBacktestRun, status_code=201)
 def create_studio_backtest(
     body: RunBacktestBody,
@@ -173,6 +217,71 @@ def create_studio_backtest(
             verdict=result["verdict"]["label"],
         ),
         result=result,
+    )
+    store.save(run)
+    return run
+
+
+@app.post(
+    "/api/studio/backtests/manifested",
+    response_model=StudioBacktestRun,
+    status_code=201,
+)
+def create_manifested_studio_backtest(
+    body: ManifestedBacktestBody,
+    repository: StudioDatasetRepository = Depends(studio_dataset_repository),
+    store: SqliteStudioRunStore = Depends(studio_run_store),
+) -> StudioBacktestRun:
+    """Replay one admitted production dataset without any network dependency."""
+    specification = body.spec.to_spec()
+    specification["data"] = {
+        "kind": "manifested_parquet",
+        "dataset_id": body.dataset_id,
+    }
+    manifest_path = _guard(repository.manifest_path, body.dataset_id)
+    fingerprinted = _guard(
+        service.fingerprint_manifested_backtest, specification, manifest_path
+    )
+    result = _guard(
+        service.run_manifested_backtest,
+        specification,
+        manifest_path,
+        include_trades=body.options.include_trades,
+    )
+    manifest = _guard(repository.manifest, body.dataset_id)
+    metrics = result["metrics"]
+    requested = manifest["requested_range"]
+    normalization = manifest["normalization"]
+    run = StudioBacktestRun(
+        id=str(uuid4()),
+        status="completed",
+        created_at=datetime.now(timezone.utc),
+        specification=specification,
+        primary_result=StudioPrimaryResult(
+            net_return=metrics["total_return"],
+            final_equity=result["final_equity"],
+            max_drawdown=metrics["max_drawdown"],
+            completed_trades=result["n_closed_trades"],
+            fees_paid=result["fees_paid"],
+            verdict=result["verdict"]["label"],
+        ),
+        result=result,
+        provenance=ProductionDatasetProvenance(
+            dataset_id=manifest["dataset_id"],
+            manifest_identity=manifest["manifest_sha256"],
+            source_provider=manifest["source_provider"],
+            history_environment="production",
+            testnet_history_used=False,
+            symbol=manifest["symbol"],
+            interval=manifest["interval"],
+            requested_start=requested["start_inclusive"],
+            requested_end=requested["end_exclusive"],
+            retrieved_at=manifest["retrieved_at"],
+            source_urls=[source["url"] for source in manifest["sources"]],
+            normalized_sha256=normalization["sha256"],
+            candle_sequence_sha256=normalization["candle_sequence_sha256"],
+            backtest_fingerprint=fingerprinted["backtest_fingerprint"],
+        ),
     )
     store.save(run)
     return run

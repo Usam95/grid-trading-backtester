@@ -1,6 +1,7 @@
 .artifacts/
 .hypothesis/
 .mypy_cache/
+.pnpm-store/
 .pytest_cache/
 .ruff_cache/
 .tools/

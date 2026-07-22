@@ -1,4 +1,8 @@
 import type {
+  BinanceDatasetPreview,
+  BinanceDatasetRequest,
+  DatasetManifest,
+  ManifestedBacktestBody,
   ResearchPort,
   RunBacktestBody,
   StudioBacktestRun,
@@ -33,5 +37,33 @@ export class FastApiResearchClient implements ResearchPort {
 
   async getBacktest(runId: string): Promise<StudioBacktestRun> {
     return jsonResponse(fetch(`/api/studio/backtests/${encodeURIComponent(runId)}`));
+  }
+
+  async previewProductionDataset(
+    request: BinanceDatasetRequest,
+  ): Promise<BinanceDatasetPreview> {
+    return jsonResponse(fetch("/api/studio/datasets/binance/preview", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(request),
+    }));
+  }
+
+  async importProductionDataset(previewId: string): Promise<DatasetManifest> {
+    return jsonResponse(fetch("/api/studio/datasets/binance/import", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ preview_id: previewId }),
+    }));
+  }
+
+  async executeManifestedBacktest(
+    request: ManifestedBacktestBody,
+  ): Promise<StudioBacktestRun> {
+    return jsonResponse(fetch("/api/studio/backtests/manifested", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(request),
+    }));
   }
 }

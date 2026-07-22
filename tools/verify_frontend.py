@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -50,8 +51,8 @@ def _check_openapi() -> None:
 
 def main() -> int:
     package = json.loads((FRONTEND / "package.json").read_text(encoding="utf-8"))
-    node = shutil.which("node")
-    pnpm = shutil.which("pnpm")
+    node = os.environ.get("GRIDLAB_NODE") or shutil.which("node")
+    pnpm = os.environ.get("GRIDLAB_PNPM") or shutil.which("pnpm")
     if node is None or pnpm is None:
         raise RuntimeError("Node and pnpm must be on PATH for frontend verification")
 

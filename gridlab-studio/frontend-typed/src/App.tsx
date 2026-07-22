@@ -1,6 +1,9 @@
 import { useEffect, useState, type FormEvent } from "react";
 
 import type {
+  BinanceDatasetPreview,
+  DatasetManifest,
+  ManifestedBacktestBody,
   ResearchPort,
   RunBacktestBody,
   StudioBacktestRun,
@@ -149,6 +152,12 @@ function Results({ run }: { run: StudioBacktestRun }) {
         <article><span>Fees paid</span><strong>{formatMoney(result.fees_paid)}</strong></article>
       </div>
       <div className="record"><span>Authoritative local record</span><code>{run.id}</code><span>Saved by the research service · {new Date(run.created_at).toLocaleString()}</span></div>
+      {run.provenance && <div className="production-provenance">
+        <div><strong>PRODUCTION HISTORY</strong><span>Official Binance Spot archive</span></div>
+        <div><strong>TESTNET HISTORY NOT USED</strong><span>Testnet is not profitability evidence</span></div>
+        <span>Manifest identity</span><code>{run.provenance.manifest_identity}</code>
+        <span>Deterministic backtest fingerprint</span><code>{run.provenance.backtest_fingerprint}</code>
+      </div>}
     </section>
   );
 }
@@ -159,6 +168,10 @@ function ResearchWorkspace({ research }: { research: ResearchPort }) {
   const [run, setRun] = useState<StudioBacktestRun>();
   const [error, setError] = useState<string>();
   const [running, setRunning] = useState(false);
+  const [productionDate, setProductionDate] = useState("2025-01-01");
+  const [preview, setPreview] = useState<BinanceDatasetPreview>();
+  const [manifest, setManifest] = useState<DatasetManifest>();
+  const [productionBusy, setProductionBusy] = useState(false);
 
   useEffect(() => {
     let current = true;
@@ -186,11 +199,80 @@ function ResearchWorkspace({ research }: { research: ResearchPort }) {
     } finally { setRunning(false); }
   }
 
+  async function previewProduction() {
+    if (!draft) return;
+    setProductionBusy(true); setError(undefined); setPreview(undefined); setManifest(undefined);
+    try {
+      const start = new Date(`${productionDate}T00:00:00Z`);
+      const end = new Date(start.getTime() + 86_400_000);
+      setPreview(await research.previewProductionDataset({
+        symbol: draft.symbol,
+        interval: "1m",
+        start: start.toISOString(),
+        end: end.toISOString(),
+      }));
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Production-data preview failed");
+    } finally { setProductionBusy(false); }
+  }
+
+  async function importProduction() {
+    if (!preview) return;
+    setProductionBusy(true); setError(undefined);
+    try { setManifest(await research.importProductionDataset(preview.preview_id)); }
+    catch (reason) { setError(reason instanceof Error ? reason.message : "Production-data import failed"); }
+    finally { setProductionBusy(false); }
+  }
+
+  async function runProduction() {
+    if (!draft || !manifest) return;
+    setProductionBusy(true); setError(undefined);
+    try {
+      const existing = requestFrom(draft);
+      const request: ManifestedBacktestBody = {
+        dataset_id: manifest.dataset_id,
+        spec: {
+          ...existing.spec,
+          symbol: draft.symbol,
+          market_type: "spot",
+          initial_cash: draft.initialCash,
+          n_trials: 1,
+          data: { kind: "manifested_parquet", dataset_id: manifest.dataset_id },
+        },
+        options: existing.options,
+      };
+      const completed = await research.executeManifestedBacktest(request);
+      setRun(completed);
+      window.history.replaceState(null, "", `#/research/experiments/${completed.id}`);
+    } catch (reason) { setError(reason instanceof Error ? reason.message : "Production backtest failed"); }
+    finally { setProductionBusy(false); }
+  }
+
   if (!draft || !configuration) return <main className="workspace"><p>{error ?? "Loading canonical configuration…"}</p></main>;
   const update = <K extends keyof Draft>(key: K, value: Draft[K]) => setDraft({ ...draft, [key]: value });
   return (
     <main className="workspace">
       <div className="page-title"><div><p className="eyebrow">Research · Experiments</p><h1>Static grid backtest</h1><p>Configure one deterministic local experiment. The browser submits work; the research service owns the completed record.</p></div><span className="scope">MIGRATED WORKFLOW</span></div>
+      <section className="production-data" aria-labelledby="production-data-heading">
+        <div className="result-heading"><div><p className="eyebrow">Manifested market evidence</p><h2 id="production-data-heading">Production history</h2><p>Preview one bounded UTC day from the official Binance Spot archive before downloading any archive bytes.</p></div><span className="scope">1m · MAX 1 DAY IN STUDIO</span></div>
+        <div className="production-controls">
+          <label>UTC archive day<input aria-label="UTC archive day" type="date" value={productionDate} onChange={(event) => setProductionDate(event.currentTarget.value)} /></label>
+          <button disabled={productionBusy} type="button" onClick={previewProduction}>Preview official download</button>
+        </div>
+        {preview && <div className="download-preview">
+          <strong>{preview.symbol} · {preview.interval} · {new Date(preview.start).toISOString()} to {new Date(preview.end).toISOString()}</strong>
+          <span>{preview.estimated_bytes.toLocaleString("en-US")} bytes</span>
+          {preview.sources.map((source) => <div key={source.url}><span>{source.url.split("/").at(-1)}</span><code>{source.expected_sha256}</code></div>)}
+          <button disabled={productionBusy} type="button" onClick={importProduction}>Download, verify & normalize</button>
+        </div>}
+        {manifest && <div className="manifest-card">
+          <div><strong>QUALITY APPROVED</strong><span>{manifest.quality.rows.toLocaleString("en-US")} ordered candles · {manifest.quality.gaps} gaps · {manifest.quality.duplicates} duplicates</span></div>
+          <span>Manifest identity</span><code>{manifest.dataset_id}</code>
+          <span>Normalized Parquet SHA-256</span><code>{manifest.normalization.sha256}</code>
+          <p><strong>Production market history supplied this evidence.</strong> Binance Testnet history was not used and is not profitability evidence.</p>
+          <button disabled={productionBusy} type="button" onClick={runProduction}>Run production-history backtest</button>
+        </div>}
+      </section>
       <form onSubmit={submit}>
         <div className="sections">
           <fieldset><legend><b>01</b> Market & Data</legend><label>Symbol<input aria-label="Symbol" value={draft.symbol} onChange={(e) => update("symbol", e.currentTarget.value.toUpperCase())} /></label><label>Market regime<select value={draft.regime} onChange={(e) => update("regime", e.currentTarget.value as Draft["regime"])}>{configuration.data_regimes.map((item) => <option key={item}>{item}</option>)}</select></label><NumberField label="Synthetic bars" min={50} value={draft.bars} onChange={(v) => update("bars", v)} /><NumberField label="Deterministic seed" value={draft.seed} onChange={(v) => update("seed", v)} /></fieldset>

@@ -180,6 +180,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/studio/backtests/manifested": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create Manifested Studio Backtest
+         * @description Replay one admitted production dataset without any network dependency.
+         */
+        post: operations["create_manifested_studio_backtest_api_studio_backtests_manifested_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/studio/backtests/{run_id}": {
         parameters: {
             query?: never;
@@ -217,10 +237,80 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/studio/datasets/binance/import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Import Binance Dataset
+         * @description Download and admit only checksum-verified, continuous production history.
+         */
+        post: operations["import_binance_dataset_api_studio_datasets_binance_import_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/studio/datasets/binance/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Preview Binance Dataset
+         * @description Resolve official source identities and sizes before archive download.
+         */
+        post: operations["preview_binance_dataset_api_studio_datasets_binance_preview_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/studio/datasets/{dataset_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Studio Dataset */
+        get: operations["get_studio_dataset_api_studio_datasets__dataset_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** ArchiveSourcePreview */
+        ArchiveSourcePreview: {
+            /** Checksum Url */
+            checksum_url: string;
+            /** Date */
+            date: string;
+            /** Estimated Bytes */
+            estimated_bytes: number;
+            /** Expected Sha256 */
+            expected_sha256: string;
+            /** Url */
+            url: string;
+        };
         /** BacktestOptions */
         BacktestOptions: {
             /**
@@ -276,6 +366,63 @@ export interface components {
             /** Venue */
             venue?: string | null;
         };
+        /** BinanceDatasetPreview */
+        BinanceDatasetPreview: {
+            /**
+             * End
+             * Format: date-time
+             */
+            end: string;
+            /** Estimated Bytes */
+            estimated_bytes: number;
+            /**
+             * Interval
+             * @constant
+             */
+            interval: "1m";
+            /**
+             * Market
+             * @constant
+             */
+            market: "spot-production-archive";
+            /** Preview Id */
+            preview_id: string;
+            /** Sources */
+            sources: components["schemas"]["ArchiveSourcePreview"][];
+            /**
+             * Start
+             * Format: date-time
+             */
+            start: string;
+            /** Symbol */
+            symbol: string;
+            /**
+             * Venue
+             * @constant
+             */
+            venue: "binance";
+        };
+        /** BinanceDatasetRequest */
+        BinanceDatasetRequest: {
+            /**
+             * End
+             * Format: date-time
+             */
+            end: string;
+            /**
+             * Interval
+             * @default 1m
+             * @constant
+             */
+            interval: "1m";
+            /**
+             * Start
+             * Format: date-time
+             */
+            start: string;
+            /** Symbol */
+            symbol: string;
+        };
         /** BootstrapSpec */
         BootstrapSpec: {
             /** Base Fraction */
@@ -298,6 +445,8 @@ export interface components {
         };
         /** DataSpec */
         DataSpec: {
+            /** Dataset Id */
+            dataset_id?: string | null;
             /** End */
             end?: string | null;
             /** Interval */
@@ -305,7 +454,7 @@ export interface components {
             /** Interval Minutes */
             interval_minutes?: number | null;
             /** Kind */
-            kind?: ("synthetic" | "dataframe" | "binance" | "csv") | null;
+            kind?: ("synthetic" | "dataframe" | "binance" | "csv" | "manifested_parquet") | null;
             /** Max Candles */
             max_candles?: number | null;
             /** N */
@@ -328,6 +477,114 @@ export interface components {
             start_price?: number | null;
             /** Symbol */
             symbol?: string | null;
+        };
+        /** DatasetManifest */
+        DatasetManifest: {
+            /** Coverage */
+            coverage: {
+                [key: string]: string;
+            };
+            /** Dataset Id */
+            dataset_id: string;
+            /**
+             * Event Kind
+             * @constant
+             */
+            event_kind: "kline";
+            /** Fee Snapshot Id */
+            fee_snapshot_id: string | null;
+            /**
+             * History Environment
+             * @constant
+             */
+            history_environment: "production";
+            /** Identity */
+            identity: {
+                [key: string]: unknown;
+            };
+            /**
+             * Interval
+             * @constant
+             */
+            interval: "1m";
+            /** Manifest Sha256 */
+            manifest_sha256: string;
+            /**
+             * Market
+             * @constant
+             */
+            market: "spot";
+            normalization: components["schemas"]["DatasetNormalization"];
+            quality: components["schemas"]["DatasetQuality"];
+            /** Requested Range */
+            requested_range: {
+                [key: string]: string;
+            };
+            /**
+             * Retrieved At
+             * Format: date-time
+             */
+            retrieved_at: string;
+            /** Schema Version */
+            schema_version: string;
+            /** Source Provider */
+            source_provider: string;
+            /** Sources */
+            sources: {
+                [key: string]: unknown;
+            }[];
+            /** Symbol */
+            symbol: string;
+            /** Timestamp */
+            timestamp: {
+                [key: string]: unknown;
+            };
+            /**
+             * Venue
+             * @constant
+             */
+            venue: "binance";
+            /** Venue Rule Snapshot Id */
+            venue_rule_snapshot_id: string | null;
+        };
+        /** DatasetNormalization */
+        DatasetNormalization: {
+            /** Candle Sequence Sha256 */
+            candle_sequence_sha256: string;
+            /**
+             * Format
+             * @constant
+             */
+            format: "parquet";
+            /** Identity */
+            identity: string;
+            /** Ordering */
+            ordering: string[];
+            /** Parent Dataset Id */
+            parent_dataset_id: string | null;
+            /** Path */
+            path: string;
+            /** Resampling Rule */
+            resampling_rule: string | null;
+            /** Rows */
+            rows: number;
+            /** Schema */
+            schema: components["schemas"]["ParquetField"][];
+            /** Sha256 */
+            sha256: string;
+        };
+        /** DatasetQuality */
+        DatasetQuality: {
+            /** Duplicates */
+            duplicates: number;
+            /** Gaps */
+            gaps: number;
+            /** Invalid Records */
+            invalid_records: number;
+            /** Out Of Order */
+            out_of_order: number;
+            /** Rows */
+            rows: number;
         };
         /** ExchangeRulesSpec */
         ExchangeRulesSpec: {
@@ -430,6 +687,18 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /** ImportDatasetBody */
+        ImportDatasetBody: {
+            /** Preview Id */
+            preview_id: string;
+        };
+        /** ManifestedBacktestBody */
+        ManifestedBacktestBody: {
+            /** Dataset Id */
+            dataset_id: string;
+            options?: components["schemas"]["BacktestOptions"];
+            spec: components["schemas"]["BacktestRequest"];
+        };
         /** MarginSpec */
         MarginSpec: {
             /** Allow Short */
@@ -460,6 +729,64 @@ export interface components {
              * @default 0
              */
             seed: number;
+        };
+        /** ParquetField */
+        ParquetField: {
+            /** Name */
+            name: string;
+            /** Nullable */
+            nullable: boolean;
+            /** Type */
+            type: string;
+        };
+        /** ProductionDatasetProvenance */
+        ProductionDatasetProvenance: {
+            /** Backtest Fingerprint */
+            backtest_fingerprint: string;
+            /** Candle Sequence Sha256 */
+            candle_sequence_sha256: string;
+            /** Dataset Id */
+            dataset_id: string;
+            /**
+             * History Environment
+             * @constant
+             */
+            history_environment: "production";
+            /**
+             * Interval
+             * @constant
+             */
+            interval: "1m";
+            /** Manifest Identity */
+            manifest_identity: string;
+            /** Normalized Sha256 */
+            normalized_sha256: string;
+            /**
+             * Requested End
+             * Format: date-time
+             */
+            requested_end: string;
+            /**
+             * Requested Start
+             * Format: date-time
+             */
+            requested_start: string;
+            /**
+             * Retrieved At
+             * Format: date-time
+             */
+            retrieved_at: string;
+            /** Source Provider */
+            source_provider: string;
+            /** Source Urls */
+            source_urls: string[];
+            /** Symbol */
+            symbol: string;
+            /**
+             * Testnet History Used
+             * @constant
+             */
+            testnet_history_used: false;
         };
         /** RobustnessBody */
         RobustnessBody: {
@@ -533,6 +860,7 @@ export interface components {
             /** Id */
             id: string;
             primary_result: components["schemas"]["StudioPrimaryResult"];
+            provenance?: components["schemas"]["ProductionDatasetProvenance"] | null;
             result: components["schemas"]["StudioBacktestResult"];
             /** Specification */
             specification: {
@@ -954,6 +1282,39 @@ export interface operations {
             };
         };
     };
+    create_manifested_studio_backtest_api_studio_backtests_manifested_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ManifestedBacktestBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudioBacktestRun"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_studio_backtest_api_studio_backtests__run_id__get: {
         parameters: {
             query?: never;
@@ -1001,6 +1362,103 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StudioConfiguration"];
+                };
+            };
+        };
+    };
+    import_binance_dataset_api_studio_datasets_binance_import_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ImportDatasetBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DatasetManifest"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    preview_binance_dataset_api_studio_datasets_binance_preview_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BinanceDatasetRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BinanceDatasetPreview"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_studio_dataset_api_studio_datasets__dataset_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                dataset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DatasetManifest"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
