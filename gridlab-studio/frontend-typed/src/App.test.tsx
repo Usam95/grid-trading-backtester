@@ -258,7 +258,8 @@ describe("typed Studio shell", () => {
     });
     expect(screen.getByText("€29,000,000 median daily volume")).toBeTruthy();
     expect(screen.getByText("1.75 bps current spread")).toBeTruthy();
-    expect(screen.getByText("2020-01-01 to 2026-07-21")).toBeTruthy();
+    expect(screen.getByText("Available historical data")).toBeTruthy();
+    expect(screen.getByText("2020-01-01 → 2026-07-21")).toBeTruthy();
     fireEvent.change(screen.getByLabelText("UTC start day"), {
       target: { value: "2025-01-01" },
     });

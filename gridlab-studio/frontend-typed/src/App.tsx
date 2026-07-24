@@ -326,6 +326,13 @@ function ResearchWorkspace({ research }: { research: ResearchPort }) {
           <label>UTC end day<input aria-label="UTC end day" type="date" min={productionStart || selected?.coverage.first_date} max={selected?.coverage.last_date} value={productionEnd} onChange={(event) => { setProductionEnd(event.currentTarget.value); setPreview(undefined); setManifest(undefined); }} /></label>
           <button disabled={productionBusy || !selected} type="button" onClick={previewProduction}>Preview official download</button>
         </div>
+        {selected && <div className="history-availability" aria-live="polite">
+          <div>
+            <span>Available historical data</span>
+            <strong>{selected.coverage.first_date} → {selected.coverage.last_date}</strong>
+          </div>
+          <span>{selected.coverage.known_gap_dates.length === 0 ? "Complete daily 1m archive coverage" : `${selected.coverage.known_gap_dates.length} unavailable archive days are excluded`}</span>
+        </div>}
         {selected && <div className="symbol-evidence">
           <div><strong>#{selected.liquidity_rank} · {selected.symbol}</strong><span>{selected.base_asset} / EUR · Spot · LIMIT_MAKER</span></div>
           <span>{eurVolume} median daily volume</span>
@@ -335,9 +342,7 @@ function ResearchWorkspace({ research }: { research: ResearchPort }) {
           <span>Liquidity source fingerprints</span>
           <code>{selected.liquidity.kline_payload_sha256}</code>
           <code>{selected.liquidity.ticker_payload_sha256}</code>
-          <span>{selected.coverage.first_date} to {selected.coverage.last_date}</span>
           <span>Archive intervals: {selected.coverage.intervals.join(", ")} · 1m backtests only</span>
-          <span>{selected.coverage.known_gap_dates.length} known archive gaps</span>
         </div>}
         <p className="eligibility-note"><strong>Public compatibility is not account permission.</strong> Binance Testnet proves protocol and symbol compatibility; an authenticated German account may have different current trading permissions.</p>
         {preview && <div className="download-preview">
