@@ -22,6 +22,7 @@ from gridlab.api.facade import (
 )
 from gridlab.config.models import GridConfig
 from gridlab.data.binance_archive import (
+    AcquisitionLimits as AcquisitionLimits,
     ArchiveClient as ArchiveClient,
     ArchivePreview as ArchivePreview,
     ArchiveRequest as ArchiveRequest,
@@ -30,6 +31,18 @@ from gridlab.data.binance_archive import (
     OfficialBinanceArchiveClient as OfficialBinanceArchiveClient,
     acquire_binance_archive as acquire_binance_archive,
     preview_binance_archive as preview_binance_archive,
+)
+from gridlab.data.binance_catalog import (
+    ArchiveCoverage as ArchiveCoverage,
+    BinanceCatalogClient as BinanceCatalogClient,
+    CatalogAdmissionError as CatalogAdmissionError,
+    CatalogSource as CatalogSource,
+    EurCatalogSymbol as EurCatalogSymbol,
+    EurResearchCatalog as EurResearchCatalog,
+    LiquidityEvidence as LiquidityEvidence,
+    OfficialBinanceCatalogClient as OfficialBinanceCatalogClient,
+    catalog_identity as catalog_identity,
+    discover_eur_catalog as discover_eur_catalog,
 )
 from gridlab.engine.engine import BacktestEngine, EngineResult
 from gridlab.indicators.indicators import atr as atr_ind, ema as ema_ind

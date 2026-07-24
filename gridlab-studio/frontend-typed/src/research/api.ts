@@ -1,4 +1,5 @@
 import type {
+  BinanceEurResearchCatalog,
   BinanceDatasetPreview,
   BinanceDatasetRequest,
   DatasetManifest,
@@ -23,6 +24,12 @@ async function jsonResponse<T>(request: Promise<Response>): Promise<T> {
 export class FastApiResearchClient implements ResearchPort {
   async getConfiguration(): Promise<StudioConfiguration> {
     return jsonResponse(fetch("/api/studio/configuration"));
+  }
+
+  async getEurCatalog(refresh = false): Promise<BinanceEurResearchCatalog> {
+    return jsonResponse(
+      fetch(`/api/studio/catalogs/binance/eur?refresh=${refresh ? "true" : "false"}`),
+    );
   }
 
   async executeBacktest(request: RunBacktestBody): Promise<StudioBacktestRun> {

@@ -11,6 +11,7 @@ import pytest
 
 from gridlab.api.facade import BacktestSpec
 from gridlab.data.binance_archive import (
+    AcquisitionLimits,
     ArchiveRequest,
     DataAdmissionError,
     acquire_binance_archive,
@@ -25,13 +26,16 @@ class FixtureArchiveClient:
     def __init__(self, archive: bytes | None = None) -> None:
         self.archive = archive
         self.downloaded: list[str] = []
+        self.metadata_requested: list[str] = []
 
     def checksum(self, url: str) -> str:
         assert url.endswith(".zip.CHECKSUM")
+        self.metadata_requested.append(url)
         return hashlib.sha256(self.archive).hexdigest() if self.archive else "a" * 64
 
     def content_length(self, url: str) -> int:
         assert url.endswith(".zip")
+        self.metadata_requested.append(url)
         return len(self.archive) if self.archive else 123_456
 
     def download(self, url: str) -> bytes:
@@ -118,6 +122,57 @@ def test_preview_identifies_bounded_official_spot_sources_before_download() -> N
     assert client.downloaded == []
 
 
+def test_preview_enforces_day_object_and_byte_caps_before_archive_download() -> None:
+    start = datetime(2025, 1, 1, tzinfo=timezone.utc)
+    client = FixtureArchiveClient()
+    request = ArchiveRequest("BTCEUR", "1m", start, start + timedelta(days=3))
+
+    with pytest.raises(ValueError, match="maximum 2 complete UTC days"):
+        preview_binance_archive(
+            request,
+            client,
+            limits=AcquisitionLimits(max_days=2, max_objects=2, max_bytes=1_000_000),
+        )
+    assert client.metadata_requested == []
+    assert client.downloaded == []
+
+    with pytest.raises(ValueError, match="maximum 2 source objects"):
+        preview_binance_archive(
+            request,
+            client,
+            limits=AcquisitionLimits(max_days=3, max_objects=2, max_bytes=1_000_000),
+        )
+    assert client.metadata_requested == []
+    assert client.downloaded == []
+
+    with pytest.raises(ValueError, match="estimated 246912 bytes exceeds the 200000-byte cap"):
+        preview_binance_archive(
+            ArchiveRequest("BTCEUR", "1m", start, start + timedelta(days=2)),
+            client,
+            limits=AcquisitionLimits(max_days=2, max_objects=2, max_bytes=200_000),
+        )
+    assert client.downloaded == []
+
+
+def test_preview_plans_each_daily_partition_across_a_month_boundary() -> None:
+    client = FixtureArchiveClient()
+    preview = preview_binance_archive(
+        ArchiveRequest(
+            "ETHEUR",
+            "1m",
+            datetime(2025, 1, 31, tzinfo=timezone.utc),
+            datetime(2025, 2, 2, tzinfo=timezone.utc),
+        ),
+        client,
+    )
+
+    assert [source.url.rsplit("/", 1)[-1] for source in preview.sources] == [
+        "ETHEUR-1m-2025-01-31.zip",
+        "ETHEUR-1m-2025-02-01.zip",
+    ]
+    assert client.downloaded == []
+
+
 def test_timestamp_units_follow_the_official_spot_archive_era() -> None:
     assert (
         validate_timestamp_unit([1735603200000, 1735603259999], datetime(2024, 12, 31).date())
@@ -154,7 +209,16 @@ def test_verified_archive_becomes_a_complete_typed_manifested_dataset(
         datetime(2025, 1, 1, tzinfo=timezone.utc),
         datetime(2025, 1, 2, tzinfo=timezone.utc),
     )
-    preview = preview_binance_archive(request, client)
+    preview = preview_binance_archive(
+        request,
+        client,
+        catalog_identity="f" * 64,
+        symbol_metadata={
+            "base_asset": "BTC",
+            "quote_asset": "EUR",
+            "liquidity_rank": 1,
+        },
+    )
 
     manifest = acquire_binance_archive(
         preview,
@@ -165,6 +229,8 @@ def test_verified_archive_becomes_a_complete_typed_manifested_dataset(
 
     assert manifest["history_environment"] == "production"
     assert manifest["source_provider"] == "official Binance public archive"
+    assert manifest["catalog_identity"] == "f" * 64
+    assert manifest["symbol_metadata"]["quote_asset"] == "EUR"
     assert manifest["quality"] == {
         "rows": 1440,
         "gaps": 0,

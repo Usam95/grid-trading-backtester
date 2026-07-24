@@ -30,6 +30,7 @@ from backend.presets import (
     VENUES,
 )
 from backend.schemas import (
+    BinanceEurResearchCatalog,
     BinanceDatasetPreview,
     BinanceDatasetRequest,
     DatasetManifest,
@@ -46,6 +47,7 @@ from backend.schemas import (
     StudioPrimaryResult,
     WalkForwardBody,
 )
+from backend.studio_catalogs import StudioCatalogRepository, studio_catalog_repository
 from backend.studio_datasets import StudioDatasetRepository, studio_dataset_repository
 from backend.studio_runs import SqliteStudioRunStore, studio_run_store
 
@@ -153,15 +155,44 @@ def studio_configuration() -> StudioConfiguration:
     )
 
 
+@app.get(
+    "/api/studio/catalogs/binance/eur",
+    response_model=BinanceEurResearchCatalog,
+)
+def get_binance_eur_catalog(
+    refresh: bool = False,
+    repository: StudioCatalogRepository = Depends(studio_catalog_repository),
+) -> BinanceEurResearchCatalog:
+    """Return a dated public Testnet/production EUR intersection."""
+    catalog = _guard(repository.get, refresh=refresh)
+    return BinanceEurResearchCatalog.model_validate(asdict(catalog))
+
+
 @app.post("/api/studio/datasets/binance/preview", response_model=BinanceDatasetPreview)
 def preview_binance_dataset(
     body: BinanceDatasetRequest,
     repository: StudioDatasetRepository = Depends(studio_dataset_repository),
+    catalogs: StudioCatalogRepository = Depends(studio_catalog_repository),
 ) -> BinanceDatasetPreview:
     """Resolve official source identities and sizes before archive download."""
+    catalog_identity = None
+    symbol_metadata = None
+    symbol = body.symbol.upper()
+    if body.catalog_id is not None:
+        catalog, selection = _guard(
+            catalogs.selection,
+            body.catalog_id,
+            symbol,
+            body.start,
+            body.end,
+        )
+        catalog_identity = catalog.catalog_id
+        symbol_metadata = asdict(selection)
     preview = _guard(
         repository.preview,
-        service.ArchiveRequest(body.symbol, body.interval, body.start, body.end),
+        service.ArchiveRequest(symbol, body.interval, body.start, body.end),
+        catalog_identity=catalog_identity,
+        symbol_metadata=symbol_metadata,
     )
     return BinanceDatasetPreview.model_validate(asdict(preview))
 
@@ -281,6 +312,8 @@ def create_manifested_studio_backtest(
             normalized_sha256=normalization["sha256"],
             candle_sequence_sha256=normalization["candle_sequence_sha256"],
             backtest_fingerprint=fingerprinted["backtest_fingerprint"],
+            catalog_identity=manifest.get("catalog_identity"),
+            quote_asset=(manifest.get("symbol_metadata") or {}).get("quote_asset"),
         ),
     )
     store.save(run)

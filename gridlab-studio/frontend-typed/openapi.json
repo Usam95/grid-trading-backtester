@@ -1,6 +1,74 @@
 {
   "components": {
     "schemas": {
+      "AcquisitionLimitsPreview": {
+        "properties": {
+          "max_bytes": {
+            "title": "Max Bytes",
+            "type": "integer"
+          },
+          "max_days": {
+            "title": "Max Days",
+            "type": "integer"
+          },
+          "max_objects": {
+            "title": "Max Objects",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "max_days",
+          "max_objects",
+          "max_bytes"
+        ],
+        "title": "AcquisitionLimitsPreview",
+        "type": "object"
+      },
+      "ArchiveCoverageEvidence": {
+        "properties": {
+          "evidence_urls": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Evidence Urls",
+            "type": "array"
+          },
+          "first_date": {
+            "format": "date",
+            "title": "First Date",
+            "type": "string"
+          },
+          "intervals": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Intervals",
+            "type": "array"
+          },
+          "known_gap_dates": {
+            "items": {
+              "format": "date",
+              "type": "string"
+            },
+            "title": "Known Gap Dates",
+            "type": "array"
+          },
+          "last_date": {
+            "format": "date",
+            "title": "Last Date",
+            "type": "string"
+          }
+        },
+        "required": [
+          "first_date",
+          "last_date",
+          "intervals",
+          "known_gap_dates",
+          "evidence_urls"
+        ],
+        "title": "ArchiveCoverageEvidence",
+        "type": "object"
+      },
       "ArchiveSourcePreview": {
         "properties": {
           "checksum_url": {
@@ -140,6 +208,17 @@
       },
       "BinanceDatasetPreview": {
         "properties": {
+          "catalog_identity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Catalog Identity"
+          },
           "end": {
             "format": "date-time",
             "title": "End",
@@ -153,6 +232,9 @@
             "const": "1m",
             "title": "Interval",
             "type": "string"
+          },
+          "limits": {
+            "$ref": "#/components/schemas/AcquisitionLimitsPreview"
           },
           "market": {
             "const": "spot-production-archive",
@@ -179,6 +261,18 @@
             "title": "Symbol",
             "type": "string"
           },
+          "symbol_metadata": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Symbol Metadata"
+          },
           "venue": {
             "const": "binance",
             "title": "Venue",
@@ -194,13 +288,28 @@
           "start",
           "end",
           "estimated_bytes",
-          "sources"
+          "sources",
+          "limits"
         ],
         "title": "BinanceDatasetPreview",
         "type": "object"
       },
       "BinanceDatasetRequest": {
         "properties": {
+          "catalog_id": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "minLength": 64,
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Catalog Id"
+          },
           "end": {
             "format": "date-time",
             "title": "End",
@@ -231,6 +340,55 @@
           "end"
         ],
         "title": "BinanceDatasetRequest",
+        "type": "object"
+      },
+      "BinanceEurResearchCatalog": {
+        "properties": {
+          "catalog_id": {
+            "title": "Catalog Id",
+            "type": "string"
+          },
+          "filters": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Filters",
+            "type": "array"
+          },
+          "quote_asset": {
+            "const": "EUR",
+            "title": "Quote Asset",
+            "type": "string"
+          },
+          "retrieved_at": {
+            "format": "date-time",
+            "title": "Retrieved At",
+            "type": "string"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/CatalogSourceEvidence"
+            },
+            "title": "Sources",
+            "type": "array"
+          },
+          "symbols": {
+            "items": {
+              "$ref": "#/components/schemas/EurCatalogSymbolEvidence"
+            },
+            "title": "Symbols",
+            "type": "array"
+          }
+        },
+        "required": [
+          "catalog_id",
+          "retrieved_at",
+          "quote_asset",
+          "filters",
+          "sources",
+          "symbols"
+        ],
+        "title": "BinanceEurResearchCatalog",
         "type": "object"
       },
       "BootstrapSpec": {
@@ -265,6 +423,34 @@
           }
         },
         "title": "BootstrapSpec",
+        "type": "object"
+      },
+      "CatalogSourceEvidence": {
+        "properties": {
+          "environment": {
+            "enum": [
+              "production",
+              "testnet"
+            ],
+            "title": "Environment",
+            "type": "string"
+          },
+          "server_time": {
+            "format": "date-time",
+            "title": "Server Time",
+            "type": "string"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "environment",
+          "url",
+          "server_time"
+        ],
+        "title": "CatalogSourceEvidence",
         "type": "object"
       },
       "ConstraintsSpec": {
@@ -530,6 +716,17 @@
       },
       "DatasetManifest": {
         "properties": {
+          "catalog_identity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Catalog Identity"
+          },
           "coverage": {
             "additionalProperties": {
               "format": "date-time",
@@ -620,6 +817,18 @@
           "symbol": {
             "title": "Symbol",
             "type": "string"
+          },
+          "symbol_metadata": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Symbol Metadata"
           },
           "timestamp": {
             "additionalProperties": true,
@@ -778,6 +987,58 @@
           "invalid_records"
         ],
         "title": "DatasetQuality",
+        "type": "object"
+      },
+      "EurCatalogSymbolEvidence": {
+        "properties": {
+          "base_asset": {
+            "title": "Base Asset",
+            "type": "string"
+          },
+          "coverage": {
+            "$ref": "#/components/schemas/ArchiveCoverageEvidence"
+          },
+          "exchange_filters": {
+            "additionalProperties": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Exchange Filters",
+            "type": "object"
+          },
+          "liquidity": {
+            "$ref": "#/components/schemas/LiquiditySelectionEvidence"
+          },
+          "liquidity_rank": {
+            "title": "Liquidity Rank",
+            "type": "integer"
+          },
+          "quote_asset": {
+            "const": "EUR",
+            "title": "Quote Asset",
+            "type": "string"
+          },
+          "status": {
+            "const": "TRADING",
+            "title": "Status",
+            "type": "string"
+          },
+          "symbol": {
+            "title": "Symbol",
+            "type": "string"
+          }
+        },
+        "required": [
+          "symbol",
+          "base_asset",
+          "quote_asset",
+          "status",
+          "exchange_filters",
+          "coverage",
+          "liquidity",
+          "liquidity_rank"
+        ],
+        "title": "EurCatalogSymbolEvidence",
         "type": "object"
       },
       "ExchangeRulesSpec": {
@@ -1228,6 +1489,86 @@
         "title": "ImportDatasetBody",
         "type": "object"
       },
+      "LiquiditySelectionEvidence": {
+        "properties": {
+          "annualized_realized_volatility": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Annualized Realized Volatility",
+            "type": "string"
+          },
+          "current_spread_bps": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Current Spread Bps",
+            "type": "string"
+          },
+          "current_trade_count": {
+            "title": "Current Trade Count",
+            "type": "integer"
+          },
+          "kline_payload_sha256": {
+            "title": "Kline Payload Sha256",
+            "type": "string"
+          },
+          "kline_source_url": {
+            "title": "Kline Source Url",
+            "type": "string"
+          },
+          "median_daily_quote_volume": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Median Daily Quote Volume",
+            "type": "string"
+          },
+          "median_daily_trade_count": {
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+            "title": "Median Daily Trade Count",
+            "type": "string"
+          },
+          "observed_at": {
+            "format": "date-time",
+            "title": "Observed At",
+            "type": "string"
+          },
+          "observed_days": {
+            "title": "Observed Days",
+            "type": "integer"
+          },
+          "observed_end_date": {
+            "format": "date",
+            "title": "Observed End Date",
+            "type": "string"
+          },
+          "observed_start_date": {
+            "format": "date",
+            "title": "Observed Start Date",
+            "type": "string"
+          },
+          "ticker_payload_sha256": {
+            "title": "Ticker Payload Sha256",
+            "type": "string"
+          },
+          "ticker_source_url": {
+            "title": "Ticker Source Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "observed_days",
+          "observed_start_date",
+          "observed_end_date",
+          "observed_at",
+          "kline_source_url",
+          "kline_payload_sha256",
+          "ticker_source_url",
+          "ticker_payload_sha256",
+          "median_daily_quote_volume",
+          "median_daily_trade_count",
+          "annualized_realized_volatility",
+          "current_spread_bps",
+          "current_trade_count"
+        ],
+        "title": "LiquiditySelectionEvidence",
+        "type": "object"
+      },
       "ManifestedBacktestBody": {
         "properties": {
           "dataset_id": {
@@ -1368,6 +1709,17 @@
             "title": "Candle Sequence Sha256",
             "type": "string"
           },
+          "catalog_identity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Catalog Identity"
+          },
           "dataset_id": {
             "title": "Dataset Id",
             "type": "string"
@@ -1389,6 +1741,17 @@
           "normalized_sha256": {
             "title": "Normalized Sha256",
             "type": "string"
+          },
+          "quote_asset": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quote Asset"
           },
           "requested_end": {
             "format": "date-time",
@@ -1732,8 +2095,15 @@
             "type": "number"
           },
           "win_rate": {
-            "title": "Win Rate",
-            "type": "number"
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Win Rate"
           }
         },
         "required": [
@@ -2326,6 +2696,47 @@
           }
         },
         "summary": "Get Studio Backtest"
+      }
+    },
+    "/api/studio/catalogs/binance/eur": {
+      "get": {
+        "description": "Return a dated public Testnet/production EUR intersection.",
+        "operationId": "get_binance_eur_catalog_api_studio_catalogs_binance_eur_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "refresh",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Refresh",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BinanceEurResearchCatalog"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Binance Eur Catalog"
       }
     },
     "/api/studio/configuration": {

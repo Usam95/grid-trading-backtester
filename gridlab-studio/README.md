@@ -116,16 +116,25 @@ gridlab's facade consumes; every field is optional and falls back to an engine d
 | `POST` | `/api/research/grid-search` | `{base, space, objective, maximize, top_k}` | leaderboard + 2-axis heatmap |
 | `POST` | `/api/research/walk-forward` | `{base, space, n_splits, objective}` | IS/OOS folds + summary |
 | `POST` | `/api/research/monte-carlo` | `{base, method, n_sims, seed}` | percentiles + return-distribution histogram |
+| `GET`  | `/api/studio/catalogs/binance/eur` | optional `refresh=true` query | current production/Testnet EUR compatibility catalog, coverage, and liquidity evidence |
 | `POST` | `/api/studio/datasets/binance/preview` | symbol, `1m`, and a bounded UTC range | official source objects, sizes, and expected SHA-256 values |
 | `POST` | `/api/studio/datasets/binance/import` | a server-owned preview identity | verified source evidence, typed Parquet, and an immutable dataset manifest |
 | `POST` | `/api/studio/backtests/manifested` | dataset identity and backtest specification | deterministic result fingerprint with production-history provenance |
 
-The typed Studio at `/studio/` limits its production-data workflow to one UTC day.
-The backend contract permits at most seven complete days per request. Source ZIPs and
-checksum evidence are retained beside normalized Parquet under the ignored local
-`.studio/datasets` store. A gap, duplicate, invalid timestamp era, replaced sidecar,
-corrupt archive, or checksum mismatch prevents admission; no interpolation or silent
-repair is performed. Testnet history is never presented as production economic evidence.
+The typed Studio at `/studio/` discovers the current public Binance Spot EUR symbols
+that are compatible with both production and Testnet, then exposes their official
+production-history coverage and bounded liquidity evidence. Public compatibility does
+not prove that an authenticated German account may trade a symbol; the operator must
+confirm account permissions separately. The only admitted candle interval is `1m`.
+
+The Studio and backend permit at most seven complete UTC days, seven archive objects,
+and 256 MiB per request by default. Deployments can tighten those caps with
+`GRIDLAB_DATA_MAX_DAYS`, `GRIDLAB_DATA_MAX_OBJECTS`, and `GRIDLAB_DATA_MAX_BYTES`.
+Source ZIPs and checksum evidence are retained beside normalized Parquet under the
+ignored local `.studio/datasets` store. A gap, duplicate, invalid timestamp era,
+replaced sidecar, corrupt archive, or checksum mismatch prevents admission; no
+interpolation or silent repair is performed. Testnet history is never presented as
+production economic evidence.
 
 ### Example: run a backtest
 

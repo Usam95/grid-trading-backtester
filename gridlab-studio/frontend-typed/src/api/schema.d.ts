@@ -217,6 +217,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/studio/catalogs/binance/eur": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Binance Eur Catalog
+         * @description Return a dated public Testnet/production EUR intersection.
+         */
+        get: operations["get_binance_eur_catalog_api_studio_catalogs_binance_eur_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/studio/configuration": {
         parameters: {
             query?: never;
@@ -298,6 +318,34 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AcquisitionLimitsPreview */
+        AcquisitionLimitsPreview: {
+            /** Max Bytes */
+            max_bytes: number;
+            /** Max Days */
+            max_days: number;
+            /** Max Objects */
+            max_objects: number;
+        };
+        /** ArchiveCoverageEvidence */
+        ArchiveCoverageEvidence: {
+            /** Evidence Urls */
+            evidence_urls: string[];
+            /**
+             * First Date
+             * Format: date
+             */
+            first_date: string;
+            /** Intervals */
+            intervals: string[];
+            /** Known Gap Dates */
+            known_gap_dates: string[];
+            /**
+             * Last Date
+             * Format: date
+             */
+            last_date: string;
+        };
         /** ArchiveSourcePreview */
         ArchiveSourcePreview: {
             /** Checksum Url */
@@ -368,6 +416,8 @@ export interface components {
         };
         /** BinanceDatasetPreview */
         BinanceDatasetPreview: {
+            /** Catalog Identity */
+            catalog_identity?: string | null;
             /**
              * End
              * Format: date-time
@@ -380,6 +430,7 @@ export interface components {
              * @constant
              */
             interval: "1m";
+            limits: components["schemas"]["AcquisitionLimitsPreview"];
             /**
              * Market
              * @constant
@@ -396,6 +447,10 @@ export interface components {
             start: string;
             /** Symbol */
             symbol: string;
+            /** Symbol Metadata */
+            symbol_metadata?: {
+                [key: string]: unknown;
+            } | null;
             /**
              * Venue
              * @constant
@@ -404,6 +459,8 @@ export interface components {
         };
         /** BinanceDatasetRequest */
         BinanceDatasetRequest: {
+            /** Catalog Id */
+            catalog_id?: string | null;
             /**
              * End
              * Format: date-time
@@ -423,12 +480,48 @@ export interface components {
             /** Symbol */
             symbol: string;
         };
+        /** BinanceEurResearchCatalog */
+        BinanceEurResearchCatalog: {
+            /** Catalog Id */
+            catalog_id: string;
+            /** Filters */
+            filters: string[];
+            /**
+             * Quote Asset
+             * @constant
+             */
+            quote_asset: "EUR";
+            /**
+             * Retrieved At
+             * Format: date-time
+             */
+            retrieved_at: string;
+            /** Sources */
+            sources: components["schemas"]["CatalogSourceEvidence"][];
+            /** Symbols */
+            symbols: components["schemas"]["EurCatalogSymbolEvidence"][];
+        };
         /** BootstrapSpec */
         BootstrapSpec: {
             /** Base Fraction */
             base_fraction?: number | null;
             /** Side */
             side?: ("LONG" | "SHORT") | null;
+        };
+        /** CatalogSourceEvidence */
+        CatalogSourceEvidence: {
+            /**
+             * Environment
+             * @enum {string}
+             */
+            environment: "production" | "testnet";
+            /**
+             * Server Time
+             * Format: date-time
+             */
+            server_time: string;
+            /** Url */
+            url: string;
         };
         /** ConstraintsSpec */
         ConstraintsSpec: {
@@ -480,6 +573,8 @@ export interface components {
         };
         /** DatasetManifest */
         DatasetManifest: {
+            /** Catalog Identity */
+            catalog_identity?: string | null;
             /** Coverage */
             coverage: {
                 [key: string]: string;
@@ -535,6 +630,10 @@ export interface components {
             }[];
             /** Symbol */
             symbol: string;
+            /** Symbol Metadata */
+            symbol_metadata?: {
+                [key: string]: unknown;
+            } | null;
             /** Timestamp */
             timestamp: {
                 [key: string]: unknown;
@@ -585,6 +684,33 @@ export interface components {
             out_of_order: number;
             /** Rows */
             rows: number;
+        };
+        /** EurCatalogSymbolEvidence */
+        EurCatalogSymbolEvidence: {
+            /** Base Asset */
+            base_asset: string;
+            coverage: components["schemas"]["ArchiveCoverageEvidence"];
+            /** Exchange Filters */
+            exchange_filters: {
+                [key: string]: {
+                    [key: string]: unknown;
+                };
+            };
+            liquidity: components["schemas"]["LiquiditySelectionEvidence"];
+            /** Liquidity Rank */
+            liquidity_rank: number;
+            /**
+             * Quote Asset
+             * @constant
+             */
+            quote_asset: "EUR";
+            /**
+             * Status
+             * @constant
+             */
+            status: "TRADING";
+            /** Symbol */
+            symbol: string;
         };
         /** ExchangeRulesSpec */
         ExchangeRulesSpec: {
@@ -692,6 +818,44 @@ export interface components {
             /** Preview Id */
             preview_id: string;
         };
+        /** LiquiditySelectionEvidence */
+        LiquiditySelectionEvidence: {
+            /** Annualized Realized Volatility */
+            annualized_realized_volatility: string;
+            /** Current Spread Bps */
+            current_spread_bps: string;
+            /** Current Trade Count */
+            current_trade_count: number;
+            /** Kline Payload Sha256 */
+            kline_payload_sha256: string;
+            /** Kline Source Url */
+            kline_source_url: string;
+            /** Median Daily Quote Volume */
+            median_daily_quote_volume: string;
+            /** Median Daily Trade Count */
+            median_daily_trade_count: string;
+            /**
+             * Observed At
+             * Format: date-time
+             */
+            observed_at: string;
+            /** Observed Days */
+            observed_days: number;
+            /**
+             * Observed End Date
+             * Format: date
+             */
+            observed_end_date: string;
+            /**
+             * Observed Start Date
+             * Format: date
+             */
+            observed_start_date: string;
+            /** Ticker Payload Sha256 */
+            ticker_payload_sha256: string;
+            /** Ticker Source Url */
+            ticker_source_url: string;
+        };
         /** ManifestedBacktestBody */
         ManifestedBacktestBody: {
             /** Dataset Id */
@@ -745,6 +909,8 @@ export interface components {
             backtest_fingerprint: string;
             /** Candle Sequence Sha256 */
             candle_sequence_sha256: string;
+            /** Catalog Identity */
+            catalog_identity?: string | null;
             /** Dataset Id */
             dataset_id: string;
             /**
@@ -761,6 +927,8 @@ export interface components {
             manifest_identity: string;
             /** Normalized Sha256 */
             normalized_sha256: string;
+            /** Quote Asset */
+            quote_asset?: string | null;
             /**
              * Requested End
              * Format: date-time
@@ -889,7 +1057,7 @@ export interface components {
             /** Total Return */
             total_return: number;
             /** Win Rate */
-            win_rate: number;
+            win_rate: number | null;
         } & {
             [key: string]: unknown;
         };
@@ -1333,6 +1501,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StudioBacktestRun"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_binance_eur_catalog_api_studio_catalogs_binance_eur_get: {
+        parameters: {
+            query?: {
+                refresh?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BinanceEurResearchCatalog"];
                 };
             };
             /** @description Validation Error */

@@ -8,7 +8,8 @@ API never silently disagrees with the engine about what a default is.
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
+from decimal import Decimal
 from typing import Any, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -160,7 +161,7 @@ class StudioMetrics(_Block):
     total_return: float
     max_drawdown: float
     n_trades: float
-    win_rate: float
+    win_rate: Optional[float]
 
 
 class StudioVerdict(_Block):
@@ -207,6 +208,8 @@ class ProductionDatasetProvenance(_Block):
     normalized_sha256: str
     candle_sequence_sha256: str
     backtest_fingerprint: str
+    catalog_identity: Optional[str] = None
+    quote_asset: Optional[str] = None
 
 
 class StudioBacktestRun(_Block):
@@ -226,6 +229,9 @@ class StudioConfiguration(_Block):
 
 
 class BinanceDatasetRequest(_Block):
+    catalog_id: Optional[str] = Field(
+        default=None, min_length=64, max_length=64, pattern=r"^[0-9a-f]{64}$"
+    )
     symbol: str = Field(min_length=5, max_length=20, pattern=r"^[A-Za-z0-9]+$")
     interval: Literal["1m"] = "1m"
     start: datetime
@@ -240,6 +246,12 @@ class ArchiveSourcePreview(_Block):
     estimated_bytes: int
 
 
+class AcquisitionLimitsPreview(_Block):
+    max_days: int
+    max_objects: int
+    max_bytes: int
+
+
 class BinanceDatasetPreview(_Block):
     preview_id: str
     venue: Literal["binance"]
@@ -250,6 +262,59 @@ class BinanceDatasetPreview(_Block):
     end: datetime
     estimated_bytes: int
     sources: list[ArchiveSourcePreview]
+    limits: AcquisitionLimitsPreview
+    catalog_identity: Optional[str] = None
+    symbol_metadata: Optional[dict[str, Any]] = None
+
+
+class CatalogSourceEvidence(_Block):
+    environment: Literal["production", "testnet"]
+    url: str
+    server_time: datetime
+
+
+class ArchiveCoverageEvidence(_Block):
+    first_date: date
+    last_date: date
+    intervals: list[str]
+    known_gap_dates: list[date]
+    evidence_urls: list[str]
+
+
+class LiquiditySelectionEvidence(_Block):
+    observed_days: int
+    observed_start_date: date
+    observed_end_date: date
+    observed_at: datetime
+    kline_source_url: str
+    kline_payload_sha256: str
+    ticker_source_url: str
+    ticker_payload_sha256: str
+    median_daily_quote_volume: Decimal
+    median_daily_trade_count: Decimal
+    annualized_realized_volatility: Decimal
+    current_spread_bps: Decimal
+    current_trade_count: int
+
+
+class EurCatalogSymbolEvidence(_Block):
+    symbol: str
+    base_asset: str
+    quote_asset: Literal["EUR"]
+    status: Literal["TRADING"]
+    exchange_filters: dict[str, dict[str, Any]]
+    coverage: ArchiveCoverageEvidence
+    liquidity: LiquiditySelectionEvidence
+    liquidity_rank: int
+
+
+class BinanceEurResearchCatalog(_Block):
+    catalog_id: str
+    retrieved_at: datetime
+    quote_asset: Literal["EUR"]
+    filters: list[str]
+    sources: list[CatalogSourceEvidence]
+    symbols: list[EurCatalogSymbolEvidence]
 
 
 class ImportDatasetBody(_Block):
@@ -294,6 +359,8 @@ class DatasetManifest(_Block):
     market: Literal["spot"]
     history_environment: Literal["production"]
     source_provider: str
+    catalog_identity: Optional[str] = None
+    symbol_metadata: Optional[dict[str, Any]] = None
     symbol: str
     event_kind: Literal["kline"]
     interval: Literal["1m"]

@@ -17,16 +17,36 @@ DEFAULT_DATASETS = Path(__file__).resolve().parent.parent / ".studio" / "dataset
 class StudioDatasetRepository:
     """Persist server-owned previews and admitted immutable dataset manifests."""
 
-    def __init__(self, root: Path, client: service.ArchiveClient) -> None:
+    def __init__(
+        self,
+        root: Path,
+        client: service.ArchiveClient,
+        *,
+        limits: service.AcquisitionLimits = service.AcquisitionLimits(),
+    ) -> None:
         self.root = root
         self.client = client
+        self.limits = limits
         self.previews = root / "previews"
         self.admitted = root / "admitted"
         self.previews.mkdir(parents=True, exist_ok=True)
         self.admitted.mkdir(parents=True, exist_ok=True)
 
-    def preview(self, request: service.ArchiveRequest) -> service.ArchivePreview:
-        preview = service.preview_binance_archive(request, self.client)
+    def preview(
+        self,
+        request: service.ArchiveRequest,
+        *,
+        catalog_identity: str | None = None,
+        symbol_metadata: dict[str, object] | None = None,
+        limits: service.AcquisitionLimits | None = None,
+    ) -> service.ArchivePreview:
+        preview = service.preview_binance_archive(
+            request,
+            self.client,
+            catalog_identity=catalog_identity,
+            symbol_metadata=symbol_metadata,
+            limits=limits or self.limits,
+        )
         path = self.previews / f"{preview.preview_id}.json"
         path.write_text(
             json.dumps(asdict(preview), indent=2, sort_keys=True, default=str) + "\n",
@@ -55,6 +75,11 @@ class StudioDatasetRepository:
             sources=tuple(
                 service.ArchiveSource(**source) for source in payload["sources"]
             ),
+            limits=service.AcquisitionLimits(
+                **payload.get("limits", asdict(service.AcquisitionLimits()))
+            ),
+            catalog_identity=payload.get("catalog_identity"),
+            symbol_metadata=payload.get("symbol_metadata"),
         )
 
     def acquire(
@@ -87,4 +112,13 @@ class StudioDatasetRepository:
 def studio_dataset_repository() -> StudioDatasetRepository:
     configured = os.environ.get("GRIDLAB_STUDIO_DATASETS")
     root = Path(configured) if configured else DEFAULT_DATASETS
-    return StudioDatasetRepository(root, service.OfficialBinanceArchiveClient())
+    limits = service.AcquisitionLimits(
+        max_days=int(os.environ.get("GRIDLAB_DATA_MAX_DAYS", "7")),
+        max_objects=int(os.environ.get("GRIDLAB_DATA_MAX_OBJECTS", "7")),
+        max_bytes=int(os.environ.get("GRIDLAB_DATA_MAX_BYTES", str(256 * 1024 * 1024))),
+    )
+    return StudioDatasetRepository(
+        root,
+        service.OfficialBinanceArchiveClient(),
+        limits=limits,
+    )

@@ -29,6 +29,7 @@ from gridlab.core.models import Candle
 
 BINANCE_ARCHIVE_ROOT = "https://data.binance.vision/data"
 MAX_PREVIEW_DAYS = 7
+MAX_REQUEST_DAYS = 31
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
 _SYMBOL = re.compile(r"^[A-Z0-9]{5,20}$")
 _MICROSECOND_ERA = date(2025, 1, 1)
@@ -152,8 +153,23 @@ class ArchiveRequest:
             if value.time() != datetime.min.time():
                 raise ValueError(f"{name} must be aligned to a UTC day boundary")
         days = (self.end - self.start).days
-        if self.end <= self.start or days < 1 or days > MAX_PREVIEW_DAYS:
-            raise ValueError(f"range must contain 1-{MAX_PREVIEW_DAYS} complete UTC days")
+        if self.end <= self.start or days < 1 or days > MAX_REQUEST_DAYS:
+            raise ValueError(f"range must contain 1-{MAX_REQUEST_DAYS} complete UTC days")
+
+
+@dataclass(frozen=True, slots=True)
+class AcquisitionLimits:
+    max_days: int = MAX_PREVIEW_DAYS
+    max_objects: int = MAX_PREVIEW_DAYS
+    max_bytes: int = 256 * 1024 * 1024
+
+    def __post_init__(self) -> None:
+        if not 1 <= self.max_days <= MAX_REQUEST_DAYS:
+            raise ValueError(f"max_days must be between 1 and {MAX_REQUEST_DAYS}")
+        if not 1 <= self.max_objects <= MAX_REQUEST_DAYS:
+            raise ValueError(f"max_objects must be between 1 and {MAX_REQUEST_DAYS}")
+        if self.max_bytes <= 0:
+            raise ValueError("max_bytes must be positive")
 
 
 @dataclass(frozen=True, slots=True)
@@ -176,6 +192,9 @@ class ArchivePreview:
     end: datetime
     estimated_bytes: int
     sources: tuple[ArchiveSource, ...]
+    limits: AcquisitionLimits = AcquisitionLimits()
+    catalog_identity: str | None = None
+    symbol_metadata: dict[str, object] | None = None
 
 
 def _canonical_json(value: object) -> bytes:
@@ -194,6 +213,9 @@ def _preview_identity(
     start: datetime,
     end: datetime,
     sources: list[ArchiveSource] | tuple[ArchiveSource, ...],
+    limits: AcquisitionLimits,
+    catalog_identity: str | None,
+    symbol_metadata: dict[str, object] | None,
 ) -> str:
     identity = {
         "venue": venue,
@@ -203,13 +225,39 @@ def _preview_identity(
         "start": start.isoformat(),
         "end": end.isoformat(),
         "sources": [asdict(source) for source in sources],
+        "limits": asdict(limits),
+        "catalog_identity": catalog_identity,
+        "symbol_metadata": symbol_metadata,
     }
     return _sha256(_canonical_json(identity))
 
 
-def preview_binance_archive(request: ArchiveRequest, client: ArchiveClient) -> ArchivePreview:
+def preview_binance_archive(
+    request: ArchiveRequest,
+    client: ArchiveClient,
+    *,
+    limits: AcquisitionLimits = AcquisitionLimits(),
+    catalog_identity: str | None = None,
+    symbol_metadata: dict[str, object] | None = None,
+) -> ArchivePreview:
     """Resolve official checksum sidecars and sizes without downloading archives."""
+    days = (request.end - request.start).days
+    if days > limits.max_days:
+        raise ValueError(
+            f"requested range exceeds the maximum {limits.max_days} complete UTC days; "
+            "choose a shorter range"
+        )
+    if days > limits.max_objects:
+        raise ValueError(
+            f"requested range exceeds the maximum {limits.max_objects} source objects; "
+            "choose a shorter range"
+        )
+    if catalog_identity is not None and not _SHA256.fullmatch(catalog_identity):
+        raise ValueError("catalog identity must be a lowercase SHA-256")
+    if symbol_metadata is not None:
+        symbol_metadata = json.loads(_canonical_json(symbol_metadata))
     sources: list[ArchiveSource] = []
+    estimated_bytes = 0
     day = request.start
     while day < request.end:
         date = day.date().isoformat()
@@ -222,6 +270,12 @@ def preview_binance_archive(request: ArchiveRequest, client: ArchiveClient) -> A
         size = client.content_length(url)
         if size <= 0:
             raise ValueError(f"official content length is invalid for {name}")
+        estimated_bytes += size
+        if estimated_bytes > limits.max_bytes:
+            raise ValueError(
+                f"estimated {estimated_bytes} bytes exceeds the {limits.max_bytes}-byte cap; "
+                "choose a shorter range"
+            )
         sources.append(ArchiveSource(date, url, checksum_url, checksum, size))
         day += timedelta(days=1)
 
@@ -234,6 +288,9 @@ def preview_binance_archive(request: ArchiveRequest, client: ArchiveClient) -> A
             request.start,
             request.end,
             sources,
+            limits,
+            catalog_identity,
+            symbol_metadata,
         ),
         venue="binance",
         market="spot-production-archive",
@@ -241,8 +298,11 @@ def preview_binance_archive(request: ArchiveRequest, client: ArchiveClient) -> A
         interval=request.interval,
         start=request.start.astimezone(timezone.utc),
         end=request.end.astimezone(timezone.utc),
-        estimated_bytes=sum(source.estimated_bytes for source in sources),
+        estimated_bytes=estimated_bytes,
         sources=tuple(sources),
+        limits=limits,
+        catalog_identity=catalog_identity,
+        symbol_metadata=symbol_metadata,
     )
 
 
@@ -401,6 +461,9 @@ def acquire_binance_archive(
         preview.start,
         preview.end,
         preview.sources,
+        preview.limits,
+        preview.catalog_identity,
+        preview.symbol_metadata,
     )
     if expected_preview_id != preview.preview_id:
         raise DataAdmissionError("download preview identity mismatch")
@@ -492,6 +555,8 @@ def acquire_binance_archive(
             "candle_sequence_sha256": candle_sequence_sha256,
             "normalizer": _NORMALIZER,
             "schema": _schema_manifest(),
+            "catalog_identity": preview.catalog_identity,
+            "symbol_metadata": preview.symbol_metadata,
         }
         dataset_id = _sha256(_canonical_json(identity))
         manifest: dict[str, object] = {
@@ -502,6 +567,8 @@ def acquire_binance_archive(
             "market": "spot",
             "history_environment": "production",
             "source_provider": "official Binance public archive",
+            "catalog_identity": preview.catalog_identity,
+            "symbol_metadata": preview.symbol_metadata,
             "symbol": preview.symbol,
             "event_kind": "kline",
             "interval": preview.interval,

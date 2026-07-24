@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from "react";
 
 import type {
   BinanceDatasetPreview,
+  BinanceEurResearchCatalog,
   DatasetManifest,
   ManifestedBacktestBody,
   ResearchPort,
@@ -91,11 +92,11 @@ function formatPercent(value: number): string {
   }).format(value);
 }
 
-function formatMoney(value: number): string {
+function formatMoney(value: number, quoteAsset = "USDT"): string {
   return `${new Intl.NumberFormat("en", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(value)} USDT`;
+  }).format(value)} ${quoteAsset}`;
 }
 
 function Navigation({ workspace }: { workspace: Workspace }) {
@@ -141,20 +142,22 @@ function NumberField({ label, value, onChange, min, step = 1 }: { label: string;
 
 function Results({ run }: { run: StudioBacktestRun }) {
   const result = run.primary_result;
+  const quoteAsset = run.provenance?.quote_asset ?? "USDT";
   return (
     <section className="results" aria-live="polite">
       <div className="result-heading"><div><p className="eyebrow">Completed research run</p><h2>{run.result.symbol} primary result</h2></div><span className="verdict">{result.verdict}</span></div>
       <div className="metrics">
         <article className="primary"><span>Net return</span><strong>{formatPercent(result.net_return)}</strong></article>
-        <article><span>Final equity</span><strong>{formatMoney(result.final_equity)}</strong></article>
+        <article><span>Final equity</span><strong>{formatMoney(result.final_equity, quoteAsset)}</strong></article>
         <article><span>Max drawdown</span><strong>{formatPercent(result.max_drawdown)}</strong></article>
         <article><span>Completed trades</span><strong>{result.completed_trades}</strong></article>
-        <article><span>Fees paid</span><strong>{formatMoney(result.fees_paid)}</strong></article>
+        <article><span>Fees paid</span><strong>{formatMoney(result.fees_paid, quoteAsset)}</strong></article>
       </div>
       <div className="record"><span>Authoritative local record</span><code>{run.id}</code><span>Saved by the research service · {new Date(run.created_at).toLocaleString()}</span></div>
       {run.provenance && <div className="production-provenance">
         <div><strong>PRODUCTION HISTORY</strong><span>Official Binance Spot archive</span></div>
         <div><strong>TESTNET HISTORY NOT USED</strong><span>Testnet is not profitability evidence</span></div>
+        {run.provenance.catalog_identity && <><span>Catalog identity</span><code>{run.provenance.catalog_identity}</code></>}
         <span>Manifest identity</span><code>{run.provenance.manifest_identity}</code>
         <span>Deterministic backtest fingerprint</span><code>{run.provenance.backtest_fingerprint}</code>
       </div>}
@@ -168,7 +171,12 @@ function ResearchWorkspace({ research }: { research: ResearchPort }) {
   const [run, setRun] = useState<StudioBacktestRun>();
   const [error, setError] = useState<string>();
   const [running, setRunning] = useState(false);
-  const [productionDate, setProductionDate] = useState("2025-01-01");
+  const [catalog, setCatalog] = useState<BinanceEurResearchCatalog>();
+  const [catalogBusy, setCatalogBusy] = useState(false);
+  const [symbolFilter, setSymbolFilter] = useState("");
+  const [selectedSymbol, setSelectedSymbol] = useState("");
+  const [productionStart, setProductionStart] = useState("2025-01-01");
+  const [productionEnd, setProductionEnd] = useState("2025-01-01");
   const [preview, setPreview] = useState<BinanceDatasetPreview>();
   const [manifest, setManifest] = useState<DatasetManifest>();
   const [productionBusy, setProductionBusy] = useState(false);
@@ -181,10 +189,48 @@ function ResearchWorkspace({ research }: { research: ResearchPort }) {
         setDraft(draftFrom(value));
       }
     }).catch((reason: unknown) => current && setError(reason instanceof Error ? reason.message : "Configuration unavailable"));
+    research.getEurCatalog().then((value) => {
+      if (!current) return;
+      setCatalog(value);
+      const selected = [...value.symbols].sort(
+        (left, right) => left.liquidity_rank - right.liquidity_rank,
+      )[0];
+      if (selected) {
+        setSelectedSymbol(selected.symbol);
+        setProductionStart(selected.coverage.last_date);
+        setProductionEnd(selected.coverage.last_date);
+      }
+    }).catch((reason: unknown) => current && setError(reason instanceof Error ? reason.message : "EUR catalog unavailable"));
     const runId = window.location.hash.match(/experiments\/([^/]+)$/)?.[1];
     if (runId) research.getBacktest(runId).then((value) => current && setRun(value)).catch(() => undefined);
     return () => { current = false; };
   }, [research]);
+
+  async function refreshCatalog() {
+    setCatalogBusy(true); setError(undefined);
+    try {
+      const value = await research.getEurCatalog(true);
+      setCatalog(value);
+      if (!value.symbols.some((item) => item.symbol === selectedSymbol)) {
+        const selected = value.symbols[0];
+        setSelectedSymbol(selected?.symbol ?? "");
+      }
+      setPreview(undefined); setManifest(undefined);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "EUR catalog refresh failed");
+    } finally { setCatalogBusy(false); }
+  }
+
+  function selectProductionSymbol(symbol: string) {
+    setSelectedSymbol(symbol);
+    setPreview(undefined); setManifest(undefined);
+    const selected = catalog?.symbols.find((item) => item.symbol === symbol);
+    if (selected) {
+      setProductionStart(selected.coverage.last_date);
+      setProductionEnd(selected.coverage.last_date);
+      setDraft((current) => current ? { ...current, symbol } : current);
+    }
+  }
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -200,13 +246,15 @@ function ResearchWorkspace({ research }: { research: ResearchPort }) {
   }
 
   async function previewProduction() {
-    if (!draft) return;
+    if (!draft || !catalog || !selectedSymbol) return;
     setProductionBusy(true); setError(undefined); setPreview(undefined); setManifest(undefined);
     try {
-      const start = new Date(`${productionDate}T00:00:00Z`);
-      const end = new Date(start.getTime() + 86_400_000);
+      const start = new Date(`${productionStart}T00:00:00Z`);
+      const endInclusive = new Date(`${productionEnd}T00:00:00Z`);
+      const end = new Date(endInclusive.getTime() + 86_400_000);
       setPreview(await research.previewProductionDataset({
-        symbol: draft.symbol,
+        catalog_id: catalog.catalog_id,
+        symbol: selectedSymbol,
         interval: "1m",
         start: start.toISOString(),
         end: end.toISOString(),
@@ -233,7 +281,7 @@ function ResearchWorkspace({ research }: { research: ResearchPort }) {
         dataset_id: manifest.dataset_id,
         spec: {
           ...existing.spec,
-          symbol: draft.symbol,
+          symbol: manifest.symbol,
           market_type: "spot",
           initial_cash: draft.initialCash,
           n_trials: 1,
@@ -250,24 +298,59 @@ function ResearchWorkspace({ research }: { research: ResearchPort }) {
 
   if (!draft || !configuration) return <main className="workspace"><p>{error ?? "Loading canonical configuration…"}</p></main>;
   const update = <K extends keyof Draft>(key: K, value: Draft[K]) => setDraft({ ...draft, [key]: value });
+  const selected = catalog?.symbols.find((item) => item.symbol === selectedSymbol);
+  const visibleSymbols = catalog?.symbols
+    .filter((item) => item.symbol.includes(symbolFilter.trim().toUpperCase()))
+    .sort((left, right) => left.liquidity_rank - right.liquidity_rank) ?? [];
+  const eurVolume = selected
+    ? new Intl.NumberFormat("en", {
+      style: "currency",
+      currency: "EUR",
+      maximumFractionDigits: 0,
+    }).format(Number(selected.liquidity.median_daily_quote_volume))
+    : "";
   return (
     <main className="workspace">
       <div className="page-title"><div><p className="eyebrow">Research · Experiments</p><h1>Static grid backtest</h1><p>Configure one deterministic local experiment. The browser submits work; the research service owns the completed record.</p></div><span className="scope">MIGRATED WORKFLOW</span></div>
       <section className="production-data" aria-labelledby="production-data-heading">
-        <div className="result-heading"><div><p className="eyebrow">Manifested market evidence</p><h2 id="production-data-heading">Production history</h2><p>Preview one bounded UTC day from the official Binance Spot archive before downloading any archive bytes.</p></div><span className="scope">1m · MAX 1 DAY IN STUDIO</span></div>
+        <div className="result-heading"><div><p className="eyebrow">Manifested market evidence</p><h2 id="production-data-heading">Production history</h2><p>Select a public Testnet/production-compatible EUR market, then preview up to seven complete UTC days before any archive bytes are downloaded.</p></div><span className="scope">1m · MAX 7 DAYS</span></div>
+        {catalog && <div className="catalog-identity">
+          <div><strong>{catalog.symbols.length} eligible EUR symbols</strong><span>Public compatibility snapshot · {new Date(catalog.retrieved_at).toLocaleString()}</span></div>
+          <span>Catalog identity</span><code>{catalog.catalog_id}</code>
+          <button disabled={catalogBusy || productionBusy} type="button" onClick={refreshCatalog}>{catalogBusy ? "Refreshing…" : "Refresh official catalog"}</button>
+        </div>}
         <div className="production-controls">
-          <label>UTC archive day<input aria-label="UTC archive day" type="date" value={productionDate} onChange={(event) => setProductionDate(event.currentTarget.value)} /></label>
-          <button disabled={productionBusy} type="button" onClick={previewProduction}>Preview official download</button>
+          <label>Filter symbols<input aria-label="Filter EUR symbols" value={symbolFilter} onChange={(event) => setSymbolFilter(event.currentTarget.value)} placeholder="BTC, ETH…" /></label>
+          <label>EUR production symbol<select aria-label="EUR production symbol" value={selectedSymbol} onChange={(event) => selectProductionSymbol(event.currentTarget.value)}>{visibleSymbols.map((item) => <option key={item.symbol} value={item.symbol}>#{item.liquidity_rank} · {item.symbol}</option>)}</select></label>
+          <label>UTC start day<input aria-label="UTC start day" type="date" min={selected?.coverage.first_date} max={selected?.coverage.last_date} value={productionStart} onChange={(event) => { setProductionStart(event.currentTarget.value); setPreview(undefined); setManifest(undefined); }} /></label>
+          <label>UTC end day<input aria-label="UTC end day" type="date" min={productionStart || selected?.coverage.first_date} max={selected?.coverage.last_date} value={productionEnd} onChange={(event) => { setProductionEnd(event.currentTarget.value); setPreview(undefined); setManifest(undefined); }} /></label>
+          <button disabled={productionBusy || !selected} type="button" onClick={previewProduction}>Preview official download</button>
         </div>
+        {selected && <div className="symbol-evidence">
+          <div><strong>#{selected.liquidity_rank} · {selected.symbol}</strong><span>{selected.base_asset} / EUR · Spot · LIMIT_MAKER</span></div>
+          <span>{eurVolume} median daily volume</span>
+          <span>{Number(selected.liquidity.median_daily_trade_count).toLocaleString("en-US")} median daily trades</span>
+          <span>{selected.liquidity.current_spread_bps} bps current spread</span>
+          <span>Liquidity window: {selected.liquidity.observed_start_date} to {selected.liquidity.observed_end_date}</span>
+          <span>Liquidity source fingerprints</span>
+          <code>{selected.liquidity.kline_payload_sha256}</code>
+          <code>{selected.liquidity.ticker_payload_sha256}</code>
+          <span>{selected.coverage.first_date} to {selected.coverage.last_date}</span>
+          <span>Archive intervals: {selected.coverage.intervals.join(", ")} · 1m backtests only</span>
+          <span>{selected.coverage.known_gap_dates.length} known archive gaps</span>
+        </div>}
+        <p className="eligibility-note"><strong>Public compatibility is not account permission.</strong> Binance Testnet proves protocol and symbol compatibility; an authenticated German account may have different current trading permissions.</p>
         {preview && <div className="download-preview">
           <strong>{preview.symbol} · {preview.interval} · {new Date(preview.start).toISOString()} to {new Date(preview.end).toISOString()}</strong>
           <span>{preview.estimated_bytes.toLocaleString("en-US")} bytes</span>
+          <span>Caps: {preview.limits.max_days} days · {preview.limits.max_objects} objects · {preview.limits.max_bytes.toLocaleString("en-US")} bytes</span>
           {preview.sources.map((source) => <div key={source.url}><span>{source.url.split("/").at(-1)}</span><code>{source.expected_sha256}</code></div>)}
           <button disabled={productionBusy} type="button" onClick={importProduction}>Download, verify & normalize</button>
         </div>}
         {manifest && <div className="manifest-card">
           <div><strong>QUALITY APPROVED</strong><span>{manifest.quality.rows.toLocaleString("en-US")} ordered candles · {manifest.quality.gaps} gaps · {manifest.quality.duplicates} duplicates</span></div>
-          <span>Manifest identity</span><code>{manifest.dataset_id}</code>
+          <span>Dataset identity</span><code>{manifest.dataset_id}</code>
+          <span>Manifest identity</span><code>{manifest.manifest_sha256}</code>
           <span>Normalized Parquet SHA-256</span><code>{manifest.normalization.sha256}</code>
           <p><strong>Production market history supplied this evidence.</strong> Binance Testnet history was not used and is not profitability evidence.</p>
           <button disabled={productionBusy} type="button" onClick={runProduction}>Run production-history backtest</button>

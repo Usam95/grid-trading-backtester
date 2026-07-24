@@ -20,7 +20,9 @@ class SqliteStudioRunStore:
 
     def __init__(self, database: Path) -> None:
         database.parent.mkdir(parents=True, exist_ok=True)
-        self._connection = sqlite3.connect(database)
+        # FastAPI may enter and exit a sync generator dependency on different
+        # worker threads; this connection is still request-scoped.
+        self._connection = sqlite3.connect(database, check_same_thread=False)
         self._connection.execute(
             """
             CREATE TABLE IF NOT EXISTS studio_backtest_runs (
