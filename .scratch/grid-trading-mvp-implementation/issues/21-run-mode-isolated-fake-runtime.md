@@ -1,8 +1,8 @@
-# 20 — Run one mode-isolated runtime against a fake venue
+# 21 — Run one mode-isolated adaptive runtime against a fake venue
 
-**What to build:** Establish the online runtime boundary with one isolated store, one bounded ingress sequencer, one authoritative writer, one atomic journal/outbox, and one deterministic fake venue. Process one market observation into a durable command intent and simulated outcome, then crash and recover into frozen readiness.
+**What to build:** Establish the online runtime boundary with one isolated store, one bounded ingress sequencer, one authoritative writer, one atomic journal/outbox, and one deterministic fake venue. Process adaptation evidence through a guarded epoch transition into durable command intents and simulated outcomes, then crash and recover into frozen readiness.
 
-**Blocked by:** 05 — Persist and exactly replay one canonical decision path; 10 — Operate Pause, Resume, Stop and terminal disposal; 11 — Admit only venue-valid positive post-only plans.
+**Blocked by:** 05 — Persist and exactly replay one adaptive decision path; 10 — Operate controls and terminal disposal during adaptation; 11 — Admit only venue-valid positive grid-epoch plans; 12 — Transition safely between immutable grid epochs.
 
 **Status:** ready-for-agent
 
@@ -13,4 +13,3 @@
 - [ ] Runtime lifecycle phases remain distinct from grid lifecycle, safety posture, process liveness, and decision readiness.
 - [ ] A crash at each processing/dispatch boundary reconstructs ambiguity, replays exactly, and reaches `FROZEN_READY` without automatic command replay or trading resume.
 - [ ] The fake adapter satisfies the same public contract later required of Paper, Testnet, and live adapters.
-

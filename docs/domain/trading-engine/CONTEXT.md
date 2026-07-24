@@ -241,6 +241,26 @@ _Avoid_: Spot inventory trading
 A grid whose price bounds and rungs do not adapt automatically during a run; it may use arithmetic or geometric spacing.
 _Avoid_: Fixed strategy
 
+**Regime-aware adaptive grid**:
+A Spot inventory grid governed by one immutable strategy configuration whose past-only adaptation policy may derive a succession of immutable grid plan epochs after every transition gate passes.
+_Avoid_: Moving grid, self-modifying strategy, dynamic sizing
+
+**Grid adaptation state**:
+The deterministic trading classification selected from `RANGE_NORMAL`, `RANGE_HIGH_VOLATILITY`, `TREND_UP`, `TREND_DOWN`, and `UNCERTAIN` by the immutable adaptation policy and its admitted past-only observations.
+_Avoid_: Market-regime cell, prediction, strategy switch
+
+**Grid plan epoch**:
+One immutable, content-identified, venue-quantized rung plan and its obligations within a run. A later epoch supersedes it only after cancellation, late-fill reconciliation, and all activation gates complete.
+_Avoid_: Strategy configuration version, edited grid, runtime generation
+
+**Grid epoch transition**:
+The canonical guarded process that requests a new grid plan epoch, removes permission for new old-epoch exposure, cancels and reconciles effective obligations, derives and validates the replacement plan, and activates it without ambiguous overlap.
+_Avoid_: Recenter, cancel-all-and-rebuild, strategy switch
+
+**Downtrend recovery state**:
+The `TREND_DOWN` grid adaptation state in which exposure-increasing orders and downward bound shifts are prohibited while valid inventory-reducing recovery, cancellation, reconciliation, and evidence gathering remain permitted.
+_Avoid_: Downward recenter, buy-the-dip mode, stop-loss
+
 **Strategy configuration version**:
 An immutable, identifiable set of strategy parameters and semantics used to generate evidence and govern one or more approved runs.
 _Avoid_: Settings, config
@@ -257,10 +277,10 @@ _Avoid_: Pause, range exhaustion
 Grid spacing with equal absolute price distance between adjacent rungs.
 
 **Geometric spacing**:
-Grid spacing with equal percentage distance between adjacent rungs; it is the default static-grid spacing.
+Grid spacing with equal percentage distance between adjacent rungs; it is the default grid spacing.
 
 **Range-exhausted**:
-An active static-grid state in which price is outside the configured range and the grid creates no exposure beyond its outer rungs while retaining valid recovery-side orders.
+An active grid-plan-epoch state in which price is outside its configured range and the grid creates no exposure beyond its outer rungs while retaining valid recovery-side orders until an admitted transition or return in range.
 _Avoid_: Out of range, stopped
 
 **Exposure-reducing pause**:

@@ -1,8 +1,8 @@
-# 34 — Run Azure acceptance and B1ms capacity qualification
+# 35 — Run Azure acceptance and B1ms capacity qualification
 
 **What to build:** Create one resumable local acceptance runner with operator checkpoints that verifies the exact infrastructure/release/configuration identity, executes bounded Testnet and recovery actions, injects accepted failures, and runs the representative 24-hour three-process workload to produce an objective capacity decision.
 
-**Blocked by:** 25 — Execute and exactly replay Production-Data Paper; 26 — Qualify the Binance Testnet adapter and generation; 31 — Build a qualified release with forward migrations; 33 — Connect Azure evidence, secrets and monitoring.
+**Blocked by:** 26 — Execute and exactly replay adaptive Production-Data Paper; 27 — Qualify the Binance Testnet adapter and generation; 32 — Build a qualified release with forward migrations; 34 — Connect Azure evidence, secrets and monitoring.
 
 **Status:** ready-for-agent
 
@@ -14,4 +14,3 @@
 - [ ] The exact candidate VM completes one controlled restart and external outage observation, returning reconciled and frozen.
 - [ ] Results are exactly `B1MS_ACCEPTED`, `RESIZE_REQUIRED`, or `INCONCLUSIVE_RERUN`; failure never relaxes safety/evidence thresholds and names the prescribed resize/retest path.
 - [ ] The sealed report identifies every passed/failed/inconclusive case and the change-impact conditions requiring partial or full reacceptance.
-

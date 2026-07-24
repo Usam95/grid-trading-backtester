@@ -1,8 +1,8 @@
-# 23 — Reconcile ambiguity and restart frozen
+# 24 — Reconcile ambiguity and restart frozen
 
-**What to build:** Implement fact-specific authoritative reconciliation and ambiguity-safe recovery across commands, orders, fills, fees, balances, allocation, venue rules, and foreign activity. Planned shutdown and crash recovery must preserve evidence, cancel safely, admit late facts, and end frozen for explicit operator authority.
+**What to build:** Implement fact-specific authoritative reconciliation and ambiguity-safe recovery across grid epochs, transitions, commands, orders, fills, fees, balances, allocation, venue rules, and foreign activity. Planned shutdown and crash recovery must preserve evidence, cancel safely, admit late facts to their originating epoch, and end frozen for explicit operator authority.
 
-**Blocked by:** 07 — Account for one grid allocation in exact native assets; 10 — Operate Pause, Resume, Stop and terminal disposal; 20 — Run one mode-isolated runtime against a fake venue; 21 — Admit authenticated idempotent operator commands; 22 — Explain runtime health, incidents and alerts.
+**Blocked by:** 07 — Account for one grid allocation across exact epochs and assets; 10 — Operate controls and terminal disposal during adaptation; 12 — Transition safely between immutable grid epochs; 21 — Run one mode-isolated adaptive runtime against a fake venue; 22 — Admit authenticated idempotent operator commands; 23 — Explain runtime health, incidents and alerts.
 
 **Status:** ready-for-agent
 
@@ -14,4 +14,3 @@
 - [ ] Planned shutdown and forced termination continue admission/cancellation/reconciliation within accepted bounds and never report an incomplete stop as clean.
 - [ ] Replacement starts frozen, replays, reconstructs ambiguity, reconciles, cancels survivors safely, and awaits an authenticated operator choice.
 - [ ] Studio exposes the complete reconciliation case rather than only a green/red summary.
-

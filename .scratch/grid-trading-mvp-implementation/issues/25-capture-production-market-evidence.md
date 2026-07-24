@@ -1,8 +1,8 @@
-# 24 — Capture production market evidence with continuity
+# 25 — Capture production market evidence with continuity
 
 **What to build:** Normalize and durably capture production public trades, best bid/offer, and targeted depth for one active symbol with explicit stream generations, rotation, ordering, gaps, snapshot bridges, bounded buffers, and replayable source identities.
 
-**Blocked by:** 03 — Prove the manifested production-data tracer bullet; 05 — Persist and exactly replay one canonical decision path; 20 — Run one mode-isolated runtime against a fake venue; 22 — Explain runtime health, incidents and alerts.
+**Blocked by:** 03 — Prove the manifested production-data tracer bullet; 05 — Persist and exactly replay one adaptive decision path; 21 — Run one mode-isolated adaptive runtime against a fake venue; 23 — Explain runtime health, incidents and alerts.
 
 **Status:** ready-for-agent
 

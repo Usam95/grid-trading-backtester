@@ -1,8 +1,8 @@
-# 29 — Create and restore verified recoverable points
+# 30 — Create and restore verified recoverable points
 
 **What to build:** Protect the complete online durable state with transactionally consistent, content-verified off-node recoverable points and a deterministic restore path that selects a compatible point, replays the journal tail, verifies invariants, reconciles external facts, and finishes operator-accessible and frozen.
 
-**Blocked by:** 23 — Reconcile ambiguity and restart frozen; 28 — Compact, retain and download verified evidence.
+**Blocked by:** 24 — Reconcile ambiguity and restart frozen; 29 — Compact, retain and download verified evidence.
 
 **Status:** ready-for-agent
 
@@ -14,4 +14,3 @@
 - [ ] Newest and older-point restores rebuild projections, replay the tail, pass invariants, admit late evidence, reconcile, and finish `FROZEN_READY` without rolling the venue back.
 - [ ] Weekly isolated restore and full-disaster drill entry points produce content-identified reports and measure the 60-minute frozen RTO boundary.
 - [ ] Credential isolation, unavailable read-only venue evidence, and late-fill-during-outage cases are tested.
-

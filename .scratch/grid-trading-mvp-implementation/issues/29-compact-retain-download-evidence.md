@@ -1,8 +1,8 @@
-# 28 — Compact, retain and download verified evidence
+# 29 — Compact, retain and download verified evidence
 
 **What to build:** Publish closed captured market evidence as lossless typed Parquet, manage the accepted retention classes and preservation holds, rotate bounded diagnostics, and let Studio build and download checksum-verified evidence bundles for local causal analysis without changing source authority.
 
-**Blocked by:** 22 — Explain runtime health, incidents and alerts; 24 — Capture production market evidence with continuity; 25 — Execute and exactly replay Production-Data Paper; 26 — Qualify the Binance Testnet adapter and generation; 27 — Operate Paper and Testnet through Command Canvas.
+**Blocked by:** 23 — Explain runtime health, incidents and alerts; 25 — Capture production market evidence with continuity; 26 — Execute and exactly replay adaptive Production-Data Paper; 27 — Qualify the Binance Testnet adapter and generation; 28 — Operate adaptive Paper and Testnet through Command Canvas.
 
 **Status:** ready-for-agent
 
@@ -14,4 +14,3 @@
 - [ ] Evidence bundles include exact content identities, checksums, source authority, schemas, retention/hold status, and causal completeness.
 - [ ] Downloads verify before admission to the local cache; offline views identify cached source/time and never rewrite cloud authority.
 - [ ] Interrupted upload/compaction/download/deletion and concurrent hold creation have deterministic fault cases.
-

@@ -1,8 +1,8 @@
-# 33 — Connect Azure evidence, secrets and monitoring
+# 34 — Connect Azure evidence, secrets and monitoring
 
 **What to build:** Attach the accepted private-purpose ZRS Blob, Key Vault/managed-identity, off-VM recovery, monitoring, alerting, storage-growth, provider-recovery, and cost boundaries to the provisioned node while keeping Gateway, Paper, Testnet, and future live authority isolated.
 
-**Blocked by:** 22 — Explain runtime health, incidents and alerts; 28 — Compact, retain and download verified evidence; 29 — Create and restore verified recoverable points; 32 — Provision the secure minimal Azure node.
+**Blocked by:** 23 — Explain runtime health, incidents and alerts; 29 — Compact, retain and download verified evidence; 30 — Create and restore verified recoverable points; 33 — Provision the secure minimal Azure node.
 
 **Status:** ready-for-agent
 
@@ -14,4 +14,3 @@
 - [ ] Application measurements and Azure monitoring expose health, protection, growth, resource use, dead-man, objective, and cost evidence without secret leakage or high-cardinality explosion.
 - [ ] Growth warnings/review thresholds and EUR 35/EUR 50 cost actions are tested and cannot delete evidence or alter trading authority.
 - [ ] Azure identity/storage compromise concentration, operator-source-IP change, and deferred-maintenance risks remain explicit in the acceptance report and runbooks.
-

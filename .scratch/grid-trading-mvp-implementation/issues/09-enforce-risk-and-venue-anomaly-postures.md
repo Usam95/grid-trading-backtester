@@ -1,8 +1,8 @@
-# 09 — Enforce capital, loss, freshness and venue-anomaly postures
+# 09 — Enforce adaptive, capital, loss, freshness and venue-anomaly postures
 
-**What to build:** Apply the accepted capital, commitment, loss, freshness, connectivity, clock, and venue-anomaly rules as a deterministic safety-posture overlay independent of grid lifecycle. Include range exhaustion and explicit handling for symbol suspension, maintenance, and delisting evidence.
+**What to build:** Apply the accepted grid-adaptation, capital, commitment, loss, freshness, connectivity, clock, and venue-anomaly rules as one deterministic safety-posture overlay independent of grid and transition lifecycle. Include downtrend recovery, uncertain evidence, range exhaustion, and symbol suspension, maintenance, and delisting evidence.
 
-**Blocked by:** 07 — Account for one grid allocation in exact native assets; 08 — Complete cumulative partial-fill paired cycles.
+**Blocked by:** 07 — Account for one grid allocation across exact epochs and assets; 08 — Complete cumulative partial-fill cycles across epochs.
 
 **Status:** ready-for-agent
 
@@ -11,6 +11,7 @@
 - [ ] Missing or stale valuation, strategy input, private-stream continuity, control-path availability, and clock evidence select their exact accepted posture.
 - [ ] Clock-offset decisions use defensible venue-time observations and distinguish scheduling delay while any authenticated timestamp rejection still fails closed.
 - [ ] Range exhaustion prevents exposure beyond outer rungs while preserving valid recovery-side obligations and owned inventory.
+- [ ] `TREND_DOWN` selects at least `REDUCE_ONLY`, emits no exposure-increasing buy or downward-bound-shift intent, and retains valid fully backed inventory-reducing recovery.
+- [ ] `UNCERTAIN` adaptation evidence selects `FROZEN` for placement and replacement; `RANGE_HIGH_VOLATILITY` cannot increase fixed quote sizing.
 - [ ] Symbol trading suspension or maintenance freezes unsafe commands and preserves evidence; a delisting notice creates a visible time-bounded wind-down case.
-- [ ] Grid lifecycle, runtime lifecycle, safety posture, freshness, and reconciliation are presented as separate facts.
-
+- [ ] Grid lifecycle, grid adaptation state, epoch-transition state, runtime lifecycle, safety posture, freshness, and reconciliation are presented as separate facts.

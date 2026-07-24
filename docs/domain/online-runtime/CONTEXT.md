@@ -56,7 +56,7 @@ _Avoid_: Scheduled rotation, hot reload, ordinary restart
 
 ## MVP increment
 
-A deliberately versioned capability step, such as static-grid MVP1 or dynamic-grid/filter MVP2, that receives its own candidate, release and validation identities.
+A deliberately versioned capability step, such as regime-aware adaptive-grid MVP1 or a later filter increment, that receives its own candidate, release and validation identities.
 _Avoid_: In-place strategy mutation, release rebuild, active run edit
 
 ## Shakedown period

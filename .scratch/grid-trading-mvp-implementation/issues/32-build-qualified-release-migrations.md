@@ -1,8 +1,8 @@
-# 31 — Build a qualified release with forward migrations
+# 32 — Build a qualified release with forward migrations
 
 **What to build:** Produce one locally qualified, target-compatible, content-identified offline release bundle with exact dependency/tool/schema/configuration identities, security and architecture evidence, forward-only durable migrations, side-by-side frozen installation, and compatibility-driven rollback decisions.
 
-**Blocked by:** 01 — Freeze the reproducible baseline and current normative contract; 29 — Create and restore verified recoverable points; 30 — Contract the superseded engine and Studio paths.
+**Blocked by:** 01 — Freeze the reproducible baseline and current normative contract; 30 — Create and restore verified recoverable points; 31 — Contract the superseded engine and Studio paths.
 
 **Status:** ready-for-agent
 
@@ -14,4 +14,3 @@
 - [ ] A candidate starts frozen and must pass store, schema, replay, invariant, reconciliation, health, resource, and evidence checks before installation acceptance.
 - [ ] Abandon-before-switch, compatible binary rollback, point-assisted rollback, and forward-repair outcomes are selected from proven compatibility and never blindly replay commands.
 - [ ] Documentation-only or proven read-only changes reuse evidence only through the accepted impact classification.
-

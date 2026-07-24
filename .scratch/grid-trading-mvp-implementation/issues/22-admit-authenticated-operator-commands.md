@@ -1,8 +1,8 @@
-# 21 — Admit authenticated idempotent operator commands
+# 22 — Admit authenticated idempotent operator commands
 
 **What to build:** Add the loopback-only control gateway and typed operator-command path suitable for an SSH tunnel. The gateway authenticates, validates, scopes, expires, and forwards commands, while the targeted runtime remains the sole durable admission and authorization authority.
 
-**Blocked by:** 20 — Run one mode-isolated runtime against a fake venue.
+**Blocked by:** 21 — Run one mode-isolated adaptive runtime against a fake venue.
 
 **Status:** ready-for-agent
 
@@ -13,4 +13,3 @@
 - [ ] Stale or disconnected browsers cannot queue a capital-affecting command for later execution.
 - [ ] Duplicate, expired, wrong-environment, concurrent, unauthorized, and ambiguous requests have contract and end-to-end tests.
 - [ ] Read-only projections remain available without implying command authority.
-

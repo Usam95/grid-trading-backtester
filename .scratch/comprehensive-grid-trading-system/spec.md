@@ -1,6 +1,6 @@
 # Comprehensive Grid-Trading System Specification
 
-Status: implementation-ready planning baseline  
+Status: ready-for-agent — adaptive-grid MVP1 revision approved 2026-07-24
 Audience: the sole operator, implementers, reviewers, and future maintainers  
 Normative language: `MUST`, `MUST NOT`, `SHOULD`, and `MAY` use RFC 2119 meanings
 
@@ -32,7 +32,7 @@ Use the local workstation for historical data acquisition, experiment configurat
 
 Use an append-only decision-complete event journal and atomic command outbox as authoritative operational evidence. Derive SQLite projections, dashboards, metrics, reports, and local analysis caches from that evidence. Retain large historical and captured market data as content-identified Parquet objects, with active online state on the managed disk and verified off-VM recovery/evidence in Azure Blob Storage.
 
-The selected strategy is a static neutral Spot grid using only allocated owned inventory. It acquires the base inventory required to back its initial sells through a real, journaled bootstrap acquisition; it then uses fixed quote sizing, geometric spacing by default, post-only ordinary rung orders, cumulative fill-driven pairing, no compounding, and no range expansion. A configurable global stop-loss is part of the MVP; a global take-profit is not.
+The selected strategy is one regime-aware adaptive neutral Spot grid using only allocated owned inventory. One immutable strategy configuration classifies admitted past-only evidence, derives an initial immutable grid plan epoch, and may replace it with another immutable epoch only through a guarded cancellation, late-fill reconciliation, capital, inventory, fee, venue-rule, and economic-validation transition. It uses fixed quote sizing, geometric spacing by default, post-only ordinary rung orders, cumulative fill-driven pairing, no compounding, and no automatic downward price chasing. A confirmed downtrend selects recovery/reduce-only behavior until deterministic re-entry requirements pass. A configurable global stop-loss is part of the MVP; a global take-profit is not.
 
 ## Architecture Contexts and Boundaries
 
@@ -70,15 +70,15 @@ Dependencies point inward toward typed domain contracts. Venue, persistence, UI,
 
 ### Research and learning
 
-1. As the operator, I want to configure a static grid through four guided sections—Market & Data, Grid & Capital, Costs & Execution, and Risk & Evaluation—so I can understand the consequences before running it.
-2. As the operator, I want geometric and arithmetic spacing with geometric selected by default, so I can compare the accepted static variants explicitly.
+1. As the operator, I want to configure one regime-aware adaptive grid through four guided sections—Market & Data, Grid & Capital, Costs & Execution, and Risk & Evaluation—so I can understand both its initial plan and bounded adaptation rules before running it.
+2. As the operator, I want geometric and arithmetic spacing with geometric selected by default, so I can compare the accepted rung variants explicitly.
 3. As the operator, I want rung count to mean total configured prices including both bounds, so configurations never hide an interval/rung off-by-one.
 4. As the operator, I want the activation price excluded from the configured geometry unless it already equals a rung, so activation never silently mutates the grid.
 5. As the operator, I want terms explained contextually and in a searchable glossary, so unfamiliar exchange, accounting, validation, and runtime language does not force me to guess.
 6. As the operator, I want every experiment to bind exact code, configuration, datasets, schemas, costs, venue rules, and seeds, so I can reproduce it later.
 7. As the operator, I want local research jobs to survive a browser close or laptop UI restart, so the browser does not own execution.
 8. As the operator, I want net return to lead the result view while mandatory correctness gates remain separate, so a profitable but unsafe result cannot appear deployable.
-9. As the operator, I want equity, drawdown, inventory, rungs, orders, fills, paired cycles, fees, and safety events overlaid on price, so I can visually analyze strategy behavior.
+9. As the operator, I want equity, drawdown, inventory, grid adaptation state, grid plan epochs, transition gates, rungs, orders, fills, paired cycles, fees, and safety events overlaid on price, so I can visually analyze strategy behavior.
 10. As the operator, I want bounded candidate comparison and a gate matrix rather than an opaque score, so I can see why one candidate is recommended or rejected.
 
 ### Data and simulation
@@ -88,14 +88,14 @@ Dependencies point inward toward typed domain contracts. Venue, persistence, UI,
 13. As the operator, I want all source objects checksummed and manifested, so missing or corrected market evidence is explicit.
 14. As the operator, I want gaps quarantined rather than interpolated, forward-filled, silently dropped, or invented, so data repair cannot manufacture profit.
 15. As an implementer, I want the same canonical event fixtures to produce exact decision and state fingerprints in every mode harness, so parity is executable.
-16. As an implementer, I want deadlines, timers, retries, and freshness changes represented as canonical events, so replay can reproduce decisions affected by time.
+16. As an implementer, I want deadlines, timers, retries, freshness changes, observation completion, confirmation, residence, cooldown, and transition expiry represented as canonical events, so replay can reproduce decisions affected by time.
 17. As the operator, I want conservative Paper fills based on observed production-market evidence and bounded queue/participation assumptions, so Paper tests the algorithm without real orders.
 18. As the operator, I want Binance Testnet orders and virtual-account feedback kept distinct from Paper economics, so protocol validation is not mistaken for profitability evidence.
 19. As the operator, I want captured cloud evidence downloadable and verifiable for local analysis, so Azure does not need to host the full Studio or research platform.
 
 ### Grid activation and cycling
 
-20. As the operator, I want activation rejected unless current validated price is strictly inside both configured bounds, so no out-of-range bootstrap occurs.
+20. As the operator, I want adaptive initialization rejected unless enough quality-approved past evidence exists and current validated price is strictly inside the derived bounds, so no under-informed or out-of-range bootstrap occurs.
 21. As the operator, I want a fresh explicit activation after an eligibility rejection, so the system never remains armed to acquire later automatically.
 22. As the operator, I want bootstrap quantity derived from all initial sell obligations, venue rounding, and fee coverage, so every initial sell is backed by owned inventory.
 23. As the operator, I want incomplete bootstrap inventory to block ladder placement, so the strategy cannot silently scale or expose an unbacked sell.
@@ -106,8 +106,8 @@ Dependencies point inward toward typed domain contracts. Venue, persistence, UI,
 28. As the operator, I want replacement buys to retain the approved fixed quote principal, so MVP results do not compound or drift during a run.
 29. As the operator, I want every adjacent cycle to have positive net margin after fees, rounding, execution allowance, and safety margin, so knowingly loss-making grids cannot activate.
 30. As the operator, I want an open-ended run lifecycle, so the grid does not stop after an arbitrary cycle count.
-31. As the operator, I want the outer rungs to continue valid inward recovery cycling without expanding the range, so the static contract remains useful at its boundaries.
-32. As the operator, I want an active out-of-range grid to retain owned inventory and valid recovery-side orders without adding exposure outside the bounds, so range exhaustion is safe and deterministic.
+31. As the operator, I want adaptation to occur only after past-only confirmation, hysteresis, minimum residence, cooldown, freshness, reconciliation, and plan-admission gates pass, and I want every replacement ladder to have an immutable epoch identity with no ambiguous old/new overlap, so noise cannot churn orders or erase provenance.
+32. As the operator, I want normal ranges to cycle symmetrically, high-volatility ranges to widen without increasing fixed quote sizing, confirmed uptrends to permit only bounded upward adaptation, confirmed downtrends to prohibit downward shifting and new buys, and uncertain evidence to freeze new placement, so every grid adaptation state has a deterministic safe consequence.
 
 ### Accounting and reconciliation
 
@@ -156,19 +156,25 @@ Dependencies point inward toward typed domain contracts. Venue, persistence, UI,
 - Legacy repositories are requirement, characterization-test, and UX sources. Useful behavior is reimplemented through canonical contracts; legacy engines do not receive live authority.
 - Delivery uses tested vertical slices. Each slice first characterizes retained behavior, establishes the target contract, migrates one consumer, proves parity, then removes the duplicate path.
 
-### 2. Static grid contract
+### 2. Regime-aware adaptive grid contract
 
 - Scope is Binance Spot inventory trading using only explicitly allocated owned assets. Borrowing, short exposure, margin, leverage, futures, and options are forbidden.
-- The configuration is immutable and includes symbol, exact lower/upper bounds, total rung count, spacing type, fixed quote principal, execution policy, fee assumptions, stop price, capital envelope, and risk-profile identities.
-- Arithmetic and geometric spacing are supported; geometric is default.
-- Rung count includes both bounds. The activation price is not inserted. A rung equal to activation begins inactive; initial buys are strictly below and initial sells strictly above.
-- Activation requires price strictly inside bounds, complete venue-valid quantization, sufficient allocation and fee reserve, positive adjacent net-cycle economics, fresh authoritative data, and zero unresolved safety or reconciliation item.
-- Bootstrap is a real aggressive acquisition sized from initial sell obligations. No ladder is placed until backing inventory is complete.
+- One immutable strategy configuration governs the complete run. It includes symbol, adaptation-policy identity, source-exact observation windows and thresholds, confirmation and hysteresis rules, minimum epoch residence, transition cooldown and expiry, maximum transition frequency, permitted width and upward-shift bounds, total rung count, spacing type, fixed quote principal, execution policy, fee assumptions, stop price, capital envelope, and risk-profile identities.
+- Adaptation inputs use only complete, quality-approved observations whose event time is no later than the decision boundary. Wall-clock arrival order, incomplete candles, future samples, and mutable “latest” data MUST NOT affect classification.
+- The deterministic grid adaptation states are `RANGE_NORMAL`, `RANGE_HIGH_VOLATILITY`, `TREND_UP`, `TREND_DOWN`, and `UNCERTAIN`. They are trading decisions and are distinct from the nine analytical market-regime cells used to evaluate research breadth.
+- State precedence is fail-closed: insufficient, stale, gapped, contradictory, or unreconciled decision evidence selects `UNCERTAIN`; a confirmed downtrend selects `TREND_DOWN`; a confirmed uptrend selects `TREND_UP`; a sideways high-volatility observation selects `RANGE_HIGH_VOLATILITY`; otherwise a qualified sideways observation selects `RANGE_NORMAL`.
+- `RANGE_NORMAL` derives a symmetric bounded ladder. `RANGE_HIGH_VOLATILITY` may widen the ladder within the immutable policy limits but cannot increase fixed quote principal. `TREND_UP` may request a bounded upward epoch. `TREND_DOWN` MUST NOT shift bounds downward or place exposure-increasing buys and instead selects downtrend recovery with at least `REDUCE_ONLY`. `UNCERTAIN` selects `FROZEN` for placement and replacement.
+- Arithmetic and geometric spacing are supported; geometric is default. Rung count includes both bounds. The activation/reference price is not inserted into geometry. A rung equal to it begins inactive; buys are strictly below and sells strictly above when the effective posture permits both sides.
+- Every derived ladder is an immutable, content-identified grid plan epoch. Its identity covers source observations, adaptation decision, derivation semantics, exact unquantized values, venue-rule observation, quantized rungs, roles, obligations, allocation assumptions, and predecessor/transition causality.
+- Initial activation requires enough warm-up evidence, a confirmed non-`UNCERTAIN` state, price strictly inside the derived bounds, complete venue-valid quantization, sufficient allocation and fee reserve, positive adjacent net-cycle economics, fresh authoritative data, and zero unresolved safety or reconciliation item.
+- Bootstrap is a real aggressive acquisition sized from initial sell obligations. No ladder is placed until backing inventory is complete. A later epoch may bootstrap only the exact additional backing inventory admitted inside the original capital envelope and fee coverage; inability to do so refuses or expires the transition without silently scaling or adding capital.
+- An epoch transition proceeds only as `ACTIVE → CHANGE_CONFIRMED → TRANSITION_REQUESTED → OLD_EXPOSURE_BLOCKED → CANCELLING → RECONCILING → DERIVING → VALIDATING → optional BOOTSTRAPPING → ACTIVATING → ACTIVE`. Every state change is canonical and journaled.
+- After transition request, old-epoch exposure-increasing placement and replacement are prohibited. All effective old-epoch obligations are cancelled or proven terminal, late fills are admitted and posted, allocation and inventory are reconciled, and only then may a replacement epoch be validated or activated. Old and new epochs MUST NOT have simultaneously ambiguous exposure.
+- Confirmation, hysteresis, minimum residence, cooldown, maximum transition frequency, and transition expiry are immutable policy controls evaluated in domain time. A failed gate records an explanatory no-action. A failed, expired, or uncertain transition leaves the reconciled current epoch in its permitted safe posture or selects the more restrictive posture; it never remains silently armed.
 - Ordinary orders are Binance post-only `LIMIT_MAKER` intents. They never fall back to taker-capable normal orders.
 - A rejected post-only order is reconciled, re-priced only in the economically favorable direction, and retried at most three total attempts within ten domain seconds, waiting 250 ms then one second. Displacement cannot exceed the lesser of 0.25% of rung price and 25% of the adjacent gap. Exhaustion selects at least `REDUCE_ONLY`.
-- Each rung has at most one effective managed order and one side. Partial fills aggregate under one cycle/rung obligation; the paired order tracks cumulative net quantity.
-- Quote principal is fixed for the run. Profit remains uncommitted quote; no compounding occurs.
-- Range exhaustion creates no order outside the outer rungs. Valid recovery-side orders and owned inventory remain. Normal cycling may resume if price returns and safety permits.
+- Each epoch rung has at most one effective managed order and one side. Partial fills aggregate under one cycle/rung obligation; the paired order tracks cumulative net quantity. Orders, fills, lots, postings, cycles, and retained inventory keep their originating epoch identity across transitions.
+- Quote principal is fixed for the run. Profit remains uncommitted quote; no compounding or adaptation-driven sizing occurs.
 - A configurable global stop-loss is mandatory. There is no global take-profit in MVP1.
 
 ### 3. Capital and risk profile
@@ -181,7 +187,7 @@ Dependencies point inward toward typed domain contracts. Venue, persistence, UI,
 - Run drawdown selects `REDUCE_ONLY` at the lesser of 8% and `20 USDT`.
 - Terminal equity loss latches global stop at the lesser of 12% and `30 USDT`.
 - Warnings occur at 80% of each accepted loss threshold.
-- Commitment is evaluated using worst-case managed orders and maximum planned inventory, not only current fills.
+- Commitment is evaluated using worst-case managed orders, cancellation-pending and outcome-unknown obligations, transition bootstrap, and the maximum planned inventory of the proposed epoch, not only current fills.
 - Missing/stale valuation is not zero. Executable BBO/depth or liquidation valuation older than five seconds selects `FROZEN`; strategy input older than 15 seconds selects at least `REDUCE_ONLY` when other critical evidence is healthy.
 - A private stream disconnect/gap, unknown command outcome, clock offset beyond 500 ms or timestamp rejection, or unavailable authenticated control path for ten seconds selects `FROZEN`.
 
@@ -190,12 +196,12 @@ Dependencies point inward toward typed domain contracts. Venue, persistence, UI,
 - One exact multi-asset grid subledger is derived from canonical event postings. Cost lots, cycle results, equity, and reconciliation are projections, not competing ledgers.
 - Every posting carries run, allocation, asset, amount, cause, order/fill/cycle identities, source identity, event time, admission position, and schema version.
 - Native quantities are authoritative. Quote valuations never mutate them and each fee is counted once.
-- Paired-lot provenance defines ordinary cycle results. Terminal disposal consumes residual lots FIFO; retained holdings preserve provenance.
+- Paired-lot and grid-plan-epoch provenance define ordinary cycle results. Terminal disposal consumes residual lots FIFO; retained holdings preserve their acquisition and epoch provenance.
 - Deterministic residual assignment preserves venue-rounded dust as pending or retained inventory; it is never silently discarded.
 - Invariants cover asset conservation, allocation ownership, reservation coverage, backing inventory, order/fill monotonicity, fee completeness, lot/cycle provenance, posting balance, capital limits, and reconciliation convergence.
 - Authority is fact-specific: configuration proves approved intent; the journal proves admitted local decisions; Binance proves venue orders, trades, fees, and account observations; the subledger proves allocation attribution; market sources prove observations; versioned venue rules prove validation.
-- Reconciliation states retain expected, observed, source, time, difference, materiality, deadline, and resolution. Automatic repair appends evidence; it cannot edit, fabricate, or silently reassign facts.
-- Full authenticated reconciliation runs during startup and at least every 60 seconds, and is also triggered by gaps, ambiguous commands, late fills, balance changes, rule changes, shutdown, resume, stop, backup recovery, and operator request.
+- Reconciliation states retain expected, observed, source, time, difference, materiality, deadline, and resolution. Automatic repair appends evidence; it cannot edit, fabricate, silently reassign facts, or transfer an old-epoch obligation into a new epoch.
+- Full authenticated reconciliation runs during startup and at least every 60 seconds, and is also triggered by epoch transitions, gaps, ambiguous commands, late fills, balance changes, rule changes, shutdown, resume, stop, backup recovery, and operator request.
 
 ### 5. Data architecture and mode parity
 
@@ -203,17 +209,17 @@ Dependencies point inward toward typed domain contracts. Venue, persistence, UI,
 - High-fidelity development and both holdout passes use exact trades, BBO, targeted decision-relevant depth, venue rules, fees, and canonical time events where required.
 - Historical/captured bulk data is immutable, content-identified, typed compressed Parquet. SQLite in WAL mode stores local job metadata and online authoritative/projection state as appropriate.
 - The event model separates source event time, local observation time, admission sequence, durable commit time, decision time, and command time.
-- One deterministic ordering policy handles equal timestamps, concurrent sources, duplicates, late arrivals, gaps, and domain timers.
+- One deterministic ordering policy handles equal timestamps, concurrent sources, duplicates, late arrivals, gaps, closed-observation boundaries, adaptation decisions, transition timers, and other domain timers.
 - Candle simulation is permitted for broad search but cannot independently qualify promotion. Event replay is the fidelity authority for the locked holdout.
 - Production-Data Paper consumes Binance production public market evidence and simulates acknowledgements, fills, orders, and balances locally. Its conservative policy models queue ahead and permits use of no more than 5% of observed reusable volume.
 - Testnet consumes Testnet market/account evidence and submits real API commands against virtual assets. Testnet P&L is diagnostic only.
-- Paper, Testnet, and future live adapters implement the same event, intent, managed identity, order state, accounting, risk, and reconciliation contracts.
+- Candle, event replay, fake-runtime, Paper, Testnet, and future live harnesses implement the same adaptation decision, grid-plan-epoch, transition, event, intent, managed identity, order state, accounting, risk, and reconciliation contracts.
 
 ### 6. Durable runtime and recovery
 
 - MVP1 runs three independently supervised Azure processes: control gateway, Production-Data Paper runtime, and Testnet runtime. The two runtimes have distinct stores, ledgers, identities, credentials, clocks, and authority.
 - Each runtime owns one bounded ingress sequencer and one authoritative writer. Backpressure is measured by count, bytes, oldest age, commit latency, freshness, and disk headroom; no queue is unbounded.
-- A journal processing transaction atomically records the admitted observation, canonical consequences, projection changes needed for recovery, and command outbox intents before acknowledging progress.
+- A journal processing transaction atomically records the admitted observation, adaptation classification, epoch/transition consequence or explanatory no-action, projection changes needed for recovery, and command outbox intents before acknowledging progress.
 - Every venue command has a durable managed identity and independent command lifecycle. Timeout or transport ambiguity is `UNKNOWN`, never a confirmed rejection and never permission to resend under a new identity.
 - Public and private WebSockets use explicit stream generations, rotate with overlap before 23 hours, detect sequence/time gaps, and repair from authoritative REST or retained evidence before decision readiness returns.
 - Runtime lifecycle is separate from trading permission: `STARTING`, `RECOVERING`, `RECONCILING`, `FROZEN_READY`, `OPERATING`, `SHUTTING_DOWN`, and `STOPPED` do not imply a grid lifecycle or safety posture.
@@ -251,7 +257,7 @@ Dependencies point inward toward typed domain contracts. Venue, persistence, UI,
 - Results lead with net return and show the full evidence gate matrix. There is no composite trust score and no mandatory-gate override.
 - Candidate handoff is Prepare, Seal, Transfer, Verify/Admit. Admission and starting qualification are distinct durable actions.
 - Qualification presents Paper and Testnet together only at summary level. Their clocks, evidence, economics, incidents, and controls remain separate and both must pass.
-- The Command Canvas prioritizes safety/capital, a large price/grid/trade chart, rung/order obligations, allocation/accounting, and causal operations.
+- The Command Canvas prioritizes safety/capital, the grid adaptation view, a large price/grid/trade chart, epoch-qualified rung/order obligations, allocation/accounting, and causal operations.
 - Pause is immediate; Operator Stop and Resume require command-specific preview and confirmation; Emergency Stop remains immediately accessible. Every consequential command is environment-bound, idempotent, expiring, concurrency-checked, durably admitted, and auditable.
 - Reconciliation and incidents are case-based. Evidence & Audit provides local causal exploration, exact history, verified bundles, downloads, retention status, and holds.
 - Contextual explanations state what a term means, why it matters now, the evidence used, and what changes if the operator acts. Learning does not hide numeric or technical truth.
@@ -289,12 +295,12 @@ Dependencies point inward toward typed domain contracts. Venue, persistence, UI,
 2. Primary development evaluation uses eight chronological rolling folds of 24 training months plus three test months across the final 24 development months. An expanding-window sensitivity uses the same eight test boundaries.
 3. No random cross-validation or state carry crosses a fold. The holdout is exposed once; a source correction after exposure requires a newly eligible future holdout.
 4. The frozen robustness panel contains five eligible USDT Spot symbols selected deterministically from development-period liquidity. The proposed live symbol and at least four of five panel symbols must satisfy the accepted positive rolling and expanding breadth rules.
-5. The nine-regime matrix is trend down/sideways/up crossed with low/normal/high volatility using past-only labels. Each trend and volatility class has at least 60 proposed-symbol days; each cell has at least 20 days. At least five cells and the aggregate sideways regime are positive, and no one positive cell supplies over 70% of positive-cell profit.
-6. Search is deterministic and strategy-only: seeded Sobol exploration uses 512 points per spacing stratum, followed by at most four plateau seeds per stratum and 51-point local neighborhoods. Fees, execution, risk, accounting, data-quality, and promotion thresholds are not optimized.
+5. The nine-regime analytical matrix is trend down/sideways/up crossed with low/normal/high volatility using past-only labels. It evaluates evidence breadth and MUST NOT substitute for, relabel, or leak future information into the trading engine's five grid adaptation states. Each trend and volatility class has at least 60 proposed-symbol days; each cell has at least 20 days. At least five cells and the aggregate sideways regime are positive, and no one positive cell supplies over 70% of positive-cell profit.
+6. Search is deterministic and strategy-only: seeded Sobol exploration uses 512 points per spacing stratum, followed by at most four plateau seeds per stratum and 51-point local neighborhoods. Declared adaptation-policy parameters are part of the strategy family and full trial accounting; fees, execution, risk, accounting, data-quality, capital ceilings, transition safety gates, and promotion thresholds are not optimized.
 7. Candidate ranking first applies all hard gates, then uses constrained lexicographic return-led criteria. Deflated Sharpe Ratio confidence is at least 0.95 across the full nonduplicated trial family.
 8. On the common flow-adjusted `250 USDT` basis, rolling development has at least six of eight positive quarters, median quarterly return at least 0.75%, and linked annualized return at least 5.0%. Expanding sensitivity has at least five of eight positive quarters and annualized return at least 3.0%.
 9. The one-minute holdout and high-fidelity event holdout are each at least 4.0% net return. Absolute return difference and maximum-drawdown difference between them are each no more than one percentage point.
-10. Rolling and expanding paths each complete at least 24 cumulative paired cycles, with at least two in six of eight folds and positive aggregate realized cycle result. Each holdout pass completes at least 12 cycles, has a fill/cycle in at least eight UTC months, and positive realized cycle result.
+10. Rolling and expanding paths each complete at least 24 cumulative paired cycles, with at least two in six of eight folds and positive aggregate realized cycle result. Each holdout pass completes at least 12 cycles, has a fill/cycle in at least eight UTC months, and positive realized cycle result. Development fixtures cover all five grid adaptation states, every transition gate and refusal class, downtrend recovery without downward chasing, and late-fill reconciliation before a replacement epoch; the frozen holdout reports every state and epoch actually observed without imposing a favorable transition count.
 11. The combined adverse execution scenario remains positive with no terminal stop and all invariants. The five scenarios cover higher/non-discounted fees, wider aggressive spread/slippage, participation reduced from 5% to 2.5% with doubled queue ahead, higher latency, and their combination.
 
 ### Paper and Testnet qualification
@@ -302,8 +308,8 @@ Dependencies point inward toward typed domain contracts. Venue, persistence, UI,
 12. The qualifying Production-Data Paper Run uses one immutable candidate, build, risk profile, execution model, schemas, and virtual allocation for at least 30 consecutive UTC days under the evidence-continuity rules.
 13. Paper must complete at least two natural paired cycles and have ordinary natural paper fills on at least three distinct UTC dates. If incomplete at day 30, the unchanged run may continue to day 90; failure by day 90 is insufficient natural activity evidence. No standalone Paper profit threshold applies.
 14. Paper availability is at least 99.5%, no unplanned unavailable interval exceeds 30 minutes, and every accepted restart/recovery preserves exact evidence. Named reset conditions restart the full qualification clock.
-15. Paper includes at least three planned restarts, one with a resting order; one forced termination with obligations; public and simulated-order stream gap repair; ambiguous submit/cancel; partial-fill/cancel/late-fill race; rate-limit/backoff; and external dead-man drills.
-16. Testnet completes the 13 accepted scenario families covering authentication/time, venue rules, maker/aggressive orders, identity/idempotency, partial/cumulative fills, cancel races, ambiguity, stream recovery, frozen restart, reconciliation, rate limits, and terminal cleanup.
+15. Paper includes at least three planned restarts, one with a resting order; one forced termination with obligations; public and simulated-order stream gap repair; ambiguous submit/cancel; partial-fill/cancel/late-fill race during an epoch transition; deterministic replay of adaptation state and epoch identity; rate-limit/backoff; and external dead-man drills.
+16. Testnet completes the 14 accepted scenario families covering authentication/time, venue rules, maker/aggressive orders, identity/idempotency, partial/cumulative fills, cancel races, ambiguity, stream recovery, frozen restart, reconciliation, rate limits, guarded epoch transition including a tagged downtrend recovery boundary, and terminal cleanup.
 17. Testnet then runs seven consecutive reset-free days on one account generation. A reset closes that generation and restarts the soak without resetting an otherwise valid Paper clock.
 18. Paper and Testnet use the same candidate/build but never share balances, orders, ledgers, credentials, clocks, source evidence, or profit conclusions.
 
@@ -312,14 +318,14 @@ Dependencies point inward toward typed domain contracts. Venue, persistence, UI,
 19. Paper begins no later than 30 elapsed days after the locked holdout endpoint. After qualification, Paper and Testnet observation continue without an invalidating break until approval.
 20. At promotion approval, the latest complete Paper and Testnet/reconciliation endpoints are each no more than 24 hours old and have no unresolved decision-material item.
 21. The operator approves one sealed promotion-bundle digest. Within 15 domain minutes the operator re-authenticates and confirms one single-use activation after two fresh fail-closed preflights. Passing gates never activate automatically.
-22. Live preflight proves exact build, configuration, account/allocation, credential permission, venue rules, fees, balances, reservations, headroom, connectivity, clock, persistence, alerts, reconciliation, activation price, bootstrap plan, inventory, and `250 USDT` ceiling.
+22. Live preflight proves exact build, configuration, current grid adaptation state and observation evidence, proposed grid plan epoch, account/allocation, credential permission, venue rules, fees, balances, reservations, headroom, connectivity, clock, persistence, alerts, reconciliation, activation price, bootstrap plan, inventory, and `250 USDT` ceiling.
 23. First-live probation runs unchanged for at least 30 elapsed days. Reviews are acknowledged daily for the first seven UTC observation days and at least once in every later seven-day interval.
 24. Probation requires at least one real completed cumulative paired cycle and ordinary live fills on at least two UTC dates. If activity is incomplete at day 30, the unchanged probation may continue to day 90; failure then selects at least `REDUCE_ONLY` and requires a new promotion for another attempt. No standalone live-return threshold applies.
 25. Any terminal condition, unsafe/non-replayable recovery, unexplained difference, unauthorized/duplicate command, lost critical evidence, invalidating change, or probation-critical defect aborts the attempt under the tiered fail-closed policy. Re-entry requires authoritative closure, an incident report, affected requalification, a new bundle, two-step activation, and a new probation.
 
 ### Runtime, recovery, security, and capacity
 
-26. Every admitted event has exactly one deterministic, invariant-checked consequence and exact replay fingerprint; every command is durably identified before transmission.
+26. Every admitted event has exactly one deterministic, invariant-checked consequence and exact replay fingerprint, including adaptation classifications, gate refusals, epoch transitions, and no-actions; every command is durably identified before transmission.
 27. Startup, replacement, and restore always end in a frozen, operator-accessible, invariant-checked, authoritatively reconciled state. No command is blindly reissued.
 28. Protected off-VM state lag is no more than 15 minutes. A total VM/disk-loss drill reaches frozen recovery within 60 minutes using the newest point and also proves fallback from an older compatible point.
 29. The representative B1ms qualification runs gateway, Paper, Testnet, monitoring, capture, backup, compaction, and required fault activity for 24 hours with no swap and at least 384 MiB available memory.
@@ -329,6 +335,13 @@ Dependencies point inward toward typed domain contracts. Venue, persistence, UI,
 33. A full local Azure acceptance runner seals one report covering Bicep/release identities, isolation, permissions, Storage, Key Vault, monitoring/dead-man, failures, restart, recovery, reconciliation, Testnet bounded commands, and the 24-hour workload. Material changes rerun affected phases; uncertain cross-cutting changes rerun all.
 
 ## Testing Decisions
+
+### Public adaptive-grid seams
+
+- **Canonical decision/replay seam:** identical ordered canonical evidence and immutable decision context MUST reproduce the exact grid adaptation state, explanatory no-action or transition request, grid plan epoch, safety posture, intents, and fingerprint.
+- **Journal/recovery seam:** every observation, gate result, cancellation, unknown outcome, late fill, reconciliation result, derivation, validation, bootstrap effect, and epoch activation commits through decision-complete transactions and rebuilds exactly after a crash.
+- **Mode-conformance seam:** candle simulation, event replay, fake runtime, Production-Data Paper, and Testnet consume shared transition fixtures and MUST agree on canonical classifications, transition decisions, postures, postings, and fingerprints when their admitted facts are equivalent.
+- **Typed Studio/FastAPI seam:** the API contract exposes observation identity, current adaptation state, active and proposed epoch identity, transition progress, gate/refusal evidence, and safety posture; browser tests prove the operator workflow while business decisions remain outside the UI.
 
 ### Test ownership
 
@@ -342,6 +355,9 @@ Dependencies point inward toward typed domain contracts. Venue, persistence, UI,
 
 - duplicates, late and out-of-order events;
 - partial and cumulative fills, cancel/fill races, native-asset fees, rounding dust;
+- noisy threshold crossings, incomplete warm-up, hysteresis, minimum residence, cooldown and transition expiry;
+- epoch cancellation with late fills, unknown outcomes, reconciliation differences, bootstrap refusal, and crash at each transition boundary;
+- confirmed downtrend recovery proving no downward bound shift or exposure-increasing order;
 - post-only rejection, rate limiting, timestamp rejection, ambiguous submit/query/cancel;
 - public/private stream rotation, disconnect, gap, stale data, and failed repair;
 - database interruption, disk pressure, corrupted snapshot, incomplete outbox, crash at each transaction boundary;
@@ -366,7 +382,7 @@ Inventory canonical and legacy behavior, preserve useful tests and UX references
 
 ### Stage 1 — Canonical engine and evidence spine
 
-Implement canonical events, time, immutable configuration/rung planning, static-grid transitions, exact accounting postings, invariants, risk/safety posture, managed identities, event journal, projections, and deterministic replay. Prove candle/replay parity on shared scenarios.
+Implement canonical events, time, immutable strategy configuration, past-only adaptation classification, immutable grid plan epochs, guarded epoch transitions, exact accounting postings, invariants, risk/safety posture, managed identities, event journal, projections, and deterministic replay. Prove candle/replay parity on shared scenarios.
 
 ### Stage 2 — Local data and research workflow
 
@@ -386,7 +402,7 @@ Provision B1ms/E6/static-IP/Blob/Key-Vault/monitoring through Bicep. Install qua
 
 ### Stage 6 — MVP1 field qualification
 
-Run exactly one static algorithm and one symbol concurrently as one Production-Data Paper Run and one Testnet Run. Use an initial flexible shakedown period to correct defects; decision-critical changes invalidate evidence according to the change-impact matrix. Begin the formal 30–90-day Paper clock only after the candidate and environment are stable, while completing the Testnet scenario campaign and seven-day soak.
+Run exactly one regime-aware adaptive algorithm and one symbol concurrently as one Production-Data Paper Run and one Testnet Run. Use an initial flexible shakedown period to correct defects; decision-critical changes invalidate evidence according to the change-impact matrix. Begin the formal 30–90-day Paper clock only after the candidate and environment are stable, while completing the Testnet scenario campaign and seven-day soak.
 
 ### Stage 7 — Optional first-live probation
 
@@ -394,7 +410,7 @@ Only after every historical, replay, Paper, Testnet, recovery, security, and ope
 
 ### Stage 8 — Sequential increments
 
-After MVP1 has collected useful long-run evidence, implement one independently classified increment at a time. Dynamic/adaptive grid behavior, filters, additional symbols, concurrent strategies, Interactive Brokers, compounding, and scaling each require their own contract, evidence-impact analysis, tests, promotion evidence, and authorization. The first months deliberately avoid simultaneous new algorithms or symbols.
+After MVP1 has collected useful long-run evidence, implement one independently classified increment at a time. Additional filters, continuously moving grids, downward-chasing behavior, opaque learned classifiers, additional symbols, concurrent strategies, Interactive Brokers, compounding, and scaling each require their own contract, evidence-impact analysis, tests, promotion evidence, and authorization. The first months deliberately avoid simultaneous new algorithms or symbols.
 
 ## Migration Guidance
 
@@ -413,7 +429,9 @@ After MVP1 has collected useful long-run evidence, implement one independently c
 - shorting, borrowing, leverage, margin, futures, options, funding, and exchange margin-liquidation mechanics;
 - allocating pre-existing base holdings as the initial bootstrap source;
 - compounding or any adaptive sizing policy in MVP1;
-- adaptive/dynamic grids, automatic bound shifting, range expansion, and automatic strategy switching;
+- continuously moving/per-tick grids, unguarded cancel-and-rebuild behavior, or mutation of an active grid plan epoch;
+- downward bound chasing or exposure-increasing buys selected by `TREND_DOWN`;
+- opaque machine-learned regime classifiers, future-informed features, or automatic switching among independent strategy algorithms;
 - multiple simultaneous live grids, multiple live symbols, or shared portfolio allocation in the first milestone;
 - Interactive Brokers or another venue implementation, although the port is preserved;
 - global take-profit, automated treasury transfer, tax-lot reporting, or tax/legal compliance claims;
@@ -445,7 +463,7 @@ This specification consolidates accepted behavior. The detailed records remain n
 - [Security and secret management](../../analysis/security-and-secret-management-spec.md)
 - [Verification, release, and migration](../../analysis/verification-release-and-migration-spec.md)
 
-If this consolidated text appears less strict than a detailed accepted record, the detailed record controls until an explicit decision update reconciles both. A later implementation discovery may refine mechanism, but it may not silently change the selected product semantics, safety boundary, quantitative gate, evidence meaning, or declined option.
+This comprehensive specification is authoritative when a detailed accepted record conflicts with it. In particular, the approved 2026-07-24 revision supersedes earlier references to a static-grid MVP1, a deferred dynamic-grid MVP2, immutable run-long price bounds, or automatic downtrend recentering. Detailed records remain normative only where consistent with this specification and continue to supply examples, rationale, edge cases, matrices, and procedures. A later implementation discovery may refine mechanism, but it may not silently change the selected product semantics, safety boundary, quantitative gate, evidence meaning, or declined option.
 
 ### Change-impact classes
 

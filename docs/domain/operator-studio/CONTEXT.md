@@ -59,6 +59,11 @@ _Avoid_: Browser request, live runtime, experiment result
 An evidence-linked visualization that maps canonical managed orders, fills, fees, rungs, and paired cycles onto their market and accounting context for analysis.
 _Avoid_: Reconstructed trade markers, authoritative trade record
 
+## Grid adaptation view
+
+The evidence-linked Studio presentation of the current grid adaptation state, active grid plan epoch, transition progress, satisfied and failed gates, and resulting safety posture without making or overriding the underlying decision.
+_Avoid_: Trading signal, strategy control, market-regime cell
+
 ## Local evidence cache
 
 The rebuildable laptop copy of checksum-verified sealed online evidence used for local analysis without becoming an authoritative runtime history.
