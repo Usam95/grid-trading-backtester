@@ -150,6 +150,10 @@ def test_posting_metadata_and_atomic_batch_invariants() -> None:
         "allocation_ownership",
         "reservation_coverage",
         "bootstrap_backing",
+        "managed_order_occupancy",
+        "order_fill_monotonicity",
+        "paired_cycle_provenance",
+        "retained_residual_ownership",
     )
 
     invalid = batch(
