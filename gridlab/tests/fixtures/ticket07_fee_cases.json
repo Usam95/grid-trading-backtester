@@ -1,0 +1,35 @@
+[
+  {
+    "name": "fee-in-received-base",
+    "side": "BUY",
+    "base_quantity": "1.00000000",
+    "quote_quantity": "100.00",
+    "fee_asset": "BTC",
+    "fee_quantity": "0.00100000",
+    "expected_base": "0.99900000",
+    "expected_quote": "900.00",
+    "expected_fee": "0.00100000"
+  },
+  {
+    "name": "fee-in-received-quote",
+    "side": "SELL",
+    "base_quantity": "1.00000000",
+    "quote_quantity": "110.00",
+    "fee_asset": "EUR",
+    "fee_quantity": "0.11",
+    "expected_base": "0.00000000",
+    "expected_quote": "1109.89",
+    "expected_fee": "0.11"
+  },
+  {
+    "name": "fee-in-third-asset",
+    "side": "BUY",
+    "base_quantity": "1.00000000",
+    "quote_quantity": "100.00",
+    "fee_asset": "BNB",
+    "fee_quantity": "0.01000000",
+    "expected_base": "1.00000000",
+    "expected_quote": "900.00",
+    "expected_fee": "0.01000000"
+  }
+]

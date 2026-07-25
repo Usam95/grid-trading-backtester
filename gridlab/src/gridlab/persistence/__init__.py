@@ -1,3 +1,7 @@
+from gridlab.persistence.allocation_journal import (
+    AccountingCrashBoundary,
+    SQLiteAllocationJournal,
+)
 from gridlab.persistence.journal import (
     CrashBoundary,
     EvidenceDisposition,
@@ -7,9 +11,11 @@ from gridlab.persistence.journal import (
 )
 
 __all__ = [
+    "AccountingCrashBoundary",
     "CrashBoundary",
     "EvidenceDisposition",
     "EvidenceReceipt",
     "JournalCodec",
+    "SQLiteAllocationJournal",
     "SQLiteDecisionJournal",
 ]
