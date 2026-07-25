@@ -44,6 +44,7 @@ from backend.schemas import (
     ProductionDatasetProvenance,
     RobustnessBody,
     RunBacktestBody,
+    SafetyPosturePresentation,
     StudioBacktestRun,
     StudioConfiguration,
     StudioPrimaryResult,
@@ -170,6 +171,17 @@ def canonical_adaptive(
         body.model_dump(),
     )
     return CanonicalAdaptivePresentation.model_validate(payload)
+
+
+@app.get(
+    "/api/studio/safety-posture",
+    response_model=SafetyPosturePresentation,
+)
+def safety_posture() -> SafetyPosturePresentation:
+    """Present separate deterministic Ticket 09 safety and lifecycle facts."""
+    return SafetyPosturePresentation.model_validate(
+        _guard(service.characterize_safety_posture)
+    )
 
 
 @app.get(

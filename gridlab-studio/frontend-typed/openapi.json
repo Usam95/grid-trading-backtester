@@ -2635,6 +2635,320 @@
         "title": "RunBacktestBody",
         "type": "object"
       },
+      "SafetyCapitalPresentation": {
+        "properties": {
+          "allocation_fingerprint": {
+            "title": "Allocation Fingerprint",
+            "type": "string"
+          },
+          "capital_envelope": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "committed_principal": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "epoch_id": {
+            "title": "Epoch Id",
+            "type": "string"
+          },
+          "fee_reserve": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "maximum_planned_inventory": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          }
+        },
+        "required": [
+          "allocation_fingerprint",
+          "epoch_id",
+          "capital_envelope",
+          "committed_principal",
+          "fee_reserve",
+          "maximum_planned_inventory"
+        ],
+        "title": "SafetyCapitalPresentation",
+        "type": "object"
+      },
+      "SafetyFactPresentation": {
+        "properties": {
+          "allowed_command_classes": {
+            "items": {
+              "enum": [
+                "EXPOSURE_INCREASING",
+                "INVENTORY_REDUCING",
+                "PLACEMENT",
+                "REPLACEMENT",
+                "CANCELLATION",
+                "RECONCILIATION",
+                "EVIDENCE_GATHERING"
+              ],
+              "type": "string"
+            },
+            "title": "Allowed Command Classes",
+            "type": "array"
+          },
+          "clock_offset": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "daily_loss_latched": {
+            "title": "Daily Loss Latched",
+            "type": "boolean"
+          },
+          "downward_bound_shift_allowed": {
+            "title": "Downward Bound Shift Allowed",
+            "type": "boolean"
+          },
+          "fixed_quote_sizing_increase_allowed": {
+            "title": "Fixed Quote Sizing Increase Allowed",
+            "type": "boolean"
+          },
+          "global_stop_latched": {
+            "title": "Global Stop Latched",
+            "type": "boolean"
+          },
+          "loss_warning": {
+            "title": "Loss Warning",
+            "type": "boolean"
+          },
+          "placement_allowed": {
+            "title": "Placement Allowed",
+            "type": "boolean"
+          },
+          "posture": {
+            "enum": [
+              "NORMAL",
+              "REDUCE_ONLY",
+              "TERMINAL_LIQUIDATION",
+              "FROZEN",
+              "CLOSED"
+            ],
+            "title": "Posture",
+            "type": "string"
+          },
+          "reason_codes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Reason Codes",
+            "type": "array"
+          },
+          "replacement_allowed": {
+            "title": "Replacement Allowed",
+            "type": "boolean"
+          },
+          "round_trip_latency": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "run_drawdown_latched": {
+            "title": "Run Drawdown Latched",
+            "type": "boolean"
+          },
+          "scheduling_delay": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          }
+        },
+        "required": [
+          "posture",
+          "reason_codes",
+          "loss_warning",
+          "daily_loss_latched",
+          "run_drawdown_latched",
+          "global_stop_latched",
+          "allowed_command_classes",
+          "placement_allowed",
+          "replacement_allowed",
+          "downward_bound_shift_allowed",
+          "fixed_quote_sizing_increase_allowed",
+          "clock_offset",
+          "scheduling_delay",
+          "round_trip_latency"
+        ],
+        "title": "SafetyFactPresentation",
+        "type": "object"
+      },
+      "SafetyFreshnessPresentation": {
+        "properties": {
+          "condition": {
+            "enum": [
+              "HEALTHY",
+              "MISSING",
+              "STALE",
+              "GAPPED",
+              "DISCONNECTED",
+              "UNAVAILABLE",
+              "REJECTED"
+            ],
+            "title": "Condition",
+            "type": "string"
+          },
+          "evidence_class": {
+            "enum": [
+              "VALUATION",
+              "STRATEGY_INPUT",
+              "PRIVATE_STREAM",
+              "CONTROL_PATH",
+              "CLOCK"
+            ],
+            "title": "Evidence Class",
+            "type": "string"
+          },
+          "evidence_id": {
+            "title": "Evidence Id",
+            "type": "string"
+          },
+          "observed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observed At"
+          }
+        },
+        "required": [
+          "evidence_class",
+          "condition",
+          "observed_at",
+          "evidence_id"
+        ],
+        "title": "SafetyFreshnessPresentation",
+        "type": "object"
+      },
+      "SafetyLifecyclePresentation": {
+        "properties": {
+          "adaptation_state": {
+            "enum": [
+              "RANGE_NORMAL",
+              "RANGE_HIGH_VOLATILITY",
+              "TREND_UP",
+              "TREND_DOWN",
+              "UNCERTAIN"
+            ],
+            "title": "Adaptation State",
+            "type": "string"
+          },
+          "epoch_transition_state": {
+            "title": "Epoch Transition State",
+            "type": "string"
+          },
+          "grid_lifecycle": {
+            "title": "Grid Lifecycle",
+            "type": "string"
+          },
+          "reconciliation_state": {
+            "title": "Reconciliation State",
+            "type": "string"
+          },
+          "runtime_lifecycle": {
+            "title": "Runtime Lifecycle",
+            "type": "string"
+          }
+        },
+        "required": [
+          "grid_lifecycle",
+          "adaptation_state",
+          "epoch_transition_state",
+          "runtime_lifecycle",
+          "reconciliation_state"
+        ],
+        "title": "SafetyLifecyclePresentation",
+        "type": "object"
+      },
+      "SafetyPosturePresentation": {
+        "properties": {
+          "capital": {
+            "$ref": "#/components/schemas/SafetyCapitalPresentation"
+          },
+          "decision_time": {
+            "format": "date-time",
+            "title": "Decision Time",
+            "type": "string"
+          },
+          "fingerprint": {
+            "title": "Fingerprint",
+            "type": "string"
+          },
+          "freshness": {
+            "items": {
+              "$ref": "#/components/schemas/SafetyFreshnessPresentation"
+            },
+            "title": "Freshness",
+            "type": "array"
+          },
+          "lifecycle": {
+            "$ref": "#/components/schemas/SafetyLifecyclePresentation"
+          },
+          "safety": {
+            "$ref": "#/components/schemas/SafetyFactPresentation"
+          },
+          "schema_version": {
+            "const": "safety-posture-presentation/v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "venue": {
+            "$ref": "#/components/schemas/SafetyVenuePresentation"
+          }
+        },
+        "required": [
+          "schema_version",
+          "decision_time",
+          "fingerprint",
+          "capital",
+          "lifecycle",
+          "safety",
+          "freshness",
+          "venue"
+        ],
+        "title": "SafetyPosturePresentation",
+        "type": "object"
+      },
+      "SafetyVenuePresentation": {
+        "properties": {
+          "condition": {
+            "enum": [
+              "TRADING",
+              "SUSPENDED",
+              "MAINTENANCE",
+              "DELISTING"
+            ],
+            "title": "Condition",
+            "type": "string"
+          },
+          "evidence_id": {
+            "title": "Evidence Id",
+            "type": "string"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "wind_down_deadline": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wind Down Deadline"
+          }
+        },
+        "required": [
+          "condition",
+          "evidence_id",
+          "source",
+          "wind_down_deadline"
+        ],
+        "title": "SafetyVenuePresentation",
+        "type": "object"
+      },
       "SizingSpec": {
         "properties": {
           "martingale_factor": {
@@ -3696,6 +4010,25 @@
           }
         },
         "summary": "Get Studio Dataset"
+      }
+    },
+    "/api/studio/safety-posture": {
+      "get": {
+        "description": "Present separate deterministic Ticket 09 safety and lifecycle facts.",
+        "operationId": "safety_posture_api_studio_safety_posture_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SafetyPosturePresentation"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Safety Posture"
       }
     }
   }

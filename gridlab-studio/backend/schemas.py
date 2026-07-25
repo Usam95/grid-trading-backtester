@@ -253,9 +253,7 @@ class CanonicalAdaptiveRequest(_Block):
     sequence_end: int = Field(default=24, ge=0, le=100_000)
     spacing: Literal["GEOMETRIC", "ARITHMETIC"] = "GEOMETRIC"
     tick_size: StrictStr = Field(default="0.01", pattern=r"^[0-9]+(?:\.[0-9]+)?$")
-    step_size: StrictStr = Field(
-        default="0.00001", pattern=r"^[0-9]+(?:\.[0-9]+)?$"
-    )
+    step_size: StrictStr = Field(default="0.00001", pattern=r"^[0-9]+(?:\.[0-9]+)?$")
     bootstrap_complete: bool = False
     bootstrap_confirmed_base: StrictStr = Field(
         default="0", pattern=r"^[0-9]+(?:\.[0-9]+)?$"
@@ -407,6 +405,93 @@ class CanonicalAdaptivePresentation(_Block):
     activation: CanonicalInitialActivationPresentation
     derived_plan: Optional[CanonicalDerivedPlanPresentation]
     legacy_comparison: LegacyComparisonPresentation
+
+
+class SafetyCapitalPresentation(_Block):
+    allocation_fingerprint: str
+    epoch_id: str
+    capital_envelope: ExactValuePresentation
+    committed_principal: ExactValuePresentation
+    fee_reserve: ExactValuePresentation
+    maximum_planned_inventory: ExactValuePresentation
+
+
+class SafetyLifecyclePresentation(_Block):
+    grid_lifecycle: str
+    adaptation_state: Literal[
+        "RANGE_NORMAL",
+        "RANGE_HIGH_VOLATILITY",
+        "TREND_UP",
+        "TREND_DOWN",
+        "UNCERTAIN",
+    ]
+    epoch_transition_state: str
+    runtime_lifecycle: str
+    reconciliation_state: str
+
+
+class SafetyFactPresentation(_Block):
+    posture: Literal[
+        "NORMAL", "REDUCE_ONLY", "TERMINAL_LIQUIDATION", "FROZEN", "CLOSED"
+    ]
+    reason_codes: list[str]
+    loss_warning: bool
+    daily_loss_latched: bool
+    run_drawdown_latched: bool
+    global_stop_latched: bool
+    allowed_command_classes: list[
+        Literal[
+            "EXPOSURE_INCREASING",
+            "INVENTORY_REDUCING",
+            "PLACEMENT",
+            "REPLACEMENT",
+            "CANCELLATION",
+            "RECONCILIATION",
+            "EVIDENCE_GATHERING",
+        ]
+    ]
+    placement_allowed: bool
+    replacement_allowed: bool
+    downward_bound_shift_allowed: bool
+    fixed_quote_sizing_increase_allowed: bool
+    clock_offset: ExactValuePresentation
+    scheduling_delay: ExactValuePresentation
+    round_trip_latency: ExactValuePresentation
+
+
+class SafetyFreshnessPresentation(_Block):
+    evidence_class: Literal[
+        "VALUATION", "STRATEGY_INPUT", "PRIVATE_STREAM", "CONTROL_PATH", "CLOCK"
+    ]
+    condition: Literal[
+        "HEALTHY",
+        "MISSING",
+        "STALE",
+        "GAPPED",
+        "DISCONNECTED",
+        "UNAVAILABLE",
+        "REJECTED",
+    ]
+    observed_at: Optional[datetime]
+    evidence_id: str
+
+
+class SafetyVenuePresentation(_Block):
+    condition: Literal["TRADING", "SUSPENDED", "MAINTENANCE", "DELISTING"]
+    evidence_id: str
+    source: str
+    wind_down_deadline: Optional[datetime]
+
+
+class SafetyPosturePresentation(_Block):
+    schema_version: Literal["safety-posture-presentation/v1"]
+    decision_time: datetime
+    fingerprint: str
+    capital: SafetyCapitalPresentation
+    lifecycle: SafetyLifecyclePresentation
+    safety: SafetyFactPresentation
+    freshness: list[SafetyFreshnessPresentation]
+    venue: SafetyVenuePresentation
 
 
 class BinanceDatasetRequest(_Block):

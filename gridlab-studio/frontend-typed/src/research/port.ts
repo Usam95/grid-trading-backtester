@@ -11,6 +11,8 @@ export type BinanceEurResearchCatalog = components["schemas"]["BinanceEurResearc
 export type CanonicalAdaptiveRequest = components["schemas"]["CanonicalAdaptiveRequest"];
 export type CanonicalAdaptivePresentation =
   components["schemas"]["CanonicalAdaptivePresentation"];
+export type SafetyPosturePresentation =
+  components["schemas"]["SafetyPosturePresentation"];
 
 export interface ResearchPort {
   getConfiguration(): Promise<StudioConfiguration>;
@@ -18,6 +20,7 @@ export interface ResearchPort {
   characterizeCanonicalAdaptive(
     request: CanonicalAdaptiveRequest,
   ): Promise<CanonicalAdaptivePresentation>;
+  getSafetyPosture(): Promise<SafetyPosturePresentation>;
   executeBacktest(request: RunBacktestBody): Promise<StudioBacktestRun>;
   getBacktest(runId: string): Promise<StudioBacktestRun>;
   previewProductionDataset(request: BinanceDatasetRequest): Promise<BinanceDatasetPreview>;

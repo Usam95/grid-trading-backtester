@@ -13,12 +13,7 @@ from gridlab.canonical.adaptation import (
 )
 from gridlab.canonical.configuration import AdaptationPolicy
 from gridlab.canonical.events import DomainTime
-
-
-class SafetyPosture(str, Enum):
-    NORMAL = "NORMAL"
-    REDUCE_ONLY = "REDUCE_ONLY"
-    FROZEN = "FROZEN"
+from gridlab.canonical.safety import SafetyPosture
 
 
 class DecisionAction(str, Enum):

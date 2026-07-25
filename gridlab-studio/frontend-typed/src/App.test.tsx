@@ -6,6 +6,7 @@ import type {
   BinanceEurResearchCatalog,
   CanonicalAdaptivePresentation,
   ResearchPort,
+  SafetyPosturePresentation,
   StudioBacktestRun,
   StudioConfiguration,
 } from "./research/port";
@@ -335,12 +336,64 @@ const canonicalAdaptive: CanonicalAdaptivePresentation = {
   },
 };
 
+const safetyPosture: SafetyPosturePresentation = {
+  schema_version: "safety-posture-presentation/v1",
+  decision_time: "2025-01-02T12:00:00Z",
+  fingerprint: identity("f"),
+  capital: {
+    allocation_fingerprint: identity("a"),
+    epoch_id: identity("e"),
+    capital_envelope: { kind: "quote_quantity", value: "250.00" },
+    committed_principal: { kind: "quote_quantity", value: "220.00" },
+    fee_reserve: { kind: "quote_quantity", value: "8.00" },
+    maximum_planned_inventory: { kind: "base_quantity", value: "1.00" },
+  },
+  lifecycle: {
+    grid_lifecycle: "RANGE_EXHAUSTED",
+    adaptation_state: "TREND_DOWN",
+    epoch_transition_state: "IDLE",
+    runtime_lifecycle: "OPERATING",
+    reconciliation_state: "RECONCILED",
+  },
+  safety: {
+    posture: "REDUCE_ONLY",
+    reason_codes: ["confirmed_downtrend", "range_exhausted", "symbol_delisting_wind_down"],
+    loss_warning: false,
+    daily_loss_latched: false,
+    run_drawdown_latched: false,
+    global_stop_latched: false,
+    allowed_command_classes: ["CANCELLATION", "EVIDENCE_GATHERING", "INVENTORY_REDUCING", "RECONCILIATION", "REPLACEMENT"],
+    placement_allowed: false,
+    replacement_allowed: true,
+    downward_bound_shift_allowed: false,
+    fixed_quote_sizing_increase_allowed: false,
+    clock_offset: { kind: "duration_seconds", value: "0.050" },
+    scheduling_delay: { kind: "duration_seconds", value: "0.025000" },
+    round_trip_latency: { kind: "duration_seconds", value: "0.200000" },
+  },
+  freshness: [
+    "CLOCK", "CONTROL_PATH", "PRIVATE_STREAM", "STRATEGY_INPUT", "VALUATION",
+  ].map((evidence_class) => ({
+    evidence_class: evidence_class as "CLOCK",
+    condition: "HEALTHY" as const,
+    observed_at: "2025-01-02T11:59:59Z",
+    evidence_id: identity(evidence_class[0].toLowerCase()),
+  })),
+  venue: {
+    condition: "DELISTING",
+    evidence_id: identity("d"),
+    source: "bounded-ticket-09-fixture",
+    wind_down_deadline: "2025-01-09T12:00:00Z",
+  },
+};
+
 
 function researchPort(): ResearchPort {
   return {
     getConfiguration: vi.fn().mockResolvedValue(configuration),
     getEurCatalog: vi.fn().mockResolvedValue(catalog),
     characterizeCanonicalAdaptive: vi.fn().mockResolvedValue(canonicalAdaptive),
+    getSafetyPosture: vi.fn().mockResolvedValue(safetyPosture),
     executeBacktest: vi.fn().mockResolvedValue(completedRun),
     getBacktest: vi.fn().mockResolvedValue(completedRun),
     previewProductionDataset: vi.fn().mockResolvedValue(preview),
@@ -401,7 +454,7 @@ describe("typed Studio shell", () => {
     )).toBeTruthy();
   });
 
-  it("presents Operations without implying or exposing command authority", () => {
+  it("presents separate safety facts without implying command authority", async () => {
     render(<App research={researchPort()} />);
 
     fireEvent.click(screen.getByRole("button", { name: "Operations workspace" }));
@@ -409,6 +462,15 @@ describe("typed Studio shell", () => {
     expect(screen.getByText("OPERATIONS")).toBeTruthy();
     expect(screen.getAllByText("GATEWAY NOT CONFIGURED")).toHaveLength(2);
     expect(screen.getAllByText("COMMAND AUTHORITY UNAVAILABLE")).toHaveLength(2);
+    expect(await screen.findByText("Safety and venue evidence")).toBeTruthy();
+    expect(screen.getAllByText("REDUCE_ONLY")).toHaveLength(2);
+    expect(screen.getByText("RANGE_EXHAUSTED")).toBeTruthy();
+    expect(screen.getByText("TREND_DOWN")).toBeTruthy();
+    expect(screen.getByText("IDLE")).toBeTruthy();
+    expect(screen.getByText("OPERATING")).toBeTruthy();
+    expect(screen.getByText("RECONCILED")).toBeTruthy();
+    expect(screen.getByText("DELISTING", { exact: false })).toBeTruthy();
+    expect(screen.getByText("2025-01-09T12:00:00.000Z")).toBeTruthy();
     expect(screen.queryByRole("button", { name: /pause|stop|activate/i })).toBeNull();
   });
 

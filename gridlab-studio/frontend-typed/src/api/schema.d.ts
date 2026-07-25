@@ -334,6 +334,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/studio/safety-posture": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Safety Posture
+         * @description Present separate deterministic Ticket 09 safety and lifecycle facts.
+         */
+        get: operations["safety_posture_api_studio_safety_posture_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1303,6 +1323,116 @@ export interface components {
             options?: components["schemas"]["BacktestOptions"];
             spec?: components["schemas"]["BacktestRequest"];
         };
+        /** SafetyCapitalPresentation */
+        SafetyCapitalPresentation: {
+            /** Allocation Fingerprint */
+            allocation_fingerprint: string;
+            capital_envelope: components["schemas"]["ExactValuePresentation"];
+            committed_principal: components["schemas"]["ExactValuePresentation"];
+            /** Epoch Id */
+            epoch_id: string;
+            fee_reserve: components["schemas"]["ExactValuePresentation"];
+            maximum_planned_inventory: components["schemas"]["ExactValuePresentation"];
+        };
+        /** SafetyFactPresentation */
+        SafetyFactPresentation: {
+            /** Allowed Command Classes */
+            allowed_command_classes: ("EXPOSURE_INCREASING" | "INVENTORY_REDUCING" | "PLACEMENT" | "REPLACEMENT" | "CANCELLATION" | "RECONCILIATION" | "EVIDENCE_GATHERING")[];
+            clock_offset: components["schemas"]["ExactValuePresentation"];
+            /** Daily Loss Latched */
+            daily_loss_latched: boolean;
+            /** Downward Bound Shift Allowed */
+            downward_bound_shift_allowed: boolean;
+            /** Fixed Quote Sizing Increase Allowed */
+            fixed_quote_sizing_increase_allowed: boolean;
+            /** Global Stop Latched */
+            global_stop_latched: boolean;
+            /** Loss Warning */
+            loss_warning: boolean;
+            /** Placement Allowed */
+            placement_allowed: boolean;
+            /**
+             * Posture
+             * @enum {string}
+             */
+            posture: "NORMAL" | "REDUCE_ONLY" | "TERMINAL_LIQUIDATION" | "FROZEN" | "CLOSED";
+            /** Reason Codes */
+            reason_codes: string[];
+            /** Replacement Allowed */
+            replacement_allowed: boolean;
+            round_trip_latency: components["schemas"]["ExactValuePresentation"];
+            /** Run Drawdown Latched */
+            run_drawdown_latched: boolean;
+            scheduling_delay: components["schemas"]["ExactValuePresentation"];
+        };
+        /** SafetyFreshnessPresentation */
+        SafetyFreshnessPresentation: {
+            /**
+             * Condition
+             * @enum {string}
+             */
+            condition: "HEALTHY" | "MISSING" | "STALE" | "GAPPED" | "DISCONNECTED" | "UNAVAILABLE" | "REJECTED";
+            /**
+             * Evidence Class
+             * @enum {string}
+             */
+            evidence_class: "VALUATION" | "STRATEGY_INPUT" | "PRIVATE_STREAM" | "CONTROL_PATH" | "CLOCK";
+            /** Evidence Id */
+            evidence_id: string;
+            /** Observed At */
+            observed_at: string | null;
+        };
+        /** SafetyLifecyclePresentation */
+        SafetyLifecyclePresentation: {
+            /**
+             * Adaptation State
+             * @enum {string}
+             */
+            adaptation_state: "RANGE_NORMAL" | "RANGE_HIGH_VOLATILITY" | "TREND_UP" | "TREND_DOWN" | "UNCERTAIN";
+            /** Epoch Transition State */
+            epoch_transition_state: string;
+            /** Grid Lifecycle */
+            grid_lifecycle: string;
+            /** Reconciliation State */
+            reconciliation_state: string;
+            /** Runtime Lifecycle */
+            runtime_lifecycle: string;
+        };
+        /** SafetyPosturePresentation */
+        SafetyPosturePresentation: {
+            capital: components["schemas"]["SafetyCapitalPresentation"];
+            /**
+             * Decision Time
+             * Format: date-time
+             */
+            decision_time: string;
+            /** Fingerprint */
+            fingerprint: string;
+            /** Freshness */
+            freshness: components["schemas"]["SafetyFreshnessPresentation"][];
+            lifecycle: components["schemas"]["SafetyLifecyclePresentation"];
+            safety: components["schemas"]["SafetyFactPresentation"];
+            /**
+             * Schema Version
+             * @constant
+             */
+            schema_version: "safety-posture-presentation/v1";
+            venue: components["schemas"]["SafetyVenuePresentation"];
+        };
+        /** SafetyVenuePresentation */
+        SafetyVenuePresentation: {
+            /**
+             * Condition
+             * @enum {string}
+             */
+            condition: "TRADING" | "SUSPENDED" | "MAINTENANCE" | "DELISTING";
+            /** Evidence Id */
+            evidence_id: string;
+            /** Source */
+            source: string;
+            /** Wind Down Deadline */
+            wind_down_deadline: string | null;
+        };
         /** SizingSpec */
         SizingSpec: {
             /** Martingale Factor */
@@ -2015,6 +2145,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    safety_posture_api_studio_safety_posture_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SafetyPosturePresentation"];
                 };
             };
         };

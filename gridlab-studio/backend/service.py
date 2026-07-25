@@ -6,11 +6,13 @@ benchmark curves on a shared index, a drawdown series, the grid rung ladder for
 the price overlay, trade markers mapped onto the down-sampled axis, and a set of
 plain-English insights + an overall verdict. Everything returned is JSON-safe.
 """
+
 from __future__ import annotations
 
 import bisect
 import math
 from dataclasses import replace
+from datetime import timedelta
 from pathlib import Path
 from typing import Any, Optional
 
@@ -19,13 +21,36 @@ import pandas as pd
 
 from gridlab.api.canonical_translation import characterize_legacy_backtest
 from gridlab.api.facade import (
-    BacktestSpec, _build_config, _build_strategy, _build_data,
-    _enrich_indicators, _config_summary,
+    BacktestSpec,
+    _build_config,
+    _build_strategy,
+    _build_data,
+    _enrich_indicators,
+    _config_summary,
 )
-from gridlab.canonical.adaptation import EvidenceQuality, decide_adaptation
+from gridlab.canonical._identity import content_identity
+from gridlab.canonical.adaptation import (
+    AdaptationState,
+    EvidenceQuality,
+    decide_adaptation,
+)
 from gridlab.canonical.configuration import Spacing
 from gridlab.canonical.events import CanonicalEvent, DomainTime
 from gridlab.canonical.initial_epoch import BootstrapEvidence, derive_initial_epoch
+from gridlab.canonical.safety import (
+    CapitalCommitmentFacts,
+    ClockEvidence,
+    EvidenceClass,
+    EvidenceCondition,
+    FreshnessEvidence,
+    LifecycleFacts,
+    LossFacts,
+    RangeCondition,
+    SafetyRecoveryFacts,
+    SymbolCondition,
+    VenueConditionEvidence,
+    evaluate_safety_posture,
+)
 from gridlab.canonical.values import ExactDecimal
 from gridlab.config.models import GridConfig
 from gridlab.data.binance_archive import (
@@ -66,6 +91,174 @@ from gridlab.results.report import render_html_report
 
 MAX_POINTS = 600
 MAX_TRADES = 2000
+
+
+def characterize_safety_posture() -> dict[str, Any]:
+    """Present one deterministic Ticket 09 safety overlay without command dispatch."""
+    decision_time = DomainTime(pd.Timestamp("2025-01-02T12:00:00Z").to_pydatetime())
+    allocation_fingerprint = content_identity(
+        "allocation-projection/v2",
+        {"run_id": "run:ticket-09", "allocation_id": "allocation:ticket-09"},
+    )
+    epoch_id = content_identity(
+        "grid-plan-epoch/v1",
+        {"configuration_id": "fixture", "observation_id": "fixture"},
+    )
+    capital = CapitalCommitmentFacts(
+        schema_version="capital-commitment-facts/v1",
+        allocation_fingerprint=allocation_fingerprint,
+        epoch_id=epoch_id,
+        capital_envelope=ExactDecimal.parse("250.00", kind="quote_quantity"),
+        committed_principal=ExactDecimal.parse("220.00", kind="quote_quantity"),
+        fee_reserve=ExactDecimal.parse("8.00", kind="quote_quantity"),
+        projected_obligation_fees=ExactDecimal.parse("2.00", kind="quote_quantity"),
+        projected_terminal_fees=ExactDecimal.parse("1.00", kind="quote_quantity"),
+        exposure_increasing_buy_principals=(
+            ExactDecimal.parse("20.00", kind="quote_quantity"),
+        ),
+        effective_managed_orders=10,
+        foreign_open_orders=2,
+        authenticated_order_limit=100,
+        current_inventory=ExactDecimal.parse("0.80", kind="base_quantity"),
+        pending_buy_inventory=ExactDecimal.parse("0.20", kind="base_quantity"),
+        transition_bootstrap_inventory=ExactDecimal.parse("0.00", kind="base_quantity"),
+        proposed_maximum_inventory=ExactDecimal.parse("1.00", kind="base_quantity"),
+        maximum_planned_inventory=ExactDecimal.parse("1.00", kind="base_quantity"),
+    )
+    loss = LossFacts(
+        schema_version="loss-facts/v1",
+        initial_equity=ExactDecimal.parse("250.00", kind="quote_quantity"),
+        risk_day_baseline=ExactDecimal.parse("250.00", kind="quote_quantity"),
+        run_high_water_mark=ExactDecimal.parse("250.00", kind="quote_quantity"),
+        conservative_liquidation_equity=ExactDecimal.parse(
+            "248.00", kind="quote_quantity"
+        ),
+        prior_daily_loss_latched=False,
+        prior_run_drawdown_latched=False,
+        guardrail_recovery_approved=False,
+        global_stop_latched=False,
+    )
+    freshness = tuple(
+        FreshnessEvidence(
+            schema_version="freshness-evidence/v1",
+            evidence_class=evidence_class,
+            condition=EvidenceCondition.HEALTHY,
+            observed_at=DomainTime(decision_time.value - timedelta(seconds=1)),
+            evidence_id=content_identity(
+                "freshness-evidence/v1",
+                {"class": evidence_class, "decision_time": decision_time},
+            ),
+        )
+        for evidence_class in EvidenceClass
+    )
+    clock = ClockEvidence(
+        schema_version="clock-evidence/v1",
+        condition=EvidenceCondition.HEALTHY,
+        request_sent_at=DomainTime(decision_time.value - timedelta(milliseconds=200)),
+        response_received_at=decision_time,
+        venue_time=DomainTime(decision_time.value - timedelta(milliseconds=50)),
+        scheduling_delay=ExactDecimal.parse("0.025000", kind="duration_seconds"),
+        authenticated_timestamp_rejected=False,
+        evidence_id=content_identity(
+            "clock-evidence/v1", {"decision_time": decision_time}
+        ),
+    )
+    lifecycle = LifecycleFacts(
+        schema_version="lifecycle-facts/v1",
+        grid_lifecycle="RANGE_EXHAUSTED",
+        adaptation_state=AdaptationState.TREND_DOWN,
+        epoch_transition_state="IDLE",
+        runtime_lifecycle="OPERATING",
+        reconciliation_state="RECONCILED",
+    )
+    recovery = SafetyRecoveryFacts(
+        schema_version="safety-recovery-facts/v1",
+        prior_frozen_latched=False,
+        frozen_recovery_approved=False,
+    )
+    venue = VenueConditionEvidence(
+        schema_version="venue-condition-evidence/v1",
+        condition=SymbolCondition.DELISTING,
+        observed_at=decision_time,
+        evidence_id=content_identity(
+            "venue-condition-evidence/v1",
+            {"condition": SymbolCondition.DELISTING, "observed_at": decision_time},
+        ),
+        source="bounded-ticket-09-fixture",
+        wind_down_deadline=DomainTime(decision_time.value + timedelta(days=7)),
+    )
+    evaluation = evaluate_safety_posture(
+        decision_time=decision_time,
+        capital=capital,
+        loss=loss,
+        freshness=freshness,
+        clock=clock,
+        lifecycle=lifecycle,
+        recovery=recovery,
+        range_condition=RangeCondition.BELOW_RANGE,
+        recovery_obligations=(),
+        venue=venue,
+        prior_global_stop_latched=False,
+    )
+    return {
+        "schema_version": "safety-posture-presentation/v1",
+        "decision_time": decision_time.identity_payload(),
+        "fingerprint": evaluation.fingerprint,
+        "capital": {
+            "allocation_fingerprint": capital.allocation_fingerprint,
+            "epoch_id": capital.epoch_id,
+            "capital_envelope": capital.capital_envelope.to_payload(),
+            "committed_principal": capital.committed_principal.to_payload(),
+            "fee_reserve": capital.fee_reserve.to_payload(),
+            "maximum_planned_inventory": capital.maximum_planned_inventory.to_payload(),
+        },
+        "lifecycle": {
+            "grid_lifecycle": lifecycle.grid_lifecycle,
+            "adaptation_state": lifecycle.adaptation_state.value,
+            "epoch_transition_state": lifecycle.epoch_transition_state,
+            "runtime_lifecycle": lifecycle.runtime_lifecycle,
+            "reconciliation_state": lifecycle.reconciliation_state,
+        },
+        "safety": {
+            "posture": evaluation.posture.value,
+            "reason_codes": list(evaluation.reason_codes),
+            "loss_warning": evaluation.loss_warning,
+            "daily_loss_latched": evaluation.daily_loss_latched,
+            "run_drawdown_latched": evaluation.run_drawdown_latched,
+            "global_stop_latched": evaluation.global_stop_latched,
+            "allowed_command_classes": [
+                item.value for item in evaluation.allowed_command_classes
+            ],
+            "placement_allowed": evaluation.placement_allowed,
+            "replacement_allowed": evaluation.replacement_allowed,
+            "downward_bound_shift_allowed": evaluation.downward_bound_shift_allowed,
+            "fixed_quote_sizing_increase_allowed": (
+                evaluation.fixed_quote_sizing_increase_allowed
+            ),
+            "clock_offset": evaluation.clock_offset.to_payload(),
+            "scheduling_delay": evaluation.scheduling_delay.to_payload(),
+            "round_trip_latency": evaluation.round_trip_latency.to_payload(),
+        },
+        "freshness": [
+            {
+                "evidence_class": item.evidence_class.value,
+                "condition": item.condition.value,
+                "observed_at": item.observed_at.identity_payload()
+                if item.observed_at is not None
+                else None,
+                "evidence_id": item.evidence_id,
+            }
+            for item in evaluation.freshness
+        ],
+        "venue": {
+            "condition": venue.condition.value,
+            "evidence_id": venue.evidence_id,
+            "source": venue.source,
+            "wind_down_deadline": venue.wind_down_deadline.identity_payload()
+            if venue.wind_down_deadline is not None
+            else None,
+        },
+    }
 
 
 def characterize_canonical_adaptive(request: dict[str, Any]) -> dict[str, Any]:
@@ -340,6 +533,7 @@ def fingerprint_manifested_backtest(spec: dict, manifest_path: Path) -> dict:
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _f(x: Any) -> Optional[float]:
     """Coerce to a JSON-safe float (NaN/inf -> None)."""
     if x is None:
@@ -385,6 +579,7 @@ def _drawdown_series(equity: np.ndarray) -> list[float]:
 # Grid geometry (preview + price-chart overlay)
 # ---------------------------------------------------------------------------
 
+
 def compute_grid_levels(spec_dict: dict) -> dict:
     """Resolve the rung ladder for a spec — works for static and adaptive grids."""
     grid = dict(spec_dict.get("grid") or {})
@@ -412,8 +607,11 @@ def compute_grid_levels(spec_dict: dict) -> dict:
         win = closes[-lookback:] if closes.size > lookback else closes
         if adaptive and spacing == "atr":
             center = float(ema_ind(pd.Series(closes), max(2, lookback)).iloc[-1])
-            atr_val = float(atr_ind(pd.Series(highs), pd.Series(lows),
-                                    pd.Series(closes), atr_period).iloc[-1])
+            atr_val = float(
+                atr_ind(
+                    pd.Series(highs), pd.Series(lows), pd.Series(closes), atr_period
+                ).iloc[-1]
+            )
             lower = center - atr_mult * atr_val
             upper = center + atr_mult * atr_val
             source = "adaptive_atr"
@@ -455,6 +653,7 @@ def compute_grid_levels(spec_dict: dict) -> dict:
 # Backtest
 # ---------------------------------------------------------------------------
 
+
 def _serialize_trades(trades, full_ts: list, ds_idx: np.ndarray) -> list[dict]:
     """Map each closed trade onto the down-sampled axis for chart markers."""
     out: list[dict] = []
@@ -466,34 +665,38 @@ def _serialize_trades(trades, full_ts: list, ds_idx: np.ndarray) -> list[dict]:
         exit_bar = min(max(exit_bar, 0), n_full - 1) if n_full else 0
         entry_bar = bisect.bisect_left(full_ts, t.opened_at) if full_ts else 0
         entry_bar = min(max(entry_bar, 0), n_full - 1) if n_full else 0
-        out.append({
-            "side": t.side.value,
-            "qty": _f(t.qty),
-            "entry_price": _f(t.entry_price),
-            "exit_price": _f(t.exit_price),
-            "pnl": _f(t.pnl),
-            "return_pct": _f(t.return_pct),
-            "bars_held": int(t.bars_held),
-            "opened_at": t.opened_at.isoformat(),
-            "closed_at": t.closed_at.isoformat(),
-            "exit_reason": t.exit_reason,
-            "entry_x": bisect.bisect_left(ds_list, entry_bar),
-            "exit_x": bisect.bisect_left(ds_list, exit_bar),
-        })
+        out.append(
+            {
+                "side": t.side.value,
+                "qty": _f(t.qty),
+                "entry_price": _f(t.entry_price),
+                "exit_price": _f(t.exit_price),
+                "pnl": _f(t.pnl),
+                "return_pct": _f(t.return_pct),
+                "bars_held": int(t.bars_held),
+                "opened_at": t.opened_at.isoformat(),
+                "closed_at": t.closed_at.isoformat(),
+                "exit_reason": t.exit_reason,
+                "entry_x": bisect.bisect_left(ds_list, entry_bar),
+                "exit_x": bisect.bisect_left(ds_list, exit_bar),
+            }
+        )
     return out
 
 
-def run_backtest(spec_dict: dict, *, with_report: bool = False,
-                 include_trades: bool = True) -> dict:
+def run_backtest(
+    spec_dict: dict, *, with_report: bool = False, include_trades: bool = True
+) -> dict:
     spec = BacktestSpec.from_dict(spec_dict)
     data = _build_data(spec)
     return _run_backtest_with_data(
-        spec_dict, spec, data, with_report=with_report,
-        include_trades=include_trades)
+        spec_dict, spec, data, with_report=with_report, include_trades=include_trades
+    )
 
 
-def run_manifested_backtest(spec_dict: dict, manifest_path: Path, *,
-                            include_trades: bool = True) -> dict:
+def run_manifested_backtest(
+    spec_dict: dict, manifest_path: Path, *, include_trades: bool = True
+) -> dict:
     """Render the rich Studio result from verified offline Parquet candles."""
     import json
 
@@ -504,16 +707,24 @@ def run_manifested_backtest(spec_dict: dict, manifest_path: Path, *,
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     if spec.symbol != manifest["symbol"]:
         raise ValueError(
-            f"backtest symbol {spec.symbol} does not match dataset {manifest['symbol']}")
+            f"backtest symbol {spec.symbol} does not match dataset {manifest['symbol']}"
+        )
     data = InMemoryDataSource(
-        symbol=spec.symbol, _candles=load_manifested_candles(manifest_path))
+        symbol=spec.symbol, _candles=load_manifested_candles(manifest_path)
+    )
     return _run_backtest_with_data(
-        spec_dict, spec, data, with_report=False,
-        include_trades=include_trades)
+        spec_dict, spec, data, with_report=False, include_trades=include_trades
+    )
 
 
-def _run_backtest_with_data(spec_dict: dict, spec: BacktestSpec, data, *,
-                            with_report: bool, include_trades: bool) -> dict:
+def _run_backtest_with_data(
+    spec_dict: dict,
+    spec: BacktestSpec,
+    data,
+    *,
+    with_report: bool,
+    include_trades: bool,
+) -> dict:
     config = _build_config(spec)
     gc = GridConfig(**spec.grid)
     if gc.adaptive or (spec.filter or {}).get("kind") in ("trend", "regime", "rsi"):
@@ -546,23 +757,31 @@ def _run_backtest_with_data(spec_dict: dict, spec: BacktestSpec, data, *,
         "rejections": dict(result.rejections),
         "metrics": {k: _f(v) for k, v in metrics.items()},
         "benchmarks": {
-            "buy_and_hold": {"total_return": _f(bh["total_return"]),
-                             "final_equity": _f(bh["final_equity"]),
-                             "max_drawdown": _f(bh["max_drawdown"])},
-            "dca": {"total_return": _f(dca["total_return"]),
-                    "final_equity": _f(dca["final_equity"]),
-                    "max_drawdown": _f(dca["max_drawdown"])},
+            "buy_and_hold": {
+                "total_return": _f(bh["total_return"]),
+                "final_equity": _f(bh["final_equity"]),
+                "max_drawdown": _f(bh["max_drawdown"]),
+            },
+            "dca": {
+                "total_return": _f(dca["total_return"]),
+                "final_equity": _f(dca["final_equity"]),
+                "max_drawdown": _f(dca["max_drawdown"]),
+            },
         },
         "series": {
             "x": [int(i) for i in idx],
             "timestamps": [full_ts[i].isoformat() for i in idx] if full_ts else [],
             "equity": _pick(result.equity, idx),
             "price": _pick(result.close, idx),
-            "buy_and_hold": _pick(bh["equity_curve"], idx) if bh["equity_curve"] else [],
+            "buy_and_hold": _pick(bh["equity_curve"], idx)
+            if bh["equity_curve"]
+            else [],
             "dca": _pick(dca["equity_curve"], idx) if dca["equity_curve"] else [],
             "drawdown": _pick(dd_full, idx) if dd_full.size else [],
         },
-        "trades": _serialize_trades(result.closed_trades, full_ts, idx) if include_trades else [],
+        "trades": _serialize_trades(result.closed_trades, full_ts, idx)
+        if include_trades
+        else [],
         "n_closed_trades": len(result.closed_trades),
         "config_summary": _config_summary(spec, config),
     }
@@ -579,15 +798,18 @@ def _run_backtest_with_data(spec_dict: dict, spec: BacktestSpec, data, *,
 
     if with_report:
         payload["html_report"] = render_html_report(
-            result, metrics,
+            result,
+            metrics,
             benchmarks={"buy_and_hold": bh, "dca": dca},
-            config_summary=_config_summary(spec, config))
+            config_summary=_config_summary(spec, config),
+        )
     return payload
 
 
 # ---------------------------------------------------------------------------
 # Insights + verdict (the "informative" layer)
 # ---------------------------------------------------------------------------
+
 
 def _build_insights(payload: dict, spec_dict: dict) -> list[dict]:
     m = payload["metrics"]
@@ -598,102 +820,234 @@ def _build_insights(payload: dict, spec_dict: dict) -> list[dict]:
     if ret is not None and bh is not None:
         diff = ret - bh
         if diff > 0.005:
-            out.append({"tone": "good", "text": (
-                f"Beats buy & hold by {diff*100:.1f} pts "
-                f"({ret*100:.1f}% vs {bh*100:.1f}%) — the grid is adding value here.")})
+            out.append(
+                {
+                    "tone": "good",
+                    "text": (
+                        f"Beats buy & hold by {diff * 100:.1f} pts "
+                        f"({ret * 100:.1f}% vs {bh * 100:.1f}%) — the grid is adding value here."
+                    ),
+                }
+            )
         elif diff < -0.005:
-            out.append({"tone": "bad", "text": (
-                f"Underperforms buy & hold by {abs(diff)*100:.1f} pts "
-                f"({ret*100:.1f}% vs {bh*100:.1f}%). Simply holding would have done better.")})
+            out.append(
+                {
+                    "tone": "bad",
+                    "text": (
+                        f"Underperforms buy & hold by {abs(diff) * 100:.1f} pts "
+                        f"({ret * 100:.1f}% vs {bh * 100:.1f}%). Simply holding would have done better."
+                    ),
+                }
+            )
         else:
-            out.append({"tone": "info", "text": (
-                f"Roughly matches buy & hold ({ret*100:.1f}% vs {bh*100:.1f}%).")})
+            out.append(
+                {
+                    "tone": "info",
+                    "text": (
+                        f"Roughly matches buy & hold ({ret * 100:.1f}% vs {bh * 100:.1f}%)."
+                    ),
+                }
+            )
 
     dd = m.get("max_drawdown")
     if dd is not None:
         if dd > -0.05:
-            out.append({"tone": "good", "text": f"Shallow max drawdown of {dd*100:.1f}% — a smooth ride."})
+            out.append(
+                {
+                    "tone": "good",
+                    "text": f"Shallow max drawdown of {dd * 100:.1f}% — a smooth ride.",
+                }
+            )
         elif dd > -0.20:
-            out.append({"tone": "warn", "text": f"Moderate max drawdown of {dd*100:.1f}% — survivable but watch sizing."})
+            out.append(
+                {
+                    "tone": "warn",
+                    "text": f"Moderate max drawdown of {dd * 100:.1f}% — survivable but watch sizing.",
+                }
+            )
         else:
-            out.append({"tone": "bad", "text": f"Deep max drawdown of {dd*100:.1f}% — likely an inventory build-up in a trend."})
+            out.append(
+                {
+                    "tone": "bad",
+                    "text": f"Deep max drawdown of {dd * 100:.1f}% — likely an inventory build-up in a trend.",
+                }
+            )
 
     fee = m.get("fee_drag")
     if fee is not None and fee > 0.02:
-        out.append({"tone": "warn", "text": (
-            f"Fee drag is {fee*100:.1f}% of capital. Grids trade a lot — widen spacing or "
-            f"use maker-only fills to keep more of the edge.")})
+        out.append(
+            {
+                "tone": "warn",
+                "text": (
+                    f"Fee drag is {fee * 100:.1f}% of capital. Grids trade a lot — widen spacing or "
+                    f"use maker-only fills to keep more of the edge."
+                ),
+            }
+        )
 
     fpr = m.get("fee_to_profit_ratio")
     if fpr is not None:
         if fpr >= 1.0:
-            out.append({"tone": "bad", "text": (
-                f"Fees ate the edge: you paid {fpr:.2f}× as much in fees as you kept in net profit. "
-                f"This config churns for the exchange, not for you — widen spacing or trade less.")})
+            out.append(
+                {
+                    "tone": "bad",
+                    "text": (
+                        f"Fees ate the edge: you paid {fpr:.2f}× as much in fees as you kept in net profit. "
+                        f"This config churns for the exchange, not for you — widen spacing or trade less."
+                    ),
+                }
+            )
         elif fpr >= 0.5:
-            out.append({"tone": "warn", "text": (
-                f"Fee-to-profit ratio is {fpr:.2f} — fees consume a large share of the gross edge. "
-                f"Thin margin; sensitive to slippage.")})
+            out.append(
+                {
+                    "tone": "warn",
+                    "text": (
+                        f"Fee-to-profit ratio is {fpr:.2f} — fees consume a large share of the gross edge. "
+                        f"Thin margin; sensitive to slippage."
+                    ),
+                }
+            )
         elif fpr > 0:
-            out.append({"tone": "good", "text": (
-                f"Fee-to-profit ratio is a healthy {fpr:.2f} — most of the gross edge survives costs.")})
+            out.append(
+                {
+                    "tone": "good",
+                    "text": (
+                        f"Fee-to-profit ratio is a healthy {fpr:.2f} — most of the gross edge survives costs."
+                    ),
+                }
+            )
 
     util = m.get("avg_capital_utilization")
     if util is not None:
         if util < 0.15:
-            out.append({"tone": "info", "text": (
-                f"Average capital utilisation is only {util*100:.0f}% — most of your cash sat idle. "
-                f"Returns are small relative to capital tied up; consider tighter bounds or fewer rungs.")})
+            out.append(
+                {
+                    "tone": "info",
+                    "text": (
+                        f"Average capital utilisation is only {util * 100:.0f}% — most of your cash sat idle. "
+                        f"Returns are small relative to capital tied up; consider tighter bounds or fewer rungs."
+                    ),
+                }
+            )
         elif util > 0.85:
-            out.append({"tone": "warn", "text": (
-                f"Capital utilisation runs hot at {util*100:.0f}% — little dry powder left for deeper dips.")})
+            out.append(
+                {
+                    "tone": "warn",
+                    "text": (
+                        f"Capital utilisation runs hot at {util * 100:.0f}% — little dry powder left for deeper dips."
+                    ),
+                }
+            )
 
     tpd = m.get("trades_per_day")
     if tpd is not None and tpd > 0:
-        out.append({"tone": "info", "text": (
-            f"Roughly {tpd:.1f} round-trips per day. On a live venue every one pays the spread + fee, "
-            f"so realised results will trail the backtest if your cost assumptions are optimistic.")})
+        out.append(
+            {
+                "tone": "info",
+                "text": (
+                    f"Roughly {tpd:.1f} round-trips per day. On a live venue every one pays the spread + fee, "
+                    f"so realised results will trail the backtest if your cost assumptions are optimistic."
+                ),
+            }
+        )
 
-    if (spec_dict.get("data") or {}).get("kind", "synthetic") not in ("binance", "csv", "dataframe"):
-        out.append({"tone": "warn", "text": (
-            "This run used SYNTHETIC data. Treat the numbers as a stress test, not a forecast — "
-            "switch the data source to real Binance klines before trusting profitability.")})
+    if (spec_dict.get("data") or {}).get("kind", "synthetic") not in (
+        "binance",
+        "csv",
+        "dataframe",
+    ):
+        out.append(
+            {
+                "tone": "warn",
+                "text": (
+                    "This run used SYNTHETIC data. Treat the numbers as a stress test, not a forecast — "
+                    "switch the data source to real Binance klines before trusting profitability."
+                ),
+            }
+        )
 
     pf = m.get("profit_factor")
     wr = m.get("win_rate")
     if pf is not None and wr is not None:
         if pf >= 1.5:
-            out.append({"tone": "good", "text": f"Profit factor {pf:.2f} with a {wr*100:.0f}% win rate — a healthy edge."})
+            out.append(
+                {
+                    "tone": "good",
+                    "text": f"Profit factor {pf:.2f} with a {wr * 100:.0f}% win rate — a healthy edge.",
+                }
+            )
         elif pf >= 1.0:
-            out.append({"tone": "info", "text": f"Profit factor {pf:.2f} (win rate {wr*100:.0f}%) — marginally profitable; fragile to costs."})
+            out.append(
+                {
+                    "tone": "info",
+                    "text": f"Profit factor {pf:.2f} (win rate {wr * 100:.0f}%) — marginally profitable; fragile to costs.",
+                }
+            )
         else:
-            out.append({"tone": "bad", "text": f"Profit factor {pf:.2f} < 1 — losing strategy as configured."})
+            out.append(
+                {
+                    "tone": "bad",
+                    "text": f"Profit factor {pf:.2f} < 1 — losing strategy as configured.",
+                }
+            )
 
     dsr = m.get("deflated_sharpe")
     n_trials = spec_dict.get("n_trials", 1)
     if dsr is not None and n_trials and n_trials > 1:
         if dsr < 0.6:
-            out.append({"tone": "bad", "text": (
-                f"Deflated Sharpe is only {dsr*100:.0f}% after {n_trials} trials — high over-fitting risk. "
-                f"Validate with walk-forward before trusting it.")})
+            out.append(
+                {
+                    "tone": "bad",
+                    "text": (
+                        f"Deflated Sharpe is only {dsr * 100:.0f}% after {n_trials} trials — high over-fitting risk. "
+                        f"Validate with walk-forward before trusting it."
+                    ),
+                }
+            )
         else:
-            out.append({"tone": "good", "text": f"Deflated Sharpe holds at {dsr*100:.0f}% after {n_trials} trials — robust to selection bias."})
+            out.append(
+                {
+                    "tone": "good",
+                    "text": f"Deflated Sharpe holds at {dsr * 100:.0f}% after {n_trials} trials — robust to selection bias.",
+                }
+            )
 
     if payload["liquidated"]:
-        out.append({"tone": "bad", "text": "Position was LIQUIDATED during the run — leverage/risk caps are too loose."})
+        out.append(
+            {
+                "tone": "bad",
+                "text": "Position was LIQUIDATED during the run — leverage/risk caps are too loose.",
+            }
+        )
 
     rej = payload["rejections"]
     if rej:
         total = sum(rej.values())
-        out.append({"tone": "warn", "text": (
-            f"{total} orders were rejected ({', '.join(f'{k}:{v}' for k, v in rej.items())}). "
-            f"Constraints or capital limited the grid.")})
+        out.append(
+            {
+                "tone": "warn",
+                "text": (
+                    f"{total} orders were rejected ({', '.join(f'{k}:{v}' for k, v in rej.items())}). "
+                    f"Constraints or capital limited the grid."
+                ),
+            }
+        )
 
     regime = (spec_dict.get("data") or {}).get("regime")
     if regime == "trend":
-        out.append({"tone": "info", "text": "Tested on a trending regime — the hardest case for grids. Survival here is a strong signal."})
+        out.append(
+            {
+                "tone": "info",
+                "text": "Tested on a trending regime — the hardest case for grids. Survival here is a strong signal.",
+            }
+        )
     elif regime == "range":
-        out.append({"tone": "info", "text": "Tested on a ranging regime — grid's natural habitat. Confirm it also survives a trend before going live."})
+        out.append(
+            {
+                "tone": "info",
+                "text": "Tested on a ranging regime — grid's natural habitat. Confirm it also survives a trend before going live.",
+            }
+        )
     return out
 
 
@@ -754,14 +1108,18 @@ def _data_source_summary(spec_dict: dict, result) -> dict:
         real = True
     else:
         label = f"Synthetic · {d.get('regime', 'range')}"
-        desc = "Generated price path — good for stress-testing, not for live expectations."
+        desc = (
+            "Generated price path — good for stress-testing, not for live expectations."
+        )
     return {
         "kind": kind,
         "is_real": bool(real),
         "label": label,
         "description": desc,
         "venue": venue,
-        "exchange_rules_on": bool((spec_dict.get("exchange_rules") or {}).get("enabled") or venue),
+        "exchange_rules_on": bool(
+            (spec_dict.get("exchange_rules") or {}).get("enabled") or venue
+        ),
     }
 
 
@@ -769,27 +1127,41 @@ def _data_source_summary(spec_dict: dict, result) -> dict:
 # Research
 # ---------------------------------------------------------------------------
 
-def run_grid_search(base: dict, space: dict, *, objective: str = "deflated_sharpe",
-                    maximize: bool = True, top_k: Optional[int] = None) -> dict:
+
+def run_grid_search(
+    base: dict,
+    space: dict,
+    *,
+    objective: str = "deflated_sharpe",
+    maximize: bool = True,
+    top_k: Optional[int] = None,
+) -> dict:
     ps = ParamSpace({k: list(v) for k, v in space.items()})
     results = grid_search(base, ps, objective=objective, maximize=maximize, top_k=top_k)
     rows = []
     for r in results:
-        rows.append({
-            "params": r["params"],
-            "score": _f(r["score"]),
-            "total_return": _f(r["metrics"].get("total_return")),
-            "max_drawdown": _f(r["metrics"].get("max_drawdown")),
-            "sharpe": _f(r["metrics"].get("sharpe")),
-            "deflated_sharpe": _f(r["metrics"].get("deflated_sharpe")),
-            "win_rate": _f(r["metrics"].get("win_rate")),
-            "profit_factor": _f(r["metrics"].get("profit_factor")),
-            "n_trades": r["metrics"].get("n_trades"),
-        })
+        rows.append(
+            {
+                "params": r["params"],
+                "score": _f(r["score"]),
+                "total_return": _f(r["metrics"].get("total_return")),
+                "max_drawdown": _f(r["metrics"].get("max_drawdown")),
+                "sharpe": _f(r["metrics"].get("sharpe")),
+                "deflated_sharpe": _f(r["metrics"].get("deflated_sharpe")),
+                "win_rate": _f(r["metrics"].get("win_rate")),
+                "profit_factor": _f(r["metrics"].get("profit_factor")),
+                "n_trades": r["metrics"].get("n_trades"),
+            }
+        )
     keys = list(space.keys())
     heatmap = _build_heatmap(rows, keys) if len(keys) == 2 else None
-    return {"objective": objective, "n_results": len(rows), "axes": keys,
-            "results": rows, "heatmap": heatmap}
+    return {
+        "objective": objective,
+        "n_results": len(rows),
+        "axes": keys,
+        "results": rows,
+        "heatmap": heatmap,
+    }
 
 
 def _build_heatmap(rows: list[dict], keys: list[str]) -> dict:
@@ -807,8 +1179,9 @@ def _build_heatmap(rows: list[dict], keys: list[str]) -> dict:
     return {"x_label": kx, "y_label": ky, "x": xs, "y": ys, "z": z}
 
 
-def run_walk_forward(base: dict, space: dict, *, n_splits: int = 4,
-                     objective: str = "deflated_sharpe") -> dict:
+def run_walk_forward(
+    base: dict, space: dict, *, n_splits: int = 4, objective: str = "deflated_sharpe"
+) -> dict:
     ps = ParamSpace({k: list(v) for k, v in space.items()})
     res = walk_forward(base, ps, n_splits=n_splits, objective=objective)
     for f in res.get("folds", []):
@@ -825,20 +1198,34 @@ def _mc_histogram(samples: np.ndarray, bins: int = 40) -> dict:
     if samples.size == 0:
         return {"counts": [], "edges": []}
     counts, edges = np.histogram(samples, bins=bins)
-    return {"counts": [int(c) for c in counts],
-            "edges": [float(e) for e in edges],
-            "centers": [float((edges[i] + edges[i + 1]) / 2) for i in range(len(edges) - 1)]}
+    return {
+        "counts": [int(c) for c in counts],
+        "edges": [float(e) for e in edges],
+        "centers": [
+            float((edges[i] + edges[i + 1]) / 2) for i in range(len(edges) - 1)
+        ],
+    }
 
 
-def run_monte_carlo(base: dict, *, method: str = "trades", n_sims: int = 2000,
-                    seed: int = 0) -> dict:
+def run_monte_carlo(
+    base: dict, *, method: str = "trades", n_sims: int = 2000, seed: int = 0
+) -> dict:
     result = run_backtest(base, include_trades=True)
     initial = float(base.get("initial_cash", 10_000.0))
-    equity = np.array([p for p in result["series"]["equity"] if p is not None], dtype=float)
-    pnls = np.array([t["pnl"] for t in result["trades"] if t.get("pnl") is not None], dtype=float)
+    equity = np.array(
+        [p for p in result["series"]["equity"] if p is not None], dtype=float
+    )
+    pnls = np.array(
+        [t["pnl"] for t in result["trades"] if t.get("pnl") is not None], dtype=float
+    )
 
-    mc = monte_carlo({"equity_curve": equity.tolist(), "trades": result["trades"]},
-                     initial, method=method, n_sims=n_sims, seed=seed)
+    mc = monte_carlo(
+        {"equity_curve": equity.tolist(), "trades": result["trades"]},
+        initial,
+        method=method,
+        n_sims=n_sims,
+        seed=seed,
+    )
 
     # Reproduce the bootstrap locally (same seed) to expose the full distribution
     # of final returns for the histogram chart.
@@ -867,8 +1254,9 @@ def run_monte_carlo(base: dict, *, method: str = "trades", n_sims: int = 2000,
     return out
 
 
-def run_robustness(base: dict, space: Optional[dict] = None, *,
-                   n_splits: int = 3, mc_sims: int = 800) -> dict:
+def run_robustness(
+    base: dict, space: Optional[dict] = None, *, n_splits: int = 3, mc_sims: int = 800
+) -> dict:
     """Deployment trust scorecard: walk-forward OOS + deflated Sharpe + Monte-Carlo.
 
     Returns a 0-100 trust score with a transparent component breakdown. ``space``

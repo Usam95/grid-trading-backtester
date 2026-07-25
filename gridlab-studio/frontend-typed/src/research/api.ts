@@ -8,6 +8,7 @@ import type {
   ManifestedBacktestBody,
   ResearchPort,
   RunBacktestBody,
+  SafetyPosturePresentation,
   StudioBacktestRun,
   StudioConfiguration,
 } from "./port";
@@ -44,6 +45,10 @@ export class FastApiResearchClient implements ResearchPort {
         body: JSON.stringify(request),
       }),
     );
+  }
+
+  async getSafetyPosture(): Promise<SafetyPosturePresentation> {
+    return jsonResponse(fetch("/api/studio/safety-posture"));
   }
 
   async executeBacktest(request: RunBacktestBody): Promise<StudioBacktestRun> {

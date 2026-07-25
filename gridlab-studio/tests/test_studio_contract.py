@@ -160,10 +160,13 @@ def test_canonical_adaptive_contract_is_exact_typed_and_deterministic() -> None:
     assert payload["activation"]["replay_fingerprint"].startswith("sha256:")
     assert payload["derived_plan"]["lower"]["value"] == "96.000000"
     assert payload["derived_plan"]["upper"]["value"] == "104.000000"
-    assert payload["derived_plan"]["maximum_planned_inventory"]["kind"] == "base_quantity"
-    assert payload["derived_plan"]["bootstrap_obligation"]["gross_base_required"][
-        "kind"
-    ] == "base_quantity"
+    assert (
+        payload["derived_plan"]["maximum_planned_inventory"]["kind"] == "base_quantity"
+    )
+    assert (
+        payload["derived_plan"]["bootstrap_obligation"]["gross_base_required"]["kind"]
+        == "base_quantity"
+    )
     assert payload["configuration"]["operator_inputs"]["maker_fee"] == {
         "kind": "fee_rate",
         "value": "0.0010",
@@ -181,6 +184,36 @@ def test_canonical_adaptive_contract_is_exact_typed_and_deterministic() -> None:
     assert incomplete.json()["activation"]["activation_pending"] is False
     assert incomplete.json()["activation"]["automatically_armed"] is False
     assert incomplete.json()["derived_plan"] is None
+
+
+def test_safety_posture_contract_is_typed_separate_and_deterministic() -> None:
+    with TestClient(app) as client:
+        first = client.get("/api/studio/safety-posture")
+        second = client.get("/api/studio/safety-posture")
+
+    assert first.status_code == 200, first.text
+    assert first.json() == second.json()
+    payload = first.json()
+    assert payload["safety"]["posture"] == "REDUCE_ONLY"
+    assert payload["lifecycle"] == {
+        "grid_lifecycle": "RANGE_EXHAUSTED",
+        "adaptation_state": "TREND_DOWN",
+        "epoch_transition_state": "IDLE",
+        "runtime_lifecycle": "OPERATING",
+        "reconciliation_state": "RECONCILED",
+    }
+    assert len(payload["freshness"]) == 5
+    assert payload["venue"]["condition"] == "DELISTING"
+    assert payload["venue"]["wind_down_deadline"] == "2025-01-09T12:00:00Z"
+    assert payload["safety"]["placement_allowed"] is False
+    assert payload["safety"]["downward_bound_shift_allowed"] is False
+    assert payload["fingerprint"].startswith("sha256:")
+    schema = app.openapi()
+    assert schema["paths"]["/api/studio/safety-posture"]["get"]["responses"]["200"][
+        "content"
+    ]["application/json"]["schema"] == {
+        "$ref": "#/components/schemas/SafetyPosturePresentation"
+    }
 
 
 def test_initial_epoch_contract_supports_arithmetic_and_blocks_boundaries() -> None:
@@ -217,7 +250,9 @@ def test_initial_epoch_contract_supports_arithmetic_and_blocks_boundaries() -> N
     assert boundary.json()["derived_plan"] is None
 
 
-def test_complete_bootstrap_evidence_activates_without_changing_epoch_identity() -> None:
+def test_complete_bootstrap_evidence_activates_without_changing_epoch_identity() -> (
+    None
+):
     request = {
         "symbol": "BTCEUR",
         "decision_time": "2025-01-02T00:00:00Z",

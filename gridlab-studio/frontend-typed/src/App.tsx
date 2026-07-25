@@ -8,6 +8,7 @@ import type {
   ManifestedBacktestBody,
   ResearchPort,
   RunBacktestBody,
+  SafetyPosturePresentation,
   StudioBacktestRun,
   StudioConfiguration,
 } from "./research/port";
@@ -486,11 +487,49 @@ function ResearchWorkspace({ research }: { research: ResearchPort }) {
   );
 }
 
-function OperationsWorkspace() {
-  return <main className="workspace empty"><p className="eyebrow">Operations · Command Center</p><h1>Operations boundary established</h1><p>This workspace is reserved for an authenticated control gateway. Ticket 02 grants no Paper, Testnet, live, or venue command authority.</p><div className="boundary"><strong>GATEWAY NOT CONFIGURED</strong><span>COMMAND AUTHORITY UNAVAILABLE</span><span>No commands are cached or queued by this browser.</span></div></main>;
+function OperationsWorkspace({ research }: { research: ResearchPort }) {
+  const [presentation, setPresentation] = useState<SafetyPosturePresentation>();
+  const [error, setError] = useState<string>();
+  useEffect(() => {
+    let current = true;
+    research.getSafetyPosture()
+      .then((value) => current && setPresentation(value))
+      .catch((reason: unknown) => current && setError(
+        reason instanceof Error ? reason.message : "Safety posture unavailable",
+      ));
+    return () => { current = false; };
+  }, [research]);
+  return <main className="workspace empty">
+    <p className="eyebrow">Operations · Command Center</p>
+    <h1>Deterministic safety posture</h1>
+    <p>Canonical facts are presented separately. This view does not dispatch, queue, cancel, or place commands.</p>
+    <div className="boundary"><strong>GATEWAY NOT CONFIGURED</strong><span>COMMAND AUTHORITY UNAVAILABLE</span><span>No commands are cached or queued by this browser.</span></div>
+    {error && <p className="error" role="alert">{error}</p>}
+    {presentation && <section className="production-data" aria-labelledby="safety-posture-heading">
+      <div className="result-heading">
+        <div><p className="eyebrow">Canonical overlay</p><h2 id="safety-posture-heading">Safety and venue evidence</h2></div>
+        <span className="scope">{presentation.safety.posture}</span>
+      </div>
+      <div className="production-provenance">
+        <span>Deterministic safety fingerprint</span><code>{presentation.fingerprint}</code>
+        <div><strong>Grid lifecycle</strong><span>{presentation.lifecycle.grid_lifecycle}</span></div>
+        <div><strong>Adaptation state</strong><span>{presentation.lifecycle.adaptation_state}</span></div>
+        <div><strong>Epoch transition</strong><span>{presentation.lifecycle.epoch_transition_state}</span></div>
+        <div><strong>Runtime lifecycle</strong><span>{presentation.lifecycle.runtime_lifecycle}</span></div>
+        <div><strong>Safety posture</strong><span>{presentation.safety.posture}</span></div>
+        <div><strong>Freshness</strong><span>{presentation.freshness.map((item) => `${item.evidence_class}: ${item.condition}`).join(" · ")}</span></div>
+        <div><strong>Reconciliation</strong><span>{presentation.lifecycle.reconciliation_state}</span></div>
+        <div><strong>Venue condition</strong><span>{presentation.venue.condition} · evidence preserved as {presentation.venue.evidence_id}</span></div>
+        {presentation.venue.wind_down_deadline && <div><strong>Wind-down deadline</strong><span>{new Date(presentation.venue.wind_down_deadline).toISOString()}</span></div>}
+        <div><strong>Allowed command classes</strong><span>{presentation.safety.allowed_command_classes.join(" · ")}</span></div>
+        <div><strong>Clock evidence</strong><span>{presentation.safety.clock_offset.value}s offset · {presentation.safety.scheduling_delay.value}s scheduling delay · {presentation.safety.round_trip_latency.value}s observation round trip</span></div>
+        <div><strong>Capital evidence</strong><span>{presentation.capital.committed_principal.value} / {presentation.capital.capital_envelope.value} quote committed · {presentation.capital.fee_reserve.value} fee reserve</span></div>
+      </div>
+    </section>}
+  </main>;
 }
 
 export function App({ research }: { research: ResearchPort }) {
   const [workspace, setWorkspace] = useState<Workspace>("research");
-  return <div className="shell"><aside><div className="brand"><span>GRIDLAB</span><strong>Operator Studio</strong></div><div className="workspace-switch"><button aria-label="Research workspace" className={workspace === "research" ? "selected" : ""} onClick={() => setWorkspace("research")}>Research</button><button aria-label="Operations workspace" className={workspace === "operations" ? "selected" : ""} onClick={() => setWorkspace("operations")}>Operations</button></div><Navigation workspace={workspace} /></aside><div className="main"><AuthorityHeader workspace={workspace} />{workspace === "research" ? <ResearchWorkspace research={research} /> : <OperationsWorkspace />}</div></div>;
+  return <div className="shell"><aside><div className="brand"><span>GRIDLAB</span><strong>Operator Studio</strong></div><div className="workspace-switch"><button aria-label="Research workspace" className={workspace === "research" ? "selected" : ""} onClick={() => setWorkspace("research")}>Research</button><button aria-label="Operations workspace" className={workspace === "operations" ? "selected" : ""} onClick={() => setWorkspace("operations")}>Operations</button></div><Navigation workspace={workspace} /></aside><div className="main"><AuthorityHeader workspace={workspace} />{workspace === "research" ? <ResearchWorkspace research={research} /> : <OperationsWorkspace research={research} />}</div></div>;
 }
