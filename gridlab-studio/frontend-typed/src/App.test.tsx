@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { App } from "./App";
 import type {
   BinanceEurResearchCatalog,
+  CanonicalAdaptivePresentation,
   ResearchPort,
   StudioBacktestRun,
   StudioConfiguration,
@@ -191,11 +192,94 @@ const configuration: StudioConfiguration = {
   data_regimes: ["range", "trend", "random"],
 };
 
+const identity = (character: string) => `sha256:${character.repeat(64)}`;
+const canonicalAdaptive: CanonicalAdaptivePresentation = {
+  configuration: {
+    schema_version: "strategy-configuration/v1",
+    configuration_id: identity("1"),
+    policy_id: identity("2"),
+    symbol: "BTCEUR",
+    base_asset: "BTC",
+    quote_asset: "EUR",
+    rung_count: 5,
+    spacing: "GEOMETRIC",
+    execution_policy_id: "limit-maker-ordinary/v1",
+    risk_profile_id: "mvp1-first-live-ceilings/v1",
+    operator_inputs: {
+      fixed_quote_principal: { kind: "quote_quantity", value: "20.00" },
+      maker_fee: { kind: "fee_rate", value: "0.0010" },
+      maximum_quote_capital: { kind: "quote_quantity", value: "250.00" },
+      fee_reserve: { kind: "quote_quantity", value: "5.00" },
+      stop_price: { kind: "price", value: "80.00" },
+      lower_bound_limit: { kind: "price", value: "85.00" },
+      upper_bound_limit: { kind: "price", value: "120.00" },
+    },
+  },
+  observation: {
+    schema_version: "adaptation-observation/v1",
+    observation_id: identity("3"),
+    event_id: identity("4"),
+    source_system: "legacy-backtest-translation",
+    source_stream: "BTCEUR:synthetic:7",
+    event_time: "2025-01-02T00:00:00Z",
+    decision_time: "2025-01-02T00:00:00Z",
+    complete: true,
+    quality: "ADMITTED",
+    confirmation_ids: [identity("8"), identity("9")],
+    prior_decision_id: null,
+    trend: { kind: "ratio", value: "0.0000" },
+    volatility: { kind: "ratio", value: "0.0100" },
+    reference_price: { kind: "price", value: "100.00" },
+  },
+  decision: {
+    decision_id: identity("5"),
+    adaptation_state: "RANGE_NORMAL",
+    intent: "SYMMETRIC",
+    reason: "qualified_sideways_range",
+    permits_exposure_increasing_buy: true,
+    requested_bound_shift: null,
+  },
+  derived_plan: {
+    schema_version: "grid-plan/v1",
+    epoch_id: identity("6"),
+    predecessor_epoch_id: null,
+    derivation_causation_id: identity("4"),
+    derivation_semantics: "bounded-symmetric-geometric/v1",
+    venue_rule_evidence_id: identity("7"),
+    lower: { kind: "price", value: "90.00" },
+    upper: { kind: "price", value: "110.00" },
+    reference_price: { kind: "price", value: "100.00" },
+    unquantized_rungs: [],
+    quantized_rungs: [],
+    obligations: [],
+    allocation_assumptions: {
+      quote_allocation: { kind: "quote_quantity", value: "245.00" },
+      base_allocation: { kind: "base_quantity", value: "0.00000" },
+      fee_reserve: { kind: "quote_quantity", value: "5.00" },
+    },
+  },
+  legacy_comparison: {
+    bounded_bars: 120,
+    legacy_adaptive: true,
+    legacy_spacing: "geometric",
+    effective_atr_multiplier: "2.0",
+    cancelled_orders: 64,
+    semantic_differences: [
+      "canonical policy does not inherit the legacy nonzero atr_mult default",
+      "canonical seam emits no immediate cancel-all/rebuild transition",
+      "canonical classification fails closed on incomplete or ambiguous evidence",
+      "canonical characterization applies the MVP 250.00 EUR capital envelope instead of the legacy 1000.0 initial cash",
+      "canonical venue-rule evidence is an explicit translation assumption absent from the legacy backtest",
+    ],
+  },
+};
+
 
 function researchPort(): ResearchPort {
   return {
     getConfiguration: vi.fn().mockResolvedValue(configuration),
     getEurCatalog: vi.fn().mockResolvedValue(catalog),
+    characterizeCanonicalAdaptive: vi.fn().mockResolvedValue(canonicalAdaptive),
     executeBacktest: vi.fn().mockResolvedValue(completedRun),
     getBacktest: vi.fn().mockResolvedValue(completedRun),
     previewProductionDataset: vi.fn().mockResolvedValue(preview),
@@ -228,12 +312,26 @@ describe("typed Studio shell", () => {
     fireEvent.change(screen.getByLabelText("Symbol"), {
       target: { value: "ETHUSDT" },
     });
+
     fireEvent.click(screen.getByRole("button", { name: "Run backtest" }));
 
     await waitFor(() => expect(research.executeBacktest).toHaveBeenCalledOnce());
     expect(screen.getByText("+3.12%")).toBeTruthy();
     expect(screen.getByText("10,312.00 USDT")).toBeTruthy();
     expect(screen.getByText("run-typed-001")).toBeTruthy();
+  });
+
+  it("presents deterministic adaptive identities and explicit legacy differences", async () => {
+    render(<App research={researchPort()} />);
+
+    expect(await screen.findByText("Adaptive policy characterization")).toBeTruthy();
+    expect(screen.getAllByText("RANGE_NORMAL")).toHaveLength(2);
+    expect(screen.getByText(identity("1"))).toBeTruthy();
+    expect(screen.getByText(identity("3"))).toBeTruthy();
+    expect(screen.getByText(identity("6"))).toBeTruthy();
+    expect(screen.getByText(
+      "canonical seam emits no immediate cancel-all/rebuild transition",
+    )).toBeTruthy();
   });
 
   it("presents Operations without implying or exposing command authority", () => {

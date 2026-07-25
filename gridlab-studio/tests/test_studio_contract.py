@@ -108,7 +108,9 @@ def test_typed_studio_contract_is_explicit_in_openapi() -> None:
     }
 
 
-def test_typed_studio_configuration_exposes_only_the_migrated_static_spot_path() -> None:
+def test_typed_studio_configuration_exposes_only_the_migrated_static_spot_path() -> (
+    None
+):
     with TestClient(app) as client:
         response = client.get("/api/studio/configuration")
 
@@ -119,6 +121,93 @@ def test_typed_studio_configuration_exposes_only_the_migrated_static_spot_path()
     assert configuration["default_spec"]["market_type"] == "spot"
     assert configuration["default_spec"]["grid"]["direction"] == "neutral"
     assert configuration["default_spec"]["sizing"]["mode"] == "fixed_quote"
+
+
+def test_canonical_adaptive_contract_is_exact_typed_and_deterministic() -> None:
+    request = {
+        "symbol": "BTCEUR",
+        "decision_time": "2025-01-02T00:00:00Z",
+        "trend": "0.0000",
+        "volatility": "0.0100",
+        "reference_price": "100.00",
+        "complete": True,
+        "evidence_quality": "ADMITTED",
+    }
+    with TestClient(app) as client:
+        first = client.post("/api/studio/canonical-adaptive", json=request)
+        second = client.post("/api/studio/canonical-adaptive", json=request)
+        incomplete = client.post(
+            "/api/studio/canonical-adaptive",
+            json={
+                **request,
+                "complete": False,
+                "evidence_quality": "INCOMPLETE",
+            },
+        )
+
+    assert first.status_code == 200, first.text
+    assert second.json() == first.json()
+    payload = first.json()
+    assert payload["configuration"]["configuration_id"].startswith("sha256:")
+    assert payload["observation"]["observation_id"].startswith("sha256:")
+    assert payload["observation"]["event_id"].startswith("sha256:")
+    assert payload["decision"]["adaptation_state"] == "RANGE_NORMAL"
+    assert payload["derived_plan"]["epoch_id"].startswith("sha256:")
+    assert payload["configuration"]["operator_inputs"]["maker_fee"] == {
+        "kind": "fee_rate",
+        "value": "0.0010",
+    }
+    assert payload["legacy_comparison"]["bounded_bars"] == 120
+    assert payload["legacy_comparison"]["legacy_adaptive"] is True
+    assert payload["legacy_comparison"]["legacy_spacing"] == "geometric"
+    assert payload["legacy_comparison"]["effective_atr_multiplier"] == "2.0"
+    assert payload["legacy_comparison"]["cancelled_orders"] > 0
+    assert len(payload["legacy_comparison"]["semantic_differences"]) == 5
+    assert incomplete.status_code == 200
+    assert incomplete.json()["decision"]["adaptation_state"] == "UNCERTAIN"
+    assert incomplete.json()["decision"]["intent"] == "FROZEN"
+    assert incomplete.json()["derived_plan"]["obligations"] == []
+    assert all(
+        rung["role"] == "INACTIVE"
+        for rung in incomplete.json()["derived_plan"]["quantized_rungs"]
+    )
+
+
+def test_canonical_adaptive_boundary_rejects_ambiguous_numeric_payloads() -> None:
+    with TestClient(app) as client:
+        binary_float = client.post(
+            "/api/studio/canonical-adaptive",
+            json={
+                "decision_time": "2025-01-02T00:00:00Z",
+                "trend": 0.01,
+            },
+        )
+        exponent = client.post(
+            "/api/studio/canonical-adaptive",
+            json={
+                "decision_time": "2025-01-02T00:00:00Z",
+                "trend": "1e-2",
+            },
+        )
+        future = client.post(
+            "/api/studio/canonical-adaptive",
+            json={
+                "decision_time": "2025-01-01T00:00:00Z",
+                "trend": "0.0000",
+            },
+        )
+        wrong_quote = client.post(
+            "/api/studio/canonical-adaptive",
+            json={
+                "symbol": "BTCUSDT",
+                "decision_time": "2025-01-01T00:00:00Z",
+            },
+        )
+
+    assert binary_float.status_code == 422
+    assert exponent.status_code == 422
+    assert future.status_code == 200
+    assert wrong_quote.status_code == 422
 
 
 def test_built_typed_studio_and_legacy_frontend_are_both_served() -> None:

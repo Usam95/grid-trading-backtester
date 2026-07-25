@@ -33,6 +33,8 @@ from backend.schemas import (
     BinanceEurResearchCatalog,
     BinanceDatasetPreview,
     BinanceDatasetRequest,
+    CanonicalAdaptivePresentation,
+    CanonicalAdaptiveRequest,
     DatasetManifest,
     GridPreviewBody,
     GridSearchBody,
@@ -153,6 +155,21 @@ def studio_configuration() -> StudioConfiguration:
         spacing=["geometric", "arithmetic"],
         data_regimes=["range", "trend", "random"],
     )
+
+
+@app.post(
+    "/api/studio/canonical-adaptive",
+    response_model=CanonicalAdaptivePresentation,
+)
+def canonical_adaptive(
+    body: CanonicalAdaptiveRequest,
+) -> CanonicalAdaptivePresentation:
+    """Present one deterministic legacy-to-canonical adaptive characterization."""
+    payload = _guard(
+        service.characterize_canonical_adaptive,
+        body.model_dump(),
+    )
+    return CanonicalAdaptivePresentation.model_validate(payload)
 
 
 @app.get(

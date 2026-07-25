@@ -217,6 +217,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/studio/canonical-adaptive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Canonical Adaptive
+         * @description Present one deterministic legacy-to-canonical adaptive characterization.
+         */
+        post: operations["canonical_adaptive_api_studio_canonical_adaptive_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/studio/catalogs/binance/eur": {
         parameters: {
             query?: never;
@@ -508,6 +528,190 @@ export interface components {
             /** Side */
             side?: ("LONG" | "SHORT") | null;
         };
+        /** CanonicalAdaptivePresentation */
+        CanonicalAdaptivePresentation: {
+            configuration: components["schemas"]["CanonicalConfigurationPresentation"];
+            decision: components["schemas"]["CanonicalDecisionPresentation"];
+            derived_plan: components["schemas"]["CanonicalDerivedPlanPresentation"];
+            legacy_comparison: components["schemas"]["LegacyComparisonPresentation"];
+            observation: components["schemas"]["CanonicalObservationPresentation"];
+        };
+        /** CanonicalAdaptiveRequest */
+        CanonicalAdaptiveRequest: {
+            /**
+             * Complete
+             * @default true
+             */
+            complete: boolean;
+            /**
+             * Decision Time
+             * Format: date-time
+             */
+            decision_time: string;
+            /**
+             * Evidence Quality
+             * @default ADMITTED
+             * @enum {string}
+             */
+            evidence_quality: "ADMITTED" | "INCOMPLETE" | "STALE" | "GAPPED" | "CONTRADICTORY" | "AMBIGUOUS";
+            /**
+             * Reference Price
+             * @default 100.00
+             */
+            reference_price: string;
+            /**
+             * Symbol
+             * @default BTCEUR
+             */
+            symbol: string;
+            /**
+             * Trend
+             * @default 0.0000
+             */
+            trend: string;
+            /**
+             * Volatility
+             * @default 0.0100
+             */
+            volatility: string;
+        };
+        /** CanonicalAllocationPresentation */
+        CanonicalAllocationPresentation: {
+            base_allocation: components["schemas"]["ExactValuePresentation"];
+            fee_reserve: components["schemas"]["ExactValuePresentation"];
+            quote_allocation: components["schemas"]["ExactValuePresentation"];
+        };
+        /** CanonicalConfigurationPresentation */
+        CanonicalConfigurationPresentation: {
+            /** Base Asset */
+            base_asset: string;
+            /** Configuration Id */
+            configuration_id: string;
+            /** Execution Policy Id */
+            execution_policy_id: string;
+            /** Operator Inputs */
+            operator_inputs: {
+                [key: string]: components["schemas"]["ExactValuePresentation"];
+            };
+            /** Policy Id */
+            policy_id: string;
+            /** Quote Asset */
+            quote_asset: string;
+            /** Risk Profile Id */
+            risk_profile_id: string;
+            /** Rung Count */
+            rung_count: number;
+            /** Schema Version */
+            schema_version: string;
+            /**
+             * Spacing
+             * @enum {string}
+             */
+            spacing: "ARITHMETIC" | "GEOMETRIC";
+            /** Symbol */
+            symbol: string;
+        };
+        /** CanonicalDecisionPresentation */
+        CanonicalDecisionPresentation: {
+            /**
+             * Adaptation State
+             * @enum {string}
+             */
+            adaptation_state: "RANGE_NORMAL" | "RANGE_HIGH_VOLATILITY" | "TREND_UP" | "TREND_DOWN" | "UNCERTAIN";
+            /** Decision Id */
+            decision_id: string;
+            /**
+             * Intent
+             * @enum {string}
+             */
+            intent: "SYMMETRIC" | "WIDEN" | "SHIFT_UP" | "REDUCE_ONLY" | "FROZEN";
+            /** Permits Exposure Increasing Buy */
+            permits_exposure_increasing_buy: boolean;
+            /** Reason */
+            reason: string;
+            requested_bound_shift: components["schemas"]["ExactValuePresentation"] | null;
+        };
+        /** CanonicalDerivedPlanPresentation */
+        CanonicalDerivedPlanPresentation: {
+            allocation_assumptions: components["schemas"]["CanonicalAllocationPresentation"];
+            /** Derivation Causation Id */
+            derivation_causation_id: string;
+            /** Derivation Semantics */
+            derivation_semantics: string;
+            /** Epoch Id */
+            epoch_id: string;
+            lower: components["schemas"]["ExactValuePresentation"];
+            /** Obligations */
+            obligations: components["schemas"]["CanonicalObligationPresentation"][];
+            /** Predecessor Epoch Id */
+            predecessor_epoch_id: string | null;
+            /** Quantized Rungs */
+            quantized_rungs: components["schemas"]["CanonicalRungPresentation"][];
+            reference_price: components["schemas"]["ExactValuePresentation"];
+            /** Schema Version */
+            schema_version: string;
+            /** Unquantized Rungs */
+            unquantized_rungs: components["schemas"]["ExactValuePresentation"][];
+            upper: components["schemas"]["ExactValuePresentation"];
+            /** Venue Rule Evidence Id */
+            venue_rule_evidence_id: string;
+        };
+        /** CanonicalObligationPresentation */
+        CanonicalObligationPresentation: {
+            fixed_quote_principal: components["schemas"]["ExactValuePresentation"];
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "BUY" | "SELL";
+            /** Rung Index */
+            rung_index: number;
+        };
+        /** CanonicalObservationPresentation */
+        CanonicalObservationPresentation: {
+            /** Complete */
+            complete: boolean;
+            /** Confirmation Ids */
+            confirmation_ids: string[];
+            /**
+             * Decision Time
+             * Format: date-time
+             */
+            decision_time: string;
+            /** Event Id */
+            event_id: string;
+            /**
+             * Event Time
+             * Format: date-time
+             */
+            event_time: string;
+            /** Observation Id */
+            observation_id: string;
+            /** Prior Decision Id */
+            prior_decision_id: string | null;
+            /** Quality */
+            quality: string;
+            reference_price: components["schemas"]["ExactValuePresentation"];
+            /** Schema Version */
+            schema_version: string;
+            /** Source Stream */
+            source_stream: string;
+            /** Source System */
+            source_system: string;
+            trend: components["schemas"]["ExactValuePresentation"];
+            volatility: components["schemas"]["ExactValuePresentation"];
+        };
+        /** CanonicalRungPresentation */
+        CanonicalRungPresentation: {
+            /** Index */
+            index: number;
+            price: components["schemas"]["ExactValuePresentation"];
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "BUY" | "SELL" | "INACTIVE";
+        };
         /** CatalogSourceEvidence */
         CatalogSourceEvidence: {
             /**
@@ -712,6 +916,13 @@ export interface components {
             /** Symbol */
             symbol: string;
         };
+        /** ExactValuePresentation */
+        ExactValuePresentation: {
+            /** Kind */
+            kind: string;
+            /** Value */
+            value: string;
+        };
         /** ExchangeRulesSpec */
         ExchangeRulesSpec: {
             /** Enabled */
@@ -817,6 +1028,21 @@ export interface components {
         ImportDatasetBody: {
             /** Preview Id */
             preview_id: string;
+        };
+        /** LegacyComparisonPresentation */
+        LegacyComparisonPresentation: {
+            /** Bounded Bars */
+            bounded_bars: number;
+            /** Cancelled Orders */
+            cancelled_orders: number;
+            /** Effective Atr Multiplier */
+            effective_atr_multiplier: string;
+            /** Legacy Adaptive */
+            legacy_adaptive: boolean;
+            /** Legacy Spacing */
+            legacy_spacing: string;
+            /** Semantic Differences */
+            semantic_differences: string[];
         };
         /** LiquiditySelectionEvidence */
         LiquiditySelectionEvidence: {
@@ -1501,6 +1727,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StudioBacktestRun"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    canonical_adaptive_api_studio_canonical_adaptive_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CanonicalAdaptiveRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CanonicalAdaptivePresentation"];
                 };
             };
             /** @description Validation Error */

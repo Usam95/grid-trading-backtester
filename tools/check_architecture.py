@@ -20,6 +20,7 @@ SOURCE_ROOTS = (
 DOMAIN_PREFIXES = (
     "gridlab.accounting",
     "gridlab.api",
+    "gridlab.canonical",
     "gridlab.config",
     "gridlab.core",
     "gridlab.engine",

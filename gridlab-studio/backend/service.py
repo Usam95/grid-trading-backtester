@@ -16,10 +16,13 @@ from typing import Any, Optional
 import numpy as np
 import pandas as pd
 
+from gridlab.api.canonical_translation import characterize_legacy_backtest
 from gridlab.api.facade import (
     BacktestSpec, _build_config, _build_strategy, _build_data,
     _enrich_indicators, _config_summary,
 )
+from gridlab.canonical.adaptation import EvidenceQuality
+from gridlab.canonical.events import DomainTime
 from gridlab.config.models import GridConfig
 from gridlab.data.binance_archive import (
     AcquisitionLimits as AcquisitionLimits,
@@ -59,6 +62,133 @@ from gridlab.results.report import render_html_report
 
 MAX_POINTS = 600
 MAX_TRADES = 2000
+
+
+def characterize_canonical_adaptive(request: dict[str, Any]) -> dict[str, Any]:
+    """Translate one bounded legacy backtest through the pure canonical seam."""
+    result = characterize_legacy_backtest(
+        symbol=request["symbol"],
+        decision_time=DomainTime(request["decision_time"]),
+        trend=request["trend"],
+        volatility=request["volatility"],
+        reference_price=request["reference_price"],
+        complete=request["complete"],
+        quality=EvidenceQuality(request["evidence_quality"]),
+    )
+    configuration = result.configuration
+    observation = result.observation
+    decision = result.epoch.decision
+    plan = result.epoch.plan
+    return {
+        "configuration": {
+            "schema_version": configuration.schema_version,
+            "configuration_id": configuration.configuration_id,
+            "policy_id": configuration.adaptation_policy.policy_id,
+            "symbol": configuration.symbol,
+            "base_asset": configuration.base_asset,
+            "quote_asset": configuration.quote_asset,
+            "rung_count": configuration.rung_count,
+            "spacing": configuration.spacing.value,
+            "execution_policy_id": configuration.execution_policy_id,
+            "risk_profile_id": configuration.risk_profile_id,
+            "operator_inputs": {
+                "fixed_quote_principal": configuration.fixed_quote_principal.to_payload(),
+                "maker_fee": configuration.maker_fee.to_payload(),
+                "taker_fee": configuration.taker_fee.to_payload(),
+                "maximum_quote_capital": configuration.maximum_quote_capital.to_payload(),
+                "fee_reserve": configuration.fee_reserve.to_payload(),
+                "stop_price": configuration.stop_price.to_payload(),
+                "lower_bound_limit": configuration.lower_bound_limit.to_payload(),
+                "upper_bound_limit": configuration.upper_bound_limit.to_payload(),
+            },
+        },
+        "observation": {
+            "schema_version": observation.schema_version,
+            "observation_id": observation.observation_id,
+            "event_id": result.event.event_id,
+            "source_system": observation.source.system,
+            "source_stream": observation.source.stream,
+            "event_time": observation.event_time.value,
+            "decision_time": decision.decision_time.value,
+            "complete": observation.complete,
+            "quality": observation.quality.value,
+            "confirmation_ids": [
+                confirmation.confirmation_id
+                for confirmation in observation.confirmations
+            ],
+            "prior_decision_id": (
+                observation.prior_decision.decision_id
+                if observation.prior_decision
+                else None
+            ),
+            "trend": observation.trend.to_payload(),
+            "volatility": observation.volatility.to_payload(),
+            "reference_price": observation.reference_price.to_payload(),
+        },
+        "decision": {
+            "decision_id": decision.decision_id,
+            "adaptation_state": decision.state.value,
+            "intent": decision.intent.value,
+            "reason": decision.reason,
+            "permits_exposure_increasing_buy": (
+                decision.permits_exposure_increasing_buy
+            ),
+            "requested_bound_shift": (
+                decision.requested_bound_shift.to_payload()
+                if decision.requested_bound_shift
+                else None
+            ),
+        },
+        "derived_plan": {
+            "schema_version": plan.schema_version,
+            "epoch_id": result.epoch.epoch_id,
+            "predecessor_epoch_id": result.epoch.predecessor_epoch_id,
+            "derivation_causation_id": result.epoch.derivation_causation_id,
+            "derivation_semantics": plan.derivation_semantics,
+            "venue_rule_evidence_id": result.epoch.venue_rules.evidence_id,
+            "lower": plan.lower.to_payload(),
+            "upper": plan.upper.to_payload(),
+            "reference_price": plan.reference_price.to_payload(),
+            "unquantized_rungs": [
+                value.to_payload() for value in plan.unquantized_rungs
+            ],
+            "quantized_rungs": [
+                {
+                    "index": rung.index,
+                    "price": rung.price.to_payload(),
+                    "role": rung.role,
+                }
+                for rung in plan.rungs
+            ],
+            "obligations": [
+                {
+                    "rung_index": obligation.rung_index,
+                    "role": obligation.role,
+                    "fixed_quote_principal": (
+                        obligation.fixed_quote_principal.to_payload()
+                    ),
+                }
+                for obligation in plan.obligations
+            ],
+            "allocation_assumptions": {
+                "quote_allocation": (
+                    plan.allocation_assumptions.quote_allocation.to_payload()
+                ),
+                "base_allocation": (
+                    plan.allocation_assumptions.base_allocation.to_payload()
+                ),
+                "fee_reserve": plan.allocation_assumptions.fee_reserve.to_payload(),
+            },
+        },
+        "legacy_comparison": {
+            "bounded_bars": result.legacy_result["bars"],
+            "legacy_adaptive": result.legacy_spec["grid"]["adaptive"],
+            "legacy_spacing": result.legacy_spec["grid"]["spacing"],
+            "effective_atr_multiplier": result.legacy_effective_atr_multiplier,
+            "cancelled_orders": result.legacy_cancelled_orders,
+            "semantic_differences": list(result.differences),
+        },
+    }
 
 
 def fingerprint_manifested_backtest(spec: dict, manifest_path: Path) -> dict:

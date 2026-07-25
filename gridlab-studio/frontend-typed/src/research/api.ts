@@ -2,6 +2,8 @@ import type {
   BinanceEurResearchCatalog,
   BinanceDatasetPreview,
   BinanceDatasetRequest,
+  CanonicalAdaptivePresentation,
+  CanonicalAdaptiveRequest,
   DatasetManifest,
   ManifestedBacktestBody,
   ResearchPort,
@@ -29,6 +31,18 @@ export class FastApiResearchClient implements ResearchPort {
   async getEurCatalog(refresh = false): Promise<BinanceEurResearchCatalog> {
     return jsonResponse(
       fetch(`/api/studio/catalogs/binance/eur?refresh=${refresh ? "true" : "false"}`),
+    );
+  }
+
+  async characterizeCanonicalAdaptive(
+    request: CanonicalAdaptiveRequest,
+  ): Promise<CanonicalAdaptivePresentation> {
+    return jsonResponse(
+      fetch("/api/studio/canonical-adaptive", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(request),
+      }),
     );
   }
 

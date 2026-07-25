@@ -12,7 +12,14 @@ from datetime import date, datetime
 from decimal import Decimal
 from typing import Any, Literal, Optional
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import (
+    AwareDatetime,
+    BaseModel,
+    ConfigDict,
+    Field,
+    StrictStr,
+    model_validator,
+)
 
 
 class _Block(BaseModel):
@@ -226,6 +233,129 @@ class StudioConfiguration(_Block):
     default_spec: BacktestRequest
     spacing: list[Literal["geometric", "arithmetic"]]
     data_regimes: list[Literal["range", "trend", "random"]]
+
+
+class CanonicalAdaptiveRequest(_Block):
+    symbol: str = Field(
+        default="BTCEUR", min_length=4, max_length=20, pattern=r"^[A-Z0-9]+EUR$"
+    )
+    decision_time: AwareDatetime
+    trend: StrictStr = Field(default="0.0000", pattern=r"^-?[0-9]+(?:\.[0-9]+)?$")
+    volatility: StrictStr = Field(default="0.0100", pattern=r"^[0-9]+(?:\.[0-9]+)?$")
+    reference_price: StrictStr = Field(
+        default="100.00", pattern=r"^[0-9]+(?:\.[0-9]+)?$"
+    )
+    complete: bool = True
+    evidence_quality: Literal[
+        "ADMITTED",
+        "INCOMPLETE",
+        "STALE",
+        "GAPPED",
+        "CONTRADICTORY",
+        "AMBIGUOUS",
+    ] = "ADMITTED"
+
+
+class ExactValuePresentation(_Block):
+    kind: str
+    value: str
+
+
+class CanonicalConfigurationPresentation(_Block):
+    schema_version: str
+    configuration_id: str
+    policy_id: str
+    symbol: str
+    base_asset: str
+    quote_asset: str
+    rung_count: int
+    spacing: Literal["ARITHMETIC", "GEOMETRIC"]
+    execution_policy_id: str
+    risk_profile_id: str
+    operator_inputs: dict[str, ExactValuePresentation]
+
+
+class CanonicalObservationPresentation(_Block):
+    schema_version: str
+    observation_id: str
+    event_id: str
+    source_system: str
+    source_stream: str
+    event_time: datetime
+    decision_time: datetime
+    complete: bool
+    quality: str
+    confirmation_ids: list[str]
+    prior_decision_id: Optional[str]
+    trend: ExactValuePresentation
+    volatility: ExactValuePresentation
+    reference_price: ExactValuePresentation
+
+
+class CanonicalDecisionPresentation(_Block):
+    decision_id: str
+    adaptation_state: Literal[
+        "RANGE_NORMAL",
+        "RANGE_HIGH_VOLATILITY",
+        "TREND_UP",
+        "TREND_DOWN",
+        "UNCERTAIN",
+    ]
+    intent: Literal["SYMMETRIC", "WIDEN", "SHIFT_UP", "REDUCE_ONLY", "FROZEN"]
+    reason: str
+    permits_exposure_increasing_buy: bool
+    requested_bound_shift: Optional[ExactValuePresentation]
+
+
+class CanonicalRungPresentation(_Block):
+    index: int
+    price: ExactValuePresentation
+    role: Literal["BUY", "SELL", "INACTIVE"]
+
+
+class CanonicalObligationPresentation(_Block):
+    rung_index: int
+    role: Literal["BUY", "SELL"]
+    fixed_quote_principal: ExactValuePresentation
+
+
+class CanonicalAllocationPresentation(_Block):
+    quote_allocation: ExactValuePresentation
+    base_allocation: ExactValuePresentation
+    fee_reserve: ExactValuePresentation
+
+
+class CanonicalDerivedPlanPresentation(_Block):
+    schema_version: str
+    epoch_id: str
+    predecessor_epoch_id: Optional[str]
+    derivation_causation_id: str
+    derivation_semantics: str
+    venue_rule_evidence_id: str
+    lower: ExactValuePresentation
+    upper: ExactValuePresentation
+    reference_price: ExactValuePresentation
+    unquantized_rungs: list[ExactValuePresentation]
+    quantized_rungs: list[CanonicalRungPresentation]
+    obligations: list[CanonicalObligationPresentation]
+    allocation_assumptions: CanonicalAllocationPresentation
+
+
+class LegacyComparisonPresentation(_Block):
+    bounded_bars: int
+    legacy_adaptive: bool
+    legacy_spacing: str
+    effective_atr_multiplier: str
+    cancelled_orders: int
+    semantic_differences: list[str]
+
+
+class CanonicalAdaptivePresentation(_Block):
+    configuration: CanonicalConfigurationPresentation
+    observation: CanonicalObservationPresentation
+    decision: CanonicalDecisionPresentation
+    derived_plan: CanonicalDerivedPlanPresentation
+    legacy_comparison: LegacyComparisonPresentation
 
 
 class BinanceDatasetRequest(_Block):

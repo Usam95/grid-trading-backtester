@@ -3,6 +3,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import type {
   BinanceDatasetPreview,
   BinanceEurResearchCatalog,
+  CanonicalAdaptivePresentation,
   DatasetManifest,
   ManifestedBacktestBody,
   ResearchPort,
@@ -165,6 +166,58 @@ function Results({ run }: { run: StudioBacktestRun }) {
   );
 }
 
+function CanonicalAdaptiveCard({
+  presentation,
+}: {
+  presentation: CanonicalAdaptivePresentation;
+}) {
+  return (
+    <section className="production-data" aria-labelledby="adaptive-seam-heading">
+      <div className="result-heading">
+        <div>
+          <p className="eyebrow">Canonical exact seam</p>
+          <h2 id="adaptive-seam-heading">Adaptive policy characterization</h2>
+          <p>One bounded legacy backtest translated into immutable operator inputs, admitted observation evidence, a fail-closed decision, and a mechanically derived plan.</p>
+        </div>
+        <span className="scope">{presentation.decision.adaptation_state}</span>
+      </div>
+      <div className="production-provenance">
+        <span>Configuration identity</span>
+        <code>{presentation.configuration.configuration_id}</code>
+        <span>Observation identity</span>
+        <code>{presentation.observation.observation_id}</code>
+        <span>Canonical event identity</span>
+        <code>{presentation.observation.event_id}</code>
+        <span>Grid plan epoch identity</span>
+        <code>{presentation.derived_plan.epoch_id}</code>
+        <span>Plan derivation causation</span>
+        <code>{presentation.derived_plan.derivation_causation_id}</code>
+        <div>
+          <strong>{presentation.decision.adaptation_state}</strong>
+          <span>{presentation.decision.intent} · {presentation.decision.reason}</span>
+        </div>
+        <div>
+          <strong>OPERATOR INPUTS</strong>
+          <span>{presentation.configuration.operator_inputs.fixed_quote_principal.value} {presentation.configuration.quote_asset} fixed quote principal · {presentation.configuration.operator_inputs.maximum_quote_capital.value} {presentation.configuration.quote_asset} capital envelope · {presentation.configuration.rung_count} rungs</span>
+        </div>
+        <div>
+          <strong>MECHANICALLY DERIVED PLAN</strong>
+          <span>{presentation.derived_plan.derivation_semantics} · {presentation.derived_plan.unquantized_rungs.length} exact derived prices · {presentation.derived_plan.quantized_rungs.length} quantized rungs · {presentation.derived_plan.obligations.length} obligations</span>
+        </div>
+        <div>
+          <strong>LEGACY COMPARISON</strong>
+          <span>{presentation.legacy_comparison.bounded_bars} bars · adaptive {presentation.legacy_comparison.legacy_spacing} legacy grid · effective ATR multiplier {presentation.legacy_comparison.effective_atr_multiplier} · {presentation.legacy_comparison.cancelled_orders} cancellation events</span>
+        </div>
+        <ul>
+          {presentation.legacy_comparison.semantic_differences.map((difference) => (
+            <li key={difference}>{difference}</li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
 function ResearchWorkspace({ research }: { research: ResearchPort }) {
   const [configuration, setConfiguration] = useState<StudioConfiguration>();
   const [draft, setDraft] = useState<Draft>();
@@ -180,6 +233,8 @@ function ResearchWorkspace({ research }: { research: ResearchPort }) {
   const [preview, setPreview] = useState<BinanceDatasetPreview>();
   const [manifest, setManifest] = useState<DatasetManifest>();
   const [productionBusy, setProductionBusy] = useState(false);
+  const [canonicalAdaptive, setCanonicalAdaptive] =
+    useState<CanonicalAdaptivePresentation>();
 
   useEffect(() => {
     let current = true;
@@ -201,6 +256,18 @@ function ResearchWorkspace({ research }: { research: ResearchPort }) {
         setProductionEnd(selected.coverage.last_date);
       }
     }).catch((reason: unknown) => current && setError(reason instanceof Error ? reason.message : "EUR catalog unavailable"));
+    research.characterizeCanonicalAdaptive({
+      symbol: "BTCEUR",
+      decision_time: "2025-01-02T00:00:00Z",
+      trend: "0.0000",
+      volatility: "0.0100",
+      reference_price: "100.00",
+      complete: true,
+      evidence_quality: "ADMITTED",
+    }).then((value) => current && setCanonicalAdaptive(value))
+      .catch((reason: unknown) => current && setError(
+        reason instanceof Error ? reason.message : "Canonical adaptive seam unavailable",
+      ));
     const runId = window.location.hash.match(/experiments\/([^/]+)$/)?.[1];
     if (runId) research.getBacktest(runId).then((value) => current && setRun(value)).catch(() => undefined);
     return () => { current = false; };
@@ -312,6 +379,7 @@ function ResearchWorkspace({ research }: { research: ResearchPort }) {
   return (
     <main className="workspace">
       <div className="page-title"><div><p className="eyebrow">Research · Experiments</p><h1>Static grid backtest</h1><p>Configure one deterministic local experiment. The browser submits work; the research service owns the completed record.</p></div><span className="scope">MIGRATED WORKFLOW</span></div>
+      {canonicalAdaptive && <CanonicalAdaptiveCard presentation={canonicalAdaptive} />}
       <section className="production-data" aria-labelledby="production-data-heading">
         <div className="result-heading"><div><p className="eyebrow">Manifested market evidence</p><h2 id="production-data-heading">Production history</h2><p>Select a public Testnet/production-compatible EUR market, then preview up to seven complete UTC days before any archive bytes are downloaded.</p></div><span className="scope">1m · MAX 7 DAYS</span></div>
         {catalog && <div className="catalog-identity">

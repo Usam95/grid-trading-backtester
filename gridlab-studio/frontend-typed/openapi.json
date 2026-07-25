@@ -425,6 +425,465 @@
         "title": "BootstrapSpec",
         "type": "object"
       },
+      "CanonicalAdaptivePresentation": {
+        "properties": {
+          "configuration": {
+            "$ref": "#/components/schemas/CanonicalConfigurationPresentation"
+          },
+          "decision": {
+            "$ref": "#/components/schemas/CanonicalDecisionPresentation"
+          },
+          "derived_plan": {
+            "$ref": "#/components/schemas/CanonicalDerivedPlanPresentation"
+          },
+          "legacy_comparison": {
+            "$ref": "#/components/schemas/LegacyComparisonPresentation"
+          },
+          "observation": {
+            "$ref": "#/components/schemas/CanonicalObservationPresentation"
+          }
+        },
+        "required": [
+          "configuration",
+          "observation",
+          "decision",
+          "derived_plan",
+          "legacy_comparison"
+        ],
+        "title": "CanonicalAdaptivePresentation",
+        "type": "object"
+      },
+      "CanonicalAdaptiveRequest": {
+        "properties": {
+          "complete": {
+            "default": true,
+            "title": "Complete",
+            "type": "boolean"
+          },
+          "decision_time": {
+            "format": "date-time",
+            "title": "Decision Time",
+            "type": "string"
+          },
+          "evidence_quality": {
+            "default": "ADMITTED",
+            "enum": [
+              "ADMITTED",
+              "INCOMPLETE",
+              "STALE",
+              "GAPPED",
+              "CONTRADICTORY",
+              "AMBIGUOUS"
+            ],
+            "title": "Evidence Quality",
+            "type": "string"
+          },
+          "reference_price": {
+            "default": "100.00",
+            "pattern": "^[0-9]+(?:\\.[0-9]+)?$",
+            "title": "Reference Price",
+            "type": "string"
+          },
+          "symbol": {
+            "default": "BTCEUR",
+            "maxLength": 20,
+            "minLength": 4,
+            "pattern": "^[A-Z0-9]+EUR$",
+            "title": "Symbol",
+            "type": "string"
+          },
+          "trend": {
+            "default": "0.0000",
+            "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$",
+            "title": "Trend",
+            "type": "string"
+          },
+          "volatility": {
+            "default": "0.0100",
+            "pattern": "^[0-9]+(?:\\.[0-9]+)?$",
+            "title": "Volatility",
+            "type": "string"
+          }
+        },
+        "required": [
+          "decision_time"
+        ],
+        "title": "CanonicalAdaptiveRequest",
+        "type": "object"
+      },
+      "CanonicalAllocationPresentation": {
+        "properties": {
+          "base_allocation": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "fee_reserve": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "quote_allocation": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          }
+        },
+        "required": [
+          "quote_allocation",
+          "base_allocation",
+          "fee_reserve"
+        ],
+        "title": "CanonicalAllocationPresentation",
+        "type": "object"
+      },
+      "CanonicalConfigurationPresentation": {
+        "properties": {
+          "base_asset": {
+            "title": "Base Asset",
+            "type": "string"
+          },
+          "configuration_id": {
+            "title": "Configuration Id",
+            "type": "string"
+          },
+          "execution_policy_id": {
+            "title": "Execution Policy Id",
+            "type": "string"
+          },
+          "operator_inputs": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ExactValuePresentation"
+            },
+            "title": "Operator Inputs",
+            "type": "object"
+          },
+          "policy_id": {
+            "title": "Policy Id",
+            "type": "string"
+          },
+          "quote_asset": {
+            "title": "Quote Asset",
+            "type": "string"
+          },
+          "risk_profile_id": {
+            "title": "Risk Profile Id",
+            "type": "string"
+          },
+          "rung_count": {
+            "title": "Rung Count",
+            "type": "integer"
+          },
+          "schema_version": {
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "spacing": {
+            "enum": [
+              "ARITHMETIC",
+              "GEOMETRIC"
+            ],
+            "title": "Spacing",
+            "type": "string"
+          },
+          "symbol": {
+            "title": "Symbol",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema_version",
+          "configuration_id",
+          "policy_id",
+          "symbol",
+          "base_asset",
+          "quote_asset",
+          "rung_count",
+          "spacing",
+          "execution_policy_id",
+          "risk_profile_id",
+          "operator_inputs"
+        ],
+        "title": "CanonicalConfigurationPresentation",
+        "type": "object"
+      },
+      "CanonicalDecisionPresentation": {
+        "properties": {
+          "adaptation_state": {
+            "enum": [
+              "RANGE_NORMAL",
+              "RANGE_HIGH_VOLATILITY",
+              "TREND_UP",
+              "TREND_DOWN",
+              "UNCERTAIN"
+            ],
+            "title": "Adaptation State",
+            "type": "string"
+          },
+          "decision_id": {
+            "title": "Decision Id",
+            "type": "string"
+          },
+          "intent": {
+            "enum": [
+              "SYMMETRIC",
+              "WIDEN",
+              "SHIFT_UP",
+              "REDUCE_ONLY",
+              "FROZEN"
+            ],
+            "title": "Intent",
+            "type": "string"
+          },
+          "permits_exposure_increasing_buy": {
+            "title": "Permits Exposure Increasing Buy",
+            "type": "boolean"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "requested_bound_shift": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ExactValuePresentation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "decision_id",
+          "adaptation_state",
+          "intent",
+          "reason",
+          "permits_exposure_increasing_buy",
+          "requested_bound_shift"
+        ],
+        "title": "CanonicalDecisionPresentation",
+        "type": "object"
+      },
+      "CanonicalDerivedPlanPresentation": {
+        "properties": {
+          "allocation_assumptions": {
+            "$ref": "#/components/schemas/CanonicalAllocationPresentation"
+          },
+          "derivation_causation_id": {
+            "title": "Derivation Causation Id",
+            "type": "string"
+          },
+          "derivation_semantics": {
+            "title": "Derivation Semantics",
+            "type": "string"
+          },
+          "epoch_id": {
+            "title": "Epoch Id",
+            "type": "string"
+          },
+          "lower": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "obligations": {
+            "items": {
+              "$ref": "#/components/schemas/CanonicalObligationPresentation"
+            },
+            "title": "Obligations",
+            "type": "array"
+          },
+          "predecessor_epoch_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Predecessor Epoch Id"
+          },
+          "quantized_rungs": {
+            "items": {
+              "$ref": "#/components/schemas/CanonicalRungPresentation"
+            },
+            "title": "Quantized Rungs",
+            "type": "array"
+          },
+          "reference_price": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "schema_version": {
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "unquantized_rungs": {
+            "items": {
+              "$ref": "#/components/schemas/ExactValuePresentation"
+            },
+            "title": "Unquantized Rungs",
+            "type": "array"
+          },
+          "upper": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "venue_rule_evidence_id": {
+            "title": "Venue Rule Evidence Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema_version",
+          "epoch_id",
+          "predecessor_epoch_id",
+          "derivation_causation_id",
+          "derivation_semantics",
+          "venue_rule_evidence_id",
+          "lower",
+          "upper",
+          "reference_price",
+          "unquantized_rungs",
+          "quantized_rungs",
+          "obligations",
+          "allocation_assumptions"
+        ],
+        "title": "CanonicalDerivedPlanPresentation",
+        "type": "object"
+      },
+      "CanonicalObligationPresentation": {
+        "properties": {
+          "fixed_quote_principal": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "role": {
+            "enum": [
+              "BUY",
+              "SELL"
+            ],
+            "title": "Role",
+            "type": "string"
+          },
+          "rung_index": {
+            "title": "Rung Index",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "rung_index",
+          "role",
+          "fixed_quote_principal"
+        ],
+        "title": "CanonicalObligationPresentation",
+        "type": "object"
+      },
+      "CanonicalObservationPresentation": {
+        "properties": {
+          "complete": {
+            "title": "Complete",
+            "type": "boolean"
+          },
+          "confirmation_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Confirmation Ids",
+            "type": "array"
+          },
+          "decision_time": {
+            "format": "date-time",
+            "title": "Decision Time",
+            "type": "string"
+          },
+          "event_id": {
+            "title": "Event Id",
+            "type": "string"
+          },
+          "event_time": {
+            "format": "date-time",
+            "title": "Event Time",
+            "type": "string"
+          },
+          "observation_id": {
+            "title": "Observation Id",
+            "type": "string"
+          },
+          "prior_decision_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prior Decision Id"
+          },
+          "quality": {
+            "title": "Quality",
+            "type": "string"
+          },
+          "reference_price": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "schema_version": {
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "source_stream": {
+            "title": "Source Stream",
+            "type": "string"
+          },
+          "source_system": {
+            "title": "Source System",
+            "type": "string"
+          },
+          "trend": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "volatility": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          }
+        },
+        "required": [
+          "schema_version",
+          "observation_id",
+          "event_id",
+          "source_system",
+          "source_stream",
+          "event_time",
+          "decision_time",
+          "complete",
+          "quality",
+          "confirmation_ids",
+          "prior_decision_id",
+          "trend",
+          "volatility",
+          "reference_price"
+        ],
+        "title": "CanonicalObservationPresentation",
+        "type": "object"
+      },
+      "CanonicalRungPresentation": {
+        "properties": {
+          "index": {
+            "title": "Index",
+            "type": "integer"
+          },
+          "price": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "role": {
+            "enum": [
+              "BUY",
+              "SELL",
+              "INACTIVE"
+            ],
+            "title": "Role",
+            "type": "string"
+          }
+        },
+        "required": [
+          "index",
+          "price",
+          "role"
+        ],
+        "title": "CanonicalRungPresentation",
+        "type": "object"
+      },
       "CatalogSourceEvidence": {
         "properties": {
           "environment": {
@@ -1041,6 +1500,24 @@
         "title": "EurCatalogSymbolEvidence",
         "type": "object"
       },
+      "ExactValuePresentation": {
+        "properties": {
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "value": {
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "value"
+        ],
+        "title": "ExactValuePresentation",
+        "type": "object"
+      },
       "ExchangeRulesSpec": {
         "properties": {
           "enabled": {
@@ -1487,6 +1964,47 @@
           "preview_id"
         ],
         "title": "ImportDatasetBody",
+        "type": "object"
+      },
+      "LegacyComparisonPresentation": {
+        "properties": {
+          "bounded_bars": {
+            "title": "Bounded Bars",
+            "type": "integer"
+          },
+          "cancelled_orders": {
+            "title": "Cancelled Orders",
+            "type": "integer"
+          },
+          "effective_atr_multiplier": {
+            "title": "Effective Atr Multiplier",
+            "type": "string"
+          },
+          "legacy_adaptive": {
+            "title": "Legacy Adaptive",
+            "type": "boolean"
+          },
+          "legacy_spacing": {
+            "title": "Legacy Spacing",
+            "type": "string"
+          },
+          "semantic_differences": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Semantic Differences",
+            "type": "array"
+          }
+        },
+        "required": [
+          "bounded_bars",
+          "legacy_adaptive",
+          "legacy_spacing",
+          "effective_atr_multiplier",
+          "cancelled_orders",
+          "semantic_differences"
+        ],
+        "title": "LegacyComparisonPresentation",
         "type": "object"
       },
       "LiquiditySelectionEvidence": {
@@ -2696,6 +3214,45 @@
           }
         },
         "summary": "Get Studio Backtest"
+      }
+    },
+    "/api/studio/canonical-adaptive": {
+      "post": {
+        "description": "Present one deterministic legacy-to-canonical adaptive characterization.",
+        "operationId": "canonical_adaptive_api_studio_canonical_adaptive_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CanonicalAdaptiveRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CanonicalAdaptivePresentation"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Canonical Adaptive"
       }
     },
     "/api/studio/catalogs/binance/eur": {

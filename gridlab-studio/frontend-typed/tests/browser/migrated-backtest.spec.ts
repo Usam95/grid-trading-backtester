@@ -63,6 +63,18 @@ test("operator completes and reloads the migrated typed backtest while legacy st
 
   await page.goto("/studio/");
   await expect(page.getByText("NO ONLINE TRADING AUTHORITY")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Adaptive policy characterization" })).toBeVisible();
+  await expect(page.locator(".scope", { hasText: "RANGE_NORMAL" })).toBeVisible();
+  const configurationIdentity = await page.getByText("Configuration identity")
+    .locator("xpath=following-sibling::code[1]").innerText();
+  const observationIdentity = await page.getByText("Observation identity")
+    .locator("xpath=following-sibling::code[1]").innerText();
+  const eventIdentity = await page.getByText("Canonical event identity")
+    .locator("xpath=following-sibling::code[1]").innerText();
+  const epochIdentity = await page.getByText("Grid plan epoch identity")
+    .locator("xpath=following-sibling::code[1]").innerText();
+  const derivationCausation = await page.getByText("Plan derivation causation")
+    .locator("xpath=following-sibling::code[1]").innerText();
   await expect(page.getByRole("navigation", { name: "Studio" })).toContainText(
     "Command Center",
   );
@@ -80,6 +92,16 @@ test("operator completes and reloads the migrated typed backtest while legacy st
   await expect(page).toHaveURL(new RegExp(`/experiments/${runId}$`));
 
   await page.reload();
+  await expect(page.getByText("Configuration identity")
+    .locator("xpath=following-sibling::code[1]")).toHaveText(configurationIdentity);
+  await expect(page.getByText("Observation identity")
+    .locator("xpath=following-sibling::code[1]")).toHaveText(observationIdentity);
+  await expect(page.getByText("Canonical event identity")
+    .locator("xpath=following-sibling::code[1]")).toHaveText(eventIdentity);
+  await expect(page.getByText("Grid plan epoch identity")
+    .locator("xpath=following-sibling::code[1]")).toHaveText(epochIdentity);
+  await expect(page.getByText("Plan derivation causation")
+    .locator("xpath=following-sibling::code[1]")).toHaveText(derivationCausation);
   await expect(
     page.getByRole("heading", { name: "ETHUSDT primary result" }),
   ).toBeVisible();

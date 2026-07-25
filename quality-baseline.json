@@ -104,6 +104,7 @@
         "gridlab-studio.entrypoint": {"line_percent": 0.0, "branch_percent": 0.0, "covered_lines": 0, "covered_branches": 0},
         "gridlab.accounting": {"line_percent": 92.5926, "branch_percent": 82.1429, "covered_lines": 125, "covered_branches": 23},
         "gridlab.api": {"line_percent": 90.7285, "branch_percent": 69.0476, "covered_lines": 137, "covered_branches": 29},
+        "gridlab.canonical": {"line_percent": 99.5, "branch_percent": 100.0, "covered_lines": 405, "covered_branches": 126},
         "gridlab.config": {"line_percent": 88.7097, "branch_percent": 56.25, "covered_lines": 110, "covered_branches": 18},
         "gridlab.core": {"line_percent": 95.7447, "branch_percent": 81.25, "covered_lines": 225, "covered_branches": 13},
         "gridlab.data": {"line_percent": 58.1006, "branch_percent": 35.1852, "covered_lines": 104, "covered_branches": 19},
