@@ -239,6 +239,42 @@ const canonicalAdaptive: CanonicalAdaptivePresentation = {
     permits_exposure_increasing_buy: true,
     requested_bound_shift: null,
   },
+  activation: {
+    schema_version: "initial-epoch-activation/v1",
+    lifecycle: "BOOTSTRAPPING",
+    replay_fingerprint: identity("a"),
+    ladder_placement_allowed: false,
+    activation_pending: false,
+    automatically_armed: false,
+    derived_width: { kind: "ratio", value: "0.0400" },
+    gates: [
+      {
+        name: "quality_approved_past_only_evidence",
+        outcome: "PASSED",
+        reason: "qualified_sideways_range",
+      },
+      {
+        name: "activation_price_strictly_inside_bounds",
+        outcome: "PASSED",
+        reason: "activation_price_inside_derived_bounds",
+      },
+      {
+        name: "capital_and_fee_coverage",
+        outcome: "PASSED",
+        reason: "planned_obligations_fit_capital_envelope",
+      },
+      {
+        name: "bootstrap_inventory_complete",
+        outcome: "BLOCKED",
+        reason: "required_backing_inventory_not_confirmed",
+      },
+    ],
+    bootstrap_evidence: {
+      complete: false,
+      net_base_confirmed: { kind: "base_quantity", value: "0" },
+      evidence_id: null,
+    },
+  },
   derived_plan: {
     schema_version: "grid-plan/v1",
     epoch_id: identity("6"),
@@ -246,16 +282,41 @@ const canonicalAdaptive: CanonicalAdaptivePresentation = {
     derivation_causation_id: identity("4"),
     derivation_semantics: "bounded-symmetric-geometric/v1",
     venue_rule_evidence_id: identity("7"),
-    lower: { kind: "price", value: "90.00" },
-    upper: { kind: "price", value: "110.00" },
+    lower: { kind: "price", value: "96.000000" },
+    upper: { kind: "price", value: "104.000000" },
     reference_price: { kind: "price", value: "100.00" },
-    unquantized_rungs: [],
-    quantized_rungs: [],
-    obligations: [],
+    activation_price: { kind: "price", value: "100.00" },
+    unquantized_rungs: [
+      { kind: "price", value: "96.000000" },
+      { kind: "price", value: "97.941125496954281171240529379361208784543249014745" },
+      { kind: "price", value: "99.921537826482739726869338565769719813532289400057" },
+      { kind: "price", value: "101.94199907753713939235021015220813827736184800424" },
+      { kind: "price", value: "104.000000" },
+    ],
+    quantized_rungs: [
+      { index: 0, price: { kind: "price", value: "96.00" }, role: "BUY" },
+      { index: 1, price: { kind: "price", value: "97.94" }, role: "BUY" },
+      { index: 2, price: { kind: "price", value: "99.92" }, role: "BUY" },
+      { index: 3, price: { kind: "price", value: "101.95" }, role: "SELL" },
+      { index: 4, price: { kind: "price", value: "104.00" }, role: "SELL" },
+    ],
+    obligations: [
+      { rung_index: 0, role: "BUY", fixed_quote_principal: { kind: "quote_quantity", value: "20.00" }, base_quantity: { kind: "base_quantity", value: "0.20833" } },
+      { rung_index: 1, role: "BUY", fixed_quote_principal: { kind: "quote_quantity", value: "20.00" }, base_quantity: { kind: "base_quantity", value: "0.20420" } },
+      { rung_index: 2, role: "BUY", fixed_quote_principal: { kind: "quote_quantity", value: "20.00" }, base_quantity: { kind: "base_quantity", value: "0.20016" } },
+      { rung_index: 3, role: "SELL", fixed_quote_principal: { kind: "quote_quantity", value: "20.00" }, base_quantity: { kind: "base_quantity", value: "0.19617" } },
+      { rung_index: 4, role: "SELL", fixed_quote_principal: { kind: "quote_quantity", value: "20.00" }, base_quantity: { kind: "base_quantity", value: "0.19230" } },
+    ],
     allocation_assumptions: {
-      quote_allocation: { kind: "quote_quantity", value: "245.00" },
+      quote_allocation: { kind: "quote_quantity", value: "98.8870000" },
       base_allocation: { kind: "base_quantity", value: "0.00000" },
       fee_reserve: { kind: "quote_quantity", value: "5.00" },
+    },
+    maximum_planned_inventory: { kind: "base_quantity", value: "1.00116" },
+    bootstrap_obligation: {
+      net_base_required: { kind: "base_quantity", value: "0.38847" },
+      gross_base_required: { kind: "base_quantity", value: "0.38886" },
+      fee_base_coverage: { kind: "base_quantity", value: "0.00039" },
     },
   },
   legacy_comparison: {
@@ -321,14 +382,20 @@ describe("typed Studio shell", () => {
     expect(screen.getByText("run-typed-001")).toBeTruthy();
   });
 
-  it("presents deterministic adaptive identities and explicit legacy differences", async () => {
+  it("presents the obligation-backed adaptive initial epoch and activation gates", async () => {
     render(<App research={researchPort()} />);
 
     expect(await screen.findByText("Adaptive policy characterization")).toBeTruthy();
-    expect(screen.getAllByText("RANGE_NORMAL")).toHaveLength(2);
+    expect(screen.getByText("RANGE_NORMAL")).toBeTruthy();
+    expect(screen.getAllByText("BOOTSTRAPPING")).toHaveLength(2);
     expect(screen.getByText(identity("1"))).toBeTruthy();
     expect(screen.getByText(identity("3"))).toBeTruthy();
     expect(screen.getByText(identity("6"))).toBeTruthy();
+    expect(screen.getByText(identity("a"))).toBeTruthy();
+    expect(screen.getByText("required_backing_inventory_not_confirmed", { exact: false })).toBeTruthy();
+    expect(screen.getAllByText("BUY")).toHaveLength(3);
+    expect(screen.getAllByText("SELL")).toHaveLength(2);
+    expect(screen.getByText("0.38886 BTC gross", { exact: false })).toBeTruthy();
     expect(screen.getByText(
       "canonical seam emits no immediate cancel-all/rebuild transition",
     )).toBeTruthy();

@@ -425,8 +425,39 @@
         "title": "BootstrapSpec",
         "type": "object"
       },
+      "CanonicalActivationGatePresentation": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "outcome": {
+            "enum": [
+              "PASSED",
+              "FAILED",
+              "BLOCKED"
+            ],
+            "title": "Outcome",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "outcome",
+          "reason"
+        ],
+        "title": "CanonicalActivationGatePresentation",
+        "type": "object"
+      },
       "CanonicalAdaptivePresentation": {
         "properties": {
+          "activation": {
+            "$ref": "#/components/schemas/CanonicalInitialActivationPresentation"
+          },
           "configuration": {
             "$ref": "#/components/schemas/CanonicalConfigurationPresentation"
           },
@@ -434,7 +465,14 @@
             "$ref": "#/components/schemas/CanonicalDecisionPresentation"
           },
           "derived_plan": {
-            "$ref": "#/components/schemas/CanonicalDerivedPlanPresentation"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CanonicalDerivedPlanPresentation"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "legacy_comparison": {
             "$ref": "#/components/schemas/LegacyComparisonPresentation"
@@ -447,6 +485,7 @@
           "configuration",
           "observation",
           "decision",
+          "activation",
           "derived_plan",
           "legacy_comparison"
         ],
@@ -455,6 +494,34 @@
       },
       "CanonicalAdaptiveRequest": {
         "properties": {
+          "activation_price": {
+            "default": "100.00",
+            "pattern": "^[0-9]+(?:\\.[0-9]+)?$",
+            "title": "Activation Price",
+            "type": "string"
+          },
+          "bootstrap_complete": {
+            "default": false,
+            "title": "Bootstrap Complete",
+            "type": "boolean"
+          },
+          "bootstrap_confirmed_base": {
+            "default": "0",
+            "pattern": "^[0-9]+(?:\\.[0-9]+)?$",
+            "title": "Bootstrap Confirmed Base",
+            "type": "string"
+          },
+          "bootstrap_evidence_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bootstrap Evidence Id"
+          },
           "complete": {
             "default": true,
             "title": "Complete",
@@ -464,6 +531,18 @@
             "format": "date-time",
             "title": "Decision Time",
             "type": "string"
+          },
+          "event_time": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Event Time"
           },
           "evidence_quality": {
             "default": "ADMITTED",
@@ -478,10 +557,39 @@
             "title": "Evidence Quality",
             "type": "string"
           },
+          "observed_count": {
+            "default": 24,
+            "maximum": 100000.0,
+            "minimum": 0.0,
+            "title": "Observed Count",
+            "type": "integer"
+          },
           "reference_price": {
             "default": "100.00",
             "pattern": "^[0-9]+(?:\\.[0-9]+)?$",
             "title": "Reference Price",
+            "type": "string"
+          },
+          "sequence_end": {
+            "default": 24,
+            "maximum": 100000.0,
+            "minimum": 0.0,
+            "title": "Sequence End",
+            "type": "integer"
+          },
+          "spacing": {
+            "default": "GEOMETRIC",
+            "enum": [
+              "GEOMETRIC",
+              "ARITHMETIC"
+            ],
+            "title": "Spacing",
+            "type": "string"
+          },
+          "step_size": {
+            "default": "0.00001",
+            "pattern": "^[0-9]+(?:\\.[0-9]+)?$",
+            "title": "Step Size",
             "type": "string"
           },
           "symbol": {
@@ -490,6 +598,12 @@
             "minLength": 4,
             "pattern": "^[A-Z0-9]+EUR$",
             "title": "Symbol",
+            "type": "string"
+          },
+          "tick_size": {
+            "default": "0.01",
+            "pattern": "^[0-9]+(?:\\.[0-9]+)?$",
+            "title": "Tick Size",
             "type": "string"
           },
           "trend": {
@@ -529,6 +643,55 @@
           "fee_reserve"
         ],
         "title": "CanonicalAllocationPresentation",
+        "type": "object"
+      },
+      "CanonicalBootstrapEvidencePresentation": {
+        "properties": {
+          "complete": {
+            "title": "Complete",
+            "type": "boolean"
+          },
+          "evidence_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence Id"
+          },
+          "net_base_confirmed": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          }
+        },
+        "required": [
+          "complete",
+          "net_base_confirmed",
+          "evidence_id"
+        ],
+        "title": "CanonicalBootstrapEvidencePresentation",
+        "type": "object"
+      },
+      "CanonicalBootstrapObligationPresentation": {
+        "properties": {
+          "fee_base_coverage": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "gross_base_required": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "net_base_required": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          }
+        },
+        "required": [
+          "net_base_required",
+          "gross_base_required",
+          "fee_base_coverage"
+        ],
+        "title": "CanonicalBootstrapObligationPresentation",
         "type": "object"
       },
       "CanonicalConfigurationPresentation": {
@@ -661,8 +824,21 @@
       },
       "CanonicalDerivedPlanPresentation": {
         "properties": {
+          "activation_price": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
           "allocation_assumptions": {
             "$ref": "#/components/schemas/CanonicalAllocationPresentation"
+          },
+          "bootstrap_obligation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CanonicalBootstrapObligationPresentation"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "derivation_causation_id": {
             "title": "Derivation Causation Id",
@@ -678,6 +854,16 @@
           },
           "lower": {
             "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "maximum_planned_inventory": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ExactValuePresentation"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "obligations": {
             "items": {
@@ -736,16 +922,95 @@
           "lower",
           "upper",
           "reference_price",
+          "activation_price",
           "unquantized_rungs",
           "quantized_rungs",
           "obligations",
-          "allocation_assumptions"
+          "allocation_assumptions",
+          "maximum_planned_inventory",
+          "bootstrap_obligation"
         ],
         "title": "CanonicalDerivedPlanPresentation",
         "type": "object"
       },
+      "CanonicalInitialActivationPresentation": {
+        "properties": {
+          "activation_pending": {
+            "title": "Activation Pending",
+            "type": "boolean"
+          },
+          "automatically_armed": {
+            "title": "Automatically Armed",
+            "type": "boolean"
+          },
+          "bootstrap_evidence": {
+            "$ref": "#/components/schemas/CanonicalBootstrapEvidencePresentation"
+          },
+          "derived_width": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ExactValuePresentation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "gates": {
+            "items": {
+              "$ref": "#/components/schemas/CanonicalActivationGatePresentation"
+            },
+            "title": "Gates",
+            "type": "array"
+          },
+          "ladder_placement_allowed": {
+            "title": "Ladder Placement Allowed",
+            "type": "boolean"
+          },
+          "lifecycle": {
+            "enum": [
+              "REJECTED",
+              "BOOTSTRAPPING",
+              "ACTIVE"
+            ],
+            "title": "Lifecycle",
+            "type": "string"
+          },
+          "replay_fingerprint": {
+            "title": "Replay Fingerprint",
+            "type": "string"
+          },
+          "schema_version": {
+            "title": "Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema_version",
+          "lifecycle",
+          "replay_fingerprint",
+          "ladder_placement_allowed",
+          "activation_pending",
+          "automatically_armed",
+          "derived_width",
+          "gates",
+          "bootstrap_evidence"
+        ],
+        "title": "CanonicalInitialActivationPresentation",
+        "type": "object"
+      },
       "CanonicalObligationPresentation": {
         "properties": {
+          "base_quantity": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ExactValuePresentation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "fixed_quote_principal": {
             "$ref": "#/components/schemas/ExactValuePresentation"
           },
@@ -765,7 +1030,8 @@
         "required": [
           "rung_index",
           "role",
-          "fixed_quote_principal"
+          "fixed_quote_principal",
+          "base_quantity"
         ],
         "title": "CanonicalObligationPresentation",
         "type": "object"

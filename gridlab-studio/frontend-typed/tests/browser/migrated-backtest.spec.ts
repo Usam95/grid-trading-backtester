@@ -64,7 +64,11 @@ test("operator completes and reloads the migrated typed backtest while legacy st
   await page.goto("/studio/");
   await expect(page.getByText("NO ONLINE TRADING AUTHORITY")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Adaptive policy characterization" })).toBeVisible();
-  await expect(page.locator(".scope", { hasText: "RANGE_NORMAL" })).toBeVisible();
+  await expect(page.locator(".scope", { hasText: "BOOTSTRAPPING" })).toBeVisible();
+  await expect(page.getByText("required_backing_inventory_not_confirmed", { exact: false })).toBeVisible();
+  await expect(page.getByLabel("Initial rung ladder").getByText("BUY")).toHaveCount(3);
+  await expect(page.getByLabel("Initial rung ladder").getByText("SELL")).toHaveCount(2);
+  await expect(page.getByText("Ladder placement blocked", { exact: false })).toBeVisible();
   const configurationIdentity = await page.getByText("Configuration identity")
     .locator("xpath=following-sibling::code[1]").innerText();
   const observationIdentity = await page.getByText("Observation identity")

@@ -171,15 +171,16 @@ function CanonicalAdaptiveCard({
 }: {
   presentation: CanonicalAdaptivePresentation;
 }) {
+  const plan = presentation.derived_plan;
   return (
     <section className="production-data" aria-labelledby="adaptive-seam-heading">
       <div className="result-heading">
         <div>
           <p className="eyebrow">Canonical exact seam</p>
           <h2 id="adaptive-seam-heading">Adaptive policy characterization</h2>
-          <p>One bounded legacy backtest translated into immutable operator inputs, admitted observation evidence, a fail-closed decision, and a mechanically derived plan.</p>
+          <p>Quality-approved past-only evidence drives one immutable initial epoch, explicit activation gates, and a fully quantified bootstrap obligation.</p>
         </div>
-        <span className="scope">{presentation.decision.adaptation_state}</span>
+        <span className="scope">{presentation.activation.lifecycle}</span>
       </div>
       <div className="production-provenance">
         <span>Configuration identity</span>
@@ -188,10 +189,14 @@ function CanonicalAdaptiveCard({
         <code>{presentation.observation.observation_id}</code>
         <span>Canonical event identity</span>
         <code>{presentation.observation.event_id}</code>
-        <span>Grid plan epoch identity</span>
-        <code>{presentation.derived_plan.epoch_id}</code>
-        <span>Plan derivation causation</span>
-        <code>{presentation.derived_plan.derivation_causation_id}</code>
+        <span>Activation replay fingerprint</span>
+        <code>{presentation.activation.replay_fingerprint}</code>
+        {plan && <>
+          <span>Grid plan epoch identity</span>
+          <code>{plan.epoch_id}</code>
+          <span>Plan derivation causation</span>
+          <code>{plan.derivation_causation_id}</code>
+        </>}
         <div>
           <strong>{presentation.decision.adaptation_state}</strong>
           <span>{presentation.decision.intent} · {presentation.decision.reason}</span>
@@ -201,9 +206,36 @@ function CanonicalAdaptiveCard({
           <span>{presentation.configuration.operator_inputs.fixed_quote_principal.value} {presentation.configuration.quote_asset} fixed quote principal · {presentation.configuration.operator_inputs.maximum_quote_capital.value} {presentation.configuration.quote_asset} capital envelope · {presentation.configuration.rung_count} rungs</span>
         </div>
         <div>
-          <strong>MECHANICALLY DERIVED PLAN</strong>
-          <span>{presentation.derived_plan.derivation_semantics} · {presentation.derived_plan.unquantized_rungs.length} exact derived prices · {presentation.derived_plan.quantized_rungs.length} quantized rungs · {presentation.derived_plan.obligations.length} obligations</span>
+          <strong>{presentation.activation.lifecycle}</strong>
+          <span>{presentation.activation.ladder_placement_allowed ? "Ladder placement allowed" : "Ladder placement blocked"} · no pending or automatically armed activation</span>
         </div>
+        <div className="activation-gates" aria-label="Initial activation gates">
+          {presentation.activation.gates.map((gate) => (
+            <div key={gate.name}>
+              <strong>{gate.outcome}</strong>
+              <span>{gate.name} · {gate.reason}</span>
+            </div>
+          ))}
+        </div>
+        {plan && <>
+          <div>
+            <strong>IMMUTABLE INITIAL EPOCH</strong>
+            <span>{plan.derivation_semantics} · bounds {plan.lower.value}–{plan.upper.value} {presentation.configuration.quote_asset} · activation {plan.activation_price.value} · {plan.quantized_rungs.length} rungs</span>
+          </div>
+          <div className="initial-ladder" aria-label="Initial rung ladder">
+            {plan.quantized_rungs.map((rung) => (
+              <div key={rung.index}>
+                <strong>{rung.role}</strong>
+                <span>Rung {rung.index + 1} · {rung.price.value}</span>
+              </div>
+            ))}
+          </div>
+          <div>
+            <strong>BOOTSTRAP OBLIGATION</strong>
+            <span>{plan.bootstrap_obligation?.gross_base_required.value ?? "0"} {presentation.configuration.base_asset} gross · {plan.bootstrap_obligation?.fee_base_coverage.value ?? "0"} conservative base-fee coverage · {plan.maximum_planned_inventory?.value ?? "0"} maximum planned inventory</span>
+          </div>
+        </>}
+        {!plan && <div><strong>NO EPOCH DERIVED</strong><span>Activation was rejected before acquisition; a fresh explicit attempt is required.</span></div>}
         <div>
           <strong>LEGACY COMPARISON</strong>
           <span>{presentation.legacy_comparison.bounded_bars} bars · adaptive {presentation.legacy_comparison.legacy_spacing} legacy grid · effective ATR multiplier {presentation.legacy_comparison.effective_atr_multiplier} · {presentation.legacy_comparison.cancelled_orders} cancellation events</span>
@@ -262,6 +294,16 @@ function ResearchWorkspace({ research }: { research: ResearchPort }) {
       trend: "0.0000",
       volatility: "0.0100",
       reference_price: "100.00",
+      activation_price: "100.00",
+      event_time: null,
+      observed_count: 24,
+      sequence_end: 24,
+      spacing: "GEOMETRIC",
+      tick_size: "0.01",
+      step_size: "0.00001",
+      bootstrap_complete: false,
+      bootstrap_confirmed_base: "0",
+      bootstrap_evidence_id: null,
       complete: true,
       evidence_quality: "ADMITTED",
     }).then((value) => current && setCanonicalAdaptive(value))

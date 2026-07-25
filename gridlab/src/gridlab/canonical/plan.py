@@ -43,6 +43,9 @@ class DerivedGridPlan:
     obligations: tuple[GridObligation, ...]
     allocation_assumptions: AllocationAssumptions
     derivation_semantics: str
+    activation_price: ExactDecimal | None = None
+    bootstrap_obligation: BootstrapObligation | None = None
+    maximum_planned_inventory: ExactDecimal | None = None
 
     def __post_init__(self) -> None:
         if self.schema_version != "grid-plan/v1" or not self.derivation_semantics:
@@ -56,6 +59,9 @@ class DerivedGridPlan:
             raise ValueError("grid plan bounds and reference must use price values")
         if self.fixed_quote_principal.kind != "quote_quantity":
             raise ValueError("grid plan principal must use quote_quantity")
+        activation_price = self.activation_price or self.reference_price
+        if activation_price.kind != "price" or activation_price.decimal <= 0:
+            raise ValueError("grid plan activation price must use a positive price value")
         if not self.lower.decimal < self.reference_price.decimal < self.upper.decimal:
             raise ValueError("reference price must be strictly inside grid bounds")
         if len(self.rungs) < 2:
@@ -75,11 +81,13 @@ class DerivedGridPlan:
         if prices != tuple(sorted(prices)) or len(set(prices)) != len(prices):
             raise ValueError("grid plan rung prices must be unique and ordered")
         if any(
-            (rung.role == "BUY" and rung.price.decimal >= self.reference_price.decimal)
-            or (rung.role == "SELL" and rung.price.decimal <= self.reference_price.decimal)
+            (rung.role == "BUY" and rung.price.decimal >= activation_price.decimal)
+            or (rung.role == "SELL" and rung.price.decimal <= activation_price.decimal)
             for rung in self.rungs
         ):
-            raise ValueError("grid rung roles conflict with the reference price")
+            raise ValueError(
+                "grid rung roles conflict with the reference price or activation price"
+            )
         obligation_roles = tuple(
             (obligation.rung_index, obligation.role) for obligation in self.obligations
         )
@@ -88,6 +96,26 @@ class DerivedGridPlan:
         )
         if obligation_roles != active_rung_roles:
             raise ValueError("grid plan obligations must cover every active rung")
+        if any(obligation.base_quantity is None for obligation in self.obligations):
+            if self.bootstrap_obligation is not None or self.maximum_planned_inventory is not None:
+                raise ValueError("obligation-backed plans require exact base quantities")
+        if self.maximum_planned_inventory is not None:
+            if (
+                self.maximum_planned_inventory.kind != "base_quantity"
+                or self.maximum_planned_inventory.decimal < 0
+            ):
+                raise ValueError("maximum planned inventory must be non-negative base quantity")
+        if self.bootstrap_obligation is not None:
+            sell_quantity = sum(
+                (
+                    obligation.base_quantity.decimal
+                    for obligation in self.obligations
+                    if obligation.role == "SELL" and obligation.base_quantity is not None
+                ),
+                Decimal("0"),
+            )
+            if self.bootstrap_obligation.net_base_required.decimal != sell_quantity:
+                raise ValueError("bootstrap obligation must cover every initial sell quantity")
 
 
 @dataclass(frozen=True, slots=True)
@@ -95,6 +123,7 @@ class GridObligation:
     rung_index: int
     role: str
     fixed_quote_principal: ExactDecimal
+    base_quantity: ExactDecimal | None = None
 
     def __post_init__(self) -> None:
         if self.rung_index < 0 or self.role not in {"BUY", "SELL"}:
@@ -104,6 +133,37 @@ class GridObligation:
             or self.fixed_quote_principal.decimal <= 0
         ):
             raise ValueError("grid obligation principal must be positive quote quantity")
+        if self.base_quantity is not None and (
+            self.base_quantity.kind != "base_quantity" or self.base_quantity.decimal <= 0
+        ):
+            raise ValueError("grid obligation base quantity must be positive")
+
+
+@dataclass(frozen=True, slots=True)
+class BootstrapObligation:
+    schema_version: str
+    net_base_required: ExactDecimal
+    gross_base_required: ExactDecimal
+    fee_base_coverage: ExactDecimal
+
+    def __post_init__(self) -> None:
+        if self.schema_version != "bootstrap-obligation/v1":
+            raise ValueError("unsupported bootstrap obligation schema")
+        for field_name in (
+            "net_base_required",
+            "gross_base_required",
+            "fee_base_coverage",
+        ):
+            value = getattr(self, field_name)
+            if value.kind != "base_quantity" or value.decimal < 0:
+                raise ValueError(f"{field_name} must be non-negative base quantity")
+        if self.gross_base_required.decimal < self.net_base_required.decimal:
+            raise ValueError("gross bootstrap quantity cannot be below the net obligation")
+        if (
+            self.gross_base_required.decimal - self.net_base_required.decimal
+            != self.fee_base_coverage.decimal
+        ):
+            raise ValueError("bootstrap fee coverage must reconcile exactly")
 
 
 @dataclass(frozen=True, slots=True)

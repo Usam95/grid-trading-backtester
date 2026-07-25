@@ -528,16 +528,46 @@ export interface components {
             /** Side */
             side?: ("LONG" | "SHORT") | null;
         };
+        /** CanonicalActivationGatePresentation */
+        CanonicalActivationGatePresentation: {
+            /** Name */
+            name: string;
+            /**
+             * Outcome
+             * @enum {string}
+             */
+            outcome: "PASSED" | "FAILED" | "BLOCKED";
+            /** Reason */
+            reason: string;
+        };
         /** CanonicalAdaptivePresentation */
         CanonicalAdaptivePresentation: {
+            activation: components["schemas"]["CanonicalInitialActivationPresentation"];
             configuration: components["schemas"]["CanonicalConfigurationPresentation"];
             decision: components["schemas"]["CanonicalDecisionPresentation"];
-            derived_plan: components["schemas"]["CanonicalDerivedPlanPresentation"];
+            derived_plan: components["schemas"]["CanonicalDerivedPlanPresentation"] | null;
             legacy_comparison: components["schemas"]["LegacyComparisonPresentation"];
             observation: components["schemas"]["CanonicalObservationPresentation"];
         };
         /** CanonicalAdaptiveRequest */
         CanonicalAdaptiveRequest: {
+            /**
+             * Activation Price
+             * @default 100.00
+             */
+            activation_price: string;
+            /**
+             * Bootstrap Complete
+             * @default false
+             */
+            bootstrap_complete: boolean;
+            /**
+             * Bootstrap Confirmed Base
+             * @default 0
+             */
+            bootstrap_confirmed_base: string;
+            /** Bootstrap Evidence Id */
+            bootstrap_evidence_id?: string | null;
             /**
              * Complete
              * @default true
@@ -548,6 +578,8 @@ export interface components {
              * Format: date-time
              */
             decision_time: string;
+            /** Event Time */
+            event_time?: string | null;
             /**
              * Evidence Quality
              * @default ADMITTED
@@ -555,15 +587,41 @@ export interface components {
              */
             evidence_quality: "ADMITTED" | "INCOMPLETE" | "STALE" | "GAPPED" | "CONTRADICTORY" | "AMBIGUOUS";
             /**
+             * Observed Count
+             * @default 24
+             */
+            observed_count: number;
+            /**
              * Reference Price
              * @default 100.00
              */
             reference_price: string;
             /**
+             * Sequence End
+             * @default 24
+             */
+            sequence_end: number;
+            /**
+             * Spacing
+             * @default GEOMETRIC
+             * @enum {string}
+             */
+            spacing: "GEOMETRIC" | "ARITHMETIC";
+            /**
+             * Step Size
+             * @default 0.00001
+             */
+            step_size: string;
+            /**
              * Symbol
              * @default BTCEUR
              */
             symbol: string;
+            /**
+             * Tick Size
+             * @default 0.01
+             */
+            tick_size: string;
             /**
              * Trend
              * @default 0.0000
@@ -580,6 +638,20 @@ export interface components {
             base_allocation: components["schemas"]["ExactValuePresentation"];
             fee_reserve: components["schemas"]["ExactValuePresentation"];
             quote_allocation: components["schemas"]["ExactValuePresentation"];
+        };
+        /** CanonicalBootstrapEvidencePresentation */
+        CanonicalBootstrapEvidencePresentation: {
+            /** Complete */
+            complete: boolean;
+            /** Evidence Id */
+            evidence_id: string | null;
+            net_base_confirmed: components["schemas"]["ExactValuePresentation"];
+        };
+        /** CanonicalBootstrapObligationPresentation */
+        CanonicalBootstrapObligationPresentation: {
+            fee_base_coverage: components["schemas"]["ExactValuePresentation"];
+            gross_base_required: components["schemas"]["ExactValuePresentation"];
+            net_base_required: components["schemas"]["ExactValuePresentation"];
         };
         /** CanonicalConfigurationPresentation */
         CanonicalConfigurationPresentation: {
@@ -633,7 +705,9 @@ export interface components {
         };
         /** CanonicalDerivedPlanPresentation */
         CanonicalDerivedPlanPresentation: {
+            activation_price: components["schemas"]["ExactValuePresentation"];
             allocation_assumptions: components["schemas"]["CanonicalAllocationPresentation"];
+            bootstrap_obligation: components["schemas"]["CanonicalBootstrapObligationPresentation"] | null;
             /** Derivation Causation Id */
             derivation_causation_id: string;
             /** Derivation Semantics */
@@ -641,6 +715,7 @@ export interface components {
             /** Epoch Id */
             epoch_id: string;
             lower: components["schemas"]["ExactValuePresentation"];
+            maximum_planned_inventory: components["schemas"]["ExactValuePresentation"] | null;
             /** Obligations */
             obligations: components["schemas"]["CanonicalObligationPresentation"][];
             /** Predecessor Epoch Id */
@@ -656,8 +731,31 @@ export interface components {
             /** Venue Rule Evidence Id */
             venue_rule_evidence_id: string;
         };
+        /** CanonicalInitialActivationPresentation */
+        CanonicalInitialActivationPresentation: {
+            /** Activation Pending */
+            activation_pending: boolean;
+            /** Automatically Armed */
+            automatically_armed: boolean;
+            bootstrap_evidence: components["schemas"]["CanonicalBootstrapEvidencePresentation"];
+            derived_width: components["schemas"]["ExactValuePresentation"] | null;
+            /** Gates */
+            gates: components["schemas"]["CanonicalActivationGatePresentation"][];
+            /** Ladder Placement Allowed */
+            ladder_placement_allowed: boolean;
+            /**
+             * Lifecycle
+             * @enum {string}
+             */
+            lifecycle: "REJECTED" | "BOOTSTRAPPING" | "ACTIVE";
+            /** Replay Fingerprint */
+            replay_fingerprint: string;
+            /** Schema Version */
+            schema_version: string;
+        };
         /** CanonicalObligationPresentation */
         CanonicalObligationPresentation: {
+            base_quantity: components["schemas"]["ExactValuePresentation"] | null;
             fixed_quote_principal: components["schemas"]["ExactValuePresentation"];
             /**
              * Role

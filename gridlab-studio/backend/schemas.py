@@ -245,6 +245,22 @@ class CanonicalAdaptiveRequest(_Block):
     reference_price: StrictStr = Field(
         default="100.00", pattern=r"^[0-9]+(?:\.[0-9]+)?$"
     )
+    activation_price: StrictStr = Field(
+        default="100.00", pattern=r"^[0-9]+(?:\.[0-9]+)?$"
+    )
+    event_time: Optional[AwareDatetime] = None
+    observed_count: int = Field(default=24, ge=0, le=100_000)
+    sequence_end: int = Field(default=24, ge=0, le=100_000)
+    spacing: Literal["GEOMETRIC", "ARITHMETIC"] = "GEOMETRIC"
+    tick_size: StrictStr = Field(default="0.01", pattern=r"^[0-9]+(?:\.[0-9]+)?$")
+    step_size: StrictStr = Field(
+        default="0.00001", pattern=r"^[0-9]+(?:\.[0-9]+)?$"
+    )
+    bootstrap_complete: bool = False
+    bootstrap_confirmed_base: StrictStr = Field(
+        default="0", pattern=r"^[0-9]+(?:\.[0-9]+)?$"
+    )
+    bootstrap_evidence_id: Optional[str] = None
     complete: bool = True
     evidence_quality: Literal[
         "ADMITTED",
@@ -317,6 +333,7 @@ class CanonicalObligationPresentation(_Block):
     rung_index: int
     role: Literal["BUY", "SELL"]
     fixed_quote_principal: ExactValuePresentation
+    base_quantity: Optional[ExactValuePresentation]
 
 
 class CanonicalAllocationPresentation(_Block):
@@ -335,10 +352,43 @@ class CanonicalDerivedPlanPresentation(_Block):
     lower: ExactValuePresentation
     upper: ExactValuePresentation
     reference_price: ExactValuePresentation
+    activation_price: ExactValuePresentation
     unquantized_rungs: list[ExactValuePresentation]
     quantized_rungs: list[CanonicalRungPresentation]
     obligations: list[CanonicalObligationPresentation]
     allocation_assumptions: CanonicalAllocationPresentation
+    maximum_planned_inventory: Optional[ExactValuePresentation]
+    bootstrap_obligation: Optional["CanonicalBootstrapObligationPresentation"]
+
+
+class CanonicalBootstrapObligationPresentation(_Block):
+    net_base_required: ExactValuePresentation
+    gross_base_required: ExactValuePresentation
+    fee_base_coverage: ExactValuePresentation
+
+
+class CanonicalActivationGatePresentation(_Block):
+    name: str
+    outcome: Literal["PASSED", "FAILED", "BLOCKED"]
+    reason: str
+
+
+class CanonicalBootstrapEvidencePresentation(_Block):
+    complete: bool
+    net_base_confirmed: ExactValuePresentation
+    evidence_id: Optional[str]
+
+
+class CanonicalInitialActivationPresentation(_Block):
+    schema_version: str
+    lifecycle: Literal["REJECTED", "BOOTSTRAPPING", "ACTIVE"]
+    replay_fingerprint: str
+    ladder_placement_allowed: bool
+    activation_pending: bool
+    automatically_armed: bool
+    derived_width: Optional[ExactValuePresentation]
+    gates: list[CanonicalActivationGatePresentation]
+    bootstrap_evidence: CanonicalBootstrapEvidencePresentation
 
 
 class LegacyComparisonPresentation(_Block):
@@ -354,7 +404,8 @@ class CanonicalAdaptivePresentation(_Block):
     configuration: CanonicalConfigurationPresentation
     observation: CanonicalObservationPresentation
     decision: CanonicalDecisionPresentation
-    derived_plan: CanonicalDerivedPlanPresentation
+    activation: CanonicalInitialActivationPresentation
+    derived_plan: Optional[CanonicalDerivedPlanPresentation]
     legacy_comparison: LegacyComparisonPresentation
 
 

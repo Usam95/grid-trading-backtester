@@ -153,6 +153,17 @@ def test_canonical_adaptive_contract_is_exact_typed_and_deterministic() -> None:
     assert payload["observation"]["event_id"].startswith("sha256:")
     assert payload["decision"]["adaptation_state"] == "RANGE_NORMAL"
     assert payload["derived_plan"]["epoch_id"].startswith("sha256:")
+    assert payload["activation"]["lifecycle"] == "BOOTSTRAPPING"
+    assert payload["activation"]["ladder_placement_allowed"] is False
+    assert payload["activation"]["activation_pending"] is False
+    assert payload["activation"]["automatically_armed"] is False
+    assert payload["activation"]["replay_fingerprint"].startswith("sha256:")
+    assert payload["derived_plan"]["lower"]["value"] == "96.000000"
+    assert payload["derived_plan"]["upper"]["value"] == "104.000000"
+    assert payload["derived_plan"]["maximum_planned_inventory"]["kind"] == "base_quantity"
+    assert payload["derived_plan"]["bootstrap_obligation"]["gross_base_required"][
+        "kind"
+    ] == "base_quantity"
     assert payload["configuration"]["operator_inputs"]["maker_fee"] == {
         "kind": "fee_rate",
         "value": "0.0010",
@@ -166,11 +177,77 @@ def test_canonical_adaptive_contract_is_exact_typed_and_deterministic() -> None:
     assert incomplete.status_code == 200
     assert incomplete.json()["decision"]["adaptation_state"] == "UNCERTAIN"
     assert incomplete.json()["decision"]["intent"] == "FROZEN"
-    assert incomplete.json()["derived_plan"]["obligations"] == []
-    assert all(
-        rung["role"] == "INACTIVE"
-        for rung in incomplete.json()["derived_plan"]["quantized_rungs"]
-    )
+    assert incomplete.json()["activation"]["lifecycle"] == "REJECTED"
+    assert incomplete.json()["activation"]["activation_pending"] is False
+    assert incomplete.json()["activation"]["automatically_armed"] is False
+    assert incomplete.json()["derived_plan"] is None
+
+
+def test_initial_epoch_contract_supports_arithmetic_and_blocks_boundaries() -> None:
+    request = {
+        "symbol": "BTCEUR",
+        "decision_time": "2025-01-02T00:00:00Z",
+        "trend": "0.0000",
+        "volatility": "0.0100",
+        "reference_price": "100.00",
+        "activation_price": "100.00",
+        "complete": True,
+        "evidence_quality": "ADMITTED",
+        "spacing": "ARITHMETIC",
+    }
+    with TestClient(app) as client:
+        arithmetic = client.post("/api/studio/canonical-adaptive", json=request)
+        boundary = client.post(
+            "/api/studio/canonical-adaptive",
+            json={**request, "activation_price": "96.00"},
+        )
+
+    assert arithmetic.status_code == 200, arithmetic.text
+    payload = arithmetic.json()
+    assert payload["configuration"]["spacing"] == "ARITHMETIC"
+    assert [rung["role"] for rung in payload["derived_plan"]["quantized_rungs"]] == [
+        "BUY",
+        "BUY",
+        "INACTIVE",
+        "SELL",
+        "SELL",
+    ]
+    assert boundary.status_code == 200
+    assert boundary.json()["activation"]["lifecycle"] == "REJECTED"
+    assert boundary.json()["derived_plan"] is None
+
+
+def test_complete_bootstrap_evidence_activates_without_changing_epoch_identity() -> None:
+    request = {
+        "symbol": "BTCEUR",
+        "decision_time": "2025-01-02T00:00:00Z",
+        "trend": "0.0000",
+        "volatility": "0.0100",
+        "reference_price": "100.00",
+        "activation_price": "100.00",
+        "complete": True,
+        "evidence_quality": "ADMITTED",
+    }
+    with TestClient(app) as client:
+        pending = client.post("/api/studio/canonical-adaptive", json=request).json()
+        required = pending["derived_plan"]["bootstrap_obligation"]["net_base_required"][
+            "value"
+        ]
+        active = client.post(
+            "/api/studio/canonical-adaptive",
+            json={
+                **request,
+                "bootstrap_complete": True,
+                "bootstrap_confirmed_base": required,
+                "bootstrap_evidence_id": "sha256:" + "b" * 64,
+            },
+        )
+
+    assert active.status_code == 200, active.text
+    payload = active.json()
+    assert payload["activation"]["lifecycle"] == "ACTIVE"
+    assert payload["activation"]["ladder_placement_allowed"] is True
+    assert payload["derived_plan"]["epoch_id"] == pending["derived_plan"]["epoch_id"]
 
 
 def test_canonical_adaptive_boundary_rejects_ambiguous_numeric_payloads() -> None:

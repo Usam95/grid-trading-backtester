@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import bisect
 import math
+from dataclasses import replace
 from pathlib import Path
 from typing import Any, Optional
 
@@ -21,8 +22,11 @@ from gridlab.api.facade import (
     BacktestSpec, _build_config, _build_strategy, _build_data,
     _enrich_indicators, _config_summary,
 )
-from gridlab.canonical.adaptation import EvidenceQuality
-from gridlab.canonical.events import DomainTime
+from gridlab.canonical.adaptation import EvidenceQuality, decide_adaptation
+from gridlab.canonical.configuration import Spacing
+from gridlab.canonical.events import CanonicalEvent, DomainTime
+from gridlab.canonical.initial_epoch import BootstrapEvidence, derive_initial_epoch
+from gridlab.canonical.values import ExactDecimal
 from gridlab.config.models import GridConfig
 from gridlab.data.binance_archive import (
     AcquisitionLimits as AcquisitionLimits,
@@ -65,7 +69,7 @@ MAX_TRADES = 2000
 
 
 def characterize_canonical_adaptive(request: dict[str, Any]) -> dict[str, Any]:
-    """Translate one bounded legacy backtest through the pure canonical seam."""
+    """Derive one bounded adaptive initial epoch beside the legacy diagnostic."""
     result = characterize_legacy_backtest(
         symbol=request["symbol"],
         decision_time=DomainTime(request["decision_time"]),
@@ -75,10 +79,84 @@ def characterize_canonical_adaptive(request: dict[str, Any]) -> dict[str, Any]:
         complete=request["complete"],
         quality=EvidenceQuality(request["evidence_quality"]),
     )
-    configuration = result.configuration
-    observation = result.observation
-    decision = result.epoch.decision
-    plan = result.epoch.plan
+    configuration = replace(
+        result.configuration,
+        spacing=Spacing(request["spacing"]),
+    )
+    event_time = DomainTime(request.get("event_time") or request["decision_time"])
+    confirmations = tuple(
+        replace(
+            confirmation,
+            decision_time=DomainTime(
+                event_time.value
+                - configuration.adaptation_policy.maximum_observation_age
+                + configuration.adaptation_policy.maximum_observation_age
+                * index
+                / (len(result.observation.confirmations) + 1)
+            ),
+        )
+        for index, confirmation in enumerate(
+            result.observation.confirmations,
+            start=1,
+        )
+    )
+    observation = replace(
+        result.observation,
+        event_time=event_time,
+        window_start=DomainTime(
+            event_time.value - configuration.adaptation_policy.observation_window
+        ),
+        window_end=event_time,
+        observed_count=request["observed_count"],
+        sequence_end=request["sequence_end"],
+        confirmations=confirmations,
+    )
+    decision_time = DomainTime(request["decision_time"])
+    decision = decide_adaptation(
+        configuration.adaptation_policy,
+        observation,
+        decision_time,
+    )
+    bootstrap_evidence = BootstrapEvidence(
+        schema_version="bootstrap-evidence/v1",
+        complete=request["bootstrap_complete"],
+        net_base_confirmed=ExactDecimal.parse(
+            request["bootstrap_confirmed_base"],
+            kind="base_quantity",
+        ),
+        evidence_id=request.get("bootstrap_evidence_id"),
+    )
+    venue_rules = replace(
+        result.epoch.venue_rules,
+        observed_at=decision_time,
+        tick_size=ExactDecimal.parse(request["tick_size"], kind="price_increment"),
+        step_size=ExactDecimal.parse(request["step_size"], kind="quantity_increment"),
+    )
+    event = CanonicalEvent.create(
+        schema=observation.schema_version,
+        source=observation.source,
+        source_event_key=observation.observation_id,
+        source_sequence=observation.sequence_end,
+        event_time=observation.event_time,
+        received_time=decision_time,
+        correlation_id=f"initial-epoch-characterization:{configuration.symbol}",
+        causation_id=None,
+        payload={"observation_id": observation.observation_id},
+    )
+    activation = derive_initial_epoch(
+        configuration=configuration,
+        observation=observation,
+        decision_time=decision_time,
+        activation_price=ExactDecimal.parse(
+            request["activation_price"],
+            kind="price",
+        ),
+        derivation_causation_id=event.event_id,
+        venue_rules=venue_rules,
+        bootstrap_evidence=bootstrap_evidence,
+    )
+    epoch = activation.epoch
+    plan = epoch.plan if epoch is not None else None
     return {
         "configuration": {
             "schema_version": configuration.schema_version,
@@ -105,7 +183,7 @@ def characterize_canonical_adaptive(request: dict[str, Any]) -> dict[str, Any]:
         "observation": {
             "schema_version": observation.schema_version,
             "observation_id": observation.observation_id,
-            "event_id": result.event.event_id,
+            "event_id": event.event_id,
             "source_system": observation.source.system,
             "source_stream": observation.source.stream,
             "event_time": observation.event_time.value,
@@ -139,47 +217,109 @@ def characterize_canonical_adaptive(request: dict[str, Any]) -> dict[str, Any]:
                 else None
             ),
         },
-        "derived_plan": {
-            "schema_version": plan.schema_version,
-            "epoch_id": result.epoch.epoch_id,
-            "predecessor_epoch_id": result.epoch.predecessor_epoch_id,
-            "derivation_causation_id": result.epoch.derivation_causation_id,
-            "derivation_semantics": plan.derivation_semantics,
-            "venue_rule_evidence_id": result.epoch.venue_rules.evidence_id,
-            "lower": plan.lower.to_payload(),
-            "upper": plan.upper.to_payload(),
-            "reference_price": plan.reference_price.to_payload(),
-            "unquantized_rungs": [
-                value.to_payload() for value in plan.unquantized_rungs
-            ],
-            "quantized_rungs": [
+        "activation": {
+            "schema_version": activation.schema_version,
+            "lifecycle": activation.lifecycle.value,
+            "replay_fingerprint": activation.replay_fingerprint,
+            "ladder_placement_allowed": activation.ladder_placement_allowed,
+            "activation_pending": activation.activation_pending,
+            "automatically_armed": activation.automatically_armed,
+            "derived_width": (
+                activation.derived_width.to_payload()
+                if activation.derived_width is not None
+                else None
+            ),
+            "gates": [
                 {
-                    "index": rung.index,
-                    "price": rung.price.to_payload(),
-                    "role": rung.role,
+                    "name": gate.name,
+                    "outcome": gate.outcome.value,
+                    "reason": gate.reason,
                 }
-                for rung in plan.rungs
+                for gate in activation.gates
             ],
-            "obligations": [
-                {
-                    "rung_index": obligation.rung_index,
-                    "role": obligation.role,
-                    "fixed_quote_principal": (
-                        obligation.fixed_quote_principal.to_payload()
-                    ),
-                }
-                for obligation in plan.obligations
-            ],
-            "allocation_assumptions": {
-                "quote_allocation": (
-                    plan.allocation_assumptions.quote_allocation.to_payload()
+            "bootstrap_evidence": {
+                "complete": activation.bootstrap_evidence.complete,
+                "net_base_confirmed": (
+                    activation.bootstrap_evidence.net_base_confirmed.to_payload()
                 ),
-                "base_allocation": (
-                    plan.allocation_assumptions.base_allocation.to_payload()
-                ),
-                "fee_reserve": plan.allocation_assumptions.fee_reserve.to_payload(),
+                "evidence_id": activation.bootstrap_evidence.evidence_id,
             },
         },
+        "derived_plan": (
+            {
+                "schema_version": plan.schema_version,
+                "epoch_id": epoch.epoch_id,
+                "predecessor_epoch_id": epoch.predecessor_epoch_id,
+                "derivation_causation_id": epoch.derivation_causation_id,
+                "derivation_semantics": plan.derivation_semantics,
+                "venue_rule_evidence_id": epoch.venue_rules.evidence_id,
+                "lower": plan.lower.to_payload(),
+                "upper": plan.upper.to_payload(),
+                "reference_price": plan.reference_price.to_payload(),
+                "activation_price": (
+                    plan.activation_price.to_payload()
+                    if plan.activation_price is not None
+                    else plan.reference_price.to_payload()
+                ),
+                "unquantized_rungs": [
+                    value.to_payload() for value in plan.unquantized_rungs
+                ],
+                "quantized_rungs": [
+                    {
+                        "index": rung.index,
+                        "price": rung.price.to_payload(),
+                        "role": rung.role,
+                    }
+                    for rung in plan.rungs
+                ],
+                "obligations": [
+                    {
+                        "rung_index": obligation.rung_index,
+                        "role": obligation.role,
+                        "fixed_quote_principal": (
+                            obligation.fixed_quote_principal.to_payload()
+                        ),
+                        "base_quantity": (
+                            obligation.base_quantity.to_payload()
+                            if obligation.base_quantity is not None
+                            else None
+                        ),
+                    }
+                    for obligation in plan.obligations
+                ],
+                "allocation_assumptions": {
+                    "quote_allocation": (
+                        plan.allocation_assumptions.quote_allocation.to_payload()
+                    ),
+                    "base_allocation": (
+                        plan.allocation_assumptions.base_allocation.to_payload()
+                    ),
+                    "fee_reserve": plan.allocation_assumptions.fee_reserve.to_payload(),
+                },
+                "maximum_planned_inventory": (
+                    activation.maximum_planned_inventory.to_payload()
+                    if activation.maximum_planned_inventory is not None
+                    else None
+                ),
+                "bootstrap_obligation": (
+                    {
+                        "net_base_required": (
+                            activation.bootstrap_obligation.net_base_required.to_payload()
+                        ),
+                        "gross_base_required": (
+                            activation.bootstrap_obligation.gross_base_required.to_payload()
+                        ),
+                        "fee_base_coverage": (
+                            activation.bootstrap_obligation.fee_base_coverage.to_payload()
+                        ),
+                    }
+                    if activation.bootstrap_obligation is not None
+                    else None
+                ),
+            }
+            if plan is not None and epoch is not None
+            else None
+        ),
         "legacy_comparison": {
             "bounded_bars": result.legacy_result["bars"],
             "legacy_adaptive": result.legacy_spec["grid"]["adaptive"],

@@ -16,8 +16,17 @@ from gridlab.canonical.configuration import (
     StrategyConfiguration,
 )
 from gridlab.canonical.events import CanonicalEvent, DomainTime, EventSource
+from gridlab.canonical.initial_epoch import (
+    ActivationGate,
+    ActivationGateOutcome,
+    ActivationLifecycle,
+    BootstrapEvidence,
+    InitialEpochActivation,
+    derive_initial_epoch,
+)
 from gridlab.canonical.plan import (
     AllocationAssumptions,
+    BootstrapObligation,
     DerivedGridPlan,
     GridObligation,
     GridPlanEpoch,
@@ -32,6 +41,11 @@ __all__ = [
     "AdaptationPolicy",
     "AdaptationState",
     "AllocationAssumptions",
+    "ActivationGate",
+    "ActivationGateOutcome",
+    "ActivationLifecycle",
+    "BootstrapEvidence",
+    "BootstrapObligation",
     "CanonicalEvent",
     "ConfirmationEvidence",
     "DecisionIntent",
@@ -48,4 +62,6 @@ __all__ = [
     "StrategyConfiguration",
     "VenueRuleEvidence",
     "decide_adaptation",
+    "derive_initial_epoch",
+    "InitialEpochActivation",
 ]
