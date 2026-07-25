@@ -102,6 +102,16 @@ class CanonicalEvent:
         return content_identity("canonical-event/v1", self.identity_payload())
 
     @property
+    def admission_fingerprint(self) -> str:
+        return content_identity(
+            "canonical-admitted-event/v1",
+            {
+                "event": self.identity_payload(),
+                "received_time": identity_payload(self.received_time),
+            },
+        )
+
+    @property
     def ordering_key(self) -> tuple[datetime, str, str, int, str]:
         return (
             self.event_time.value,
