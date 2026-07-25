@@ -273,6 +273,49 @@ def test_operator_control_contract_is_typed_and_identifies_projection_basis() ->
     }
 
 
+def test_epoch_transition_contract_reports_progress_gates_and_refusals() -> None:
+    with TestClient(app) as client:
+        nominal = client.get("/api/studio/epoch-transition")
+        expired = client.get("/api/studio/epoch-transition?scenario=expired")
+
+    assert nominal.status_code == 200, nominal.text
+    payload = nominal.json()
+    assert payload["phase"] == "BOOTSTRAPPING"
+    assert payload["active_epoch_id"].startswith("sha256:")
+    assert payload["proposed_epoch_id"].startswith("sha256:")
+    assert payload["evidence"]["adaptation_state"] == "RANGE_HIGH_VOLATILITY"
+    assert payload["permissions"] == {
+        "placement_allowed": False,
+        "replacement_allowed": False,
+        "cancellation_allowed": True,
+        "reconciliation_allowed": True,
+        "inventory_reduction_allowed": True,
+    }
+    assert payload["inventory_basis"]["authoritative"] is True
+    assert payload["replacement_activation"]["lifecycle"] == "BOOTSTRAPPING"
+    assert payload["replacement_activation"]["admission_context"]["still_effective_order_count"] == 2
+    assert any(
+        step["phase"] == "OLD_EXPOSURE_BLOCKED" and step["status"] == "COMPLETED"
+        for step in payload["progress"]
+    )
+    assert payload["refusal_reason"] is None
+
+    assert expired.status_code == 200, expired.text
+    refused = expired.json()
+    assert refused["phase"] == "ACTIVE"
+    assert refused["refusal_reason"] == "transition_expired"
+    assert refused["proposed_epoch_id"] is None
+    assert next(gate for gate in refused["gates"] if gate["name"] == "expiry")["reason"] == (
+        "transition_expired"
+    )
+    schema = app.openapi()
+    assert schema["paths"]["/api/studio/epoch-transition"]["get"]["responses"]["200"][
+        "content"
+    ]["application/json"]["schema"] == {
+        "$ref": "#/components/schemas/EpochTransitionPresentation"
+    }
+
+
 def test_initial_epoch_contract_supports_arithmetic_and_blocks_boundaries() -> None:
     request = {
         "symbol": "BTCEUR",

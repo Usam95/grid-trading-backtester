@@ -705,6 +705,137 @@ class OperatorControlsPresentation(_Block):
     terminal: TerminalDisposalPresentation
 
 
+class EpochTransitionEvidencePresentation(_Block):
+    observation_id: str
+    decision_id: str
+    adaptation_state: Literal[
+        "RANGE_NORMAL",
+        "RANGE_HIGH_VOLATILITY",
+        "TREND_UP",
+        "TREND_DOWN",
+        "UNCERTAIN",
+    ]
+    intent: Literal["SYMMETRIC", "WIDEN", "SHIFT_UP", "REDUCE_ONLY", "FROZEN"]
+    reason: str
+
+
+class EpochTransitionGatePresentation(_Block):
+    name: str
+    outcome: Literal["PASSED", "FAILED", "NOT_APPLICABLE"]
+    reason: str
+
+
+class EpochTransitionProgressPresentation(_Block):
+    phase: Literal[
+        "CHANGE_CONFIRMED",
+        "TRANSITION_REQUESTED",
+        "OLD_EXPOSURE_BLOCKED",
+        "CANCELLING",
+        "RECONCILING",
+        "DERIVING",
+        "VALIDATING",
+        "BOOTSTRAPPING",
+        "ACTIVATING",
+        "ACTIVE",
+    ]
+    status: Literal["PENDING", "CURRENT", "COMPLETED", "SKIPPED", "FAILED"]
+    reason: str
+
+
+class EpochTransitionPermissionsPresentation(_Block):
+    placement_allowed: bool
+    replacement_allowed: bool
+    cancellation_allowed: bool
+    reconciliation_allowed: bool
+    inventory_reduction_allowed: bool
+
+
+class EpochTransitionOrderPresentation(_Block):
+    order_id: str
+    epoch_id: str
+    side: Literal["BUY", "SELL"]
+    state: Literal["OPEN", "CANCEL_PENDING", "CANCELLED", "FILLED", "UNKNOWN"]
+    exposure_increasing: bool
+    inventory_reducing: bool
+    terminal_proven: bool
+    outcome_unknown: bool
+
+
+class EpochTransitionLateFillPresentation(_Block):
+    fill_id: str
+    order_id: str
+    original_epoch_id: str
+    posting_epoch_id: str
+
+
+class EpochTransitionAdmissionAssessmentPresentation(_Block):
+    capital_envelope: ExactValuePresentation
+    total_quote_commitment: ExactValuePresentation
+    bootstrap_quote_commitment: ExactValuePresentation
+    fee_reserve: ExactValuePresentation
+    maximum_planned_inventory: ExactValuePresentation
+    total_worst_case_inventory: ExactValuePresentation
+    total_order_count: int
+    venue_order_capacity: Optional[int]
+
+
+class EpochTransitionActivationPresentation(_Block):
+    lifecycle: Literal["REJECTED", "BOOTSTRAPPING", "ACTIVE"]
+    replay_fingerprint: str
+    ladder_placement_allowed: bool
+    bootstrap_required: bool
+    admission_context: CanonicalAdmissionContextPresentation
+    admission_assessment: Optional[EpochTransitionAdmissionAssessmentPresentation]
+    gates: list[CanonicalActivationGatePresentation]
+
+
+class EpochTransitionPresentation(_Block):
+    schema_version: Literal["epoch-transition-evaluation/v1"]
+    decision_time: datetime
+    fingerprint: str
+    active_epoch_id: str
+    proposed_epoch_id: Optional[str]
+    phase: Literal[
+        "ACTIVE",
+        "CHANGE_CONFIRMED",
+        "TRANSITION_REQUESTED",
+        "OLD_EXPOSURE_BLOCKED",
+        "CANCELLING",
+        "RECONCILING",
+        "DERIVING",
+        "VALIDATING",
+        "BOOTSTRAPPING",
+        "ACTIVATING",
+    ]
+    posture: Literal[
+        "NORMAL", "REDUCE_ONLY", "TERMINAL_LIQUIDATION", "FROZEN", "CLOSED"
+    ]
+    evidence: EpochTransitionEvidencePresentation
+    refusal_reason: Optional[str]
+    crash_safe: bool
+    restart_boundaries: list[
+        Literal[
+            "CHANGE_CONFIRMED",
+            "TRANSITION_REQUESTED",
+            "OLD_EXPOSURE_BLOCKED",
+            "CANCELLING",
+            "RECONCILING",
+            "DERIVING",
+            "VALIDATING",
+            "BOOTSTRAPPING",
+            "ACTIVATING",
+            "ACTIVE",
+        ]
+    ]
+    gates: list[EpochTransitionGatePresentation]
+    progress: list[EpochTransitionProgressPresentation]
+    permissions: EpochTransitionPermissionsPresentation
+    inventory_basis: AuthoritativeInventoryBasisPresentation
+    old_orders: list[EpochTransitionOrderPresentation]
+    late_fill_postings: list[EpochTransitionLateFillPresentation]
+    replacement_activation: Optional[EpochTransitionActivationPresentation]
+
+
 class BinanceDatasetRequest(_Block):
     catalog_id: Optional[str] = Field(
         default=None, min_length=64, max_length=64, pattern=r"^[0-9a-f]{64}$"

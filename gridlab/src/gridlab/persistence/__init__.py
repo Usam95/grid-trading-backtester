@@ -9,6 +9,10 @@ from gridlab.persistence.journal import (
     JournalCodec,
     SQLiteDecisionJournal,
 )
+from gridlab.persistence.transition_journal import (
+    SQLiteTransitionJournal,
+    TransitionJournalEntry,
+)
 
 __all__ = [
     "AccountingCrashBoundary",
@@ -18,4 +22,6 @@ __all__ = [
     "JournalCodec",
     "SQLiteAllocationJournal",
     "SQLiteDecisionJournal",
+    "SQLiteTransitionJournal",
+    "TransitionJournalEntry",
 ]

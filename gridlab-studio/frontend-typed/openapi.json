@@ -2172,6 +2172,511 @@
         "title": "DatasetQuality",
         "type": "object"
       },
+      "EpochTransitionActivationPresentation": {
+        "properties": {
+          "admission_assessment": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EpochTransitionAdmissionAssessmentPresentation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "admission_context": {
+            "$ref": "#/components/schemas/CanonicalAdmissionContextPresentation"
+          },
+          "bootstrap_required": {
+            "title": "Bootstrap Required",
+            "type": "boolean"
+          },
+          "gates": {
+            "items": {
+              "$ref": "#/components/schemas/CanonicalActivationGatePresentation"
+            },
+            "title": "Gates",
+            "type": "array"
+          },
+          "ladder_placement_allowed": {
+            "title": "Ladder Placement Allowed",
+            "type": "boolean"
+          },
+          "lifecycle": {
+            "enum": [
+              "REJECTED",
+              "BOOTSTRAPPING",
+              "ACTIVE"
+            ],
+            "title": "Lifecycle",
+            "type": "string"
+          },
+          "replay_fingerprint": {
+            "title": "Replay Fingerprint",
+            "type": "string"
+          }
+        },
+        "required": [
+          "lifecycle",
+          "replay_fingerprint",
+          "ladder_placement_allowed",
+          "bootstrap_required",
+          "admission_context",
+          "admission_assessment",
+          "gates"
+        ],
+        "title": "EpochTransitionActivationPresentation",
+        "type": "object"
+      },
+      "EpochTransitionAdmissionAssessmentPresentation": {
+        "properties": {
+          "bootstrap_quote_commitment": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "capital_envelope": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "fee_reserve": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "maximum_planned_inventory": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "total_order_count": {
+            "title": "Total Order Count",
+            "type": "integer"
+          },
+          "total_quote_commitment": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "total_worst_case_inventory": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "venue_order_capacity": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Venue Order Capacity"
+          }
+        },
+        "required": [
+          "capital_envelope",
+          "total_quote_commitment",
+          "bootstrap_quote_commitment",
+          "fee_reserve",
+          "maximum_planned_inventory",
+          "total_worst_case_inventory",
+          "total_order_count",
+          "venue_order_capacity"
+        ],
+        "title": "EpochTransitionAdmissionAssessmentPresentation",
+        "type": "object"
+      },
+      "EpochTransitionEvidencePresentation": {
+        "properties": {
+          "adaptation_state": {
+            "enum": [
+              "RANGE_NORMAL",
+              "RANGE_HIGH_VOLATILITY",
+              "TREND_UP",
+              "TREND_DOWN",
+              "UNCERTAIN"
+            ],
+            "title": "Adaptation State",
+            "type": "string"
+          },
+          "decision_id": {
+            "title": "Decision Id",
+            "type": "string"
+          },
+          "intent": {
+            "enum": [
+              "SYMMETRIC",
+              "WIDEN",
+              "SHIFT_UP",
+              "REDUCE_ONLY",
+              "FROZEN"
+            ],
+            "title": "Intent",
+            "type": "string"
+          },
+          "observation_id": {
+            "title": "Observation Id",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "observation_id",
+          "decision_id",
+          "adaptation_state",
+          "intent",
+          "reason"
+        ],
+        "title": "EpochTransitionEvidencePresentation",
+        "type": "object"
+      },
+      "EpochTransitionGatePresentation": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "outcome": {
+            "enum": [
+              "PASSED",
+              "FAILED",
+              "NOT_APPLICABLE"
+            ],
+            "title": "Outcome",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "outcome",
+          "reason"
+        ],
+        "title": "EpochTransitionGatePresentation",
+        "type": "object"
+      },
+      "EpochTransitionLateFillPresentation": {
+        "properties": {
+          "fill_id": {
+            "title": "Fill Id",
+            "type": "string"
+          },
+          "order_id": {
+            "title": "Order Id",
+            "type": "string"
+          },
+          "original_epoch_id": {
+            "title": "Original Epoch Id",
+            "type": "string"
+          },
+          "posting_epoch_id": {
+            "title": "Posting Epoch Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "fill_id",
+          "order_id",
+          "original_epoch_id",
+          "posting_epoch_id"
+        ],
+        "title": "EpochTransitionLateFillPresentation",
+        "type": "object"
+      },
+      "EpochTransitionOrderPresentation": {
+        "properties": {
+          "epoch_id": {
+            "title": "Epoch Id",
+            "type": "string"
+          },
+          "exposure_increasing": {
+            "title": "Exposure Increasing",
+            "type": "boolean"
+          },
+          "inventory_reducing": {
+            "title": "Inventory Reducing",
+            "type": "boolean"
+          },
+          "order_id": {
+            "title": "Order Id",
+            "type": "string"
+          },
+          "outcome_unknown": {
+            "title": "Outcome Unknown",
+            "type": "boolean"
+          },
+          "side": {
+            "enum": [
+              "BUY",
+              "SELL"
+            ],
+            "title": "Side",
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "OPEN",
+              "CANCEL_PENDING",
+              "CANCELLED",
+              "FILLED",
+              "UNKNOWN"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "terminal_proven": {
+            "title": "Terminal Proven",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "order_id",
+          "epoch_id",
+          "side",
+          "state",
+          "exposure_increasing",
+          "inventory_reducing",
+          "terminal_proven",
+          "outcome_unknown"
+        ],
+        "title": "EpochTransitionOrderPresentation",
+        "type": "object"
+      },
+      "EpochTransitionPermissionsPresentation": {
+        "properties": {
+          "cancellation_allowed": {
+            "title": "Cancellation Allowed",
+            "type": "boolean"
+          },
+          "inventory_reduction_allowed": {
+            "title": "Inventory Reduction Allowed",
+            "type": "boolean"
+          },
+          "placement_allowed": {
+            "title": "Placement Allowed",
+            "type": "boolean"
+          },
+          "reconciliation_allowed": {
+            "title": "Reconciliation Allowed",
+            "type": "boolean"
+          },
+          "replacement_allowed": {
+            "title": "Replacement Allowed",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "placement_allowed",
+          "replacement_allowed",
+          "cancellation_allowed",
+          "reconciliation_allowed",
+          "inventory_reduction_allowed"
+        ],
+        "title": "EpochTransitionPermissionsPresentation",
+        "type": "object"
+      },
+      "EpochTransitionPresentation": {
+        "properties": {
+          "active_epoch_id": {
+            "title": "Active Epoch Id",
+            "type": "string"
+          },
+          "crash_safe": {
+            "title": "Crash Safe",
+            "type": "boolean"
+          },
+          "decision_time": {
+            "format": "date-time",
+            "title": "Decision Time",
+            "type": "string"
+          },
+          "evidence": {
+            "$ref": "#/components/schemas/EpochTransitionEvidencePresentation"
+          },
+          "fingerprint": {
+            "title": "Fingerprint",
+            "type": "string"
+          },
+          "gates": {
+            "items": {
+              "$ref": "#/components/schemas/EpochTransitionGatePresentation"
+            },
+            "title": "Gates",
+            "type": "array"
+          },
+          "inventory_basis": {
+            "$ref": "#/components/schemas/AuthoritativeInventoryBasisPresentation"
+          },
+          "late_fill_postings": {
+            "items": {
+              "$ref": "#/components/schemas/EpochTransitionLateFillPresentation"
+            },
+            "title": "Late Fill Postings",
+            "type": "array"
+          },
+          "old_orders": {
+            "items": {
+              "$ref": "#/components/schemas/EpochTransitionOrderPresentation"
+            },
+            "title": "Old Orders",
+            "type": "array"
+          },
+          "permissions": {
+            "$ref": "#/components/schemas/EpochTransitionPermissionsPresentation"
+          },
+          "phase": {
+            "enum": [
+              "ACTIVE",
+              "CHANGE_CONFIRMED",
+              "TRANSITION_REQUESTED",
+              "OLD_EXPOSURE_BLOCKED",
+              "CANCELLING",
+              "RECONCILING",
+              "DERIVING",
+              "VALIDATING",
+              "BOOTSTRAPPING",
+              "ACTIVATING"
+            ],
+            "title": "Phase",
+            "type": "string"
+          },
+          "posture": {
+            "enum": [
+              "NORMAL",
+              "REDUCE_ONLY",
+              "TERMINAL_LIQUIDATION",
+              "FROZEN",
+              "CLOSED"
+            ],
+            "title": "Posture",
+            "type": "string"
+          },
+          "progress": {
+            "items": {
+              "$ref": "#/components/schemas/EpochTransitionProgressPresentation"
+            },
+            "title": "Progress",
+            "type": "array"
+          },
+          "proposed_epoch_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Proposed Epoch Id"
+          },
+          "refusal_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Refusal Reason"
+          },
+          "replacement_activation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EpochTransitionActivationPresentation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "restart_boundaries": {
+            "items": {
+              "enum": [
+                "CHANGE_CONFIRMED",
+                "TRANSITION_REQUESTED",
+                "OLD_EXPOSURE_BLOCKED",
+                "CANCELLING",
+                "RECONCILING",
+                "DERIVING",
+                "VALIDATING",
+                "BOOTSTRAPPING",
+                "ACTIVATING",
+                "ACTIVE"
+              ],
+              "type": "string"
+            },
+            "title": "Restart Boundaries",
+            "type": "array"
+          },
+          "schema_version": {
+            "const": "epoch-transition-evaluation/v1",
+            "title": "Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema_version",
+          "decision_time",
+          "fingerprint",
+          "active_epoch_id",
+          "proposed_epoch_id",
+          "phase",
+          "posture",
+          "evidence",
+          "refusal_reason",
+          "crash_safe",
+          "restart_boundaries",
+          "gates",
+          "progress",
+          "permissions",
+          "inventory_basis",
+          "old_orders",
+          "late_fill_postings",
+          "replacement_activation"
+        ],
+        "title": "EpochTransitionPresentation",
+        "type": "object"
+      },
+      "EpochTransitionProgressPresentation": {
+        "properties": {
+          "phase": {
+            "enum": [
+              "CHANGE_CONFIRMED",
+              "TRANSITION_REQUESTED",
+              "OLD_EXPOSURE_BLOCKED",
+              "CANCELLING",
+              "RECONCILING",
+              "DERIVING",
+              "VALIDATING",
+              "BOOTSTRAPPING",
+              "ACTIVATING",
+              "ACTIVE"
+            ],
+            "title": "Phase",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "PENDING",
+              "CURRENT",
+              "COMPLETED",
+              "SKIPPED",
+              "FAILED"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "phase",
+          "status",
+          "reason"
+        ],
+        "title": "EpochTransitionProgressPresentation",
+        "type": "object"
+      },
       "EurCatalogSymbolEvidence": {
         "properties": {
           "base_asset": {
@@ -4964,6 +5469,47 @@
           }
         },
         "summary": "Get Studio Dataset"
+      }
+    },
+    "/api/studio/epoch-transition": {
+      "get": {
+        "description": "Present deterministic Ticket 12 guarded epoch-transition progress.",
+        "operationId": "epoch_transition_api_studio_epoch_transition_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "scenario",
+            "required": false,
+            "schema": {
+              "default": "nominal",
+              "title": "Scenario",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EpochTransitionPresentation"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Epoch Transition"
       }
     },
     "/api/studio/operator-controls": {

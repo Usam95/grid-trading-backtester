@@ -36,6 +36,7 @@ from backend.schemas import (
     CanonicalAdaptivePresentation,
     CanonicalAdaptiveRequest,
     DatasetManifest,
+    EpochTransitionPresentation,
     GridPreviewBody,
     GridSearchBody,
     ImportDatasetBody,
@@ -193,6 +194,17 @@ def operator_controls() -> OperatorControlsPresentation:
     """Present deterministic Ticket 10 control previews and terminal disposal."""
     return OperatorControlsPresentation.model_validate(
         _guard(service.characterize_operator_controls)
+    )
+
+
+@app.get(
+    "/api/studio/epoch-transition",
+    response_model=EpochTransitionPresentation,
+)
+def epoch_transition(scenario: str = "nominal") -> EpochTransitionPresentation:
+    """Present deterministic Ticket 12 guarded epoch-transition progress."""
+    return EpochTransitionPresentation.model_validate(
+        _guard(service.characterize_epoch_transition, scenario=scenario)
     )
 
 

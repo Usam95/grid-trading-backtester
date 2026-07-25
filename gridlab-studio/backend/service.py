@@ -32,11 +32,24 @@ from gridlab.canonical._identity import content_identity
 from gridlab.canonical.adaptation import (
     AdaptationState,
     EvidenceQuality,
+    PriorDecisionEvidence,
     decide_adaptation,
 )
 from gridlab.canonical.configuration import Spacing
+from gridlab.canonical.epoch_transition import (
+    EpochTransitionFacts,
+    LateFillPosting,
+    ManagedOrderState,
+    OldEpochOrder,
+    TransitionCrashBoundary,
+    evaluate_epoch_transition,
+)
 from gridlab.canonical.events import CanonicalEvent, DomainTime
-from gridlab.canonical.initial_epoch import BootstrapEvidence, derive_initial_epoch
+from gridlab.canonical.initial_epoch import (
+    BootstrapEvidence,
+    PlanAdmissionContext,
+    derive_initial_epoch,
+)
 from gridlab.canonical.operator_controls import (
     GoldenReplayCase,
     InventoryBasis,
@@ -607,6 +620,196 @@ def _operator_preview_payload(preview: Any) -> dict[str, Any]:
             else None
         ),
     }
+
+
+def characterize_epoch_transition(*, scenario: str = "nominal") -> dict[str, Any]:
+    """Present one deterministic guarded epoch-transition projection."""
+    if scenario not in {"nominal", "expired"}:
+        raise ValueError("epoch transition scenario must be nominal or expired")
+    decision_time = DomainTime(pd.Timestamp("2025-01-02T08:00:00Z").to_pydatetime())
+    active = characterize_legacy_backtest(
+        symbol="BTCEUR",
+        decision_time=DomainTime(pd.Timestamp("2025-01-02T00:00:00Z").to_pydatetime()),
+        quality=EvidenceQuality.ADMITTED,
+    )
+    observation = replace(
+        active.observation,
+        event_time=decision_time,
+        window_start=DomainTime(decision_time.value - timedelta(hours=24)),
+        window_end=decision_time,
+        volatility=ExactDecimal.parse("0.0300", kind="ratio"),
+        prior_decision=PriorDecisionEvidence(
+            state=active.epoch.decision.state,
+            decision_id=active.epoch.decision.decision_id,
+            decision_time=DomainTime(decision_time.value - timedelta(hours=7)),
+        ),
+        confirmations=tuple(
+            replace(
+                confirmation,
+                state=AdaptationState.RANGE_HIGH_VOLATILITY,
+                decision_time=DomainTime(decision_time.value - timedelta(minutes=3 - index)),
+            )
+            for index, confirmation in enumerate(active.observation.confirmations, start=1)
+        ),
+    )
+    freshness = tuple(
+        FreshnessEvidence(
+            schema_version="freshness-evidence/v1",
+            evidence_class=evidence_class,
+            condition=EvidenceCondition.HEALTHY,
+            observed_at=DomainTime(decision_time.value - timedelta(seconds=1)),
+            evidence_id=f"sha256:{evidence_class.value[0].lower() * 64}",
+        )
+        for evidence_class in EvidenceClass
+    )
+    safety = evaluate_safety_posture(
+        decision_time=decision_time,
+        capital=CapitalCommitmentFacts(
+            schema_version="capital-commitment-facts/v1",
+            allocation_fingerprint="sha256:" + "1" * 64,
+            epoch_id=active.epoch.epoch_id,
+            capital_envelope=ExactDecimal.parse("250", kind="quote_quantity"),
+            committed_principal=ExactDecimal.parse("40", kind="quote_quantity"),
+            fee_reserve=ExactDecimal.parse("5", kind="quote_quantity"),
+            projected_obligation_fees=ExactDecimal.parse("1", kind="quote_quantity"),
+            projected_terminal_fees=ExactDecimal.parse("1", kind="quote_quantity"),
+            exposure_increasing_buy_principals=(
+                ExactDecimal.parse("20", kind="quote_quantity"),
+            ),
+            effective_managed_orders=4,
+            foreign_open_orders=0,
+            authenticated_order_limit=100,
+            current_inventory=ExactDecimal.parse("0.60000000", kind="base_quantity"),
+            pending_buy_inventory=ExactDecimal.parse("0.00000000", kind="base_quantity"),
+            transition_bootstrap_inventory=ExactDecimal.parse(
+                "0.00000000", kind="base_quantity"
+            ),
+            proposed_maximum_inventory=ExactDecimal.parse("0.80000000", kind="base_quantity"),
+            maximum_planned_inventory=ExactDecimal.parse("0.80000000", kind="base_quantity"),
+        ),
+        loss=LossFacts(
+            schema_version="loss-facts/v1",
+            initial_equity=ExactDecimal.parse("250", kind="quote_quantity"),
+            risk_day_baseline=ExactDecimal.parse("250", kind="quote_quantity"),
+            run_high_water_mark=ExactDecimal.parse("250", kind="quote_quantity"),
+            conservative_liquidation_equity=ExactDecimal.parse("249", kind="quote_quantity"),
+            prior_daily_loss_latched=False,
+            prior_run_drawdown_latched=False,
+            guardrail_recovery_approved=False,
+            global_stop_latched=False,
+        ),
+        freshness=freshness,
+        clock=ClockEvidence(
+            schema_version="clock-evidence/v1",
+            condition=EvidenceCondition.HEALTHY,
+            request_sent_at=DomainTime(decision_time.value - timedelta(milliseconds=100)),
+            response_received_at=decision_time,
+            venue_time=DomainTime(decision_time.value - timedelta(milliseconds=50)),
+            scheduling_delay=ExactDecimal.parse("0.025000", kind="duration_seconds"),
+            authenticated_timestamp_rejected=False,
+            evidence_id="sha256:" + "c" * 64,
+        ),
+        lifecycle=LifecycleFacts(
+            schema_version="lifecycle-facts/v1",
+            grid_lifecycle="ACTIVE",
+            adaptation_state=active.epoch.decision.state,
+            epoch_transition_state="TRANSITION_REQUESTED",
+            runtime_lifecycle="OPERATING",
+            reconciliation_state="RECONCILED",
+        ),
+        recovery=SafetyRecoveryFacts(
+            schema_version="safety-recovery-facts/v1",
+            prior_frozen_latched=False,
+            frozen_recovery_approved=False,
+        ),
+        range_condition=RangeCondition.IN_RANGE,
+        recovery_obligations=(),
+        venue=VenueConditionEvidence(
+            schema_version="venue-condition-evidence/v1",
+            condition=SymbolCondition.TRADING,
+            observed_at=decision_time,
+            evidence_id="sha256:" + "d" * 64,
+            source="canonical-fixture",
+            wind_down_deadline=None,
+        ),
+        prior_global_stop_latched=False,
+    )
+    evaluation = evaluate_epoch_transition(
+        EpochTransitionFacts(
+            schema_version="epoch-transition-facts/v1",
+            decision_time=decision_time,
+            active_epoch=active.epoch,
+            active_epoch_started_at=DomainTime(decision_time.value - timedelta(hours=8)),
+            last_transition_completed_at=DomainTime(decision_time.value - timedelta(hours=12)),
+            transitions_in_current_day=0,
+            observation=observation,
+            derivation_causation_id=active.event.event_id,
+            venue_rules=replace(active.epoch.venue_rules, observed_at=decision_time, foreign_open_orders=0),
+            bootstrap_evidence=BootstrapEvidence.incomplete(),
+            admission_context=PlanAdmissionContext(
+                schema_version="plan-admission-context/v1",
+                still_effective_quote_commitment=ExactDecimal.parse("40", kind="quote_quantity"),
+                still_effective_inventory_commitment=ExactDecimal.parse(
+                    "0.00000000", kind="base_quantity"
+                ),
+                still_effective_order_count=2,
+            ),
+            safety=safety,
+            inventory_basis=InventoryBasis(
+                basis_id="sha256:" + "3" * 64,
+                source="canonical-reconciliation",
+                base_asset="BTC",
+                quantity=ExactDecimal.parse("0.60000000", kind="base_quantity"),
+                authoritative=True,
+                reconciled_at=decision_time,
+            ),
+            old_orders=(
+                OldEpochOrder(
+                    order_id="sha256:" + "4" * 64,
+                    epoch_id=active.epoch.epoch_id,
+                    side="BUY",
+                    state=ManagedOrderState.CANCELLED,
+                    exposure_increasing=True,
+                    inventory_reducing=False,
+                    terminal_proven=True,
+                    outcome_unknown=False,
+                ),
+                OldEpochOrder(
+                    order_id="sha256:" + "5" * 64,
+                    epoch_id=active.epoch.epoch_id,
+                    side="SELL",
+                    state=ManagedOrderState.FILLED,
+                    exposure_increasing=False,
+                    inventory_reducing=True,
+                    terminal_proven=True,
+                    outcome_unknown=False,
+                ),
+            ),
+            late_fill_postings=(
+                LateFillPosting(
+                    fill_id="sha256:" + "6" * 64,
+                    order_id="sha256:" + "5" * 64,
+                    original_epoch_id=active.epoch.epoch_id,
+                    posting_epoch_id=active.epoch.epoch_id,
+                ),
+            ),
+            request_submitted=True,
+            cancellation_submitted=True,
+            reconciliation_complete=True,
+            activation_committed=False,
+            replacement_order_ids=("sha256:" + "7" * 64, "sha256:" + "8" * 64),
+            operator_preempted=False,
+            restart_boundaries=(
+                TransitionCrashBoundary.CANCELLING,
+                TransitionCrashBoundary.RECONCILING,
+            ),
+            transition_requested_at=DomainTime(
+                decision_time.value
+                - (timedelta(minutes=11) if scenario == "expired" else timedelta(minutes=5))
+            ),
+        )
+    )
+    return evaluation.to_payload()
 
 
 def characterize_canonical_adaptive(request: dict[str, Any]) -> dict[str, Any]:

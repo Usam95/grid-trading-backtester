@@ -334,6 +334,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/studio/epoch-transition": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Epoch Transition
+         * @description Present deterministic Ticket 12 guarded epoch-transition progress.
+         */
+        get: operations["epoch_transition_api_studio_epoch_transition_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/studio/operator-controls": {
         parameters: {
             query?: never;
@@ -1194,6 +1214,179 @@ export interface components {
             out_of_order: number;
             /** Rows */
             rows: number;
+        };
+        /** EpochTransitionActivationPresentation */
+        EpochTransitionActivationPresentation: {
+            admission_assessment: components["schemas"]["EpochTransitionAdmissionAssessmentPresentation"] | null;
+            admission_context: components["schemas"]["CanonicalAdmissionContextPresentation"];
+            /** Bootstrap Required */
+            bootstrap_required: boolean;
+            /** Gates */
+            gates: components["schemas"]["CanonicalActivationGatePresentation"][];
+            /** Ladder Placement Allowed */
+            ladder_placement_allowed: boolean;
+            /**
+             * Lifecycle
+             * @enum {string}
+             */
+            lifecycle: "REJECTED" | "BOOTSTRAPPING" | "ACTIVE";
+            /** Replay Fingerprint */
+            replay_fingerprint: string;
+        };
+        /** EpochTransitionAdmissionAssessmentPresentation */
+        EpochTransitionAdmissionAssessmentPresentation: {
+            bootstrap_quote_commitment: components["schemas"]["ExactValuePresentation"];
+            capital_envelope: components["schemas"]["ExactValuePresentation"];
+            fee_reserve: components["schemas"]["ExactValuePresentation"];
+            maximum_planned_inventory: components["schemas"]["ExactValuePresentation"];
+            /** Total Order Count */
+            total_order_count: number;
+            total_quote_commitment: components["schemas"]["ExactValuePresentation"];
+            total_worst_case_inventory: components["schemas"]["ExactValuePresentation"];
+            /** Venue Order Capacity */
+            venue_order_capacity: number | null;
+        };
+        /** EpochTransitionEvidencePresentation */
+        EpochTransitionEvidencePresentation: {
+            /**
+             * Adaptation State
+             * @enum {string}
+             */
+            adaptation_state: "RANGE_NORMAL" | "RANGE_HIGH_VOLATILITY" | "TREND_UP" | "TREND_DOWN" | "UNCERTAIN";
+            /** Decision Id */
+            decision_id: string;
+            /**
+             * Intent
+             * @enum {string}
+             */
+            intent: "SYMMETRIC" | "WIDEN" | "SHIFT_UP" | "REDUCE_ONLY" | "FROZEN";
+            /** Observation Id */
+            observation_id: string;
+            /** Reason */
+            reason: string;
+        };
+        /** EpochTransitionGatePresentation */
+        EpochTransitionGatePresentation: {
+            /** Name */
+            name: string;
+            /**
+             * Outcome
+             * @enum {string}
+             */
+            outcome: "PASSED" | "FAILED" | "NOT_APPLICABLE";
+            /** Reason */
+            reason: string;
+        };
+        /** EpochTransitionLateFillPresentation */
+        EpochTransitionLateFillPresentation: {
+            /** Fill Id */
+            fill_id: string;
+            /** Order Id */
+            order_id: string;
+            /** Original Epoch Id */
+            original_epoch_id: string;
+            /** Posting Epoch Id */
+            posting_epoch_id: string;
+        };
+        /** EpochTransitionOrderPresentation */
+        EpochTransitionOrderPresentation: {
+            /** Epoch Id */
+            epoch_id: string;
+            /** Exposure Increasing */
+            exposure_increasing: boolean;
+            /** Inventory Reducing */
+            inventory_reducing: boolean;
+            /** Order Id */
+            order_id: string;
+            /** Outcome Unknown */
+            outcome_unknown: boolean;
+            /**
+             * Side
+             * @enum {string}
+             */
+            side: "BUY" | "SELL";
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "OPEN" | "CANCEL_PENDING" | "CANCELLED" | "FILLED" | "UNKNOWN";
+            /** Terminal Proven */
+            terminal_proven: boolean;
+        };
+        /** EpochTransitionPermissionsPresentation */
+        EpochTransitionPermissionsPresentation: {
+            /** Cancellation Allowed */
+            cancellation_allowed: boolean;
+            /** Inventory Reduction Allowed */
+            inventory_reduction_allowed: boolean;
+            /** Placement Allowed */
+            placement_allowed: boolean;
+            /** Reconciliation Allowed */
+            reconciliation_allowed: boolean;
+            /** Replacement Allowed */
+            replacement_allowed: boolean;
+        };
+        /** EpochTransitionPresentation */
+        EpochTransitionPresentation: {
+            /** Active Epoch Id */
+            active_epoch_id: string;
+            /** Crash Safe */
+            crash_safe: boolean;
+            /**
+             * Decision Time
+             * Format: date-time
+             */
+            decision_time: string;
+            evidence: components["schemas"]["EpochTransitionEvidencePresentation"];
+            /** Fingerprint */
+            fingerprint: string;
+            /** Gates */
+            gates: components["schemas"]["EpochTransitionGatePresentation"][];
+            inventory_basis: components["schemas"]["AuthoritativeInventoryBasisPresentation"];
+            /** Late Fill Postings */
+            late_fill_postings: components["schemas"]["EpochTransitionLateFillPresentation"][];
+            /** Old Orders */
+            old_orders: components["schemas"]["EpochTransitionOrderPresentation"][];
+            permissions: components["schemas"]["EpochTransitionPermissionsPresentation"];
+            /**
+             * Phase
+             * @enum {string}
+             */
+            phase: "ACTIVE" | "CHANGE_CONFIRMED" | "TRANSITION_REQUESTED" | "OLD_EXPOSURE_BLOCKED" | "CANCELLING" | "RECONCILING" | "DERIVING" | "VALIDATING" | "BOOTSTRAPPING" | "ACTIVATING";
+            /**
+             * Posture
+             * @enum {string}
+             */
+            posture: "NORMAL" | "REDUCE_ONLY" | "TERMINAL_LIQUIDATION" | "FROZEN" | "CLOSED";
+            /** Progress */
+            progress: components["schemas"]["EpochTransitionProgressPresentation"][];
+            /** Proposed Epoch Id */
+            proposed_epoch_id: string | null;
+            /** Refusal Reason */
+            refusal_reason: string | null;
+            replacement_activation: components["schemas"]["EpochTransitionActivationPresentation"] | null;
+            /** Restart Boundaries */
+            restart_boundaries: ("CHANGE_CONFIRMED" | "TRANSITION_REQUESTED" | "OLD_EXPOSURE_BLOCKED" | "CANCELLING" | "RECONCILING" | "DERIVING" | "VALIDATING" | "BOOTSTRAPPING" | "ACTIVATING" | "ACTIVE")[];
+            /**
+             * Schema Version
+             * @constant
+             */
+            schema_version: "epoch-transition-evaluation/v1";
+        };
+        /** EpochTransitionProgressPresentation */
+        EpochTransitionProgressPresentation: {
+            /**
+             * Phase
+             * @enum {string}
+             */
+            phase: "CHANGE_CONFIRMED" | "TRANSITION_REQUESTED" | "OLD_EXPOSURE_BLOCKED" | "CANCELLING" | "RECONCILING" | "DERIVING" | "VALIDATING" | "BOOTSTRAPPING" | "ACTIVATING" | "ACTIVE";
+            /** Reason */
+            reason: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "PENDING" | "CURRENT" | "COMPLETED" | "SKIPPED" | "FAILED";
         };
         /** EurCatalogSymbolEvidence */
         EurCatalogSymbolEvidence: {
@@ -2501,6 +2694,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DatasetManifest"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    epoch_transition_api_studio_epoch_transition_get: {
+        parameters: {
+            query?: {
+                scenario?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EpochTransitionPresentation"];
                 };
             };
             /** @description Validation Error */
