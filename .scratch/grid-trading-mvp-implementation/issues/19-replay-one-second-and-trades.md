@@ -2,7 +2,7 @@
 
 **What to build:** Add manifested high-fidelity ingestion and deterministic replay for native one-second candles and official individual trades, using conservative no-depth execution when historical queue evidence is absent. Compare this path with minute simulation on development evidence before the final candidate is frozen.
 
-**Blocked by:** 03 — Prove the manifested production-data tracer bullet; 05 — Persist and exactly replay one adaptive decision path; 13 — Run conservative adaptive candle simulation through the canonical core; 14 — Build the frozen five-symbol production archive.
+**Blocked by:** 03 — Prove the manifested production-data tracer bullet; 05 — Persist and exactly replay one adaptive decision path; 13 — Run conservative adaptive candle simulation through the canonical core; 14 — Build the synchronized ten-symbol EUR production archive.
 
 **Status:** ready-for-agent
 

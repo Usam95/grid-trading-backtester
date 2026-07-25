@@ -4,6 +4,40 @@
  */
 
 export interface paths {
+    "/api/backtest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Backtest */
+        post: operations["backtest_api_backtest_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/grid-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Grid Preview */
+        post: operations["grid_preview_api_grid_preview_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/health": {
         parameters: {
             query?: never;
@@ -41,7 +75,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/backtest": {
+    "/api/report": {
         parameters: {
             query?: never;
             header?: never;
@@ -50,35 +84,15 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Backtest */
-        post: operations["backtest_api_backtest_post"];
+        /** Report */
+        post: operations["report_api_report_post"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/studio/configuration": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Studio Configuration
-         * @description Return the canonical defaults for Ticket 02's migrated static Spot slice.
-         */
-        get: operations["studio_configuration_api_studio_configuration_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/studio/canonical-adaptive": {
+    "/api/research/grid-search": {
         parameters: {
             query?: never;
             header?: never;
@@ -87,18 +101,66 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /**
-         * Canonical Adaptive
-         * @description Present one deterministic legacy-to-canonical adaptive characterization.
-         */
-        post: operations["canonical_adaptive_api_studio_canonical_adaptive_post"];
+        /** Research Grid Search */
+        post: operations["research_grid_search_api_research_grid_search_post"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/studio/safety-posture": {
+    "/api/research/monte-carlo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Research Monte Carlo */
+        post: operations["research_monte_carlo_api_research_monte_carlo_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/research/robustness": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Research Robustness */
+        post: operations["research_robustness_api_research_robustness_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/research/walk-forward": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Research Walk Forward */
+        post: operations["research_walk_forward_api_research_walk_forward_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/studio/archives/binance/eur": {
         parameters: {
             query?: never;
             header?: never;
@@ -106,10 +168,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Safety Posture
-         * @description Present separate deterministic Ticket 09 safety and lifecycle facts.
+         * Get Frozen Production Panel
+         * @description Return the synchronized ten-symbol EUR production archive status.
          */
-        get: operations["safety_posture_api_studio_safety_posture_get"];
+        get: operations["get_frozen_production_panel_api_studio_archives_binance_eur_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -118,67 +180,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/studio/operator-controls": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Operator Controls
-         * @description Present deterministic Ticket 10 control previews and terminal disposal.
-         */
-        get: operations["operator_controls_api_studio_operator_controls_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/studio/epoch-transition": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Epoch Transition
-         * @description Present deterministic Ticket 12 guarded epoch-transition progress.
-         */
-        get: operations["epoch_transition_api_studio_epoch_transition_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/studio/catalogs/binance/eur": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get Binance Eur Catalog
-         * @description Return a dated public Testnet/production EUR intersection.
-         */
-        get: operations["get_binance_eur_catalog_api_studio_catalogs_binance_eur_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/studio/datasets/binance/preview": {
+    "/api/studio/archives/binance/eur/synchronize": {
         parameters: {
             query?: never;
             header?: never;
@@ -188,47 +190,10 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Preview Binance Dataset
-         * @description Resolve official source identities and sizes before archive download.
+         * Synchronize Production Archive
+         * @description Download, verify, and atomically publish missing EUR production partitions.
          */
-        post: operations["preview_binance_dataset_api_studio_datasets_binance_preview_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/studio/datasets/binance/import": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Import Binance Dataset
-         * @description Download and admit only checksum-verified, continuous production history.
-         */
-        post: operations["import_binance_dataset_api_studio_datasets_binance_import_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/studio/datasets/{dataset_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Studio Dataset */
-        get: operations["get_studio_dataset_api_studio_datasets__dataset_id__get"];
-        put?: never;
-        post?: never;
+        post: operations["synchronize_production_archive_api_studio_archives_binance_eur_synchronize_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -275,6 +240,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/studio/backtests/production-archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create Production Archive Backtest
+         * @description Replay one verified local EUR archive snapshot without any network dependency.
+         */
+        post: operations["create_production_archive_backtest_api_studio_backtests_production_archive_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/studio/backtests/{run_id}": {
         parameters: {
             query?: never;
@@ -292,7 +277,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/grid-preview": {
+    "/api/studio/canonical-adaptive": {
         parameters: {
             query?: never;
             header?: never;
@@ -301,49 +286,58 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Grid Preview */
-        post: operations["grid_preview_api_grid_preview_post"];
+        /**
+         * Canonical Adaptive
+         * @description Present one deterministic legacy-to-canonical adaptive characterization.
+         */
+        post: operations["canonical_adaptive_api_studio_canonical_adaptive_post"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/report": {
+    "/api/studio/catalogs/binance/eur": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * Get Binance Eur Catalog
+         * @description Return a dated public Testnet/production EUR intersection.
+         */
+        get: operations["get_binance_eur_catalog_api_studio_catalogs_binance_eur_get"];
         put?: never;
-        /** Report */
-        post: operations["report_api_report_post"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/research/grid-search": {
+    "/api/studio/configuration": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * Studio Configuration
+         * @description Return the canonical defaults for Ticket 02's migrated static Spot slice.
+         */
+        get: operations["studio_configuration_api_studio_configuration_get"];
         put?: never;
-        /** Research Grid Search */
-        post: operations["research_grid_search_api_research_grid_search_post"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/research/walk-forward": {
+    "/api/studio/datasets/binance/import": {
         parameters: {
             query?: never;
             header?: never;
@@ -352,15 +346,18 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Research Walk Forward */
-        post: operations["research_walk_forward_api_research_walk_forward_post"];
+        /**
+         * Import Binance Dataset
+         * @description Download and admit only checksum-verified, continuous production history.
+         */
+        post: operations["import_binance_dataset_api_studio_datasets_binance_import_post"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/research/monte-carlo": {
+    "/api/studio/datasets/binance/preview": {
         parameters: {
             query?: never;
             header?: never;
@@ -369,25 +366,88 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Research Monte Carlo */
-        post: operations["research_monte_carlo_api_research_monte_carlo_post"];
+        /**
+         * Preview Binance Dataset
+         * @description Resolve official source identities and sizes before archive download.
+         */
+        post: operations["preview_binance_dataset_api_studio_datasets_binance_preview_post"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/research/robustness": {
+    "/api/studio/datasets/{dataset_id}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Get Studio Dataset */
+        get: operations["get_studio_dataset_api_studio_datasets__dataset_id__get"];
         put?: never;
-        /** Research Robustness */
-        post: operations["research_robustness_api_research_robustness_post"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/studio/epoch-transition": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Epoch Transition
+         * @description Present deterministic Ticket 12 guarded epoch-transition progress.
+         */
+        get: operations["epoch_transition_api_studio_epoch_transition_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/studio/operator-controls": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Operator Controls
+         * @description Present deterministic Ticket 10 control previews and terminal disposal.
+         */
+        get: operations["operator_controls_api_studio_operator_controls_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/studio/safety-posture": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Safety Posture
+         * @description Present separate deterministic Ticket 09 safety and lifecycle facts.
+         */
+        get: operations["safety_posture_api_studio_safety_posture_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -400,106 +460,173 @@ export interface components {
     schemas: {
         /** AcquisitionLimitsPreview */
         AcquisitionLimitsPreview: {
+            /** Max Bytes */
+            max_bytes: number;
             /** Max Days */
             max_days: number;
             /** Max Objects */
             max_objects: number;
-            /** Max Bytes */
-            max_bytes: number;
         };
         /** ArchiveCoverageEvidence */
         ArchiveCoverageEvidence: {
+            /** Evidence Urls */
+            evidence_urls: string[];
             /**
              * First Date
              * Format: date
              */
             first_date: string;
+            /** Intervals */
+            intervals: string[];
+            /** Known Gap Dates */
+            known_gap_dates: string[];
             /**
              * Last Date
              * Format: date
              */
             last_date: string;
-            /** Intervals */
-            intervals: string[];
-            /** Known Gap Dates */
-            known_gap_dates: string[];
-            /** Evidence Urls */
-            evidence_urls: string[];
         };
         /** ArchiveSourcePreview */
         ArchiveSourcePreview: {
-            /** Date */
-            date: string;
-            /** Url */
-            url: string;
             /** Checksum Url */
             checksum_url: string;
-            /** Expected Sha256 */
-            expected_sha256: string;
+            /** Date */
+            date: string;
             /** Estimated Bytes */
             estimated_bytes: number;
+            /** Expected Sha256 */
+            expected_sha256: string;
+            /** Url */
+            url: string;
+        };
+        /** ArchiveSyncPlanEvidence */
+        ArchiveSyncPlanEvidence: {
+            /**
+             * Coverage End
+             * Format: date-time
+             */
+            coverage_end: string;
+            /**
+             * Coverage Start
+             * Format: date-time
+             */
+            coverage_start: string;
+            /** Estimated Download Bytes */
+            estimated_download_bytes: number;
+            /** Estimated Storage Bytes */
+            estimated_storage_bytes: number;
+            /** Expected Rows */
+            expected_rows: number;
+            /** Missing Source Objects */
+            missing_source_objects: number;
+            /** Month */
+            month: string;
+            /** Reason */
+            reason: string;
+            /**
+             * Source Kind
+             * @enum {string}
+             */
+            source_kind: "monthly_archive" | "daily_archives_current_month";
+            /** Source Labels */
+            source_labels: string[];
+        };
+        /** ArchiveSyncPreviewEvidence */
+        ArchiveSyncPreviewEvidence: {
+            /** Estimated Download Bytes */
+            estimated_download_bytes: number;
+            /** Estimated Storage Bytes */
+            estimated_storage_bytes: number;
+            /** Pending Partitions */
+            pending_partitions: number;
+            /** Preview Id */
+            preview_id: string;
+            /** Source Objects */
+            source_objects: number;
+            /** Symbols */
+            symbols: components["schemas"]["ArchiveSyncPreviewSymbolEvidence"][];
+            /** Verified Partitions */
+            verified_partitions: number;
+        };
+        /** ArchiveSyncPreviewSymbolEvidence */
+        ArchiveSyncPreviewSymbolEvidence: {
+            /** Dataset Id */
+            dataset_id: string;
+            /** Estimated Download Bytes */
+            estimated_download_bytes: number;
+            /** Estimated Storage Bytes */
+            estimated_storage_bytes: number;
+            /**
+             * First Available Date
+             * Format: date
+             */
+            first_available_date: string;
+            /**
+             * Last Available Date
+             * Format: date
+             */
+            last_available_date: string;
+            /** Missing Source Objects */
+            missing_source_objects: number;
+            /** Pending Partitions */
+            pending_partitions: number;
+            /** Plans */
+            plans: components["schemas"]["ArchiveSyncPlanEvidence"][];
+            /** Symbol */
+            symbol: string;
         };
         /** AuthoritativeInventoryBasisPresentation */
         AuthoritativeInventoryBasisPresentation: {
-            /** Basis Id */
-            basis_id: string;
-            /** Source */
-            source: string;
-            /** Base Asset */
-            base_asset: string;
-            quantity: components["schemas"]["ExactValuePresentation"];
             /** Authoritative */
             authoritative: boolean;
+            /** Base Asset */
+            base_asset: string;
+            /** Basis Id */
+            basis_id: string;
+            quantity: components["schemas"]["ExactValuePresentation"];
             /** Reconciled At */
             reconciled_at: string | null;
+            /** Source */
+            source: string;
         };
         /** BacktestOptions */
         BacktestOptions: {
-            /**
-             * With Report
-             * @default false
-             */
-            with_report: boolean;
             /**
              * Include Trades
              * @default true
              */
             include_trades: boolean;
+            /**
+             * With Report
+             * @default false
+             */
+            with_report: boolean;
         };
         /**
          * BacktestRequest
          * @description A full declarative backtest spec accepted by the API.
          */
         BacktestRequest: {
+            bootstrap?: components["schemas"]["BootstrapSpec"];
+            constraints?: components["schemas"]["ConstraintsSpec"];
+            data?: components["schemas"]["DataSpec"];
+            exchange_rules?: components["schemas"]["ExchangeRulesSpec"];
+            fees?: components["schemas"]["FeesSpec"];
+            fill?: components["schemas"]["FillSpec"];
+            filter?: components["schemas"]["FilterSpec"];
+            grid?: components["schemas"]["GridSpec"];
             /**
-             * Symbol
-             * @default BTCUSDT
+             * Initial Cash
+             * @default 10000
              */
-            symbol: string;
+            initial_cash: number;
+            margin?: components["schemas"]["MarginSpec"];
             /**
              * Market Type
              * @default spot
              * @enum {string}
              */
             market_type: "spot" | "futures";
-            /** Venue */
-            venue?: string | null;
-            /**
-             * Initial Cash
-             * @default 10000
-             */
-            initial_cash: number;
-            grid?: components["schemas"]["GridSpec"];
-            sizing?: components["schemas"]["SizingSpec"];
-            fees?: components["schemas"]["FeesSpec"];
-            slippage?: components["schemas"]["SlippageSpec"];
-            fill?: components["schemas"]["FillSpec"];
-            margin?: components["schemas"]["MarginSpec"];
-            bootstrap?: components["schemas"]["BootstrapSpec"];
-            constraints?: components["schemas"]["ConstraintsSpec"];
-            exchange_rules?: components["schemas"]["ExchangeRulesSpec"];
-            data?: components["schemas"]["DataSpec"];
-            filter?: components["schemas"]["FilterSpec"];
             /**
              * N Trials
              * @default 1
@@ -507,33 +634,20 @@ export interface components {
             n_trials: number;
             /** Periods Per Year */
             periods_per_year?: number | null;
+            sizing?: components["schemas"]["SizingSpec"];
+            slippage?: components["schemas"]["SlippageSpec"];
+            /**
+             * Symbol
+             * @default BTCUSDT
+             */
+            symbol: string;
+            /** Venue */
+            venue?: string | null;
         };
         /** BinanceDatasetPreview */
         BinanceDatasetPreview: {
-            /** Preview Id */
-            preview_id: string;
-            /**
-             * Venue
-             * @constant
-             */
-            venue: "binance";
-            /**
-             * Market
-             * @constant
-             */
-            market: "spot-production-archive";
-            /** Symbol */
-            symbol: string;
-            /**
-             * Interval
-             * @constant
-             */
-            interval: "1m";
-            /**
-             * Start
-             * Format: date-time
-             */
-            start: string;
+            /** Catalog Identity */
+            catalog_identity?: string | null;
             /**
              * End
              * Format: date-time
@@ -541,22 +655,47 @@ export interface components {
             end: string;
             /** Estimated Bytes */
             estimated_bytes: number;
+            /**
+             * Interval
+             * @constant
+             */
+            interval: "1m";
+            limits: components["schemas"]["AcquisitionLimitsPreview"];
+            /**
+             * Market
+             * @constant
+             */
+            market: "spot-production-archive";
+            /** Preview Id */
+            preview_id: string;
             /** Sources */
             sources: components["schemas"]["ArchiveSourcePreview"][];
-            limits: components["schemas"]["AcquisitionLimitsPreview"];
-            /** Catalog Identity */
-            catalog_identity?: string | null;
+            /**
+             * Start
+             * Format: date-time
+             */
+            start: string;
+            /** Symbol */
+            symbol: string;
             /** Symbol Metadata */
             symbol_metadata?: {
                 [key: string]: unknown;
             } | null;
+            /**
+             * Venue
+             * @constant
+             */
+            venue: "binance";
         };
         /** BinanceDatasetRequest */
         BinanceDatasetRequest: {
             /** Catalog Id */
             catalog_id?: string | null;
-            /** Symbol */
-            symbol: string;
+            /**
+             * End
+             * Format: date-time
+             */
+            end: string;
             /**
              * Interval
              * @default 1m
@@ -568,28 +707,25 @@ export interface components {
              * Format: date-time
              */
             start: string;
-            /**
-             * End
-             * Format: date-time
-             */
-            end: string;
+            /** Symbol */
+            symbol: string;
         };
         /** BinanceEurResearchCatalog */
         BinanceEurResearchCatalog: {
             /** Catalog Id */
             catalog_id: string;
-            /**
-             * Retrieved At
-             * Format: date-time
-             */
-            retrieved_at: string;
+            /** Filters */
+            filters: string[];
             /**
              * Quote Asset
              * @constant
              */
             quote_asset: "EUR";
-            /** Filters */
-            filters: string[];
+            /**
+             * Retrieved At
+             * Format: date-time
+             */
+            retrieved_at: string;
             /** Sources */
             sources: components["schemas"]["CatalogSourceEvidence"][];
             /** Symbols */
@@ -616,128 +752,20 @@ export interface components {
         };
         /** CanonicalAdaptivePresentation */
         CanonicalAdaptivePresentation: {
-            configuration: components["schemas"]["CanonicalConfigurationPresentation"];
-            observation: components["schemas"]["CanonicalObservationPresentation"];
-            decision: components["schemas"]["CanonicalDecisionPresentation"];
             activation: components["schemas"]["CanonicalInitialActivationPresentation"];
+            configuration: components["schemas"]["CanonicalConfigurationPresentation"];
+            decision: components["schemas"]["CanonicalDecisionPresentation"];
             derived_plan: components["schemas"]["CanonicalDerivedPlanPresentation"] | null;
             legacy_comparison: components["schemas"]["LegacyComparisonPresentation"];
+            observation: components["schemas"]["CanonicalObservationPresentation"];
         };
         /** CanonicalAdaptiveRequest */
         CanonicalAdaptiveRequest: {
-            /**
-             * Symbol
-             * @default BTCEUR
-             */
-            symbol: string;
-            /**
-             * Decision Time
-             * Format: date-time
-             */
-            decision_time: string;
-            /**
-             * Trend
-             * @default 0.0000
-             */
-            trend: string;
-            /**
-             * Volatility
-             * @default 0.0100
-             */
-            volatility: string;
-            /**
-             * Reference Price
-             * @default 100.00
-             */
-            reference_price: string;
             /**
              * Activation Price
              * @default 100.00
              */
             activation_price: string;
-            /** Event Time */
-            event_time?: string | null;
-            /**
-             * Observed Count
-             * @default 24
-             */
-            observed_count: number;
-            /**
-             * Sequence End
-             * @default 24
-             */
-            sequence_end: number;
-            /**
-             * Spacing
-             * @default GEOMETRIC
-             * @enum {string}
-             */
-            spacing: "GEOMETRIC" | "ARITHMETIC";
-            /**
-             * Venue Environment
-             * @default production
-             * @enum {string}
-             */
-            venue_environment: "production" | "testnet";
-            /**
-             * Tick Size
-             * @default 0.01
-             */
-            tick_size: string;
-            /**
-             * Step Size
-             * @default 0.00001
-             */
-            step_size: string;
-            /**
-             * Minimum Price
-             * @default 0.01
-             */
-            minimum_price: string;
-            /** Maximum Price */
-            maximum_price?: string | null;
-            /**
-             * Minimum Quantity
-             * @default 0.00010
-             */
-            minimum_quantity: string;
-            /** Maximum Quantity */
-            maximum_quantity?: string | null;
-            /**
-             * Minimum Notional
-             * @default 5.00
-             */
-            minimum_notional: string;
-            /** Maximum Notional */
-            maximum_notional?: string | null;
-            /** Max Open Orders */
-            max_open_orders?: number | null;
-            /**
-             * Foreign Open Orders
-             * @default 0
-             */
-            foreign_open_orders: number;
-            /**
-             * Symbol Status
-             * @default TRADING
-             * @enum {string}
-             */
-            symbol_status: "TRADING" | "SUSPENDED" | "MAINTENANCE" | "DELISTING" | "UNKNOWN";
-            /**
-             * Spot Trading Allowed
-             * @default true
-             */
-            spot_trading_allowed: boolean;
-            /**
-             * Limit Maker Supported
-             * @default true
-             */
-            limit_maker_supported: boolean;
-            /**
-             * Contradictory Rules
-             * @default false
-             */
-            contradictory_rules: boolean;
             /**
              * Bootstrap Complete
              * @default false
@@ -756,276 +784,384 @@ export interface components {
              */
             complete: boolean;
             /**
+             * Contradictory Rules
+             * @default false
+             */
+            contradictory_rules: boolean;
+            /**
+             * Decision Time
+             * Format: date-time
+             */
+            decision_time: string;
+            /** Event Time */
+            event_time?: string | null;
+            /**
              * Evidence Quality
              * @default ADMITTED
              * @enum {string}
              */
             evidence_quality: "ADMITTED" | "INCOMPLETE" | "STALE" | "GAPPED" | "CONTRADICTORY" | "AMBIGUOUS";
+            /**
+             * Foreign Open Orders
+             * @default 0
+             */
+            foreign_open_orders: number;
+            /**
+             * Limit Maker Supported
+             * @default true
+             */
+            limit_maker_supported: boolean;
+            /** Max Open Orders */
+            max_open_orders?: number | null;
+            /** Maximum Notional */
+            maximum_notional?: string | null;
+            /** Maximum Price */
+            maximum_price?: string | null;
+            /** Maximum Quantity */
+            maximum_quantity?: string | null;
+            /**
+             * Minimum Notional
+             * @default 5.00
+             */
+            minimum_notional: string;
+            /**
+             * Minimum Price
+             * @default 0.01
+             */
+            minimum_price: string;
+            /**
+             * Minimum Quantity
+             * @default 0.00010
+             */
+            minimum_quantity: string;
+            /**
+             * Observed Count
+             * @default 24
+             */
+            observed_count: number;
+            /**
+             * Reference Price
+             * @default 100.00
+             */
+            reference_price: string;
+            /**
+             * Sequence End
+             * @default 24
+             */
+            sequence_end: number;
+            /**
+             * Spacing
+             * @default GEOMETRIC
+             * @enum {string}
+             */
+            spacing: "GEOMETRIC" | "ARITHMETIC";
+            /**
+             * Spot Trading Allowed
+             * @default true
+             */
+            spot_trading_allowed: boolean;
+            /**
+             * Step Size
+             * @default 0.00001
+             */
+            step_size: string;
+            /**
+             * Symbol
+             * @default BTCEUR
+             */
+            symbol: string;
+            /**
+             * Symbol Status
+             * @default TRADING
+             * @enum {string}
+             */
+            symbol_status: "TRADING" | "SUSPENDED" | "MAINTENANCE" | "DELISTING" | "UNKNOWN";
+            /**
+             * Tick Size
+             * @default 0.01
+             */
+            tick_size: string;
+            /**
+             * Trend
+             * @default 0.0000
+             */
+            trend: string;
+            /**
+             * Venue Environment
+             * @default production
+             * @enum {string}
+             */
+            venue_environment: "production" | "testnet";
+            /**
+             * Volatility
+             * @default 0.0100
+             */
+            volatility: string;
         };
         /** CanonicalAdjacentCyclePresentation */
         CanonicalAdjacentCyclePresentation: {
+            buy_price: components["schemas"]["ExactValuePresentation"];
             /** Buy Rung Index */
             buy_rung_index: number;
-            /** Sell Rung Index */
-            sell_rung_index: number;
-            buy_price: components["schemas"]["ExactValuePresentation"];
-            sell_price: components["schemas"]["ExactValuePresentation"];
             cycle_quantity: components["schemas"]["ExactValuePresentation"];
             net_margin: components["schemas"]["ExactValuePresentation"];
             /** Positive */
             positive: boolean;
             /** Reason */
             reason: string;
+            sell_price: components["schemas"]["ExactValuePresentation"];
+            /** Sell Rung Index */
+            sell_rung_index: number;
         };
         /** CanonicalAdmissionAssessmentPresentation */
         CanonicalAdmissionAssessmentPresentation: {
-            capital_envelope: components["schemas"]["ExactValuePresentation"];
-            still_effective_quote_commitment: components["schemas"]["ExactValuePresentation"];
-            proposed_quote_commitment: components["schemas"]["ExactValuePresentation"];
-            bootstrap_quote_commitment: components["schemas"]["ExactValuePresentation"];
-            total_quote_commitment: components["schemas"]["ExactValuePresentation"];
-            fee_reserve: components["schemas"]["ExactValuePresentation"];
-            still_effective_inventory_commitment: components["schemas"]["ExactValuePresentation"];
             additional_bootstrap_inventory: components["schemas"]["ExactValuePresentation"];
-            maximum_planned_inventory: components["schemas"]["ExactValuePresentation"];
-            total_worst_case_inventory: components["schemas"]["ExactValuePresentation"];
-            /** Still Effective Order Count */
-            still_effective_order_count: number;
-            /** Proposed Order Count */
-            proposed_order_count: number;
-            /** Total Order Count */
-            total_order_count: number;
-            /** Venue Order Capacity */
-            venue_order_capacity: number | null;
+            bootstrap_quote_commitment: components["schemas"]["ExactValuePresentation"];
+            capital_envelope: components["schemas"]["ExactValuePresentation"];
+            fee_reserve: components["schemas"]["ExactValuePresentation"];
             /** Foreign Open Orders */
             foreign_open_orders: number;
+            maximum_planned_inventory: components["schemas"]["ExactValuePresentation"];
+            /** Proposed Order Count */
+            proposed_order_count: number;
+            proposed_quote_commitment: components["schemas"]["ExactValuePresentation"];
+            still_effective_inventory_commitment: components["schemas"]["ExactValuePresentation"];
+            /** Still Effective Order Count */
+            still_effective_order_count: number;
+            still_effective_quote_commitment: components["schemas"]["ExactValuePresentation"];
+            /** Total Order Count */
+            total_order_count: number;
+            total_quote_commitment: components["schemas"]["ExactValuePresentation"];
+            total_worst_case_inventory: components["schemas"]["ExactValuePresentation"];
+            /** Venue Order Capacity */
+            venue_order_capacity: number | null;
         };
         /** CanonicalAdmissionContextPresentation */
         CanonicalAdmissionContextPresentation: {
-            still_effective_quote_commitment: components["schemas"]["ExactValuePresentation"];
             still_effective_inventory_commitment: components["schemas"]["ExactValuePresentation"];
             /** Still Effective Order Count */
             still_effective_order_count: number;
+            still_effective_quote_commitment: components["schemas"]["ExactValuePresentation"];
         };
         /** CanonicalAllocationPresentation */
         CanonicalAllocationPresentation: {
-            quote_allocation: components["schemas"]["ExactValuePresentation"];
             base_allocation: components["schemas"]["ExactValuePresentation"];
             fee_reserve: components["schemas"]["ExactValuePresentation"];
+            quote_allocation: components["schemas"]["ExactValuePresentation"];
         };
         /** CanonicalBootstrapEvidencePresentation */
         CanonicalBootstrapEvidencePresentation: {
             /** Complete */
             complete: boolean;
-            net_base_confirmed: components["schemas"]["ExactValuePresentation"];
             /** Evidence Id */
             evidence_id: string | null;
+            net_base_confirmed: components["schemas"]["ExactValuePresentation"];
         };
         /** CanonicalBootstrapObligationPresentation */
         CanonicalBootstrapObligationPresentation: {
-            net_base_required: components["schemas"]["ExactValuePresentation"];
-            gross_base_required: components["schemas"]["ExactValuePresentation"];
             fee_base_coverage: components["schemas"]["ExactValuePresentation"];
+            gross_base_required: components["schemas"]["ExactValuePresentation"];
+            net_base_required: components["schemas"]["ExactValuePresentation"];
         };
         /** CanonicalConfigurationPresentation */
         CanonicalConfigurationPresentation: {
-            /** Schema Version */
-            schema_version: string;
-            /** Configuration Id */
-            configuration_id: string;
-            /** Policy Id */
-            policy_id: string;
-            /** Symbol */
-            symbol: string;
             /** Base Asset */
             base_asset: string;
+            /** Configuration Id */
+            configuration_id: string;
+            /** Execution Policy Id */
+            execution_policy_id: string;
+            /** Operator Inputs */
+            operator_inputs: {
+                [key: string]: components["schemas"]["ExactValuePresentation"];
+            };
+            /** Policy Id */
+            policy_id: string;
             /** Quote Asset */
             quote_asset: string;
+            /** Risk Profile Id */
+            risk_profile_id: string;
             /** Rung Count */
             rung_count: number;
+            /** Schema Version */
+            schema_version: string;
             /**
              * Spacing
              * @enum {string}
              */
             spacing: "ARITHMETIC" | "GEOMETRIC";
-            /** Execution Policy Id */
-            execution_policy_id: string;
-            /** Risk Profile Id */
-            risk_profile_id: string;
-            /** Operator Inputs */
-            operator_inputs: {
-                [key: string]: components["schemas"]["ExactValuePresentation"];
-            };
+            /** Symbol */
+            symbol: string;
         };
         /** CanonicalDecisionPresentation */
         CanonicalDecisionPresentation: {
-            /** Decision Id */
-            decision_id: string;
             /**
              * Adaptation State
              * @enum {string}
              */
             adaptation_state: "RANGE_NORMAL" | "RANGE_HIGH_VOLATILITY" | "TREND_UP" | "TREND_DOWN" | "UNCERTAIN";
+            /** Decision Id */
+            decision_id: string;
             /**
              * Intent
              * @enum {string}
              */
             intent: "SYMMETRIC" | "WIDEN" | "SHIFT_UP" | "REDUCE_ONLY" | "FROZEN";
-            /** Reason */
-            reason: string;
             /** Permits Exposure Increasing Buy */
             permits_exposure_increasing_buy: boolean;
+            /** Reason */
+            reason: string;
             requested_bound_shift: components["schemas"]["ExactValuePresentation"] | null;
         };
         /** CanonicalDerivedPlanPresentation */
         CanonicalDerivedPlanPresentation: {
-            /** Schema Version */
-            schema_version: string;
-            /** Epoch Id */
-            epoch_id: string;
-            /** Predecessor Epoch Id */
-            predecessor_epoch_id: string | null;
+            activation_price: components["schemas"]["ExactValuePresentation"];
+            allocation_assumptions: components["schemas"]["CanonicalAllocationPresentation"];
+            bootstrap_obligation: components["schemas"]["CanonicalBootstrapObligationPresentation"] | null;
             /** Derivation Causation Id */
             derivation_causation_id: string;
             /** Derivation Semantics */
             derivation_semantics: string;
-            /** Venue Rule Evidence Id */
-            venue_rule_evidence_id: string;
+            /** Epoch Id */
+            epoch_id: string;
             lower: components["schemas"]["ExactValuePresentation"];
-            upper: components["schemas"]["ExactValuePresentation"];
-            reference_price: components["schemas"]["ExactValuePresentation"];
-            activation_price: components["schemas"]["ExactValuePresentation"];
-            /** Unquantized Rungs */
-            unquantized_rungs: components["schemas"]["ExactValuePresentation"][];
-            /** Quantized Rungs */
-            quantized_rungs: components["schemas"]["CanonicalRungPresentation"][];
+            maximum_planned_inventory: components["schemas"]["ExactValuePresentation"] | null;
             /** Obligations */
             obligations: components["schemas"]["CanonicalObligationPresentation"][];
-            allocation_assumptions: components["schemas"]["CanonicalAllocationPresentation"];
-            maximum_planned_inventory: components["schemas"]["ExactValuePresentation"] | null;
-            bootstrap_obligation: components["schemas"]["CanonicalBootstrapObligationPresentation"] | null;
+            /** Predecessor Epoch Id */
+            predecessor_epoch_id: string | null;
+            /** Quantized Rungs */
+            quantized_rungs: components["schemas"]["CanonicalRungPresentation"][];
+            reference_price: components["schemas"]["ExactValuePresentation"];
+            /** Schema Version */
+            schema_version: string;
+            /** Unquantized Rungs */
+            unquantized_rungs: components["schemas"]["ExactValuePresentation"][];
+            upper: components["schemas"]["ExactValuePresentation"];
+            /** Venue Rule Evidence Id */
+            venue_rule_evidence_id: string;
         };
         /** CanonicalInitialActivationPresentation */
         CanonicalInitialActivationPresentation: {
-            /** Schema Version */
-            schema_version: string;
+            /** Activation Pending */
+            activation_pending: boolean;
+            /** Adjacent Cycle Economics */
+            adjacent_cycle_economics: components["schemas"]["CanonicalAdjacentCyclePresentation"][];
+            admission_assessment: components["schemas"]["CanonicalAdmissionAssessmentPresentation"] | null;
+            admission_context: components["schemas"]["CanonicalAdmissionContextPresentation"];
+            /** Automatically Armed */
+            automatically_armed: boolean;
+            bootstrap_evidence: components["schemas"]["CanonicalBootstrapEvidencePresentation"];
+            derived_width: components["schemas"]["ExactValuePresentation"] | null;
+            /** Gates */
+            gates: components["schemas"]["CanonicalActivationGatePresentation"][];
+            /** Ladder Placement Allowed */
+            ladder_placement_allowed: boolean;
             /**
              * Lifecycle
              * @enum {string}
              */
             lifecycle: "REJECTED" | "BOOTSTRAPPING" | "ACTIVE";
+            post_only_retry_policy: components["schemas"]["CanonicalPostOnlyRetryPolicyPresentation"];
+            principal_feasibility: components["schemas"]["CanonicalPrincipalFeasibilityPresentation"];
             /** Replay Fingerprint */
             replay_fingerprint: string;
-            /** Ladder Placement Allowed */
-            ladder_placement_allowed: boolean;
-            /** Activation Pending */
-            activation_pending: boolean;
-            /** Automatically Armed */
-            automatically_armed: boolean;
-            derived_width: components["schemas"]["ExactValuePresentation"] | null;
-            /** Gates */
-            gates: components["schemas"]["CanonicalActivationGatePresentation"][];
-            bootstrap_evidence: components["schemas"]["CanonicalBootstrapEvidencePresentation"];
-            admission_context: components["schemas"]["CanonicalAdmissionContextPresentation"];
-            admission_assessment: components["schemas"]["CanonicalAdmissionAssessmentPresentation"] | null;
-            /** Adjacent Cycle Economics */
-            adjacent_cycle_economics: components["schemas"]["CanonicalAdjacentCyclePresentation"][];
-            principal_feasibility: components["schemas"]["CanonicalPrincipalFeasibilityPresentation"];
-            post_only_retry_policy: components["schemas"]["CanonicalPostOnlyRetryPolicyPresentation"];
             rule_fee_contract: components["schemas"]["CanonicalRuleFeeContractPresentation"];
+            /** Schema Version */
+            schema_version: string;
         };
         /** CanonicalObligationPresentation */
         CanonicalObligationPresentation: {
-            /** Rung Index */
-            rung_index: number;
+            base_quantity: components["schemas"]["ExactValuePresentation"] | null;
+            fixed_quote_principal: components["schemas"]["ExactValuePresentation"];
             /**
              * Role
              * @enum {string}
              */
             role: "BUY" | "SELL";
-            fixed_quote_principal: components["schemas"]["ExactValuePresentation"];
-            base_quantity: components["schemas"]["ExactValuePresentation"] | null;
+            /** Rung Index */
+            rung_index: number;
         };
         /** CanonicalObservationPresentation */
         CanonicalObservationPresentation: {
-            /** Schema Version */
-            schema_version: string;
-            /** Observation Id */
-            observation_id: string;
-            /** Event Id */
-            event_id: string;
-            /** Source System */
-            source_system: string;
-            /** Source Stream */
-            source_stream: string;
-            /**
-             * Event Time
-             * Format: date-time
-             */
-            event_time: string;
+            /** Complete */
+            complete: boolean;
+            /** Confirmation Ids */
+            confirmation_ids: string[];
             /**
              * Decision Time
              * Format: date-time
              */
             decision_time: string;
-            /** Complete */
-            complete: boolean;
-            /** Quality */
-            quality: string;
-            /** Confirmation Ids */
-            confirmation_ids: string[];
+            /** Event Id */
+            event_id: string;
+            /**
+             * Event Time
+             * Format: date-time
+             */
+            event_time: string;
+            /** Observation Id */
+            observation_id: string;
             /** Prior Decision Id */
             prior_decision_id: string | null;
+            /** Quality */
+            quality: string;
+            reference_price: components["schemas"]["ExactValuePresentation"];
+            /** Schema Version */
+            schema_version: string;
+            /** Source Stream */
+            source_stream: string;
+            /** Source System */
+            source_system: string;
             trend: components["schemas"]["ExactValuePresentation"];
             volatility: components["schemas"]["ExactValuePresentation"];
-            reference_price: components["schemas"]["ExactValuePresentation"];
         };
         /** CanonicalPostOnlyRetryPolicyPresentation */
         CanonicalPostOnlyRetryPolicyPresentation: {
-            /** Schema Version */
-            schema_version: string;
-            /**
-             * Order Type
-             * @constant
-             */
-            order_type: "LIMIT_MAKER";
-            /** Max Attempts */
-            max_attempts: number;
-            /** Retry Delays */
-            retry_delays: components["schemas"]["ExactValuePresentation"][];
-            max_price_displacement_ratio: components["schemas"]["ExactValuePresentation"];
-            max_adjacent_gap_fraction: components["schemas"]["ExactValuePresentation"];
             /**
              * Exhaustion Posture
              * @constant
              */
             exhaustion_posture: "REDUCE_ONLY";
+            max_adjacent_gap_fraction: components["schemas"]["ExactValuePresentation"];
+            /** Max Attempts */
+            max_attempts: number;
+            max_price_displacement_ratio: components["schemas"]["ExactValuePresentation"];
+            /**
+             * Order Type
+             * @constant
+             */
+            order_type: "LIMIT_MAKER";
+            /** Retry Delays */
+            retry_delays: components["schemas"]["ExactValuePresentation"][];
+            /** Schema Version */
+            schema_version: string;
         };
         /** CanonicalPrincipalFeasibilityPointPresentation */
         CanonicalPrincipalFeasibilityPointPresentation: {
-            principal: components["schemas"]["ExactValuePresentation"];
             /** Feasible */
             feasible: boolean;
+            principal: components["schemas"]["ExactValuePresentation"];
             /** Reasons */
             reasons: string[];
         };
         /** CanonicalPrincipalFeasibilityPresentation */
         CanonicalPrincipalFeasibilityPresentation: {
-            /** Schema Version */
-            schema_version: string;
             /** Points */
             points: components["schemas"]["CanonicalPrincipalFeasibilityPointPresentation"][];
+            /** Schema Version */
+            schema_version: string;
         };
         /** CanonicalRuleFeeContractPresentation */
         CanonicalRuleFeeContractPresentation: {
-            /** Schema Version */
-            schema_version: string;
             /** Contract Id */
             contract_id: string;
+            maker_fee: components["schemas"]["ExactValuePresentation"];
+            /** Schema Version */
+            schema_version: string;
+            taker_fee: components["schemas"]["ExactValuePresentation"];
             /** Venue Rule Evidence Id */
             venue_rule_evidence_id: string;
-            maker_fee: components["schemas"]["ExactValuePresentation"];
-            taker_fee: components["schemas"]["ExactValuePresentation"];
         };
         /** CanonicalRungPresentation */
         CanonicalRungPresentation: {
@@ -1045,13 +1181,13 @@ export interface components {
              * @enum {string}
              */
             environment: "production" | "testnet";
-            /** Url */
-            url: string;
             /**
              * Server Time
              * Format: date-time
              */
             server_time: string;
+            /** Url */
+            url: string;
         };
         /** ConstraintsSpec */
         ConstraintsSpec: {
@@ -1061,99 +1197,88 @@ export interface components {
             max_gross_exposure_frac?: number | null;
             /** Max Open Orders */
             max_open_orders?: number | null;
-            /** Min Order Qty */
-            min_order_qty?: number | null;
             /** Min Notional */
             min_notional?: number | null;
+            /** Min Order Qty */
+            min_order_qty?: number | null;
         };
         /** DataSpec */
         DataSpec: {
-            /** Kind */
-            kind?: ("synthetic" | "dataframe" | "binance" | "csv" | "manifested_parquet") | null;
             /** Dataset Id */
             dataset_id?: string | null;
-            /** N */
-            n?: number | null;
-            /** Start Price */
-            start_price?: number | null;
-            /** Seed */
-            seed?: number | null;
-            /** Sigma */
-            sigma?: number | null;
-            /** Regime */
-            regime?: ("range" | "trend" | "random") | null;
+            /** End */
+            end?: string | null;
+            /** Interval */
+            interval?: string | null;
             /** Interval Minutes */
             interval_minutes?: number | null;
+            /** Kind */
+            kind?: ("synthetic" | "dataframe" | "binance" | "csv" | "manifested_parquet") | null;
+            /** Max Candles */
+            max_candles?: number | null;
+            /** N */
+            n?: number | null;
+            /** Path */
+            path?: string | null;
             /** Records */
             records?: {
                 [key: string]: unknown;
             }[] | null;
-            /** Symbol */
-            symbol?: string | null;
-            /** Interval */
-            interval?: string | null;
+            /** Regime */
+            regime?: ("range" | "trend" | "random") | null;
+            /** Seed */
+            seed?: number | null;
+            /** Sigma */
+            sigma?: number | null;
             /** Start */
             start?: string | null;
-            /** End */
-            end?: string | null;
-            /** Max Candles */
-            max_candles?: number | null;
-            /** Path */
-            path?: string | null;
+            /** Start Price */
+            start_price?: number | null;
+            /** Symbol */
+            symbol?: string | null;
         };
         /** DatasetManifest */
         DatasetManifest: {
-            /** Dataset Id */
-            dataset_id: string;
-            /** Manifest Sha256 */
-            manifest_sha256: string;
-            /** Schema Version */
-            schema_version: string;
-            /** Identity */
-            identity: {
-                [key: string]: unknown;
-            };
-            /**
-             * Venue
-             * @constant
-             */
-            venue: "binance";
-            /**
-             * Market
-             * @constant
-             */
-            market: "spot";
-            /**
-             * History Environment
-             * @constant
-             */
-            history_environment: "production";
-            /** Source Provider */
-            source_provider: string;
             /** Catalog Identity */
             catalog_identity?: string | null;
-            /** Symbol Metadata */
-            symbol_metadata?: {
-                [key: string]: unknown;
-            } | null;
-            /** Symbol */
-            symbol: string;
+            /** Coverage */
+            coverage: {
+                [key: string]: string;
+            };
+            /** Dataset Id */
+            dataset_id: string;
             /**
              * Event Kind
              * @constant
              */
             event_kind: "kline";
+            /** Fee Snapshot Id */
+            fee_snapshot_id: string | null;
+            /**
+             * History Environment
+             * @constant
+             */
+            history_environment: "production";
+            /** Identity */
+            identity: {
+                [key: string]: unknown;
+            };
             /**
              * Interval
              * @constant
              */
             interval: "1m";
+            /** Manifest Sha256 */
+            manifest_sha256: string;
+            /**
+             * Market
+             * @constant
+             */
+            market: "spot";
+            normalization: components["schemas"]["DatasetNormalization"];
+            quality: components["schemas"]["DatasetQuality"];
             /** Requested Range */
             requested_range: {
-                [key: string]: string;
-            };
-            /** Coverage */
-            coverage: {
                 [key: string]: string;
             };
             /**
@@ -1161,62 +1286,81 @@ export interface components {
              * Format: date-time
              */
             retrieved_at: string;
+            /** Schema Version */
+            schema_version: string;
+            /** Source Provider */
+            source_provider: string;
             /** Sources */
             sources: {
                 [key: string]: unknown;
             }[];
+            /** Symbol */
+            symbol: string;
+            /** Symbol Metadata */
+            symbol_metadata?: {
+                [key: string]: unknown;
+            } | null;
             /** Timestamp */
             timestamp: {
                 [key: string]: unknown;
             };
-            quality: components["schemas"]["DatasetQuality"];
-            normalization: components["schemas"]["DatasetNormalization"];
+            /**
+             * Venue
+             * @constant
+             */
+            venue: "binance";
             /** Venue Rule Snapshot Id */
             venue_rule_snapshot_id: string | null;
-            /** Fee Snapshot Id */
-            fee_snapshot_id: string | null;
         };
         /** DatasetNormalization */
         DatasetNormalization: {
-            /** Identity */
-            identity: string;
+            /** Candle Sequence Sha256 */
+            candle_sequence_sha256: string;
             /**
              * Format
              * @constant
              */
             format: "parquet";
-            /** Path */
-            path: string;
-            /** Sha256 */
-            sha256: string;
-            /** Rows */
-            rows: number;
-            /** Schema */
-            schema: components["schemas"]["ParquetField"][];
-            /** Candle Sequence Sha256 */
-            candle_sequence_sha256: string;
+            /** Identity */
+            identity: string;
             /** Ordering */
             ordering: string[];
             /** Parent Dataset Id */
             parent_dataset_id: string | null;
+            /** Path */
+            path: string;
             /** Resampling Rule */
             resampling_rule: string | null;
+            /** Rows */
+            rows: number;
+            /** Schema */
+            schema: components["schemas"]["ParquetField"][];
+            /** Sha256 */
+            sha256: string;
         };
         /** DatasetQuality */
         DatasetQuality: {
-            /** Rows */
-            rows: number;
-            /** Gaps */
-            gaps: number;
             /** Duplicates */
             duplicates: number;
-            /** Out Of Order */
-            out_of_order: number;
+            /** Gaps */
+            gaps: number;
             /** Invalid Records */
             invalid_records: number;
+            /** Out Of Order */
+            out_of_order: number;
+            /** Rows */
+            rows: number;
         };
         /** EpochTransitionActivationPresentation */
         EpochTransitionActivationPresentation: {
+            admission_assessment: components["schemas"]["EpochTransitionAdmissionAssessmentPresentation"] | null;
+            admission_context: components["schemas"]["CanonicalAdmissionContextPresentation"];
+            /** Bootstrap Required */
+            bootstrap_required: boolean;
+            /** Gates */
+            gates: components["schemas"]["CanonicalActivationGatePresentation"][];
+            /** Ladder Placement Allowed */
+            ladder_placement_allowed: boolean;
             /**
              * Lifecycle
              * @enum {string}
@@ -1224,44 +1368,36 @@ export interface components {
             lifecycle: "REJECTED" | "BOOTSTRAPPING" | "ACTIVE";
             /** Replay Fingerprint */
             replay_fingerprint: string;
-            /** Ladder Placement Allowed */
-            ladder_placement_allowed: boolean;
-            /** Bootstrap Required */
-            bootstrap_required: boolean;
-            admission_context: components["schemas"]["CanonicalAdmissionContextPresentation"];
-            admission_assessment: components["schemas"]["EpochTransitionAdmissionAssessmentPresentation"] | null;
-            /** Gates */
-            gates: components["schemas"]["CanonicalActivationGatePresentation"][];
         };
         /** EpochTransitionAdmissionAssessmentPresentation */
         EpochTransitionAdmissionAssessmentPresentation: {
-            capital_envelope: components["schemas"]["ExactValuePresentation"];
-            total_quote_commitment: components["schemas"]["ExactValuePresentation"];
             bootstrap_quote_commitment: components["schemas"]["ExactValuePresentation"];
+            capital_envelope: components["schemas"]["ExactValuePresentation"];
             fee_reserve: components["schemas"]["ExactValuePresentation"];
             maximum_planned_inventory: components["schemas"]["ExactValuePresentation"];
-            total_worst_case_inventory: components["schemas"]["ExactValuePresentation"];
             /** Total Order Count */
             total_order_count: number;
+            total_quote_commitment: components["schemas"]["ExactValuePresentation"];
+            total_worst_case_inventory: components["schemas"]["ExactValuePresentation"];
             /** Venue Order Capacity */
             venue_order_capacity: number | null;
         };
         /** EpochTransitionEvidencePresentation */
         EpochTransitionEvidencePresentation: {
-            /** Observation Id */
-            observation_id: string;
-            /** Decision Id */
-            decision_id: string;
             /**
              * Adaptation State
              * @enum {string}
              */
             adaptation_state: "RANGE_NORMAL" | "RANGE_HIGH_VOLATILITY" | "TREND_UP" | "TREND_DOWN" | "UNCERTAIN";
+            /** Decision Id */
+            decision_id: string;
             /**
              * Intent
              * @enum {string}
              */
             intent: "SYMMETRIC" | "WIDEN" | "SHIFT_UP" | "REDUCE_ONLY" | "FROZEN";
+            /** Observation Id */
+            observation_id: string;
             /** Reason */
             reason: string;
         };
@@ -1290,10 +1426,16 @@ export interface components {
         };
         /** EpochTransitionOrderPresentation */
         EpochTransitionOrderPresentation: {
-            /** Order Id */
-            order_id: string;
             /** Epoch Id */
             epoch_id: string;
+            /** Exposure Increasing */
+            exposure_increasing: boolean;
+            /** Inventory Reducing */
+            inventory_reducing: boolean;
+            /** Order Id */
+            order_id: string;
+            /** Outcome Unknown */
+            outcome_unknown: boolean;
             /**
              * Side
              * @enum {string}
@@ -1304,46 +1446,44 @@ export interface components {
              * @enum {string}
              */
             state: "OPEN" | "CANCEL_PENDING" | "CANCELLED" | "FILLED" | "UNKNOWN";
-            /** Exposure Increasing */
-            exposure_increasing: boolean;
-            /** Inventory Reducing */
-            inventory_reducing: boolean;
             /** Terminal Proven */
             terminal_proven: boolean;
-            /** Outcome Unknown */
-            outcome_unknown: boolean;
         };
         /** EpochTransitionPermissionsPresentation */
         EpochTransitionPermissionsPresentation: {
-            /** Placement Allowed */
-            placement_allowed: boolean;
-            /** Replacement Allowed */
-            replacement_allowed: boolean;
             /** Cancellation Allowed */
             cancellation_allowed: boolean;
-            /** Reconciliation Allowed */
-            reconciliation_allowed: boolean;
             /** Inventory Reduction Allowed */
             inventory_reduction_allowed: boolean;
+            /** Placement Allowed */
+            placement_allowed: boolean;
+            /** Reconciliation Allowed */
+            reconciliation_allowed: boolean;
+            /** Replacement Allowed */
+            replacement_allowed: boolean;
         };
         /** EpochTransitionPresentation */
         EpochTransitionPresentation: {
-            /**
-             * Schema Version
-             * @constant
-             */
-            schema_version: "epoch-transition-evaluation/v1";
+            /** Active Epoch Id */
+            active_epoch_id: string;
+            /** Crash Safe */
+            crash_safe: boolean;
             /**
              * Decision Time
              * Format: date-time
              */
             decision_time: string;
+            evidence: components["schemas"]["EpochTransitionEvidencePresentation"];
             /** Fingerprint */
             fingerprint: string;
-            /** Active Epoch Id */
-            active_epoch_id: string;
-            /** Proposed Epoch Id */
-            proposed_epoch_id: string | null;
+            /** Gates */
+            gates: components["schemas"]["EpochTransitionGatePresentation"][];
+            inventory_basis: components["schemas"]["AuthoritativeInventoryBasisPresentation"];
+            /** Late Fill Postings */
+            late_fill_postings: components["schemas"]["EpochTransitionLateFillPresentation"][];
+            /** Old Orders */
+            old_orders: components["schemas"]["EpochTransitionOrderPresentation"][];
+            permissions: components["schemas"]["EpochTransitionPermissionsPresentation"];
             /**
              * Phase
              * @enum {string}
@@ -1354,24 +1494,20 @@ export interface components {
              * @enum {string}
              */
             posture: "NORMAL" | "REDUCE_ONLY" | "TERMINAL_LIQUIDATION" | "FROZEN" | "CLOSED";
-            evidence: components["schemas"]["EpochTransitionEvidencePresentation"];
-            /** Refusal Reason */
-            refusal_reason: string | null;
-            /** Crash Safe */
-            crash_safe: boolean;
-            /** Restart Boundaries */
-            restart_boundaries: ("CHANGE_CONFIRMED" | "TRANSITION_REQUESTED" | "OLD_EXPOSURE_BLOCKED" | "CANCELLING" | "RECONCILING" | "DERIVING" | "VALIDATING" | "BOOTSTRAPPING" | "ACTIVATING" | "ACTIVE")[];
-            /** Gates */
-            gates: components["schemas"]["EpochTransitionGatePresentation"][];
             /** Progress */
             progress: components["schemas"]["EpochTransitionProgressPresentation"][];
-            permissions: components["schemas"]["EpochTransitionPermissionsPresentation"];
-            inventory_basis: components["schemas"]["AuthoritativeInventoryBasisPresentation"];
-            /** Old Orders */
-            old_orders: components["schemas"]["EpochTransitionOrderPresentation"][];
-            /** Late Fill Postings */
-            late_fill_postings: components["schemas"]["EpochTransitionLateFillPresentation"][];
+            /** Proposed Epoch Id */
+            proposed_epoch_id: string | null;
+            /** Refusal Reason */
+            refusal_reason: string | null;
             replacement_activation: components["schemas"]["EpochTransitionActivationPresentation"] | null;
+            /** Restart Boundaries */
+            restart_boundaries: ("CHANGE_CONFIRMED" | "TRANSITION_REQUESTED" | "OLD_EXPOSURE_BLOCKED" | "CANCELLING" | "RECONCILING" | "DERIVING" | "VALIDATING" | "BOOTSTRAPPING" | "ACTIVATING" | "ACTIVE")[];
+            /**
+             * Schema Version
+             * @constant
+             */
+            schema_version: "epoch-transition-evaluation/v1";
         };
         /** EpochTransitionProgressPresentation */
         EpochTransitionProgressPresentation: {
@@ -1380,20 +1516,28 @@ export interface components {
              * @enum {string}
              */
             phase: "CHANGE_CONFIRMED" | "TRANSITION_REQUESTED" | "OLD_EXPOSURE_BLOCKED" | "CANCELLING" | "RECONCILING" | "DERIVING" | "VALIDATING" | "BOOTSTRAPPING" | "ACTIVATING" | "ACTIVE";
+            /** Reason */
+            reason: string;
             /**
              * Status
              * @enum {string}
              */
             status: "PENDING" | "CURRENT" | "COMPLETED" | "SKIPPED" | "FAILED";
-            /** Reason */
-            reason: string;
         };
         /** EurCatalogSymbolEvidence */
         EurCatalogSymbolEvidence: {
-            /** Symbol */
-            symbol: string;
             /** Base Asset */
             base_asset: string;
+            coverage: components["schemas"]["ArchiveCoverageEvidence"];
+            /** Exchange Filters */
+            exchange_filters: {
+                [key: string]: {
+                    [key: string]: unknown;
+                };
+            };
+            liquidity: components["schemas"]["LiquiditySelectionEvidence"];
+            /** Liquidity Rank */
+            liquidity_rank: number;
             /**
              * Quote Asset
              * @constant
@@ -1404,16 +1548,8 @@ export interface components {
              * @constant
              */
             status: "TRADING";
-            /** Exchange Filters */
-            exchange_filters: {
-                [key: string]: {
-                    [key: string]: unknown;
-                };
-            };
-            coverage: components["schemas"]["ArchiveCoverageEvidence"];
-            liquidity: components["schemas"]["LiquiditySelectionEvidence"];
-            /** Liquidity Rank */
-            liquidity_rank: number;
+            /** Symbol */
+            symbol: string;
         };
         /** ExactValuePresentation */
         ExactValuePresentation: {
@@ -1426,14 +1562,14 @@ export interface components {
         ExchangeRulesSpec: {
             /** Enabled */
             enabled?: boolean | null;
-            /** Tick Size */
-            tick_size?: number | null;
-            /** Step Size */
-            step_size?: number | null;
-            /** Min Qty */
-            min_qty?: number | null;
             /** Min Notional */
             min_notional?: number | null;
+            /** Min Qty */
+            min_qty?: number | null;
+            /** Step Size */
+            step_size?: number | null;
+            /** Tick Size */
+            tick_size?: number | null;
         };
         /** FeesSpec */
         FeesSpec: {
@@ -1444,25 +1580,59 @@ export interface components {
         };
         /** FillSpec */
         FillSpec: {
-            /** Mode */
-            mode?: ("optimistic" | "conservative") | null;
-            /** Fill On Touch */
-            fill_on_touch?: boolean | null;
             /** Fill Gaps At Open */
             fill_gaps_at_open?: boolean | null;
+            /** Fill On Touch */
+            fill_on_touch?: boolean | null;
+            /** Mode */
+            mode?: ("optimistic" | "conservative") | null;
             /** Participation */
             participation?: number | null;
         };
         /** FilterSpec */
         FilterSpec: {
-            /** Kind */
-            kind?: ("none" | "trend" | "regime" | "rsi") | null;
             /** Adx Threshold */
             adx_threshold?: number | null;
-            /** Oversold */
-            oversold?: number | null;
+            /** Kind */
+            kind?: ("none" | "trend" | "regime" | "rsi") | null;
             /** Overbought */
             overbought?: number | null;
+            /** Oversold */
+            oversold?: number | null;
+        };
+        /** FrozenProductionPanel */
+        FrozenProductionPanel: {
+            /** Archive Id */
+            archive_id: string;
+            /** Blocking Reasons */
+            blocking_reasons: string[];
+            /** Datasets */
+            datasets: components["schemas"]["SynchronizedProductionDatasetEvidence"][];
+            /**
+             * Interval
+             * @constant
+             */
+            interval: "1m";
+            preview: components["schemas"]["ArchiveSyncPreviewEvidence"];
+            /**
+             * Quote Asset
+             * @constant
+             */
+            quote_asset: "EUR";
+            /**
+             * Retrieved At
+             * Format: date-time
+             */
+            retrieved_at: string;
+            /** Sources */
+            sources: components["schemas"]["ProductionPanelSourceEvidence"][];
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "pending" | "ready" | "blocked";
+            /** Symbols */
+            symbols: string[];
         };
         /**
          * GridPreviewBody
@@ -1474,49 +1644,49 @@ export interface components {
         /** GridSearchBody */
         GridSearchBody: {
             base?: components["schemas"]["BacktestRequest"];
-            /** Space */
-            space?: {
-                [key: string]: unknown[];
-            };
-            /**
-             * Objective
-             * @default deflated_sharpe
-             */
-            objective: string;
             /**
              * Maximize
              * @default true
              */
             maximize: boolean;
+            /**
+             * Objective
+             * @default deflated_sharpe
+             */
+            objective: string;
+            /** Space */
+            space?: {
+                [key: string]: unknown[];
+            };
             /** Top K */
             top_k?: number | null;
         };
         /** GridSpec */
         GridSpec: {
-            /** Levels */
-            levels?: number | null;
-            /** Lower */
-            lower?: number | null;
-            /** Upper */
-            upper?: number | null;
-            /** Spacing */
-            spacing?: ("arithmetic" | "geometric" | "atr") | null;
-            /** Direction */
-            direction?: ("neutral" | "long" | "short") | null;
             /** Adaptive */
             adaptive?: boolean | null;
-            /** Lookback */
-            lookback?: number | null;
-            /** Atr Period */
-            atr_period?: number | null;
             /** Atr Mult */
             atr_mult?: number | null;
+            /** Atr Period */
+            atr_period?: number | null;
+            /** Direction */
+            direction?: ("neutral" | "long" | "short") | null;
+            /** Levels */
+            levels?: number | null;
+            /** Lookback */
+            lookback?: number | null;
+            /** Lower */
+            lower?: number | null;
             /** Recenter Drift Frac */
             recenter_drift_frac?: number | null;
-            /** Take Profit Frac */
-            take_profit_frac?: number | null;
+            /** Spacing */
+            spacing?: ("arithmetic" | "geometric" | "atr") | null;
             /** Stop Loss Frac */
             stop_loss_frac?: number | null;
+            /** Take Profit Frac */
+            take_profit_frac?: number | null;
+            /** Upper */
+            upper?: number | null;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -1532,72 +1702,72 @@ export interface components {
         LegacyComparisonPresentation: {
             /** Bounded Bars */
             bounded_bars: number;
+            /** Cancelled Orders */
+            cancelled_orders: number;
+            /** Effective Atr Multiplier */
+            effective_atr_multiplier: string;
             /** Legacy Adaptive */
             legacy_adaptive: boolean;
             /** Legacy Spacing */
             legacy_spacing: string;
-            /** Effective Atr Multiplier */
-            effective_atr_multiplier: string;
-            /** Cancelled Orders */
-            cancelled_orders: number;
             /** Semantic Differences */
             semantic_differences: string[];
         };
         /** LiquiditySelectionEvidence */
         LiquiditySelectionEvidence: {
-            /** Observed Days */
-            observed_days: number;
-            /**
-             * Observed Start Date
-             * Format: date
-             */
-            observed_start_date: string;
-            /**
-             * Observed End Date
-             * Format: date
-             */
-            observed_end_date: string;
-            /**
-             * Observed At
-             * Format: date-time
-             */
-            observed_at: string;
-            /** Kline Source Url */
-            kline_source_url: string;
-            /** Kline Payload Sha256 */
-            kline_payload_sha256: string;
-            /** Ticker Source Url */
-            ticker_source_url: string;
-            /** Ticker Payload Sha256 */
-            ticker_payload_sha256: string;
-            /** Median Daily Quote Volume */
-            median_daily_quote_volume: string;
-            /** Median Daily Trade Count */
-            median_daily_trade_count: string;
             /** Annualized Realized Volatility */
             annualized_realized_volatility: string;
             /** Current Spread Bps */
             current_spread_bps: string;
             /** Current Trade Count */
             current_trade_count: number;
+            /** Kline Payload Sha256 */
+            kline_payload_sha256: string;
+            /** Kline Source Url */
+            kline_source_url: string;
+            /** Median Daily Quote Volume */
+            median_daily_quote_volume: string;
+            /** Median Daily Trade Count */
+            median_daily_trade_count: string;
+            /**
+             * Observed At
+             * Format: date-time
+             */
+            observed_at: string;
+            /** Observed Days */
+            observed_days: number;
+            /**
+             * Observed End Date
+             * Format: date
+             */
+            observed_end_date: string;
+            /**
+             * Observed Start Date
+             * Format: date
+             */
+            observed_start_date: string;
+            /** Ticker Payload Sha256 */
+            ticker_payload_sha256: string;
+            /** Ticker Source Url */
+            ticker_source_url: string;
         };
         /** ManifestedBacktestBody */
         ManifestedBacktestBody: {
             /** Dataset Id */
             dataset_id: string;
-            spec: components["schemas"]["BacktestRequest"];
             options?: components["schemas"]["BacktestOptions"];
+            spec: components["schemas"]["BacktestRequest"];
         };
         /** MarginSpec */
         MarginSpec: {
-            /** Leverage */
-            leverage?: number | null;
-            /** Maintenance Margin Frac */
-            maintenance_margin_frac?: number | null;
-            /** Liquidation Fee Frac */
-            liquidation_fee_frac?: number | null;
             /** Allow Short */
             allow_short?: boolean | null;
+            /** Leverage */
+            leverage?: number | null;
+            /** Liquidation Fee Frac */
+            liquidation_fee_frac?: number | null;
+            /** Maintenance Margin Frac */
+            maintenance_margin_frac?: number | null;
         };
         /** MonteCarloBody */
         MonteCarloBody: {
@@ -1626,71 +1796,71 @@ export interface components {
              * @enum {string}
              */
             action: "PAUSE" | "RESUME" | "OPERATOR_STOP" | "EMERGENCY_STOP";
+            /** Active Epoch Id */
+            active_epoch_id: string;
+            /** Admission Order Preserved */
+            admission_order_preserved: boolean;
             /**
              * Availability
              * @enum {string}
              */
             availability: "IMMEDIATE" | "PREVIEW_REQUIRED" | "BLOCKED" | "LATCHED";
+            /** Available Dispositions */
+            available_dispositions: ("RETAIN_HOLDING" | "DISPOSE")[];
+            /** Blocks New Epoch Placement */
+            blocks_new_epoch_placement: boolean;
+            /** Cancel Obligation Ids */
+            cancel_obligation_ids: string[];
             /** Confirmation Required */
             confirmation_required: boolean;
             /** Environment Bound */
             environment_bound: boolean;
+            /** Gates */
+            gates: components["schemas"]["OperatorPreviewGatePresentation"][];
             /** Idempotent */
             idempotent: boolean;
-            /** Preempts Pending Activation */
-            preempts_pending_activation: boolean;
-            /** Blocks New Epoch Placement */
-            blocks_new_epoch_placement: boolean;
-            /** Admission Order Preserved */
-            admission_order_preserved: boolean;
-            /** Active Epoch Id */
-            active_epoch_id: string;
-            /** Proposed Epoch Id */
-            proposed_epoch_id: string | null;
-            /** Transition State */
-            transition_state: string;
+            /** Inventory Basis Id */
+            inventory_basis_id: string;
+            /** Late Fill Ids */
+            late_fill_ids: string[];
             /**
              * Posture
              * @enum {string}
              */
             posture: "NORMAL" | "REDUCE_ONLY" | "TERMINAL_LIQUIDATION" | "FROZEN" | "CLOSED";
-            /** Inventory Basis Id */
-            inventory_basis_id: string;
-            /** Cancel Obligation Ids */
-            cancel_obligation_ids: string[];
-            /** Retained Obligation Ids */
-            retained_obligation_ids: string[];
-            /** Late Fill Ids */
-            late_fill_ids: string[];
-            /** Gates */
-            gates: components["schemas"]["OperatorPreviewGatePresentation"][];
+            /** Preempts Pending Activation */
+            preempts_pending_activation: boolean;
+            /** Proposed Epoch Id */
+            proposed_epoch_id: string | null;
             /** Reason Codes */
             reason_codes: string[];
-            /** Available Dispositions */
-            available_dispositions: ("RETAIN_HOLDING" | "DISPOSE")[];
+            /** Retained Obligation Ids */
+            retained_obligation_ids: string[];
             /** Selected Disposition */
             selected_disposition: ("RETAIN_HOLDING" | "DISPOSE") | null;
+            /** Transition State */
+            transition_state: string;
         };
         /** OperatorControlsPresentation */
         OperatorControlsPresentation: {
-            /**
-             * Schema Version
-             * @constant
-             */
-            schema_version: "operator-controls-presentation/v1";
             /**
              * Decision Time
              * Format: date-time
              */
             decision_time: string;
+            emergency_stop: components["schemas"]["OperatorCommandPreviewPresentation"];
             /** Fingerprint */
             fingerprint: string;
-            projection: components["schemas"]["OperatorProjectionPresentation"];
             inventory_basis: components["schemas"]["AuthoritativeInventoryBasisPresentation"];
-            pause: components["schemas"]["OperatorCommandPreviewPresentation"];
-            resume: components["schemas"]["OperatorCommandPreviewPresentation"];
             operator_stop: components["schemas"]["OperatorCommandPreviewPresentation"];
-            emergency_stop: components["schemas"]["OperatorCommandPreviewPresentation"];
+            pause: components["schemas"]["OperatorCommandPreviewPresentation"];
+            projection: components["schemas"]["OperatorProjectionPresentation"];
+            resume: components["schemas"]["OperatorCommandPreviewPresentation"];
+            /**
+             * Schema Version
+             * @constant
+             */
+            schema_version: "operator-controls-presentation/v1";
             terminal: components["schemas"]["TerminalDisposalPresentation"];
         };
         /** OperatorPreviewGatePresentation */
@@ -1709,114 +1879,250 @@ export interface components {
         OperatorProjectionPresentation: {
             /** Active Epoch Id */
             active_epoch_id: string;
-            /** Proposed Epoch Id */
-            proposed_epoch_id: string | null;
-            /** Transition State */
-            transition_state: string;
             /**
              * Posture
              * @enum {string}
              */
             posture: "NORMAL" | "REDUCE_ONLY" | "TERMINAL_LIQUIDATION" | "FROZEN" | "CLOSED";
+            /** Proposed Epoch Id */
+            proposed_epoch_id: string | null;
+            /** Transition State */
+            transition_state: string;
         };
         /** ParquetField */
         ParquetField: {
             /** Name */
             name: string;
-            /** Type */
-            type: string;
             /** Nullable */
             nullable: boolean;
+            /** Type */
+            type: string;
+        };
+        /** ProductionArchiveBacktestBody */
+        ProductionArchiveBacktestBody: {
+            /** Dataset Id */
+            dataset_id: string;
+            /**
+             * End
+             * Format: date-time
+             */
+            end: string;
+            options?: components["schemas"]["BacktestOptions"];
+            spec: components["schemas"]["BacktestRequest"];
+            /**
+             * Start
+             * Format: date-time
+             */
+            start: string;
+        };
+        /** ProductionArchivePartitionEvidence */
+        ProductionArchivePartitionEvidence: {
+            /** Active */
+            active: boolean;
+            /** Archive Id */
+            archive_id: string;
+            /** Byte Size */
+            byte_size: number;
+            /** Correction Findings */
+            correction_findings: string[];
+            /**
+             * Coverage End
+             * Format: date-time
+             */
+            coverage_end: string;
+            /**
+             * Coverage Start
+             * Format: date-time
+             */
+            coverage_start: string;
+            /** Dataset Id */
+            dataset_id: string;
+            /** Gap Findings */
+            gap_findings: string[];
+            /**
+             * Interval
+             * @constant
+             */
+            interval: "1m";
+            /** Manifest Identity */
+            manifest_identity: string;
+            /** Manifest Path */
+            manifest_path: string;
+            /** Month */
+            month: string;
+            /** Normalization Identity */
+            normalization_identity: string;
+            /** Normalized Sha256 */
+            normalized_sha256: string;
+            /** Ordering */
+            ordering: string[];
+            /** Partition Id */
+            partition_id: string;
+            /** Path */
+            path: string;
+            quality: components["schemas"]["DatasetQuality"];
+            /**
+             * Quote Asset
+             * @constant
+             */
+            quote_asset: "EUR";
+            /** Row Count */
+            row_count: number;
+            /** Schema */
+            schema: components["schemas"]["ParquetField"][];
+            /** Schema Version */
+            schema_version: string;
+            /** Sequence Sha256 */
+            sequence_sha256: string;
+            /** Source Checksums */
+            source_checksums: string[];
+            /** Source Evidence */
+            source_evidence: {
+                [key: string]: unknown;
+            }[];
+            /**
+             * Source Kind
+             * @enum {string}
+             */
+            source_kind: "monthly_archive" | "daily_archives_current_month";
+            /** Source Urls */
+            source_urls: string[];
+            /** Symbol */
+            symbol: string;
+            /** Timestamp Units */
+            timestamp_units: string[];
+            /**
+             * Verification Status
+             * @constant
+             */
+            verification_status: "verified";
         };
         /** ProductionDatasetProvenance */
         ProductionDatasetProvenance: {
+            /** Backtest Fingerprint */
+            backtest_fingerprint: string;
+            /** Candle Count */
+            candle_count: number;
+            /** Candle Sequence Sha256 */
+            candle_sequence_sha256: string;
+            /** Catalog Identity */
+            catalog_identity?: string | null;
+            /** Coverage */
+            coverage: {
+                [key: string]: string;
+            };
             /** Dataset Id */
             dataset_id: string;
-            /** Manifest Identity */
-            manifest_identity: string;
-            /** Source Provider */
-            source_provider: string;
             /**
              * History Environment
              * @constant
              */
             history_environment: "production";
             /**
-             * Testnet History Used
-             * @constant
-             */
-            testnet_history_used: false;
-            /** Symbol */
-            symbol: string;
-            /**
              * Interval
              * @constant
              */
             interval: "1m";
-            /**
-             * Requested Start
-             * Format: date-time
-             */
-            requested_start: string;
+            /** Manifest Identity */
+            manifest_identity: string;
+            /** Normalized Sha256 */
+            normalized_sha256: string;
+            /** Partition Identities */
+            partition_identities: string[];
+            /** Quote Asset */
+            quote_asset?: string | null;
             /**
              * Requested End
              * Format: date-time
              */
             requested_end: string;
             /**
+             * Requested Start
+             * Format: date-time
+             */
+            requested_start: string;
+            /**
              * Retrieved At
              * Format: date-time
              */
             retrieved_at: string;
+            /** Source Provider */
+            source_provider: string;
             /** Source Urls */
             source_urls: string[];
-            /** Normalized Sha256 */
-            normalized_sha256: string;
-            /** Candle Sequence Sha256 */
-            candle_sequence_sha256: string;
-            /** Backtest Fingerprint */
-            backtest_fingerprint: string;
-            /** Catalog Identity */
-            catalog_identity?: string | null;
-            /** Quote Asset */
-            quote_asset?: string | null;
+            /** Symbol */
+            symbol: string;
+            /**
+             * Testnet History Used
+             * @constant
+             */
+            testnet_history_used: false;
+        };
+        /** ProductionPanelSourceEvidence */
+        ProductionPanelSourceEvidence: {
+            /** Identity */
+            identity: string;
+            /** Kind */
+            kind: string;
+            /**
+             * Observed At
+             * Format: date-time
+             */
+            observed_at: string;
+            /** Url */
+            url: string;
         };
         /** RobustnessBody */
         RobustnessBody: {
             base?: components["schemas"]["BacktestRequest"];
-            /** Space */
-            space?: {
-                [key: string]: unknown[];
-            };
-            /**
-             * N Splits
-             * @default 3
-             */
-            n_splits: number;
             /**
              * Mc Sims
              * @default 800
              */
             mc_sims: number;
+            /**
+             * N Splits
+             * @default 3
+             */
+            n_splits: number;
+            /** Space */
+            space?: {
+                [key: string]: unknown[];
+            };
         };
         /** RunBacktestBody */
         RunBacktestBody: {
-            spec?: components["schemas"]["BacktestRequest"];
             options?: components["schemas"]["BacktestOptions"];
+            spec?: components["schemas"]["BacktestRequest"];
         };
         /** SafetyCapitalPresentation */
         SafetyCapitalPresentation: {
             /** Allocation Fingerprint */
             allocation_fingerprint: string;
-            /** Epoch Id */
-            epoch_id: string;
             capital_envelope: components["schemas"]["ExactValuePresentation"];
             committed_principal: components["schemas"]["ExactValuePresentation"];
+            /** Epoch Id */
+            epoch_id: string;
             fee_reserve: components["schemas"]["ExactValuePresentation"];
             maximum_planned_inventory: components["schemas"]["ExactValuePresentation"];
         };
         /** SafetyFactPresentation */
         SafetyFactPresentation: {
+            /** Allowed Command Classes */
+            allowed_command_classes: ("EXPOSURE_INCREASING" | "INVENTORY_REDUCING" | "PLACEMENT" | "REPLACEMENT" | "CANCELLATION" | "RECONCILIATION" | "EVIDENCE_GATHERING")[];
+            clock_offset: components["schemas"]["ExactValuePresentation"];
+            /** Daily Loss Latched */
+            daily_loss_latched: boolean;
+            /** Downward Bound Shift Allowed */
+            downward_bound_shift_allowed: boolean;
+            /** Fixed Quote Sizing Increase Allowed */
+            fixed_quote_sizing_increase_allowed: boolean;
+            /** Global Stop Latched */
+            global_stop_latched: boolean;
+            /** Loss Warning */
+            loss_warning: boolean;
+            /** Placement Allowed */
+            placement_allowed: boolean;
             /**
              * Posture
              * @enum {string}
@@ -1824,49 +2130,32 @@ export interface components {
             posture: "NORMAL" | "REDUCE_ONLY" | "TERMINAL_LIQUIDATION" | "FROZEN" | "CLOSED";
             /** Reason Codes */
             reason_codes: string[];
-            /** Loss Warning */
-            loss_warning: boolean;
-            /** Daily Loss Latched */
-            daily_loss_latched: boolean;
-            /** Run Drawdown Latched */
-            run_drawdown_latched: boolean;
-            /** Global Stop Latched */
-            global_stop_latched: boolean;
-            /** Allowed Command Classes */
-            allowed_command_classes: ("EXPOSURE_INCREASING" | "INVENTORY_REDUCING" | "PLACEMENT" | "REPLACEMENT" | "CANCELLATION" | "RECONCILIATION" | "EVIDENCE_GATHERING")[];
-            /** Placement Allowed */
-            placement_allowed: boolean;
             /** Replacement Allowed */
             replacement_allowed: boolean;
-            /** Downward Bound Shift Allowed */
-            downward_bound_shift_allowed: boolean;
-            /** Fixed Quote Sizing Increase Allowed */
-            fixed_quote_sizing_increase_allowed: boolean;
-            clock_offset: components["schemas"]["ExactValuePresentation"];
-            scheduling_delay: components["schemas"]["ExactValuePresentation"];
             round_trip_latency: components["schemas"]["ExactValuePresentation"];
+            /** Run Drawdown Latched */
+            run_drawdown_latched: boolean;
+            scheduling_delay: components["schemas"]["ExactValuePresentation"];
         };
         /** SafetyFreshnessPresentation */
         SafetyFreshnessPresentation: {
-            /**
-             * Evidence Class
-             * @enum {string}
-             */
-            evidence_class: "VALUATION" | "STRATEGY_INPUT" | "PRIVATE_STREAM" | "CONTROL_PATH" | "CLOCK";
             /**
              * Condition
              * @enum {string}
              */
             condition: "HEALTHY" | "MISSING" | "STALE" | "GAPPED" | "DISCONNECTED" | "UNAVAILABLE" | "REJECTED";
-            /** Observed At */
-            observed_at: string | null;
+            /**
+             * Evidence Class
+             * @enum {string}
+             */
+            evidence_class: "VALUATION" | "STRATEGY_INPUT" | "PRIVATE_STREAM" | "CONTROL_PATH" | "CLOCK";
             /** Evidence Id */
             evidence_id: string;
+            /** Observed At */
+            observed_at: string | null;
         };
         /** SafetyLifecyclePresentation */
         SafetyLifecyclePresentation: {
-            /** Grid Lifecycle */
-            grid_lifecycle: string;
             /**
              * Adaptation State
              * @enum {string}
@@ -1874,18 +2163,16 @@ export interface components {
             adaptation_state: "RANGE_NORMAL" | "RANGE_HIGH_VOLATILITY" | "TREND_UP" | "TREND_DOWN" | "UNCERTAIN";
             /** Epoch Transition State */
             epoch_transition_state: string;
-            /** Runtime Lifecycle */
-            runtime_lifecycle: string;
+            /** Grid Lifecycle */
+            grid_lifecycle: string;
             /** Reconciliation State */
             reconciliation_state: string;
+            /** Runtime Lifecycle */
+            runtime_lifecycle: string;
         };
         /** SafetyPosturePresentation */
         SafetyPosturePresentation: {
-            /**
-             * Schema Version
-             * @constant
-             */
-            schema_version: "safety-posture-presentation/v1";
+            capital: components["schemas"]["SafetyCapitalPresentation"];
             /**
              * Decision Time
              * Format: date-time
@@ -1893,11 +2180,15 @@ export interface components {
             decision_time: string;
             /** Fingerprint */
             fingerprint: string;
-            capital: components["schemas"]["SafetyCapitalPresentation"];
-            lifecycle: components["schemas"]["SafetyLifecyclePresentation"];
-            safety: components["schemas"]["SafetyFactPresentation"];
             /** Freshness */
             freshness: components["schemas"]["SafetyFreshnessPresentation"][];
+            lifecycle: components["schemas"]["SafetyLifecyclePresentation"];
+            safety: components["schemas"]["SafetyFactPresentation"];
+            /**
+             * Schema Version
+             * @constant
+             */
+            schema_version: "safety-posture-presentation/v1";
             venue: components["schemas"]["SafetyVenuePresentation"];
         };
         /** SafetyVenuePresentation */
@@ -1916,82 +2207,82 @@ export interface components {
         };
         /** SizingSpec */
         SizingSpec: {
-            /** Mode */
-            mode?: ("fixed_quote" | "fixed_base" | "percent_equity" | "martingale") | null;
-            /** Value */
-            value?: number | null;
             /** Martingale Factor */
             martingale_factor?: number | null;
             /** Max Martingale Steps */
             max_martingale_steps?: number | null;
+            /** Mode */
+            mode?: ("fixed_quote" | "fixed_base" | "percent_equity" | "martingale") | null;
+            /** Value */
+            value?: number | null;
         };
         /** SlippageSpec */
         SlippageSpec: {
-            /** Spread Frac */
-            spread_frac?: number | null;
             /** Impact Frac */
             impact_frac?: number | null;
+            /** Spread Frac */
+            spread_frac?: number | null;
         };
         /** StudioBacktestResult */
         StudioBacktestResult: {
-            /** Symbol */
-            symbol: string;
             /** Bars */
             bars: number;
-            /** Initial Cash */
-            initial_cash: number;
-            /** Final Equity */
-            final_equity: number;
             /** Fees Paid */
             fees_paid: number;
+            /** Final Equity */
+            final_equity: number;
+            /** Initial Cash */
+            initial_cash: number;
             metrics: components["schemas"]["StudioMetrics"];
-            verdict: components["schemas"]["StudioVerdict"];
+            simulation: components["schemas"]["StudioSimulationPresentation"];
+            /** Symbol */
+            symbol: string;
             /** Trades */
             trades: {
                 [key: string]: unknown;
             }[];
-            simulation: components["schemas"]["StudioSimulationPresentation"];
+            verdict: components["schemas"]["StudioVerdict"];
         } & {
             [key: string]: unknown;
         };
         /** StudioBacktestRun */
         StudioBacktestRun: {
-            /** Id */
-            id: string;
-            /**
-             * Status
-             * @constant
-             */
-            status: "completed";
             /**
              * Created At
              * Format: date-time
              */
             created_at: string;
+            /** Id */
+            id: string;
+            primary_result: components["schemas"]["StudioPrimaryResult"];
+            provenance?: components["schemas"]["ProductionDatasetProvenance"] | null;
+            result: components["schemas"]["StudioBacktestResult"];
             /** Specification */
             specification: {
                 [key: string]: unknown;
             };
-            primary_result: components["schemas"]["StudioPrimaryResult"];
-            result: components["schemas"]["StudioBacktestResult"];
-            provenance?: components["schemas"]["ProductionDatasetProvenance"] | null;
+            /**
+             * Status
+             * @constant
+             */
+            status: "completed";
         };
         /** StudioConfiguration */
         StudioConfiguration: {
+            /** Data Regimes */
+            data_regimes: ("range" | "trend" | "random")[];
             default_spec: components["schemas"]["BacktestRequest"];
             /** Spacing */
             spacing: ("geometric" | "arithmetic")[];
-            /** Data Regimes */
-            data_regimes: ("range" | "trend" | "random")[];
         };
         /** StudioMetrics */
         StudioMetrics: {
-            /** Total Return */
-            total_return: number;
             /** Max Drawdown */
             max_drawdown: number;
             /** N Trades */
             n_trades: number;
+            /** Total Return */
+            total_return: number;
             /** Win Rate */
             win_rate: number | null;
         } & {
@@ -1999,111 +2290,136 @@ export interface components {
         };
         /** StudioPrimaryResult */
         StudioPrimaryResult: {
-            /** Net Return */
-            net_return: number;
-            /** Final Equity */
-            final_equity: number;
-            /** Max Drawdown */
-            max_drawdown: number;
             /** Completed Trades */
             completed_trades: number;
             /** Fees Paid */
             fees_paid: number;
+            /** Final Equity */
+            final_equity: number;
+            /** Max Drawdown */
+            max_drawdown: number;
+            /** Net Return */
+            net_return: number;
             /** Verdict */
             verdict: string;
         };
         /** StudioSimulationPresentation */
         StudioSimulationPresentation: {
+            /** Canonical Core */
+            canonical_core: boolean;
+            /** Limitations */
+            limitations: string[];
             /**
              * Mode
              * @constant
              */
             mode: "candle";
-            /** Canonical Core */
-            canonical_core: boolean;
             /** Venue Execution Proof */
             venue_execution_proof: boolean;
-            /** Limitations */
-            limitations: string[];
         };
         /** StudioVerdict */
         StudioVerdict: {
             /** Label */
             label: string;
+            /** Max Score */
+            max_score: number;
+            /** Score */
+            score: number;
             /**
              * Tone
              * @enum {string}
              */
             tone: "good" | "warn" | "bad";
-            /** Score */
-            score: number;
-            /** Max Score */
-            max_score: number;
+        };
+        /** SynchronizedProductionDatasetEvidence */
+        SynchronizedProductionDatasetEvidence: {
+            coverage: components["schemas"]["ArchiveCoverageEvidence"];
+            /** Dataset Id */
+            dataset_id: string;
+            /** Display Order */
+            display_order: number;
+            /** Partitions */
+            partitions: components["schemas"]["ProductionArchivePartitionEvidence"][];
+            /** Pending Partition Months */
+            pending_partition_months: string[];
+            /**
+             * Quote Asset
+             * @constant
+             */
+            quote_asset: "EUR";
+            /** Stored Bytes */
+            stored_bytes: number;
+            /** Symbol */
+            symbol: string;
+            /** Total Rows */
+            total_rows: number;
+            /** Verified Ranges */
+            verified_ranges: components["schemas"]["VerifiedRangeEvidence"][];
         };
         /** TerminalDisposalPresentation */
         TerminalDisposalPresentation: {
-            /**
-             * Trigger
-             * @enum {string}
-             */
-            trigger: "NONE" | "OPERATOR_EMERGENCY" | "TERMINAL_LOSS";
-            /**
-             * State
-             * @enum {string}
-             */
-            state: "NONE" | "AWAITING_AUTHORITATIVE_INVENTORY" | "DISPOSING" | "DISPOSED" | "RETAINED";
-            /** Global Stop Latched */
-            global_stop_latched: boolean;
-            /** Operator Emergency Latched */
-            operator_emergency_latched: boolean;
-            /** Automatic Liquidation */
-            automatic_liquidation: boolean;
-            /** Preempts Pending Activation */
-            preempts_pending_activation: boolean;
-            /** Admission Order Preserved */
-            admission_order_preserved: boolean;
             /** Active Epoch Id */
             active_epoch_id: string;
-            /** Proposed Epoch Id */
-            proposed_epoch_id: string | null;
-            /** Transition State */
-            transition_state: string;
+            /** Admission Order Preserved */
+            admission_order_preserved: boolean;
+            /** Automatic Liquidation */
+            automatic_liquidation: boolean;
+            /** Global Stop Latched */
+            global_stop_latched: boolean;
+            /** Golden Replay Cases */
+            golden_replay_cases: components["schemas"]["TerminalGoldenReplayPresentation"][];
+            /** Inventory Basis Id */
+            inventory_basis_id: string;
+            /** Operator Emergency Latched */
+            operator_emergency_latched: boolean;
             /**
              * Posture
              * @enum {string}
              */
             posture: "NORMAL" | "REDUCE_ONLY" | "TERMINAL_LIQUIDATION" | "FROZEN" | "CLOSED";
-            /** Inventory Basis Id */
-            inventory_basis_id: string;
+            /** Preempts Pending Activation */
+            preempts_pending_activation: boolean;
+            /** Proposed Epoch Id */
+            proposed_epoch_id: string | null;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "NONE" | "AWAITING_AUTHORITATIVE_INVENTORY" | "DISPOSING" | "DISPOSED" | "RETAINED";
+            /** Transition State */
+            transition_state: string;
+            /**
+             * Trigger
+             * @enum {string}
+             */
+            trigger: "NONE" | "OPERATOR_EMERGENCY" | "TERMINAL_LOSS";
             /** Waves */
             waves: components["schemas"]["TerminalDisposalWavePresentation"][];
-            /** Golden Replay Cases */
-            golden_replay_cases: components["schemas"]["TerminalGoldenReplayPresentation"][];
         };
         /** TerminalDisposalWavePresentation */
         TerminalDisposalWavePresentation: {
-            /** Wave */
-            wave: number;
+            /** Attempt Limit */
+            attempt_limit: number;
+            authoritative_inventory_after_wave: components["schemas"]["ExactValuePresentation"];
+            elapsed_time_limit: components["schemas"]["ExactValuePresentation"];
+            max_depth_age: components["schemas"]["ExactValuePresentation"];
+            notional_limit: components["schemas"]["ExactValuePresentation"];
             /**
              * Order Type
              * @constant
              */
             order_type: "IOC";
-            quantity_limit: components["schemas"]["ExactValuePresentation"];
-            notional_limit: components["schemas"]["ExactValuePresentation"];
-            max_depth_age: components["schemas"]["ExactValuePresentation"];
-            price_band_bps: components["schemas"]["ExactValuePresentation"];
-            /** Attempt Limit */
-            attempt_limit: number;
-            elapsed_time_limit: components["schemas"]["ExactValuePresentation"];
             /**
              * Outcome
              * @enum {string}
              */
             outcome: "PARTIAL" | "REJECTED" | "UNKNOWN" | "EXHAUSTED" | "RESIDUAL_RETAINED" | "COMPLETED";
+            price_band_bps: components["schemas"]["ExactValuePresentation"];
+            quantity_limit: components["schemas"]["ExactValuePresentation"];
             /** Reconciled Before Next Wave */
             reconciled_before_next_wave: boolean;
-            authoritative_inventory_after_wave: components["schemas"]["ExactValuePresentation"];
+            /** Wave */
+            wave: number;
         };
         /** TerminalGoldenReplayPresentation */
         TerminalGoldenReplayPresentation: {
@@ -2119,24 +2435,33 @@ export interface components {
         };
         /** ValidationError */
         ValidationError: {
+            /** Context */
+            ctx?: Record<string, never>;
+            /** Input */
+            input?: unknown;
             /** Location */
             loc: (string | number)[];
             /** Message */
             msg: string;
             /** Error Type */
             type: string;
-            /** Input */
-            input?: unknown;
-            /** Context */
-            ctx?: Record<string, never>;
+        };
+        /** VerifiedRangeEvidence */
+        VerifiedRangeEvidence: {
+            /**
+             * End
+             * Format: date-time
+             */
+            end: string;
+            /**
+             * Start
+             * Format: date-time
+             */
+            start: string;
         };
         /** WalkForwardBody */
         WalkForwardBody: {
             base?: components["schemas"]["BacktestRequest"];
-            /** Space */
-            space?: {
-                [key: string]: unknown[];
-            };
             /**
              * N Splits
              * @default 4
@@ -2147,6 +2472,10 @@ export interface components {
              * @default deflated_sharpe
              */
             objective: string;
+            /** Space */
+            space?: {
+                [key: string]: unknown[];
+            };
         };
     };
     responses: never;
@@ -2157,50 +2486,6 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    health_api_health_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-        };
-    };
-    meta_api_meta_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-        };
-    };
     backtest_api_backtest_post: {
         parameters: {
             query?: never;
@@ -2223,355 +2508,6 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    studio_configuration_api_studio_configuration_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["StudioConfiguration"];
-                };
-            };
-        };
-    };
-    canonical_adaptive_api_studio_canonical_adaptive_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CanonicalAdaptiveRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CanonicalAdaptivePresentation"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    safety_posture_api_studio_safety_posture_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SafetyPosturePresentation"];
-                };
-            };
-        };
-    };
-    operator_controls_api_studio_operator_controls_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OperatorControlsPresentation"];
-                };
-            };
-        };
-    };
-    epoch_transition_api_studio_epoch_transition_get: {
-        parameters: {
-            query?: {
-                scenario?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EpochTransitionPresentation"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_binance_eur_catalog_api_studio_catalogs_binance_eur_get: {
-        parameters: {
-            query?: {
-                refresh?: boolean;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["BinanceEurResearchCatalog"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    preview_binance_dataset_api_studio_datasets_binance_preview_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["BinanceDatasetRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["BinanceDatasetPreview"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    import_binance_dataset_api_studio_datasets_binance_import_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ImportDatasetBody"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DatasetManifest"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_studio_dataset_api_studio_datasets__dataset_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                dataset_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DatasetManifest"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    create_studio_backtest_api_studio_backtests_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RunBacktestBody"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["StudioBacktestRun"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    create_manifested_studio_backtest_api_studio_backtests_manifested_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ManifestedBacktestBody"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["StudioBacktestRun"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_studio_backtest_api_studio_backtests__run_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                run_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["StudioBacktestRun"];
                 };
             };
             /** @description Validation Error */
@@ -2620,6 +2556,50 @@ export interface operations {
             };
         };
     };
+    health_api_health_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    meta_api_meta_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
     report_api_report_post: {
         parameters: {
             query?: never;
@@ -2663,41 +2643,6 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["GridSearchBody"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    };
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    research_walk_forward_api_research_walk_forward_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["WalkForwardBody"];
             };
         };
         responses: {
@@ -2789,6 +2734,474 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    research_walk_forward_api_research_walk_forward_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WalkForwardBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_frozen_production_panel_api_studio_archives_binance_eur_get: {
+        parameters: {
+            query?: {
+                refresh?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FrozenProductionPanel"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    synchronize_production_archive_api_studio_archives_binance_eur_synchronize_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FrozenProductionPanel"];
+                };
+            };
+        };
+    };
+    create_studio_backtest_api_studio_backtests_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RunBacktestBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudioBacktestRun"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_manifested_studio_backtest_api_studio_backtests_manifested_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ManifestedBacktestBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudioBacktestRun"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_production_archive_backtest_api_studio_backtests_production_archive_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProductionArchiveBacktestBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudioBacktestRun"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_studio_backtest_api_studio_backtests__run_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudioBacktestRun"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    canonical_adaptive_api_studio_canonical_adaptive_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CanonicalAdaptiveRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CanonicalAdaptivePresentation"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_binance_eur_catalog_api_studio_catalogs_binance_eur_get: {
+        parameters: {
+            query?: {
+                refresh?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BinanceEurResearchCatalog"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    studio_configuration_api_studio_configuration_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudioConfiguration"];
+                };
+            };
+        };
+    };
+    import_binance_dataset_api_studio_datasets_binance_import_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ImportDatasetBody"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DatasetManifest"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    preview_binance_dataset_api_studio_datasets_binance_preview_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BinanceDatasetRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BinanceDatasetPreview"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_studio_dataset_api_studio_datasets__dataset_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                dataset_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DatasetManifest"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    epoch_transition_api_studio_epoch_transition_get: {
+        parameters: {
+            query?: {
+                scenario?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EpochTransitionPresentation"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    operator_controls_api_studio_operator_controls_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OperatorControlsPresentation"];
+                };
+            };
+        };
+    };
+    safety_posture_api_studio_safety_posture_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SafetyPosturePresentation"];
                 };
             };
         };

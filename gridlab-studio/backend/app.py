@@ -37,10 +37,12 @@ from backend.schemas import (
     CanonicalAdaptiveRequest,
     DatasetManifest,
     EpochTransitionPresentation,
+    FrozenProductionPanel,
     GridPreviewBody,
     GridSearchBody,
     ImportDatasetBody,
     ManifestedBacktestBody,
+    ProductionArchiveBacktestBody,
     MonteCarloBody,
     ProductionDatasetProvenance,
     OperatorControlsPresentation,
@@ -54,6 +56,10 @@ from backend.schemas import (
 )
 from backend.studio_catalogs import StudioCatalogRepository, studio_catalog_repository
 from backend.studio_datasets import StudioDatasetRepository, studio_dataset_repository
+from backend.studio_panels import (
+    StudioProductionPanelRepository,
+    studio_production_panel_repository,
+)
 from backend.studio_runs import SqliteStudioRunStore, studio_run_store
 
 FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
@@ -221,6 +227,33 @@ def get_binance_eur_catalog(
     return BinanceEurResearchCatalog.model_validate(asdict(catalog))
 
 
+@app.get(
+    "/api/studio/archives/binance/eur",
+    response_model=FrozenProductionPanel,
+)
+def get_frozen_production_panel(
+    refresh: bool = False,
+    repository: StudioProductionPanelRepository = Depends(
+        studio_production_panel_repository
+    ),
+) -> FrozenProductionPanel:
+    """Return the synchronized ten-symbol EUR production archive status."""
+    return FrozenProductionPanel.model_validate(_guard(repository.get, refresh=refresh))
+
+
+@app.post(
+    "/api/studio/archives/binance/eur/synchronize",
+    response_model=FrozenProductionPanel,
+)
+def synchronize_production_archive(
+    repository: StudioProductionPanelRepository = Depends(
+        studio_production_panel_repository
+    ),
+) -> FrozenProductionPanel:
+    """Download, verify, and atomically publish missing EUR production partitions."""
+    return FrozenProductionPanel.model_validate(_guard(repository.synchronize))
+
+
 @app.post("/api/studio/datasets/binance/preview", response_model=BinanceDatasetPreview)
 def preview_binance_dataset(
     body: BinanceDatasetRequest,
@@ -336,6 +369,7 @@ def create_manifested_studio_backtest(
     metrics = result["metrics"]
     requested = manifest["requested_range"]
     normalization = manifest["normalization"]
+    coverage = manifest["coverage"]
     run = StudioBacktestRun(
         id=str(uuid4()),
         status="completed",
@@ -365,8 +399,91 @@ def create_manifested_studio_backtest(
             normalized_sha256=normalization["sha256"],
             candle_sequence_sha256=normalization["candle_sequence_sha256"],
             backtest_fingerprint=fingerprinted["backtest_fingerprint"],
+            candle_count=normalization["rows"],
+            coverage={
+                "first_verified_open_time": coverage["first_open_time"],
+                "last_verified_open_time": coverage["last_open_time"],
+            },
+            partition_identities=[],
             catalog_identity=manifest.get("catalog_identity"),
             quote_asset=(manifest.get("symbol_metadata") or {}).get("quote_asset"),
+        ),
+    )
+    store.save(run)
+    return run
+
+
+@app.post(
+    "/api/studio/backtests/production-archive",
+    response_model=StudioBacktestRun,
+    status_code=201,
+)
+def create_production_archive_backtest(
+    body: ProductionArchiveBacktestBody,
+    repository: StudioProductionPanelRepository = Depends(
+        studio_production_panel_repository
+    ),
+    store: SqliteStudioRunStore = Depends(studio_run_store),
+) -> StudioBacktestRun:
+    """Replay one verified local EUR archive snapshot without any network dependency."""
+    specification = body.spec.to_spec()
+    specification["data"] = {
+        "kind": "manifested_parquet",
+        "dataset_id": body.dataset_id,
+        "start": body.start.isoformat(),
+        "end": body.end.isoformat(),
+    }
+    snapshot = _guard(repository.create_snapshot, body.dataset_id, body.start, body.end)
+    manifest_path = Path(snapshot["manifest_path"])
+    fingerprinted = _guard(
+        service.fingerprint_archive_snapshot_backtest, specification, manifest_path
+    )
+    result = _guard(
+        service.run_archive_snapshot_backtest,
+        specification,
+        manifest_path,
+        include_trades=body.options.include_trades,
+    )
+    metrics = result["metrics"]
+    requested = snapshot["requested_range"]
+    coverage = snapshot["coverage"]
+    run = StudioBacktestRun(
+        id=str(uuid4()),
+        status="completed",
+        created_at=datetime.now(timezone.utc),
+        specification=specification,
+        primary_result=StudioPrimaryResult(
+            net_return=metrics["total_return"],
+            final_equity=result["final_equity"],
+            max_drawdown=metrics["max_drawdown"],
+            completed_trades=result["n_closed_trades"],
+            fees_paid=result["fees_paid"],
+            verdict=result["verdict"]["label"],
+        ),
+        result=result,
+        provenance=ProductionDatasetProvenance(
+            dataset_id=snapshot["dataset_id"],
+            manifest_identity=snapshot["manifest_sha256"],
+            source_provider=snapshot["source_provider"],
+            history_environment="production",
+            testnet_history_used=False,
+            symbol=snapshot["symbol"],
+            interval=snapshot["interval"],
+            requested_start=requested["start_inclusive"],
+            requested_end=requested["end_exclusive"],
+            retrieved_at=snapshot["retrieved_at"],
+            source_urls=[
+                url
+                for partition in snapshot["partitions"]
+                for url in partition["source_urls"]
+            ],
+            normalized_sha256=snapshot["normalized_sha256"],
+            candle_sequence_sha256=snapshot["candle_sequence_sha256"],
+            backtest_fingerprint=fingerprinted["backtest_fingerprint"],
+            candle_count=snapshot["candle_count"],
+            coverage=coverage,
+            partition_identities=snapshot["partition_identities"],
+            quote_asset=snapshot["quote_asset"],
         ),
     )
     store.save(run)

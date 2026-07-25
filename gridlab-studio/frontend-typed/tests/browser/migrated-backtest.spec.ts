@@ -52,10 +52,77 @@ async function routeEurCatalog(page: import("@playwright/test").Page) {
   }));
 }
 
+async function routeProductionPanel(page: import("@playwright/test").Page) {
+  await page.route("**/api/studio/archives/binance/eur?refresh=*", (route) => route.fulfill({
+    contentType: "application/json",
+    body: JSON.stringify({
+      archive_id: "7".repeat(64),
+      status: "ready",
+      retrieved_at: "2026-07-25T12:00:00Z",
+      quote_asset: "EUR",
+      interval: "1m",
+      symbols: ["BTCEUR", "ETHEUR", "SOLEUR", "XRPEUR", "ADAEUR", "PEPEEUR", "BNBEUR", "DOGEEUR", "XLMEUR", "LTCEUR"],
+      sources: [{ kind: "production_exchange_info", url: "https://data-api.binance.vision/api/v3/exchangeInfo", observed_at: "2026-07-25T12:00:00Z", identity: "1".repeat(64) }],
+      preview: { preview_id: "6".repeat(64), source_objects: 14, estimated_download_bytes: 123456789, estimated_storage_bytes: 234567890, pending_partitions: 0, verified_partitions: 10, symbols: [] },
+      datasets: ["BTCEUR", "ETHEUR", "SOLEUR", "XRPEUR", "ADAEUR", "PEPEEUR", "BNBEUR", "DOGEEUR", "XLMEUR", "LTCEUR"].map((symbol, index) => ({
+        symbol,
+        dataset_id: `${index + 1}`.repeat(64),
+        quote_asset: "EUR",
+        display_order: index + 1,
+        coverage: {
+          first_date: "2022-01-01",
+          last_date: "2026-07-21",
+          intervals: ["1d", "1h", "1m", "5m"],
+          known_gap_dates: [],
+          evidence_urls: [`https://data.binance.vision/coverage/${symbol}`],
+        },
+        verified_ranges: [{ start: "2022-01-01T00:00:00Z", end: "2026-07-22T00:00:00Z" }],
+        total_rows: 2_000_000,
+        stored_bytes: 654321 + index,
+        partitions: [{
+          schema_version: "gridlab.production-archive-partition.v1",
+          archive_id: "7".repeat(64),
+          dataset_id: `${index + 1}`.repeat(64),
+          symbol,
+          quote_asset: "EUR",
+          interval: "1m",
+          month: "2026-07",
+          coverage_start: "2026-07-01T00:00:00Z",
+          coverage_end: "2026-07-22T00:00:00Z",
+          source_kind: "daily_archives_current_month",
+          row_count: 30240,
+          ordering: ["open_time", "source_sha256", "source_row"],
+          normalization_identity: "gridlab.binance-eur-production-monthly-partition.v1",
+          normalized_sha256: "d".repeat(64),
+          source_urls: [`https://data.binance.vision/${symbol}-1m-2026-07-21.zip`],
+          source_checksums: ["3".repeat(64)],
+          timestamp_units: ["microseconds"],
+          source_evidence: [],
+          quality: { rows: 30240, gaps: 0, duplicates: 0, out_of_order: 0, invalid_records: 0 },
+          schema: [],
+          verification_status: "verified",
+          active: true,
+          gap_findings: [],
+          correction_findings: [],
+          sequence_sha256: "e".repeat(64),
+          partition_id: `${index + 2}`.repeat(64),
+          path: `C:\\repo\\${symbol}\\data.parquet`,
+          manifest_path: `C:\\repo\\${symbol}\\manifest.json`,
+          byte_size: 654321 + index,
+          manifest_identity: "5".repeat(64),
+        }],
+        pending_partition_months: [],
+      })),
+      blocking_reasons: [],
+    }),
+  }));
+}
+
 test("operator completes and reloads the migrated typed backtest while legacy stays available", async ({
   page,
 }) => {
   await routeEurCatalog(page);
+  await routeProductionPanel(page);
   const consoleErrors: string[] = [];
   page.on("console", (message) => {
     if (message.type() === "error") consoleErrors.push(message.text());
@@ -124,42 +191,40 @@ test("operator sees manifested production-history provenance in the real browser
   const datasetId = "c".repeat(64);
   const fingerprint = "f".repeat(64);
   await routeEurCatalog(page);
-  await page.route("**/api/studio/datasets/binance/preview", (route) => route.fulfill({
-    contentType: "application/json",
-    body: JSON.stringify({
-      preview_id: "a".repeat(64), venue: "binance", market: "spot-production-archive",
-      symbol: "ETHEUR", interval: "1m", start: "2025-01-01T00:00:00Z",
-      end: "2025-01-02T00:00:00Z", estimated_bytes: 123456,
-      limits: { max_days: 7, max_objects: 7, max_bytes: 268435456 },
-      catalog_identity: catalogId,
-      symbol_metadata: { base_asset: "ETH", quote_asset: "EUR", liquidity_rank: 2 },
-      sources: [{ date: "2025-01-01", url: "https://data.binance.vision/ETHEUR-1m-2025-01-01.zip", checksum_url: "https://data.binance.vision/ETHEUR-1m-2025-01-01.zip.CHECKSUM", expected_sha256: "b".repeat(64), estimated_bytes: 123456 }],
-    }),
-  }));
-  await page.route("**/api/studio/datasets/binance/import", (route) => route.fulfill({
-    contentType: "application/json",
-    body: JSON.stringify({ dataset_id: datasetId, manifest_sha256: "8".repeat(64), history_environment: "production", source_provider: "official Binance public archive", quality: { rows: 1440, gaps: 0, duplicates: 0, out_of_order: 0, invalid_records: 0 }, normalization: { sha256: "d".repeat(64), candle_sequence_sha256: "e".repeat(64) } }),
-  }));
-  await page.route("**/api/studio/backtests/manifested", (route) => route.fulfill({
+  await routeProductionPanel(page);
+  await page.route("**/api/studio/backtests/production-archive", (route) => route.fulfill({
     status: 201, contentType: "application/json",
     body: JSON.stringify({
       id: "production-run", status: "completed", created_at: "2026-07-21T12:00:00Z", specification: { symbol: "ETHEUR" },
       primary_result: { net_return: 0.01, final_equity: 10100, max_drawdown: -0.01, completed_trades: 2, fees_paid: 1, verdict: "Promising" },
       result: { symbol: "ETHEUR", bars: 1440, initial_cash: 10000, final_equity: 10100, fees_paid: 1, metrics: { total_return: 0.01, max_drawdown: -0.01, n_trades: 2, win_rate: 1 }, verdict: { label: "Promising", tone: "good", score: 5, max_score: 7 }, trades: [], simulation: { mode: "candle", canonical_core: false, venue_execution_proof: false, limitations: ["Normal orders become eligible only from the candle after they begin resting."] } },
-      provenance: { dataset_id: datasetId, manifest_identity: datasetId, source_provider: "official Binance public archive", history_environment: "production", testnet_history_used: false, symbol: "ETHEUR", interval: "1m", requested_start: "2025-01-01T00:00:00Z", requested_end: "2025-01-02T00:00:00Z", retrieved_at: "2026-07-21T12:00:00Z", source_urls: [], normalized_sha256: "d".repeat(64), candle_sequence_sha256: "e".repeat(64), backtest_fingerprint: fingerprint, catalog_identity: catalogId, quote_asset: "EUR" },
+      provenance: { dataset_id: "2".repeat(64), manifest_identity: "8".repeat(64), source_provider: "official Binance public archive", history_environment: "production", testnet_history_used: false, symbol: "ETHEUR", interval: "1m", requested_start: "2025-01-01T00:00:00Z", requested_end: "2025-01-02T00:00:00Z", retrieved_at: "2026-07-21T12:00:00Z", source_urls: [], normalized_sha256: "d".repeat(64), candle_sequence_sha256: "e".repeat(64), backtest_fingerprint: fingerprint, candle_count: 1440, coverage: { first_verified_open_time: "2025-01-01T00:00:00Z", last_verified_open_time: "2025-01-01T23:59:00Z" }, partition_identities: ["3".repeat(64)], catalog_identity: catalogId, quote_asset: "EUR" },
+    }),
+  }));
+  await page.route("**/api/studio/archives/binance/eur/synchronize", (route) => route.fulfill({
+    contentType: "application/json",
+    body: JSON.stringify({
+      archive_id: "7".repeat(64),
+      status: "ready",
+      retrieved_at: "2026-07-25T12:00:00Z",
+      quote_asset: "EUR",
+      interval: "1m",
+      symbols: ["BTCEUR", "ETHEUR", "SOLEUR", "XRPEUR", "ADAEUR", "PEPEEUR", "BNBEUR", "DOGEEUR", "XLMEUR", "LTCEUR"],
+      sources: [{ kind: "production_exchange_info", url: "https://data-api.binance.vision/api/v3/exchangeInfo", observed_at: "2026-07-25T12:00:00Z", identity: "1".repeat(64) }],
+      preview: { preview_id: "6".repeat(64), source_objects: 0, estimated_download_bytes: 0, estimated_storage_bytes: 0, pending_partitions: 0, verified_partitions: 10, symbols: [] },
+      datasets: [],
+      blocking_reasons: [],
     }),
   }));
 
   await page.goto("/studio/");
   await expect(page.getByText("2 eligible EUR symbols")).toBeVisible();
+  await expect(page.getByText("Ten-symbol EUR production archive")).toBeVisible();
+  await expect(page.getByText("10 fixed EUR datasets")).toBeVisible();
   await page.getByLabel("EUR production symbol").selectOption("ETHEUR");
-  await expect(page.getByText("€24,000,000 median daily volume")).toBeVisible();
-  await expect(page.getByText("1.75 bps current spread")).toBeVisible();
-  await page.getByRole("button", { name: "Preview official download" }).click();
-  await expect(page.getByText("123,456 bytes")).toBeVisible();
-  await page.getByRole("button", { name: "Download, verify & normalize" }).click();
-  await expect(page.getByText("QUALITY APPROVED")).toBeVisible();
-  await expect(page.getByText(datasetId)).toBeVisible();
+  await expect(page.getByText("Stable dataset identity · EUR quote asset · Spot production history only")).toBeVisible();
+  await expect(page.getByText("Official archive availability")).toBeVisible();
+  await expect(page.getByLabel("Verified local range")).toBeVisible();
   await page.getByRole("button", { name: "Run production-history backtest" }).click();
   await expect(page.getByText("PRODUCTION HISTORY", { exact: true })).toBeVisible();
   await expect(page.getByText("TESTNET HISTORY NOT USED")).toBeVisible();

@@ -18,7 +18,11 @@ from gridlab.canonical.decision_path import (
     evaluate_adaptive_decision,
 )
 from gridlab.canonical.events import CanonicalEvent, DomainTime, EventSource
-from gridlab.canonical.initial_epoch import BootstrapEvidence, InitialEpochActivation, derive_initial_epoch
+from gridlab.canonical.initial_epoch import (
+    BootstrapEvidence,
+    InitialEpochActivation,
+    derive_initial_epoch,
+)
 from gridlab.canonical.plan import VenueRuleEvidence
 from gridlab.canonical.safety import SafetyPosture
 from gridlab.canonical.values import ExactDecimal
@@ -42,7 +46,9 @@ class CandleSimulationMode:
         if self.same_candle_resting_eligible:
             raise ValueError("conservative candle simulation cannot fill the same resting candle")
         if self.favorable_gap_improvement:
-            raise ValueError("conservative candle simulation cannot infer favorable gap improvement")
+            raise ValueError(
+                "conservative candle simulation cannot infer favorable gap improvement"
+            )
         if not self.strict_price_penetration:
             raise ValueError("conservative candle simulation requires strict price penetration")
 
@@ -109,10 +115,7 @@ class CandleLimitOrder:
             raise ValueError("candle limit order side must be BUY or SELL")
         if self.limit_price.kind != "price" or self.limit_price.decimal <= 0:
             raise ValueError("candle limit price must be a positive exact price")
-        if (
-            self.remaining_quantity.kind != "base_quantity"
-            or self.remaining_quantity.decimal <= 0
-        ):
+        if self.remaining_quantity.kind != "base_quantity" or self.remaining_quantity.decimal <= 0:
             raise ValueError("candle limit quantity must be a positive base quantity")
         if self.resting_after_sequence < 0:
             raise ValueError("resting sequence must be non-negative")
@@ -152,7 +155,10 @@ def resolve_candle_limit_fills(
     eligible: list[CandleLimitOrder] = []
 
     for order in orders:
-        if not mode.same_candle_resting_eligible and order.resting_after_sequence >= candle.sequence:
+        if (
+            not mode.same_candle_resting_eligible
+            and order.resting_after_sequence >= candle.sequence
+        ):
             results[order.order_id] = CandleFillOutcome(order.order_id, "NOT_RESTING", None, None)
             continue
         touched = _strict_touch(order, candle)
@@ -166,7 +172,9 @@ def resolve_candle_limit_fills(
 
     down_bar = candle.close.decimal <= candle.open.decimal
     if down_bar:
-        ordered = sorted(eligible, key=lambda item: (0 if item.side == "SELL" else 1, item.order_id))
+        ordered = sorted(
+            eligible, key=lambda item: (0 if item.side == "SELL" else 1, item.order_id)
+        )
     else:
         ordered = sorted(eligible, key=lambda item: (0 if item.side == "BUY" else 1, item.order_id))
     for order in ordered:
@@ -223,10 +231,10 @@ def build_observation_from_closed_candles(
     last = window[-1]
     reference_price = last.close
     trend = (last.close.decimal / first.close.decimal) - Decimal("1")
-    volatility = (max(item.high.decimal for item in window) - min(item.low.decimal for item in window)) / first.close.decimal
-    classifications = [
-        _classify(window[:index], policy) for index in range(2, len(window) + 1)
-    ]
+    volatility = (
+        max(item.high.decimal for item in window) - min(item.low.decimal for item in window)
+    ) / first.close.decimal
+    classifications = [_classify(window[:index], policy) for index in range(2, len(window) + 1)]
     confirmation_states = classifications[-policy.confirmation_count :]
     if len(confirmation_states) < policy.confirmation_count:
         confirmation_states = [_classify(window, policy)] * policy.confirmation_count
@@ -363,11 +371,15 @@ def _posture_for(state: AdaptationState) -> SafetyPosture:
     return SafetyPosture.NORMAL
 
 
-def _classify(candles: list[CandleBar] | tuple[CandleBar, ...], policy: AdaptationPolicy) -> AdaptationState:
+def _classify(
+    candles: list[CandleBar] | tuple[CandleBar, ...], policy: AdaptationPolicy
+) -> AdaptationState:
     first = candles[0]
     last = candles[-1]
     trend = (last.close.decimal / first.close.decimal) - Decimal("1")
-    volatility = (max(item.high.decimal for item in candles) - min(item.low.decimal for item in candles)) / first.close.decimal
+    volatility = (
+        max(item.high.decimal for item in candles) - min(item.low.decimal for item in candles)
+    ) / first.close.decimal
     if trend <= -policy.trend_threshold.decimal:
         return AdaptationState.TREND_DOWN
     if trend >= policy.trend_threshold.decimal:

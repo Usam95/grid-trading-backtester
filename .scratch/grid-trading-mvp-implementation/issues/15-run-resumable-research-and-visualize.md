@@ -2,7 +2,7 @@
 
 **What to build:** Turn a canonical adaptive configuration and admitted production dataset into a durable local research job that survives browser closure, reports progress and evidence identity, and produces a return-led result with interactive price, adaptation-state, grid-epoch, transition, gate/refusal, order, fill, cycle, inventory, equity, drawdown, fee, and safety overlays.
 
-**Blocked by:** 02 — Expand a typed Studio shell around the existing backtest; 13 — Run conservative adaptive candle simulation through the canonical core; 14 — Build the frozen five-symbol production archive.
+**Blocked by:** 02 — Expand a typed Studio shell around the existing backtest; 13 — Run conservative adaptive candle simulation through the canonical core; 14 — Build the synchronized ten-symbol EUR production archive.
 
 **Status:** ready-for-agent
 

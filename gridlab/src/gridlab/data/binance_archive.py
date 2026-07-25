@@ -91,7 +91,11 @@ class OfficialBinanceArchiveClient:
 
     @staticmethod
     def _request(url: str, *, method: str = "GET") -> urllib.request.Request:
-        if not url.startswith(f"{BINANCE_ARCHIVE_ROOT}/spot/daily/klines/"):
+        allowed_roots = (
+            f"{BINANCE_ARCHIVE_ROOT}/spot/daily/klines/",
+            f"{BINANCE_ARCHIVE_ROOT}/spot/monthly/klines/",
+        )
+        if not any(url.startswith(root) for root in allowed_roots):
             raise ValueError("archive URL is outside the official Binance Spot root")
         return urllib.request.Request(
             url,

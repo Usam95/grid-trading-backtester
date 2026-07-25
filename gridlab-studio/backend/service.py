@@ -99,6 +99,13 @@ from gridlab.data.binance_catalog import (
     catalog_identity as catalog_identity,
     discover_eur_catalog as discover_eur_catalog,
 )
+from gridlab.data.binance_panel import (
+    create_production_snapshot_manifest as create_production_snapshot_manifest,
+    load_production_snapshot_candles as load_production_snapshot_candles,
+    preview_synchronized_production_archive as preview_synchronized_production_archive,
+    read_synchronized_production_archive as read_synchronized_production_archive,
+    synchronize_synchronized_production_archive as synchronize_synchronized_production_archive,
+)
 from gridlab.engine.engine import BacktestEngine, EngineResult
 from gridlab.indicators.indicators import atr as atr_ind, ema as ema_ind
 from gridlab.research.grid_search import ParamSpace, grid_search
@@ -1392,6 +1399,64 @@ def run_manifested_backtest(
         )
     data = InMemoryDataSource(
         symbol=spec.symbol, _candles=load_manifested_candles(manifest_path)
+    )
+    return _run_backtest_with_data(
+        spec_dict, spec, data, with_report=False, include_trades=include_trades
+    )
+
+
+def fingerprint_archive_snapshot_backtest(spec_dict: dict, manifest_path: Path) -> dict[str, str]:
+    import hashlib
+    import json
+
+    spec = BacktestSpec.from_dict(spec_dict)
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    if spec.symbol != manifest["symbol"]:
+        raise ValueError(
+            f"backtest symbol {spec.symbol} does not match archive dataset {manifest['symbol']}"
+        )
+    result = run_archive_snapshot_backtest(
+        spec_dict,
+        manifest_path,
+        include_trades=True,
+    )
+    fingerprint_input = {
+        "contract": "gridlab.production-archive-backtest-fingerprint.v1",
+        "dataset_id": manifest["dataset_id"],
+        "manifest_identity": manifest["manifest_sha256"],
+        "partition_identities": manifest["partition_identities"],
+        "specification": spec_dict,
+        "result": result,
+    }
+    return {
+        "backtest_fingerprint": hashlib.sha256(
+            json.dumps(
+                fingerprint_input,
+                sort_keys=True,
+                separators=(",", ":"),
+                allow_nan=False,
+            ).encode()
+        ).hexdigest()
+    }
+
+
+def run_archive_snapshot_backtest(
+    spec_dict: dict, manifest_path: Path, *, include_trades: bool = True
+) -> dict:
+    """Render the rich Studio result from verified local monthly EUR archive slices."""
+    import json
+
+    from gridlab.data.source import InMemoryDataSource
+
+    spec = BacktestSpec.from_dict(spec_dict)
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    if spec.symbol != manifest["symbol"]:
+        raise ValueError(
+            f"backtest symbol {spec.symbol} does not match archive dataset {manifest['symbol']}"
+        )
+    data = InMemoryDataSource(
+        symbol=spec.symbol,
+        _candles=load_production_snapshot_candles(manifest_path),
     )
     return _run_backtest_with_data(
         spec_dict, spec, data, with_report=False, include_trades=include_trades

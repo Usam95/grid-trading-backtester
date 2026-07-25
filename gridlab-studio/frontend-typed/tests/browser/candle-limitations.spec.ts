@@ -12,6 +12,29 @@ test("operator sees candle-fill limitations called out in research results", asy
       symbols: [],
     }),
   }));
+  await page.route("**/api/studio/archives/binance/eur?refresh=*", (route) => route.fulfill({
+    contentType: "application/json",
+    body: JSON.stringify({
+      archive_id: "7".repeat(64),
+      status: "ready",
+      retrieved_at: "2026-07-25T12:00:00Z",
+      quote_asset: "EUR",
+      interval: "1m",
+      symbols: ["BTCEUR", "ETHEUR"],
+      sources: [],
+      preview: {
+        preview_id: "6".repeat(64),
+        source_objects: 0,
+        estimated_download_bytes: 0,
+        estimated_storage_bytes: 0,
+        pending_partitions: 0,
+        verified_partitions: 2,
+        symbols: [],
+      },
+      datasets: [],
+      blocking_reasons: [],
+    }),
+  }));
   await page.route("**/api/studio/backtests", (route) => route.fulfill({
     status: 201,
     contentType: "application/json",

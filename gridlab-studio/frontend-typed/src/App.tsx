@@ -1,12 +1,11 @@
 import { useEffect, useState, type FormEvent } from "react";
 
 import type {
-  BinanceDatasetPreview,
   BinanceEurResearchCatalog,
   CanonicalAdaptivePresentation,
-  DatasetManifest,
-  ManifestedBacktestBody,
+  FrozenProductionPanel,
   OperatorControlsPresentation,
+  ProductionArchiveBacktestBody,
   ResearchPort,
   RunBacktestBody,
   SafetyPosturePresentation,
@@ -102,6 +101,20 @@ function formatMoney(value: number, quoteAsset = "USDT"): string {
   }).format(value)} ${quoteAsset}`;
 }
 
+function formatBytes(value: number): string {
+  return `${new Intl.NumberFormat("en-US").format(value)} bytes`;
+}
+
+function utcDay(iso: string): string {
+  return new Date(iso).toISOString().slice(0, 10);
+}
+
+function inclusiveEndDay(exclusiveIso: string): string {
+  const end = new Date(exclusiveIso);
+  end.setUTCDate(end.getUTCDate() - 1);
+  return end.toISOString().slice(0, 10);
+}
+
 function Navigation({ workspace }: { workspace: Workspace }) {
   return (
     <nav aria-label="Studio" className="nav-groups">
@@ -164,8 +177,12 @@ function Results({ run }: { run: StudioBacktestRun }) {
       {run.provenance && <div className="production-provenance">
         <div><strong>PRODUCTION HISTORY</strong><span>Official Binance Spot archive</span></div>
         <div><strong>TESTNET HISTORY NOT USED</strong><span>Testnet is not profitability evidence</span></div>
+        <div><strong>{run.provenance.symbol}</strong><span>{new Date(run.provenance.requested_start).toISOString()} → {new Date(run.provenance.requested_end).toISOString()} · {run.provenance.candle_count.toLocaleString("en-US")} candles</span></div>
+        <div><strong>Coverage</strong><span>{new Date(run.provenance.coverage.first_verified_open_time).toISOString()} → {new Date(run.provenance.coverage.last_verified_open_time).toISOString()}</span></div>
         {run.provenance.catalog_identity && <><span>Catalog identity</span><code>{run.provenance.catalog_identity}</code></>}
+        <span>Dataset identity</span><code>{run.provenance.dataset_id}</code>
         <span>Manifest identity</span><code>{run.provenance.manifest_identity}</code>
+        <span>Partition identities</span><code>{run.provenance.partition_identities.join(", ")}</code>
         <span>Deterministic backtest fingerprint</span><code>{run.provenance.backtest_fingerprint}</code>
       </div>}
     </section>
@@ -263,16 +280,28 @@ function ResearchWorkspace({ research }: { research: ResearchPort }) {
   const [error, setError] = useState<string>();
   const [running, setRunning] = useState(false);
   const [catalog, setCatalog] = useState<BinanceEurResearchCatalog>();
+  const [panel, setPanel] = useState<FrozenProductionPanel>();
   const [catalogBusy, setCatalogBusy] = useState(false);
+  const [panelBusy, setPanelBusy] = useState(false);
   const [symbolFilter, setSymbolFilter] = useState("");
   const [selectedSymbol, setSelectedSymbol] = useState("");
+  const [selectedVerifiedRangeIndex, setSelectedVerifiedRangeIndex] = useState(0);
   const [productionStart, setProductionStart] = useState("2025-01-01");
   const [productionEnd, setProductionEnd] = useState("2025-01-01");
-  const [preview, setPreview] = useState<BinanceDatasetPreview>();
-  const [manifest, setManifest] = useState<DatasetManifest>();
   const [productionBusy, setProductionBusy] = useState(false);
   const [canonicalAdaptive, setCanonicalAdaptive] =
     useState<CanonicalAdaptivePresentation>();
+
+  function applyVerifiedRange(
+    dataset: FrozenProductionPanel["datasets"][number],
+    rangeIndex = 0,
+  ) {
+    const range = dataset.verified_ranges[rangeIndex];
+    setSelectedVerifiedRangeIndex(rangeIndex);
+    if (!range) return;
+    setProductionStart(utcDay(range.start));
+    setProductionEnd(inclusiveEndDay(range.end));
+  }
 
   useEffect(() => {
     let current = true;
@@ -294,6 +323,17 @@ function ResearchWorkspace({ research }: { research: ResearchPort }) {
         setProductionEnd(selected.coverage.last_date);
       }
     }).catch((reason: unknown) => current && setError(reason instanceof Error ? reason.message : "EUR catalog unavailable"));
+    research.getProductionArchive().then((value) => {
+      if (!current) return;
+      setPanel(value);
+      const selectedDataset = [...value.datasets].sort(
+        (left, right) => left.display_order - right.display_order,
+      )[0];
+      if (selectedDataset?.verified_ranges[0]) {
+        setSelectedSymbol(selectedDataset.symbol);
+        applyVerifiedRange(selectedDataset);
+      }
+    }).catch((reason: unknown) => current && setError(reason instanceof Error ? reason.message : "Production archive unavailable"));
     research.characterizeCanonicalAdaptive({
       symbol: "BTCEUR",
       decision_time: "2025-01-02T00:00:00Z",
@@ -343,7 +383,6 @@ function ResearchWorkspace({ research }: { research: ResearchPort }) {
         const selected = value.symbols[0];
         setSelectedSymbol(selected?.symbol ?? "");
       }
-      setPreview(undefined); setManifest(undefined);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "EUR catalog refresh failed");
     } finally { setCatalogBusy(false); }
@@ -351,13 +390,34 @@ function ResearchWorkspace({ research }: { research: ResearchPort }) {
 
   function selectProductionSymbol(symbol: string) {
     setSelectedSymbol(symbol);
-    setPreview(undefined); setManifest(undefined);
-    const selected = catalog?.symbols.find((item) => item.symbol === symbol);
+    const selected = panel?.datasets.find((item) => item.symbol === symbol);
     if (selected) {
-      setProductionStart(selected.coverage.last_date);
-      setProductionEnd(selected.coverage.last_date);
-      setDraft((current) => current ? { ...current, symbol } : current);
+      applyVerifiedRange(selected);
+    } else {
+      setSelectedVerifiedRangeIndex(0);
     }
+    setDraft((current) => current ? { ...current, symbol } : current);
+  }
+
+  function selectVerifiedRange(rangeIndex: number) {
+    setSelectedVerifiedRangeIndex(rangeIndex);
+    const selected = panel?.datasets.find((item) => item.symbol === selectedSymbol);
+    if (!selected) return;
+    applyVerifiedRange(selected, rangeIndex);
+  }
+
+  async function refreshPanel() {
+    setPanelBusy(true); setError(undefined);
+    try { setPanel(await research.getProductionArchive(true)); }
+    catch (reason) { setError(reason instanceof Error ? reason.message : "Production archive refresh failed"); }
+    finally { setPanelBusy(false); }
+  }
+
+  async function synchronizePanel() {
+    setProductionBusy(true); setError(undefined);
+    try { setPanel(await research.synchronizeProductionArchive()); }
+    catch (reason) { setError(reason instanceof Error ? reason.message : "Production archive synchronization failed"); }
+    finally { setProductionBusy(false); }
   }
 
   async function submit(event: FormEvent) {
@@ -373,51 +433,31 @@ function ResearchWorkspace({ research }: { research: ResearchPort }) {
     } finally { setRunning(false); }
   }
 
-  async function previewProduction() {
-    if (!draft || !catalog || !selectedSymbol) return;
-    setProductionBusy(true); setError(undefined); setPreview(undefined); setManifest(undefined);
-    try {
-      const start = new Date(`${productionStart}T00:00:00Z`);
-      const endInclusive = new Date(`${productionEnd}T00:00:00Z`);
-      const end = new Date(endInclusive.getTime() + 86_400_000);
-      setPreview(await research.previewProductionDataset({
-        catalog_id: catalog.catalog_id,
-        symbol: selectedSymbol,
-        interval: "1m",
-        start: start.toISOString(),
-        end: end.toISOString(),
-      }));
-    } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "Production-data preview failed");
-    } finally { setProductionBusy(false); }
-  }
-
-  async function importProduction() {
-    if (!preview) return;
-    setProductionBusy(true); setError(undefined);
-    try { setManifest(await research.importProductionDataset(preview.preview_id)); }
-    catch (reason) { setError(reason instanceof Error ? reason.message : "Production-data import failed"); }
-    finally { setProductionBusy(false); }
-  }
-
   async function runProduction() {
-    if (!draft || !manifest) return;
+    if (!draft || !panel) return;
+    const selectedDataset = panel.datasets.find((item) => item.symbol === selectedSymbol);
+    if (!selectedDataset) return;
     setProductionBusy(true); setError(undefined);
     try {
       const existing = requestFrom(draft);
-      const request: ManifestedBacktestBody = {
-        dataset_id: manifest.dataset_id,
+      const start = new Date(`${productionStart}T00:00:00Z`).toISOString();
+      const endInclusive = new Date(`${productionEnd}T00:00:00Z`);
+      const end = new Date(endInclusive.getTime() + 86_400_000).toISOString();
+      const request: ProductionArchiveBacktestBody = {
+        dataset_id: selectedDataset.dataset_id,
+        start,
+        end,
         spec: {
           ...existing.spec,
-          symbol: manifest.symbol,
+          symbol: selectedDataset.symbol,
           market_type: "spot",
           initial_cash: draft.initialCash,
           n_trials: 1,
-          data: { kind: "manifested_parquet", dataset_id: manifest.dataset_id },
+          data: { kind: "manifested_parquet", dataset_id: selectedDataset.dataset_id },
         },
         options: existing.options,
       };
-      const completed = await research.executeManifestedBacktest(request);
+      const completed = await research.executeProductionArchiveBacktest(request);
       setRun(completed);
       window.history.replaceState(null, "", `#/research/experiments/${completed.id}`);
     } catch (reason) { setError(reason instanceof Error ? reason.message : "Production backtest failed"); }
@@ -426,23 +466,49 @@ function ResearchWorkspace({ research }: { research: ResearchPort }) {
 
   if (!draft || !configuration) return <main className="workspace"><p>{error ?? "Loading canonical configuration…"}</p></main>;
   const update = <K extends keyof Draft>(key: K, value: Draft[K]) => setDraft({ ...draft, [key]: value });
-  const selected = catalog?.symbols.find((item) => item.symbol === selectedSymbol);
-  const visibleSymbols = catalog?.symbols
+  const selected = panel?.datasets.find((item) => item.symbol === selectedSymbol);
+  const rankedPanelMembers = panel?.datasets
+    .slice()
+    .sort((left, right) => left.display_order - right.display_order) ?? [];
+  const visibleSymbols = panel?.datasets
     .filter((item) => item.symbol.includes(symbolFilter.trim().toUpperCase()))
-    .sort((left, right) => left.liquidity_rank - right.liquidity_rank) ?? [];
-  const eurVolume = selected
-    ? new Intl.NumberFormat("en", {
-      style: "currency",
-      currency: "EUR",
-      maximumFractionDigits: 0,
-    }).format(Number(selected.liquidity.median_daily_quote_volume))
-    : "";
+    .sort((left, right) => left.display_order - right.display_order) ?? [];
+  const selectedRange = selected?.verified_ranges[selectedVerifiedRangeIndex]
+    ?? selected?.verified_ranges[0];
+  const selectedRangeStart = selectedRange ? utcDay(selectedRange.start) : undefined;
+  const selectedRangeEnd = selectedRange ? inclusiveEndDay(selectedRange.end) : undefined;
   return (
     <main className="workspace">
       <div className="page-title"><div><p className="eyebrow">Research · Experiments</p><h1>Static grid backtest</h1><p>Configure one deterministic local experiment. The browser submits work; the research service owns the completed record.</p></div><span className="scope">MIGRATED WORKFLOW</span></div>
       {canonicalAdaptive && <CanonicalAdaptiveCard presentation={canonicalAdaptive} />}
+      <section className="production-panel" aria-labelledby="production-panel-heading">
+        <div className="result-heading"><div><p className="eyebrow">Synchronized production evidence</p><h2 id="production-panel-heading">Ten-symbol EUR production archive</h2><p>The fixed EUR panel is synchronized from official Binance Spot archives, preserving each symbol’s first available date, immutable monthly partitions, and exact snapshot manifests for local backtests.</p></div><span className="scope">{panel?.status?.toUpperCase() ?? "PENDING"}</span></div>
+        {panel && <div className="catalog-identity">
+          <div><strong>{panel.datasets.length} fixed EUR datasets</strong><span>{panel.preview.pending_partitions} pending partitions · {panel.preview.source_objects} source objects in preview</span></div>
+          <span>Archive identity</span><code>{panel.archive_id}</code>
+          <button disabled={panelBusy || productionBusy || catalogBusy} type="button" onClick={refreshPanel}>{panelBusy ? "Refreshing…" : "Refresh archive preview"}</button>
+          <button disabled={panelBusy || productionBusy || catalogBusy} type="button" onClick={synchronizePanel}>{productionBusy ? "Synchronizing…" : "Synchronize archive"}</button>
+        </div>}
+        {panel && <div className="history-availability" aria-live="polite">
+          <div><span>Acquisition preview</span><strong>{formatBytes(panel.preview.estimated_download_bytes)}</strong></div>
+          <span>{panel.preview.pending_partitions} partitions · {formatBytes(panel.preview.estimated_storage_bytes)} estimated local storage · {panel.sources[0]?.identity}</span>
+        </div>}
+        {rankedPanelMembers.length > 0 && <div className="symbol-evidence">
+          <div><strong>Fixed order panel</strong><span>Exact EUR symbols are frozen by specification, not live ranking.</span></div>
+          {rankedPanelMembers.map((member) => <div key={member.symbol}>
+            <strong>#{member.display_order} · {member.symbol}</strong>
+            <span>{member.coverage.first_date} → {member.coverage.last_date} · {member.partitions.filter((item) => item.active).length} active partitions · {formatBytes(member.stored_bytes)}</span>
+            <span>{member.verified_ranges.length === 0 ? "No verified local range yet" : member.verified_ranges.map((range) => `${new Date(range.start).toISOString()} → ${new Date(range.end).toISOString()}`).join(" · ")}</span>
+            <span>{member.pending_partition_months.length === 0 ? "Immutable monthly archive admitted" : `Pending months: ${member.pending_partition_months.join(", ")}`}</span>
+          </div>)}
+        </div>}
+        {panel && panel.blocking_reasons.length > 0 && <div className="manifest-card">
+          <div><strong>Blocked admissions</strong><span>Missing or invalid local partitions fail closed.</span></div>
+          {panel.blocking_reasons.map((entry) => <span key={entry}>{entry}</span>)}
+        </div>}
+      </section>
       <section className="production-data" aria-labelledby="production-data-heading">
-        <div className="result-heading"><div><p className="eyebrow">Manifested market evidence</p><h2 id="production-data-heading">Production history</h2><p>Select a public Testnet/production-compatible EUR market, then preview up to seven complete UTC days before any archive bytes are downloaded.</p></div><span className="scope">1m · MAX 7 DAYS</span></div>
+        <div className="result-heading"><div><p className="eyebrow">Local backtest snapshot</p><h2 id="production-data-heading">Run over synchronized EUR history</h2><p>Select a verified local EUR dataset window. The backend creates an immutable snapshot manifest, prunes to only required partitions and rows, and refuses incomplete ranges instead of truncating them.</p></div><span className="scope">LOCAL VERIFIED RANGE</span></div>
         {catalog && <div className="catalog-identity">
           <div><strong>{catalog.symbols.length} eligible EUR symbols</strong><span>Public compatibility snapshot · {new Date(catalog.retrieved_at).toLocaleString()}</span></div>
           <span>Catalog identity</span><code>{catalog.catalog_id}</code>
@@ -450,44 +516,38 @@ function ResearchWorkspace({ research }: { research: ResearchPort }) {
         </div>}
         <div className="production-controls">
           <label>Filter symbols<input aria-label="Filter EUR symbols" value={symbolFilter} onChange={(event) => setSymbolFilter(event.currentTarget.value)} placeholder="BTC, ETH…" /></label>
-          <label>EUR production symbol<select aria-label="EUR production symbol" value={selectedSymbol} onChange={(event) => selectProductionSymbol(event.currentTarget.value)}>{visibleSymbols.map((item) => <option key={item.symbol} value={item.symbol}>#{item.liquidity_rank} · {item.symbol}</option>)}</select></label>
-          <label>UTC start day<input aria-label="UTC start day" type="date" min={selected?.coverage.first_date} max={selected?.coverage.last_date} value={productionStart} onChange={(event) => { setProductionStart(event.currentTarget.value); setPreview(undefined); setManifest(undefined); }} /></label>
-          <label>UTC end day<input aria-label="UTC end day" type="date" min={productionStart || selected?.coverage.first_date} max={selected?.coverage.last_date} value={productionEnd} onChange={(event) => { setProductionEnd(event.currentTarget.value); setPreview(undefined); setManifest(undefined); }} /></label>
-          <button disabled={productionBusy || !selected} type="button" onClick={previewProduction}>Preview official download</button>
+          <label>EUR production symbol<select aria-label="EUR production symbol" value={selectedSymbol} onChange={(event) => selectProductionSymbol(event.currentTarget.value)}>{visibleSymbols.map((item) => <option key={item.symbol} value={item.symbol}>#{item.display_order} · {item.symbol}</option>)}</select></label>
+          <label>Verified local range<select aria-label="Verified local range" disabled={!selected || selected.verified_ranges.length === 0} value={String(selectedVerifiedRangeIndex)} onChange={(event) => selectVerifiedRange(Number(event.currentTarget.value))}>{selected?.verified_ranges.map((range, index) => <option key={`${range.start}-${range.end}`} value={String(index)}>{utcDay(range.start)} → {inclusiveEndDay(range.end)}</option>) ?? <option value="0">No verified local range</option>}</select></label>
+          <label>UTC start day<input aria-label="UTC start day" type="date" min={selectedRangeStart} max={selectedRangeEnd} value={productionStart} onChange={(event) => setProductionStart(event.currentTarget.value)} /></label>
+          <label>UTC end day<input aria-label="UTC end day" type="date" min={productionStart || selectedRangeStart} max={selectedRangeEnd} value={productionEnd} onChange={(event) => setProductionEnd(event.currentTarget.value)} /></label>
+          <button disabled={productionBusy || !selected || selected.verified_ranges.length === 0} type="button" onClick={runProduction}>Run production-history backtest</button>
         </div>
         {selected && <div className="history-availability" aria-live="polite">
           <div>
-            <span>Available historical data</span>
+            <span>Official archive availability</span>
             <strong>{selected.coverage.first_date} → {selected.coverage.last_date}</strong>
           </div>
-          <span>{selected.coverage.known_gap_dates.length === 0 ? "Complete daily 1m archive coverage" : `${selected.coverage.known_gap_dates.length} unavailable archive days are excluded`}</span>
+          <div>
+            <span>Selected verified local range</span>
+            <strong>{selectedRange ? `${selectedRangeStart} → ${selectedRangeEnd}` : "No verified local range yet."}</strong>
+          </div>
+          <span>{selected.verified_ranges.length === 0 ? "No verified local range yet." : selected.verified_ranges.map((range) => `${new Date(range.start).toISOString()} → ${new Date(range.end).toISOString()}`).join(" · ")}</span>
         </div>}
         {selected && <div className="symbol-evidence">
-          <div><strong>#{selected.liquidity_rank} · {selected.symbol}</strong><span>{selected.base_asset} / EUR · Spot · LIMIT_MAKER</span></div>
-          <span>{eurVolume} median daily volume</span>
-          <span>{Number(selected.liquidity.median_daily_trade_count).toLocaleString("en-US")} median daily trades</span>
-          <span>{selected.liquidity.current_spread_bps} bps current spread</span>
-          <span>Liquidity window: {selected.liquidity.observed_start_date} to {selected.liquidity.observed_end_date}</span>
-          <span>Liquidity source fingerprints</span>
-          <code>{selected.liquidity.kline_payload_sha256}</code>
-          <code>{selected.liquidity.ticker_payload_sha256}</code>
-          <span>Archive intervals: {selected.coverage.intervals.join(", ")} · 1m backtests only</span>
+          <div><strong>{selected.symbol}</strong><span>Stable dataset identity · EUR quote asset · Spot production history only</span></div>
+          <span>{selected.partitions.filter((item) => item.active).length.toLocaleString("en-US")} active monthly partitions</span>
+          <span>{selected.total_rows.toLocaleString("en-US")} verified 1m candles</span>
+          <span>{formatBytes(selected.stored_bytes)} stored locally</span>
+          <span>Pending months: {selected.pending_partition_months.length === 0 ? "none" : selected.pending_partition_months.join(", ")}</span>
+          <span>Latest partition identities</span>
+          {selected.partitions.filter((item) => item.active).slice(-3).map((partition) => <code key={partition.partition_id}>{partition.partition_id}</code>)}
         </div>}
-        <p className="eligibility-note"><strong>Public compatibility is not account permission.</strong> Binance Testnet proves protocol and symbol compatibility; an authenticated German account may have different current trading permissions.</p>
-        {preview && <div className="download-preview">
-          <strong>{preview.symbol} · {preview.interval} · {new Date(preview.start).toISOString()} to {new Date(preview.end).toISOString()}</strong>
-          <span>{preview.estimated_bytes.toLocaleString("en-US")} bytes</span>
-          <span>Caps: {preview.limits.max_days} days · {preview.limits.max_objects} objects · {preview.limits.max_bytes.toLocaleString("en-US")} bytes</span>
-          {preview.sources.map((source) => <div key={source.url}><span>{source.url.split("/").at(-1)}</span><code>{source.expected_sha256}</code></div>)}
-          <button disabled={productionBusy} type="button" onClick={importProduction}>Download, verify & normalize</button>
-        </div>}
-        {manifest && <div className="manifest-card">
-          <div><strong>QUALITY APPROVED</strong><span>{manifest.quality.rows.toLocaleString("en-US")} ordered candles · {manifest.quality.gaps} gaps · {manifest.quality.duplicates} duplicates</span></div>
-          <span>Dataset identity</span><code>{manifest.dataset_id}</code>
-          <span>Manifest identity</span><code>{manifest.manifest_sha256}</code>
-          <span>Normalized Parquet SHA-256</span><code>{manifest.normalization.sha256}</code>
-          <p><strong>Production market history supplied this evidence.</strong> Binance Testnet history was not used and is not profitability evidence.</p>
-          <button disabled={productionBusy} type="button" onClick={runProduction}>Run production-history backtest</button>
+        <p className="eligibility-note"><strong>Production history and synthetic scenarios remain separate.</strong> These EUR backtests read only verified local production partitions; they never silently fall back to synthetic or Testnet history.</p>
+        {selected && selected.verified_ranges.length > 0 && <div className="manifest-card">
+          <div><strong>READY FOR SNAPSHOT MANIFESTS</strong><span>{selected.dataset_id}</span></div>
+          <span>Dataset identity</span><code>{selected.dataset_id}</code>
+          <span>Verified partition identities</span><code>{selected.partitions.filter((item) => item.active).map((item) => item.partition_id).join(", ")}</code>
+          {(panel?.blocking_reasons.length ?? 0) > 0 && <p><strong>Blocked:</strong> {panel?.blocking_reasons.join("; ")}</p>}
         </div>}
       </section>
       <form onSubmit={submit}>

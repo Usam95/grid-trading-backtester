@@ -5,6 +5,7 @@ import { App } from "./App";
 import type {
   BinanceEurResearchCatalog,
   CanonicalAdaptivePresentation,
+  FrozenProductionPanel,
   OperatorControlsPresentation,
   ResearchPort,
   SafetyPosturePresentation,
@@ -149,14 +150,107 @@ const manifest = {
   symbol_metadata: { base_asset: "ETH", quote_asset: "EUR", liquidity_rank: 11 },
 };
 
+const panel: FrozenProductionPanel = {
+  archive_id: "7".repeat(64),
+  status: "ready",
+  retrieved_at: "2026-07-25T12:00:00Z",
+  quote_asset: "EUR",
+  interval: "1m",
+  symbols: ["BTCEUR", "ETHEUR", "SOLEUR", "XRPEUR", "ADAEUR", "PEPEEUR", "BNBEUR", "DOGEEUR", "XLMEUR", "LTCEUR"],
+  sources: [{
+    kind: "production_exchange_info",
+    url: "https://data-api.binance.vision/api/v3/exchangeInfo",
+    observed_at: "2026-07-25T12:00:00Z",
+    identity: "1".repeat(64),
+  }],
+  preview: {
+    preview_id: "6".repeat(64),
+    source_objects: 14,
+    estimated_download_bytes: 123456789,
+    estimated_storage_bytes: 234567890,
+    pending_partitions: 0,
+    verified_partitions: 22,
+    symbols: ["BTCEUR", "ETHEUR", "SOLEUR", "XRPEUR", "ADAEUR", "PEPEEUR", "BNBEUR", "DOGEEUR", "XLMEUR", "LTCEUR"].map((symbol, index) => ({
+      symbol,
+      dataset_id: `${index + 1}`.repeat(64),
+      first_available_date: "2021-01-01",
+      last_available_date: "2026-07-21",
+      pending_partitions: 0,
+      missing_source_objects: 0,
+      estimated_download_bytes: 0,
+      estimated_storage_bytes: 0,
+      plans: [],
+    })),
+  },
+  datasets: ["BTCEUR", "ETHEUR", "SOLEUR", "XRPEUR", "ADAEUR", "PEPEEUR", "BNBEUR", "DOGEEUR", "XLMEUR", "LTCEUR"].map((symbol, index) => ({
+    symbol,
+    dataset_id: `${index + 1}`.repeat(64),
+    quote_asset: "EUR" as const,
+    display_order: index + 1,
+    coverage: {
+      first_date: index === 0 ? "2020-01-01" : "2022-01-01",
+      last_date: "2026-07-21",
+      intervals: ["1d", "1h", "1m", "5m"],
+      known_gap_dates: [],
+      evidence_urls: [`https://data.binance.vision/coverage/${symbol}`],
+    },
+    verified_ranges: index === 1 ? [{
+      start: "2022-01-01T00:00:00Z",
+      end: "2024-01-01T00:00:00Z",
+    }, {
+      start: "2025-01-01T00:00:00Z",
+      end: "2026-07-22T00:00:00Z",
+    }] : [{
+      start: "2022-01-01T00:00:00Z",
+      end: "2026-07-22T00:00:00Z",
+    }],
+    total_rows: 2_000_000 + index,
+    stored_bytes: 654321 + index,
+    partitions: [{
+      schema_version: "gridlab.production-archive-partition.v1",
+      archive_id: "7".repeat(64),
+      dataset_id: `${index + 1}`.repeat(64),
+      symbol,
+      quote_asset: "EUR" as const,
+      interval: "1m" as const,
+      month: "2026-07",
+      coverage_start: "2026-07-01T00:00:00Z",
+      coverage_end: "2026-07-22T00:00:00Z",
+      source_kind: "daily_archives_current_month" as const,
+      row_count: 30240,
+      ordering: ["open_time", "source_sha256", "source_row"],
+      normalization_identity: "gridlab.binance-eur-production-monthly-partition.v1",
+      normalized_sha256: "d".repeat(64),
+      source_urls: [`https://data.binance.vision/data/spot/daily/klines/${symbol}/1m/${symbol}-1m-2026-07-21.zip`],
+      source_checksums: ["3".repeat(64)],
+      timestamp_units: ["microseconds"],
+      source_evidence: [],
+      quality: { rows: 30240, gaps: 0, duplicates: 0, out_of_order: 0, invalid_records: 0 },
+      schema: [],
+      verification_status: "verified" as const,
+      active: true,
+      gap_findings: [],
+      correction_findings: [],
+      sequence_sha256: "e".repeat(64),
+      partition_id: `${index + 2}`.repeat(64),
+      path: `C:\\repo\\${symbol}\\data.parquet`,
+      manifest_path: `C:\\repo\\${symbol}\\manifest.json`,
+      byte_size: 654321 + index,
+      manifest_identity: "5".repeat(64),
+    }],
+    pending_partition_months: [],
+  })),
+  blocking_reasons: [],
+};
+
 const productionRun: StudioBacktestRun = {
   ...completedRun,
   id: "run-production-001",
   result: { ...completedRun.result, symbol: "ETHEUR", bars: 1440 },
   provenance: {
-    dataset_id: manifest.dataset_id,
-    manifest_identity: manifest.manifest_sha256,
-    source_provider: manifest.source_provider,
+    dataset_id: panel.datasets[1].dataset_id,
+    manifest_identity: "8".repeat(64),
+    source_provider: "official Binance public archive",
     history_environment: "production",
     testnet_history_used: false,
     symbol: "ETHEUR",
@@ -164,11 +258,17 @@ const productionRun: StudioBacktestRun = {
     requested_start: "2025-01-01T00:00:00Z",
     requested_end: "2025-01-02T00:00:00Z",
     retrieved_at: "2026-07-21T12:00:00Z",
-    source_urls: [preview.sources[0].url],
-    normalized_sha256: manifest.normalization.sha256,
-    candle_sequence_sha256: manifest.normalization.candle_sequence_sha256,
+    source_urls: ["https://data.binance.vision/data/spot/daily/klines/ETHEUR/1m/ETHEUR-1m-2025-01-01.zip"],
+    normalized_sha256: "d".repeat(64),
+    candle_sequence_sha256: "e".repeat(64),
     backtest_fingerprint: "f".repeat(64),
     catalog_identity: catalog.catalog_id,
+    candle_count: 1440,
+    coverage: {
+      first_verified_open_time: "2025-01-01T00:00:00Z",
+      last_verified_open_time: "2025-01-01T23:59:00Z",
+    },
+    partition_identities: [panel.datasets[1].partitions[0].partition_id],
     quote_asset: "EUR",
   },
 };
@@ -637,6 +737,8 @@ function researchPort(): ResearchPort {
   return {
     getConfiguration: vi.fn().mockResolvedValue(configuration),
     getEurCatalog: vi.fn().mockResolvedValue(catalog),
+    getProductionArchive: vi.fn().mockResolvedValue(panel),
+    synchronizeProductionArchive: vi.fn().mockResolvedValue(panel),
     characterizeCanonicalAdaptive: vi.fn().mockResolvedValue(canonicalAdaptive),
     getSafetyPosture: vi.fn().mockResolvedValue(safetyPosture),
     getOperatorControls: vi.fn().mockResolvedValue(operatorControls),
@@ -645,6 +747,7 @@ function researchPort(): ResearchPort {
     previewProductionDataset: vi.fn().mockResolvedValue(preview),
     importProductionDataset: vi.fn().mockResolvedValue(manifest),
     executeManifestedBacktest: vi.fn().mockResolvedValue(productionRun),
+    executeProductionArchiveBacktest: vi.fn().mockResolvedValue(productionRun),
   };
 }
 
@@ -727,45 +830,53 @@ describe("typed Studio shell", () => {
     expect(screen.queryByRole("button", { name: /pause|resume|stop|emergency/i })).toBeNull();
   });
 
-  it("previews, admits, and runs manifested production history with explicit provenance", async () => {
+  it("runs synchronized production-history snapshots with explicit provenance", async () => {
     const research = researchPort();
     render(<App research={research} />);
 
-    expect(await screen.findByText("Production history")).toBeTruthy();
-    expect(await screen.findByText("29 eligible EUR symbols")).toBeTruthy();
+    expect(await screen.findByText("Run over synchronized EUR history")).toBeTruthy();
+    expect(await screen.findByText("10 fixed EUR datasets")).toBeTruthy();
     fireEvent.change(screen.getByLabelText("EUR production symbol"), {
       target: { value: "ETHEUR" },
     });
-    expect(screen.getByText("€29,000,000 median daily volume")).toBeTruthy();
-    expect(screen.getByText("1.75 bps current spread")).toBeTruthy();
-    expect(screen.getByText("Available historical data")).toBeTruthy();
-    expect(screen.getByText("2020-01-01 → 2026-07-21")).toBeTruthy();
+    expect(screen.getByText("Stable dataset identity · EUR quote asset · Spot production history only")).toBeTruthy();
+    expect(screen.getByText("Official archive availability")).toBeTruthy();
+    expect(screen.getByText("2022-01-01 → 2026-07-21")).toBeTruthy();
+    fireEvent.change(screen.getByLabelText("Verified local range"), {
+      target: { value: "1" },
+    });
     fireEvent.change(screen.getByLabelText("UTC start day"), {
       target: { value: "2025-01-01" },
     });
     fireEvent.change(screen.getByLabelText("UTC end day"), {
       target: { value: "2025-01-02" },
     });
-    fireEvent.click(screen.getByRole("button", { name: "Preview official download" }));
-    expect(await screen.findByText("123,456 bytes")).toBeTruthy();
-    expect(screen.getByText("b".repeat(64))).toBeTruthy();
-
-    fireEvent.click(screen.getByRole("button", { name: "Download, verify & normalize" }));
-    expect(await screen.findByText("QUALITY APPROVED")).toBeTruthy();
-    expect(screen.getByText(manifest.dataset_id)).toBeTruthy();
-
     fireEvent.click(screen.getByRole("button", { name: "Run production-history backtest" }));
     expect(await screen.findByText("PRODUCTION HISTORY")).toBeTruthy();
     expect(screen.getByText("TESTNET HISTORY NOT USED")).toBeTruthy();
     expect(screen.getByText("f".repeat(64))).toBeTruthy();
-    expect(research.executeManifestedBacktest).toHaveBeenCalledOnce();
+    expect(research.executeProductionArchiveBacktest).toHaveBeenCalledOnce();
     expect(screen.getByText("10,312.00 EUR")).toBeTruthy();
-    expect(research.previewProductionDataset).toHaveBeenCalledWith({
-      catalog_id: catalog.catalog_id,
-      symbol: "ETHEUR",
-      interval: "1m",
+    expect(research.executeProductionArchiveBacktest).toHaveBeenCalledWith({
+      dataset_id: panel.datasets[1].dataset_id,
       start: "2025-01-01T00:00:00.000Z",
       end: "2025-01-03T00:00:00.000Z",
+      spec: expect.objectContaining({
+        symbol: "ETHEUR",
+        data: { kind: "manifested_parquet", dataset_id: panel.datasets[1].dataset_id },
+      }),
+      options: expect.anything(),
     });
+  });
+
+  it("exposes the synchronized ten-symbol EUR production archive in Studio", async () => {
+    const research = researchPort();
+    render(<App research={research} />);
+
+    expect(await screen.findByText("Ten-symbol EUR production archive")).toBeTruthy();
+    expect(screen.getByText("10 fixed EUR datasets")).toBeTruthy();
+    expect(screen.getByText("123,456,789 bytes")).toBeTruthy();
+    expect(screen.getByText("Exact EUR symbols are frozen by specification, not live ranking.")).toBeTruthy();
+    expect(research.getProductionArchive).toHaveBeenCalledOnce();
   });
 });

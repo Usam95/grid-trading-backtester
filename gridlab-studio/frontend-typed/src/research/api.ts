@@ -5,7 +5,9 @@ import type {
   CanonicalAdaptivePresentation,
   CanonicalAdaptiveRequest,
   DatasetManifest,
+  FrozenProductionPanel,
   ManifestedBacktestBody,
+  ProductionArchiveBacktestBody,
   OperatorControlsPresentation,
   ResearchPort,
   RunBacktestBody,
@@ -34,6 +36,18 @@ export class FastApiResearchClient implements ResearchPort {
     return jsonResponse(
       fetch(`/api/studio/catalogs/binance/eur?refresh=${refresh ? "true" : "false"}`),
     );
+  }
+
+  async getProductionArchive(refresh = false): Promise<FrozenProductionPanel> {
+    return jsonResponse<FrozenProductionPanel>(
+      fetch(`/api/studio/archives/binance/eur?refresh=${refresh ? "true" : "false"}`),
+    );
+  }
+
+  async synchronizeProductionArchive(): Promise<FrozenProductionPanel> {
+    return jsonResponse<FrozenProductionPanel>(fetch("/api/studio/archives/binance/eur/synchronize", {
+      method: "POST",
+    }));
   }
 
   async characterizeCanonicalAdaptive(
@@ -92,6 +106,16 @@ export class FastApiResearchClient implements ResearchPort {
     request: ManifestedBacktestBody,
   ): Promise<StudioBacktestRun> {
     return jsonResponse(fetch("/api/studio/backtests/manifested", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(request),
+    }));
+  }
+
+  async executeProductionArchiveBacktest(
+    request: ProductionArchiveBacktestBody,
+  ): Promise<StudioBacktestRun> {
+    return jsonResponse(fetch("/api/studio/backtests/production-archive", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(request),

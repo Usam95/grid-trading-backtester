@@ -223,6 +223,9 @@ class ProductionDatasetProvenance(_Block):
     normalized_sha256: str
     candle_sequence_sha256: str
     backtest_fingerprint: str
+    candle_count: int
+    coverage: dict[str, datetime]
+    partition_identities: list[str]
     catalog_identity: Optional[str] = None
     quote_asset: Optional[str] = None
 
@@ -933,6 +936,114 @@ class BinanceEurResearchCatalog(_Block):
     symbols: list[EurCatalogSymbolEvidence]
 
 
+class ProductionPanelSourceEvidence(_Block):
+    kind: str
+    url: str
+    observed_at: datetime
+    identity: str
+
+
+class ArchiveSyncPlanEvidence(_Block):
+    month: str
+    source_kind: Literal["monthly_archive", "daily_archives_current_month"]
+    reason: str
+    coverage_start: datetime
+    coverage_end: datetime
+    expected_rows: int
+    estimated_download_bytes: int
+    estimated_storage_bytes: int
+    missing_source_objects: int
+    source_labels: list[str]
+
+
+class ArchiveSyncPreviewSymbolEvidence(_Block):
+    symbol: str
+    dataset_id: str
+    first_available_date: date
+    last_available_date: date
+    pending_partitions: int
+    missing_source_objects: int
+    estimated_download_bytes: int
+    estimated_storage_bytes: int
+    plans: list[ArchiveSyncPlanEvidence]
+
+
+class ArchiveSyncPreviewEvidence(_Block):
+    preview_id: str
+    source_objects: int
+    estimated_download_bytes: int
+    estimated_storage_bytes: int
+    pending_partitions: int
+    verified_partitions: int
+    symbols: list[ArchiveSyncPreviewSymbolEvidence]
+
+
+class ProductionArchivePartitionEvidence(_Block):
+    schema_version: str
+    archive_id: str
+    dataset_id: str
+    symbol: str
+    quote_asset: Literal["EUR"]
+    interval: Literal["1m"]
+    month: str
+    coverage_start: datetime
+    coverage_end: datetime
+    source_kind: Literal["monthly_archive", "daily_archives_current_month"]
+    row_count: int
+    ordering: list[str]
+    normalization_identity: str
+    normalized_sha256: str
+    source_urls: list[str]
+    source_checksums: list[str]
+    timestamp_units: list[str]
+    source_evidence: list[dict[str, Any]]
+    quality: DatasetQuality
+    parquet_schema: list[ParquetField] = Field(
+        alias="schema", serialization_alias="schema"
+    )
+    verification_status: Literal["verified"]
+    active: bool
+    gap_findings: list[str]
+    correction_findings: list[str]
+    sequence_sha256: str
+    partition_id: str
+    path: str
+    manifest_path: str
+    byte_size: int
+    manifest_identity: str
+
+
+class VerifiedRangeEvidence(_Block):
+    start: datetime
+    end: datetime
+
+
+class SynchronizedProductionDatasetEvidence(_Block):
+    symbol: str
+    dataset_id: str
+    quote_asset: Literal["EUR"]
+    display_order: int
+    coverage: ArchiveCoverageEvidence
+    verified_ranges: list[VerifiedRangeEvidence]
+    total_rows: int
+    stored_bytes: int
+    partitions: list[ProductionArchivePartitionEvidence]
+    pending_partition_months: list[str]
+
+
+class FrozenProductionPanel(_Block):
+    archive_id: str
+    status: Literal["pending", "ready", "blocked"]
+    retrieved_at: datetime
+    quote_asset: Literal["EUR"]
+    interval: Literal["1m"]
+    symbols: list[str]
+    sources: list[ProductionPanelSourceEvidence]
+    preview: ArchiveSyncPreviewEvidence
+    datasets: list[SynchronizedProductionDatasetEvidence]
+    blocking_reasons: list[str]
+
+
 class ImportDatasetBody(_Block):
     preview_id: str = Field(min_length=64, max_length=64, pattern=r"^[0-9a-f]{64}$")
 
@@ -1012,6 +1123,34 @@ class ManifestedBacktestBody(_Block):
             raise ValueError(
                 "manifested production backtests accept only static neutral Spot "
                 "without leverage or short exposure"
+            )
+        return self
+
+
+class ProductionArchiveBacktestBody(_Block):
+    dataset_id: str = Field(min_length=64, max_length=64, pattern=r"^[0-9a-f]{64}$")
+    start: AwareDatetime
+    end: AwareDatetime
+    spec: BacktestRequest
+    options: BacktestOptions = Field(default_factory=BacktestOptions)
+
+    @model_validator(mode="after")
+    def enforce_static_neutral_spot(self) -> ProductionArchiveBacktestBody:
+        grid = self.spec.grid
+        margin = self.spec.margin
+        if (
+            self.spec.market_type != "spot"
+            or grid.direction not in (None, "neutral")
+            or grid.adaptive is True
+            or grid.spacing == "atr"
+            or (margin.leverage is not None and margin.leverage != 1)
+            or margin.allow_short is True
+            or self.spec.bootstrap.side == "SHORT"
+            or self.end <= self.start
+        ):
+            raise ValueError(
+                "synchronized production-archive backtests accept only static neutral Spot "
+                "without leverage or short exposure, over a non-empty UTC range"
             )
         return self
 
