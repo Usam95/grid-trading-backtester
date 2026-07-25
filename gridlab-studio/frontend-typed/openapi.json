@@ -572,6 +572,11 @@
             "title": "Complete",
             "type": "boolean"
           },
+          "contradictory_rules": {
+            "default": false,
+            "title": "Contradictory Rules",
+            "type": "boolean"
+          },
           "decision_time": {
             "format": "date-time",
             "title": "Decision Time",
@@ -600,6 +605,85 @@
               "AMBIGUOUS"
             ],
             "title": "Evidence Quality",
+            "type": "string"
+          },
+          "foreign_open_orders": {
+            "default": 0,
+            "maximum": 10000.0,
+            "minimum": 0.0,
+            "title": "Foreign Open Orders",
+            "type": "integer"
+          },
+          "limit_maker_supported": {
+            "default": true,
+            "title": "Limit Maker Supported",
+            "type": "boolean"
+          },
+          "max_open_orders": {
+            "anyOf": [
+              {
+                "maximum": 10000.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Open Orders"
+          },
+          "maximum_notional": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9]+(?:\\.[0-9]+)?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maximum Notional"
+          },
+          "maximum_price": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9]+(?:\\.[0-9]+)?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maximum Price"
+          },
+          "maximum_quantity": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9]+(?:\\.[0-9]+)?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maximum Quantity"
+          },
+          "minimum_notional": {
+            "default": "5.00",
+            "pattern": "^[0-9]+(?:\\.[0-9]+)?$",
+            "title": "Minimum Notional",
+            "type": "string"
+          },
+          "minimum_price": {
+            "default": "0.01",
+            "pattern": "^[0-9]+(?:\\.[0-9]+)?$",
+            "title": "Minimum Price",
+            "type": "string"
+          },
+          "minimum_quantity": {
+            "default": "0.00010",
+            "pattern": "^[0-9]+(?:\\.[0-9]+)?$",
+            "title": "Minimum Quantity",
             "type": "string"
           },
           "observed_count": {
@@ -631,6 +715,11 @@
             "title": "Spacing",
             "type": "string"
           },
+          "spot_trading_allowed": {
+            "default": true,
+            "title": "Spot Trading Allowed",
+            "type": "boolean"
+          },
           "step_size": {
             "default": "0.00001",
             "pattern": "^[0-9]+(?:\\.[0-9]+)?$",
@@ -645,6 +734,18 @@
             "title": "Symbol",
             "type": "string"
           },
+          "symbol_status": {
+            "default": "TRADING",
+            "enum": [
+              "TRADING",
+              "SUSPENDED",
+              "MAINTENANCE",
+              "DELISTING",
+              "UNKNOWN"
+            ],
+            "title": "Symbol Status",
+            "type": "string"
+          },
           "tick_size": {
             "default": "0.01",
             "pattern": "^[0-9]+(?:\\.[0-9]+)?$",
@@ -655,6 +756,15 @@
             "default": "0.0000",
             "pattern": "^-?[0-9]+(?:\\.[0-9]+)?$",
             "title": "Trend",
+            "type": "string"
+          },
+          "venue_environment": {
+            "default": "production",
+            "enum": [
+              "production",
+              "testnet"
+            ],
+            "title": "Venue Environment",
             "type": "string"
           },
           "volatility": {
@@ -668,6 +778,151 @@
           "decision_time"
         ],
         "title": "CanonicalAdaptiveRequest",
+        "type": "object"
+      },
+      "CanonicalAdjacentCyclePresentation": {
+        "properties": {
+          "buy_price": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "buy_rung_index": {
+            "title": "Buy Rung Index",
+            "type": "integer"
+          },
+          "cycle_quantity": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "net_margin": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "positive": {
+            "title": "Positive",
+            "type": "boolean"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "sell_price": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "sell_rung_index": {
+            "title": "Sell Rung Index",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "buy_rung_index",
+          "sell_rung_index",
+          "buy_price",
+          "sell_price",
+          "cycle_quantity",
+          "net_margin",
+          "positive",
+          "reason"
+        ],
+        "title": "CanonicalAdjacentCyclePresentation",
+        "type": "object"
+      },
+      "CanonicalAdmissionAssessmentPresentation": {
+        "properties": {
+          "additional_bootstrap_inventory": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "bootstrap_quote_commitment": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "capital_envelope": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "fee_reserve": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "foreign_open_orders": {
+            "title": "Foreign Open Orders",
+            "type": "integer"
+          },
+          "maximum_planned_inventory": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "proposed_order_count": {
+            "title": "Proposed Order Count",
+            "type": "integer"
+          },
+          "proposed_quote_commitment": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "still_effective_inventory_commitment": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "still_effective_order_count": {
+            "title": "Still Effective Order Count",
+            "type": "integer"
+          },
+          "still_effective_quote_commitment": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "total_order_count": {
+            "title": "Total Order Count",
+            "type": "integer"
+          },
+          "total_quote_commitment": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "total_worst_case_inventory": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "venue_order_capacity": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Venue Order Capacity"
+          }
+        },
+        "required": [
+          "capital_envelope",
+          "still_effective_quote_commitment",
+          "proposed_quote_commitment",
+          "bootstrap_quote_commitment",
+          "total_quote_commitment",
+          "fee_reserve",
+          "still_effective_inventory_commitment",
+          "additional_bootstrap_inventory",
+          "maximum_planned_inventory",
+          "total_worst_case_inventory",
+          "still_effective_order_count",
+          "proposed_order_count",
+          "total_order_count",
+          "venue_order_capacity",
+          "foreign_open_orders"
+        ],
+        "title": "CanonicalAdmissionAssessmentPresentation",
+        "type": "object"
+      },
+      "CanonicalAdmissionContextPresentation": {
+        "properties": {
+          "still_effective_inventory_commitment": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "still_effective_order_count": {
+            "title": "Still Effective Order Count",
+            "type": "integer"
+          },
+          "still_effective_quote_commitment": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          }
+        },
+        "required": [
+          "still_effective_quote_commitment",
+          "still_effective_inventory_commitment",
+          "still_effective_order_count"
+        ],
+        "title": "CanonicalAdmissionContextPresentation",
         "type": "object"
       },
       "CanonicalAllocationPresentation": {
@@ -984,6 +1239,26 @@
             "title": "Activation Pending",
             "type": "boolean"
           },
+          "adjacent_cycle_economics": {
+            "items": {
+              "$ref": "#/components/schemas/CanonicalAdjacentCyclePresentation"
+            },
+            "title": "Adjacent Cycle Economics",
+            "type": "array"
+          },
+          "admission_assessment": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CanonicalAdmissionAssessmentPresentation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "admission_context": {
+            "$ref": "#/components/schemas/CanonicalAdmissionContextPresentation"
+          },
           "automatically_armed": {
             "title": "Automatically Armed",
             "type": "boolean"
@@ -1021,9 +1296,18 @@
             "title": "Lifecycle",
             "type": "string"
           },
+          "post_only_retry_policy": {
+            "$ref": "#/components/schemas/CanonicalPostOnlyRetryPolicyPresentation"
+          },
+          "principal_feasibility": {
+            "$ref": "#/components/schemas/CanonicalPrincipalFeasibilityPresentation"
+          },
           "replay_fingerprint": {
             "title": "Replay Fingerprint",
             "type": "string"
+          },
+          "rule_fee_contract": {
+            "$ref": "#/components/schemas/CanonicalRuleFeeContractPresentation"
           },
           "schema_version": {
             "title": "Schema Version",
@@ -1039,7 +1323,13 @@
           "automatically_armed",
           "derived_width",
           "gates",
-          "bootstrap_evidence"
+          "bootstrap_evidence",
+          "admission_context",
+          "admission_assessment",
+          "adjacent_cycle_economics",
+          "principal_feasibility",
+          "post_only_retry_policy",
+          "rule_fee_contract"
         ],
         "title": "CanonicalInitialActivationPresentation",
         "type": "object"
@@ -1166,6 +1456,129 @@
           "reference_price"
         ],
         "title": "CanonicalObservationPresentation",
+        "type": "object"
+      },
+      "CanonicalPostOnlyRetryPolicyPresentation": {
+        "properties": {
+          "exhaustion_posture": {
+            "const": "REDUCE_ONLY",
+            "title": "Exhaustion Posture",
+            "type": "string"
+          },
+          "max_adjacent_gap_fraction": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "max_attempts": {
+            "title": "Max Attempts",
+            "type": "integer"
+          },
+          "max_price_displacement_ratio": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "order_type": {
+            "const": "LIMIT_MAKER",
+            "title": "Order Type",
+            "type": "string"
+          },
+          "retry_delays": {
+            "items": {
+              "$ref": "#/components/schemas/ExactValuePresentation"
+            },
+            "title": "Retry Delays",
+            "type": "array"
+          },
+          "schema_version": {
+            "title": "Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema_version",
+          "order_type",
+          "max_attempts",
+          "retry_delays",
+          "max_price_displacement_ratio",
+          "max_adjacent_gap_fraction",
+          "exhaustion_posture"
+        ],
+        "title": "CanonicalPostOnlyRetryPolicyPresentation",
+        "type": "object"
+      },
+      "CanonicalPrincipalFeasibilityPointPresentation": {
+        "properties": {
+          "feasible": {
+            "title": "Feasible",
+            "type": "boolean"
+          },
+          "principal": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Reasons",
+            "type": "array"
+          }
+        },
+        "required": [
+          "principal",
+          "feasible",
+          "reasons"
+        ],
+        "title": "CanonicalPrincipalFeasibilityPointPresentation",
+        "type": "object"
+      },
+      "CanonicalPrincipalFeasibilityPresentation": {
+        "properties": {
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/CanonicalPrincipalFeasibilityPointPresentation"
+            },
+            "title": "Points",
+            "type": "array"
+          },
+          "schema_version": {
+            "title": "Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema_version",
+          "points"
+        ],
+        "title": "CanonicalPrincipalFeasibilityPresentation",
+        "type": "object"
+      },
+      "CanonicalRuleFeeContractPresentation": {
+        "properties": {
+          "contract_id": {
+            "title": "Contract Id",
+            "type": "string"
+          },
+          "maker_fee": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "schema_version": {
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "taker_fee": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "venue_rule_evidence_id": {
+            "title": "Venue Rule Evidence Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema_version",
+          "contract_id",
+          "venue_rule_evidence_id",
+          "maker_fee",
+          "taker_fee"
+        ],
+        "title": "CanonicalRuleFeeContractPresentation",
         "type": "object"
       },
       "CanonicalRungPresentation": {

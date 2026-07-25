@@ -628,6 +628,11 @@ export interface components {
              */
             complete: boolean;
             /**
+             * Contradictory Rules
+             * @default false
+             */
+            contradictory_rules: boolean;
+            /**
              * Decision Time
              * Format: date-time
              */
@@ -640,6 +645,39 @@ export interface components {
              * @enum {string}
              */
             evidence_quality: "ADMITTED" | "INCOMPLETE" | "STALE" | "GAPPED" | "CONTRADICTORY" | "AMBIGUOUS";
+            /**
+             * Foreign Open Orders
+             * @default 0
+             */
+            foreign_open_orders: number;
+            /**
+             * Limit Maker Supported
+             * @default true
+             */
+            limit_maker_supported: boolean;
+            /** Max Open Orders */
+            max_open_orders?: number | null;
+            /** Maximum Notional */
+            maximum_notional?: string | null;
+            /** Maximum Price */
+            maximum_price?: string | null;
+            /** Maximum Quantity */
+            maximum_quantity?: string | null;
+            /**
+             * Minimum Notional
+             * @default 5.00
+             */
+            minimum_notional: string;
+            /**
+             * Minimum Price
+             * @default 0.01
+             */
+            minimum_price: string;
+            /**
+             * Minimum Quantity
+             * @default 0.00010
+             */
+            minimum_quantity: string;
             /**
              * Observed Count
              * @default 24
@@ -662,6 +700,11 @@ export interface components {
              */
             spacing: "GEOMETRIC" | "ARITHMETIC";
             /**
+             * Spot Trading Allowed
+             * @default true
+             */
+            spot_trading_allowed: boolean;
+            /**
              * Step Size
              * @default 0.00001
              */
@@ -671,6 +714,12 @@ export interface components {
              * @default BTCEUR
              */
             symbol: string;
+            /**
+             * Symbol Status
+             * @default TRADING
+             * @enum {string}
+             */
+            symbol_status: "TRADING" | "SUSPENDED" | "MAINTENANCE" | "DELISTING" | "UNKNOWN";
             /**
              * Tick Size
              * @default 0.01
@@ -682,10 +731,61 @@ export interface components {
              */
             trend: string;
             /**
+             * Venue Environment
+             * @default production
+             * @enum {string}
+             */
+            venue_environment: "production" | "testnet";
+            /**
              * Volatility
              * @default 0.0100
              */
             volatility: string;
+        };
+        /** CanonicalAdjacentCyclePresentation */
+        CanonicalAdjacentCyclePresentation: {
+            buy_price: components["schemas"]["ExactValuePresentation"];
+            /** Buy Rung Index */
+            buy_rung_index: number;
+            cycle_quantity: components["schemas"]["ExactValuePresentation"];
+            net_margin: components["schemas"]["ExactValuePresentation"];
+            /** Positive */
+            positive: boolean;
+            /** Reason */
+            reason: string;
+            sell_price: components["schemas"]["ExactValuePresentation"];
+            /** Sell Rung Index */
+            sell_rung_index: number;
+        };
+        /** CanonicalAdmissionAssessmentPresentation */
+        CanonicalAdmissionAssessmentPresentation: {
+            additional_bootstrap_inventory: components["schemas"]["ExactValuePresentation"];
+            bootstrap_quote_commitment: components["schemas"]["ExactValuePresentation"];
+            capital_envelope: components["schemas"]["ExactValuePresentation"];
+            fee_reserve: components["schemas"]["ExactValuePresentation"];
+            /** Foreign Open Orders */
+            foreign_open_orders: number;
+            maximum_planned_inventory: components["schemas"]["ExactValuePresentation"];
+            /** Proposed Order Count */
+            proposed_order_count: number;
+            proposed_quote_commitment: components["schemas"]["ExactValuePresentation"];
+            still_effective_inventory_commitment: components["schemas"]["ExactValuePresentation"];
+            /** Still Effective Order Count */
+            still_effective_order_count: number;
+            still_effective_quote_commitment: components["schemas"]["ExactValuePresentation"];
+            /** Total Order Count */
+            total_order_count: number;
+            total_quote_commitment: components["schemas"]["ExactValuePresentation"];
+            total_worst_case_inventory: components["schemas"]["ExactValuePresentation"];
+            /** Venue Order Capacity */
+            venue_order_capacity: number | null;
+        };
+        /** CanonicalAdmissionContextPresentation */
+        CanonicalAdmissionContextPresentation: {
+            still_effective_inventory_commitment: components["schemas"]["ExactValuePresentation"];
+            /** Still Effective Order Count */
+            still_effective_order_count: number;
+            still_effective_quote_commitment: components["schemas"]["ExactValuePresentation"];
         };
         /** CanonicalAllocationPresentation */
         CanonicalAllocationPresentation: {
@@ -789,6 +889,10 @@ export interface components {
         CanonicalInitialActivationPresentation: {
             /** Activation Pending */
             activation_pending: boolean;
+            /** Adjacent Cycle Economics */
+            adjacent_cycle_economics: components["schemas"]["CanonicalAdjacentCyclePresentation"][];
+            admission_assessment: components["schemas"]["CanonicalAdmissionAssessmentPresentation"] | null;
+            admission_context: components["schemas"]["CanonicalAdmissionContextPresentation"];
             /** Automatically Armed */
             automatically_armed: boolean;
             bootstrap_evidence: components["schemas"]["CanonicalBootstrapEvidencePresentation"];
@@ -802,8 +906,11 @@ export interface components {
              * @enum {string}
              */
             lifecycle: "REJECTED" | "BOOTSTRAPPING" | "ACTIVE";
+            post_only_retry_policy: components["schemas"]["CanonicalPostOnlyRetryPolicyPresentation"];
+            principal_feasibility: components["schemas"]["CanonicalPrincipalFeasibilityPresentation"];
             /** Replay Fingerprint */
             replay_fingerprint: string;
+            rule_fee_contract: components["schemas"]["CanonicalRuleFeeContractPresentation"];
             /** Schema Version */
             schema_version: string;
         };
@@ -852,6 +959,53 @@ export interface components {
             source_system: string;
             trend: components["schemas"]["ExactValuePresentation"];
             volatility: components["schemas"]["ExactValuePresentation"];
+        };
+        /** CanonicalPostOnlyRetryPolicyPresentation */
+        CanonicalPostOnlyRetryPolicyPresentation: {
+            /**
+             * Exhaustion Posture
+             * @constant
+             */
+            exhaustion_posture: "REDUCE_ONLY";
+            max_adjacent_gap_fraction: components["schemas"]["ExactValuePresentation"];
+            /** Max Attempts */
+            max_attempts: number;
+            max_price_displacement_ratio: components["schemas"]["ExactValuePresentation"];
+            /**
+             * Order Type
+             * @constant
+             */
+            order_type: "LIMIT_MAKER";
+            /** Retry Delays */
+            retry_delays: components["schemas"]["ExactValuePresentation"][];
+            /** Schema Version */
+            schema_version: string;
+        };
+        /** CanonicalPrincipalFeasibilityPointPresentation */
+        CanonicalPrincipalFeasibilityPointPresentation: {
+            /** Feasible */
+            feasible: boolean;
+            principal: components["schemas"]["ExactValuePresentation"];
+            /** Reasons */
+            reasons: string[];
+        };
+        /** CanonicalPrincipalFeasibilityPresentation */
+        CanonicalPrincipalFeasibilityPresentation: {
+            /** Points */
+            points: components["schemas"]["CanonicalPrincipalFeasibilityPointPresentation"][];
+            /** Schema Version */
+            schema_version: string;
+        };
+        /** CanonicalRuleFeeContractPresentation */
+        CanonicalRuleFeeContractPresentation: {
+            /** Contract Id */
+            contract_id: string;
+            maker_fee: components["schemas"]["ExactValuePresentation"];
+            /** Schema Version */
+            schema_version: string;
+            taker_fee: components["schemas"]["ExactValuePresentation"];
+            /** Venue Rule Evidence Id */
+            venue_rule_evidence_id: string;
         };
         /** CanonicalRungPresentation */
         CanonicalRungPresentation: {

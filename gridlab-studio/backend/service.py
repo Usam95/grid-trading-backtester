@@ -670,8 +670,37 @@ def characterize_canonical_adaptive(request: dict[str, Any]) -> dict[str, Any]:
     venue_rules = replace(
         result.epoch.venue_rules,
         observed_at=decision_time,
+        environment=request["venue_environment"],
         tick_size=ExactDecimal.parse(request["tick_size"], kind="price_increment"),
         step_size=ExactDecimal.parse(request["step_size"], kind="quantity_increment"),
+        minimum_price=ExactDecimal.parse(request["minimum_price"], kind="price"),
+        maximum_price=(
+            ExactDecimal.parse(request["maximum_price"], kind="price")
+            if request.get("maximum_price") is not None
+            else None
+        ),
+        minimum_quantity=ExactDecimal.parse(
+            request["minimum_quantity"], kind="base_quantity"
+        ),
+        maximum_quantity=(
+            ExactDecimal.parse(request["maximum_quantity"], kind="base_quantity")
+            if request.get("maximum_quantity") is not None
+            else None
+        ),
+        minimum_notional=ExactDecimal.parse(
+            request["minimum_notional"], kind="quote_quantity"
+        ),
+        maximum_notional=(
+            ExactDecimal.parse(request["maximum_notional"], kind="quote_quantity")
+            if request.get("maximum_notional") is not None
+            else None
+        ),
+        max_open_orders=request.get("max_open_orders"),
+        foreign_open_orders=request["foreign_open_orders"],
+        symbol_status=request["symbol_status"],
+        spot_trading_allowed=request["spot_trading_allowed"],
+        limit_maker_supported=request["limit_maker_supported"],
+        contradictory=request["contradictory_rules"],
     )
     event = CanonicalEvent.create(
         schema=observation.schema_version,
@@ -784,6 +813,107 @@ def characterize_canonical_adaptive(request: dict[str, Any]) -> dict[str, Any]:
                     activation.bootstrap_evidence.net_base_confirmed.to_payload()
                 ),
                 "evidence_id": activation.bootstrap_evidence.evidence_id,
+            },
+            "admission_context": {
+                "still_effective_quote_commitment": (
+                    activation.admission_context.still_effective_quote_commitment.to_payload()
+                ),
+                "still_effective_inventory_commitment": (
+                    activation.admission_context.still_effective_inventory_commitment.to_payload()
+                ),
+                "still_effective_order_count": (
+                    activation.admission_context.still_effective_order_count
+                ),
+            },
+            "admission_assessment": (
+                {
+                    "capital_envelope": (
+                        activation.admission_assessment.capital_envelope.to_payload()
+                    ),
+                    "still_effective_quote_commitment": (
+                        activation.admission_assessment.still_effective_quote_commitment.to_payload()
+                    ),
+                    "proposed_quote_commitment": (
+                        activation.admission_assessment.proposed_quote_commitment.to_payload()
+                    ),
+                    "bootstrap_quote_commitment": (
+                        activation.admission_assessment.bootstrap_quote_commitment.to_payload()
+                    ),
+                    "total_quote_commitment": (
+                        activation.admission_assessment.total_quote_commitment.to_payload()
+                    ),
+                    "fee_reserve": activation.admission_assessment.fee_reserve.to_payload(),
+                    "still_effective_inventory_commitment": (
+                        activation.admission_assessment.still_effective_inventory_commitment.to_payload()
+                    ),
+                    "additional_bootstrap_inventory": (
+                        activation.admission_assessment.additional_bootstrap_inventory.to_payload()
+                    ),
+                    "maximum_planned_inventory": (
+                        activation.admission_assessment.maximum_planned_inventory.to_payload()
+                    ),
+                    "total_worst_case_inventory": (
+                        activation.admission_assessment.total_worst_case_inventory.to_payload()
+                    ),
+                    "still_effective_order_count": (
+                        activation.admission_assessment.still_effective_order_count
+                    ),
+                    "proposed_order_count": activation.admission_assessment.proposed_order_count,
+                    "total_order_count": activation.admission_assessment.total_order_count,
+                    "venue_order_capacity": (
+                        activation.admission_assessment.venue_order_capacity
+                    ),
+                    "foreign_open_orders": activation.admission_assessment.foreign_open_orders,
+                }
+                if activation.admission_assessment is not None
+                else None
+            ),
+            "adjacent_cycle_economics": [
+                {
+                    "buy_rung_index": cycle.buy_rung_index,
+                    "sell_rung_index": cycle.sell_rung_index,
+                    "buy_price": cycle.buy_price.to_payload(),
+                    "sell_price": cycle.sell_price.to_payload(),
+                    "cycle_quantity": cycle.cycle_quantity.to_payload(),
+                    "net_margin": cycle.net_margin.to_payload(),
+                    "positive": cycle.positive,
+                    "reason": cycle.reason,
+                }
+                for cycle in activation.adjacent_cycle_economics
+            ],
+            "principal_feasibility": {
+                "schema_version": activation.principal_feasibility.schema_version,
+                "points": [
+                    {
+                        "principal": point.principal.to_payload(),
+                        "feasible": point.feasible,
+                        "reasons": list(point.reasons),
+                    }
+                    for point in activation.principal_feasibility.points
+                ],
+            },
+            "post_only_retry_policy": {
+                "schema_version": activation.post_only_retry_policy.schema_version,
+                "order_type": activation.post_only_retry_policy.order_type,
+                "max_attempts": activation.post_only_retry_policy.max_attempts,
+                "retry_delays": [
+                    delay.to_payload()
+                    for delay in activation.post_only_retry_policy.retry_delays
+                ],
+                "max_price_displacement_ratio": (
+                    activation.post_only_retry_policy.max_price_displacement_ratio.to_payload()
+                ),
+                "max_adjacent_gap_fraction": (
+                    activation.post_only_retry_policy.max_adjacent_gap_fraction.to_payload()
+                ),
+                "exhaustion_posture": activation.post_only_retry_policy.exhaustion_posture,
+            },
+            "rule_fee_contract": {
+                "schema_version": activation.rule_fee_contract.schema_version,
+                "contract_id": activation.rule_fee_contract.contract_id,
+                "venue_rule_evidence_id": activation.rule_fee_contract.venue_rule_evidence_id,
+                "maker_fee": activation.rule_fee_contract.maker_fee.to_payload(),
+                "taker_fee": activation.rule_fee_contract.taker_fee.to_payload(),
             },
         },
         "derived_plan": (

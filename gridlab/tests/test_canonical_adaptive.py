@@ -530,10 +530,15 @@ def test_epoch_identity_covers_material_inputs_not_presentation() -> None:
         schema_version="venue-rules/v1",
         source=EventSource("binance", "exchangeInfo:BTCEUR"),
         observed_at=DomainTime(BOUNDARY),
+        environment="production",
         tick_size=exact("0.01", "price_increment"),
         step_size=exact("0.00001", "quantity_increment"),
+        minimum_price=exact("0.01", "price"),
+        maximum_price=None,
         minimum_quantity=exact("0.00010", "base_quantity"),
+        maximum_quantity=None,
         minimum_notional=exact("5.00", "quote_quantity"),
+        maximum_notional=None,
     )
     epoch = GridPlanEpoch.derive(
         configuration=strategy(),
@@ -972,10 +977,15 @@ def test_rung_and_venue_rules_reject_invalid_values() -> None:
         schema_version="venue-rules/v1",
         source=EventSource("binance", "exchangeInfo:BTCEUR"),
         observed_at=DomainTime(BOUNDARY),
+        environment="production",
         tick_size=exact("0.01", "price_increment"),
         step_size=exact("0.00001", "quantity_increment"),
+        minimum_price=exact("0.01", "price"),
+        maximum_price=None,
         minimum_quantity=exact("0.00010", "base_quantity"),
+        maximum_quantity=None,
         minimum_notional=exact("5.00", "quote_quantity"),
+        maximum_notional=None,
     )
     with pytest.raises(ValueError, match="schema"):
         replace(rules, schema_version="")
@@ -985,6 +995,20 @@ def test_rung_and_venue_rules_reject_invalid_values() -> None:
         replace(rules, tick_size=exact("0.01", "fee_rate"))
     with pytest.raises(ValueError, match="must be positive"):
         replace(rules, tick_size=exact("0.00", "price_increment"))
+    with pytest.raises(ValueError, match="production or testnet"):
+        replace(rules, environment="paper")
+    with pytest.raises(ValueError, match="positive exact values"):
+        replace(rules, maximum_price=exact("0.00", "price"))
+    with pytest.raises(ValueError, match="minimum price"):
+        replace(rules, maximum_price=exact("0.001", "price"))
+    with pytest.raises(ValueError, match="minimum quantity"):
+        replace(rules, maximum_quantity=exact("0.00001", "base_quantity"))
+    with pytest.raises(ValueError, match="minimum notional"):
+        replace(rules, maximum_notional=exact("1.00", "quote_quantity"))
+    with pytest.raises(ValueError, match="open orders must be positive"):
+        replace(rules, max_open_orders=0)
+    with pytest.raises(ValueError, match="open orders must be non-negative"):
+        replace(rules, foreign_open_orders=-1)
 
 
 def test_obligation_and_allocation_values_are_semantically_typed() -> None:

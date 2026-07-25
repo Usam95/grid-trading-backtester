@@ -258,10 +258,15 @@ def characterize_legacy_backtest(
         schema_version="venue-rules/v1",
         source=EventSource("legacy-backtest-translation", f"{symbol}:rules"),
         observed_at=decision_time,
+        environment="production",
         tick_size=_exact("0.01", "price_increment"),
         step_size=_exact("0.00001", "quantity_increment"),
+        minimum_price=_exact("0.01", "price"),
+        maximum_price=None,
         minimum_quantity=_exact("0.00010", "base_quantity"),
+        maximum_quantity=None,
         minimum_notional=_exact("5.00", "quote_quantity"),
+        maximum_notional=None,
     )
     epoch = GridPlanEpoch.derive(
         configuration=configuration,

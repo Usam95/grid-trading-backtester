@@ -252,8 +252,33 @@ class CanonicalAdaptiveRequest(_Block):
     observed_count: int = Field(default=24, ge=0, le=100_000)
     sequence_end: int = Field(default=24, ge=0, le=100_000)
     spacing: Literal["GEOMETRIC", "ARITHMETIC"] = "GEOMETRIC"
+    venue_environment: Literal["production", "testnet"] = "production"
     tick_size: StrictStr = Field(default="0.01", pattern=r"^[0-9]+(?:\.[0-9]+)?$")
     step_size: StrictStr = Field(default="0.00001", pattern=r"^[0-9]+(?:\.[0-9]+)?$")
+    minimum_price: StrictStr = Field(default="0.01", pattern=r"^[0-9]+(?:\.[0-9]+)?$")
+    maximum_price: Optional[StrictStr] = Field(
+        default=None, pattern=r"^[0-9]+(?:\.[0-9]+)?$"
+    )
+    minimum_quantity: StrictStr = Field(
+        default="0.00010", pattern=r"^[0-9]+(?:\.[0-9]+)?$"
+    )
+    maximum_quantity: Optional[StrictStr] = Field(
+        default=None, pattern=r"^[0-9]+(?:\.[0-9]+)?$"
+    )
+    minimum_notional: StrictStr = Field(
+        default="5.00", pattern=r"^[0-9]+(?:\.[0-9]+)?$"
+    )
+    maximum_notional: Optional[StrictStr] = Field(
+        default=None, pattern=r"^[0-9]+(?:\.[0-9]+)?$"
+    )
+    max_open_orders: Optional[int] = Field(default=None, ge=1, le=10_000)
+    foreign_open_orders: int = Field(default=0, ge=0, le=10_000)
+    symbol_status: Literal[
+        "TRADING", "SUSPENDED", "MAINTENANCE", "DELISTING", "UNKNOWN"
+    ] = "TRADING"
+    spot_trading_allowed: bool = True
+    limit_maker_supported: bool = True
+    contradictory_rules: bool = False
     bootstrap_complete: bool = False
     bootstrap_confirmed_base: StrictStr = Field(
         default="0", pattern=r"^[0-9]+(?:\.[0-9]+)?$"
@@ -377,6 +402,70 @@ class CanonicalBootstrapEvidencePresentation(_Block):
     evidence_id: Optional[str]
 
 
+class CanonicalAdmissionContextPresentation(_Block):
+    still_effective_quote_commitment: ExactValuePresentation
+    still_effective_inventory_commitment: ExactValuePresentation
+    still_effective_order_count: int
+
+
+class CanonicalAdmissionAssessmentPresentation(_Block):
+    capital_envelope: ExactValuePresentation
+    still_effective_quote_commitment: ExactValuePresentation
+    proposed_quote_commitment: ExactValuePresentation
+    bootstrap_quote_commitment: ExactValuePresentation
+    total_quote_commitment: ExactValuePresentation
+    fee_reserve: ExactValuePresentation
+    still_effective_inventory_commitment: ExactValuePresentation
+    additional_bootstrap_inventory: ExactValuePresentation
+    maximum_planned_inventory: ExactValuePresentation
+    total_worst_case_inventory: ExactValuePresentation
+    still_effective_order_count: int
+    proposed_order_count: int
+    total_order_count: int
+    venue_order_capacity: Optional[int]
+    foreign_open_orders: int
+
+
+class CanonicalAdjacentCyclePresentation(_Block):
+    buy_rung_index: int
+    sell_rung_index: int
+    buy_price: ExactValuePresentation
+    sell_price: ExactValuePresentation
+    cycle_quantity: ExactValuePresentation
+    net_margin: ExactValuePresentation
+    positive: bool
+    reason: str
+
+
+class CanonicalPrincipalFeasibilityPointPresentation(_Block):
+    principal: ExactValuePresentation
+    feasible: bool
+    reasons: list[str]
+
+
+class CanonicalPrincipalFeasibilityPresentation(_Block):
+    schema_version: str
+    points: list[CanonicalPrincipalFeasibilityPointPresentation]
+
+
+class CanonicalPostOnlyRetryPolicyPresentation(_Block):
+    schema_version: str
+    order_type: Literal["LIMIT_MAKER"]
+    max_attempts: int
+    retry_delays: list[ExactValuePresentation]
+    max_price_displacement_ratio: ExactValuePresentation
+    max_adjacent_gap_fraction: ExactValuePresentation
+    exhaustion_posture: Literal["REDUCE_ONLY"]
+
+
+class CanonicalRuleFeeContractPresentation(_Block):
+    schema_version: str
+    contract_id: str
+    venue_rule_evidence_id: str
+    maker_fee: ExactValuePresentation
+    taker_fee: ExactValuePresentation
+
+
 class CanonicalInitialActivationPresentation(_Block):
     schema_version: str
     lifecycle: Literal["REJECTED", "BOOTSTRAPPING", "ACTIVE"]
@@ -387,6 +476,12 @@ class CanonicalInitialActivationPresentation(_Block):
     derived_width: Optional[ExactValuePresentation]
     gates: list[CanonicalActivationGatePresentation]
     bootstrap_evidence: CanonicalBootstrapEvidencePresentation
+    admission_context: CanonicalAdmissionContextPresentation
+    admission_assessment: Optional[CanonicalAdmissionAssessmentPresentation]
+    adjacent_cycle_economics: list[CanonicalAdjacentCyclePresentation]
+    principal_feasibility: CanonicalPrincipalFeasibilityPresentation
+    post_only_retry_policy: CanonicalPostOnlyRetryPolicyPresentation
+    rule_fee_contract: CanonicalRuleFeeContractPresentation
 
 
 class LegacyComparisonPresentation(_Block):

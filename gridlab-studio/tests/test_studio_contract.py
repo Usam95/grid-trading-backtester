@@ -158,6 +158,21 @@ def test_canonical_adaptive_contract_is_exact_typed_and_deterministic() -> None:
     assert payload["activation"]["activation_pending"] is False
     assert payload["activation"]["automatically_armed"] is False
     assert payload["activation"]["replay_fingerprint"].startswith("sha256:")
+    assert (
+        payload["activation"]["post_only_retry_policy"]["order_type"] == "LIMIT_MAKER"
+    )
+    assert payload["activation"]["post_only_retry_policy"]["max_attempts"] == 3
+    assert payload["activation"]["rule_fee_contract"]["contract_id"].startswith(
+        "sha256:"
+    )
+    assert payload["activation"]["admission_assessment"]["total_order_count"] == 5
+    assert payload["activation"]["adjacent_cycle_economics"]
+    assert (
+        payload["activation"]["principal_feasibility"]["points"][0]["principal"][
+            "value"
+        ]
+        == "10"
+    )
     assert payload["derived_plan"]["lower"]["value"] == "96.000000"
     assert payload["derived_plan"]["upper"]["value"] == "104.000000"
     assert (
@@ -325,6 +340,39 @@ def test_complete_bootstrap_evidence_activates_without_changing_epoch_identity()
     assert payload["activation"]["lifecycle"] == "ACTIVE"
     assert payload["activation"]["ladder_placement_allowed"] is True
     assert payload["derived_plan"]["epoch_id"] == pending["derived_plan"]["epoch_id"]
+
+
+def test_canonical_adaptive_contract_rejects_invalid_rule_contracts_and_reports_feasibility() -> (
+    None
+):
+    request = {
+        "decision_time": "2025-01-02T00:00:00Z",
+        "symbol_status": "SUSPENDED",
+        "maximum_quantity": "0.10000",
+    }
+    with TestClient(app) as client:
+        suspended = client.post("/api/studio/canonical-adaptive", json=request)
+        quantity = client.post(
+            "/api/studio/canonical-adaptive",
+            json={
+                "decision_time": "2025-01-02T00:00:00Z",
+                "maximum_quantity": "0.10000",
+            },
+        )
+
+    assert suspended.status_code == 200, suspended.text
+    assert (
+        suspended.json()["activation"]["gates"][-1]["reason"]
+        == "venue_rules_symbol_suspended"
+    )
+    assert quantity.status_code == 200, quantity.text
+    assert quantity.json()["activation"]["gates"][-1]["reason"] == (
+        "quantized_obligation_above_maximum_quantity"
+    )
+    assert any(
+        not point["feasible"]
+        for point in quantity.json()["activation"]["principal_feasibility"]["points"]
+    )
 
 
 def test_canonical_adaptive_boundary_rejects_ambiguous_numeric_payloads() -> None:

@@ -189,17 +189,31 @@ class VenueRuleEvidence:
     schema_version: str
     source: EventSource
     observed_at: DomainTime
+    environment: str
     tick_size: ExactDecimal
     step_size: ExactDecimal
+    minimum_price: ExactDecimal
+    maximum_price: ExactDecimal | None
     minimum_quantity: ExactDecimal
+    maximum_quantity: ExactDecimal | None
     minimum_notional: ExactDecimal
+    maximum_notional: ExactDecimal | None
+    max_open_orders: int | None = None
+    foreign_open_orders: int = 0
+    symbol_status: str = "TRADING"
+    spot_trading_allowed: bool = True
+    limit_maker_supported: bool = True
+    contradictory: bool = False
 
     def __post_init__(self) -> None:
         if self.schema_version != "venue-rules/v1":
             raise ValueError("unsupported venue-rule schema version")
+        if self.environment not in {"production", "testnet"}:
+            raise ValueError("venue-rule environment must be production or testnet")
         values = (
             self.tick_size,
             self.step_size,
+            self.minimum_price,
             self.minimum_quantity,
             self.minimum_notional,
         )
@@ -208,17 +222,47 @@ class VenueRuleEvidence:
         expected = (
             (self.tick_size, "price_increment"),
             (self.step_size, "quantity_increment"),
+            (self.minimum_price, "price"),
             (self.minimum_quantity, "base_quantity"),
             (self.minimum_notional, "quote_quantity"),
         )
         if any(value.kind != kind for value, kind in expected):
             raise ValueError("venue-rule values use an invalid exact kind")
+        optional_expected = (
+            (self.maximum_price, "price"),
+            (self.maximum_quantity, "base_quantity"),
+            (self.maximum_notional, "quote_quantity"),
+        )
+        if any(
+            value is not None and (value.kind != kind or value.decimal <= 0)
+            for value, kind in optional_expected
+        ):
+            raise ValueError("venue-rule maximums must use positive exact values")
         if (
             self.tick_size.decimal <= 0
             or self.step_size.decimal <= 0
             or self.minimum_quantity.decimal <= 0
         ):
             raise ValueError("venue tick, step, and minimum quantity must be positive")
+        if (
+            self.maximum_price is not None
+            and self.minimum_price.decimal > self.maximum_price.decimal
+        ):
+            raise ValueError("venue minimum price cannot exceed the maximum price")
+        if (
+            self.maximum_quantity is not None
+            and self.minimum_quantity.decimal > self.maximum_quantity.decimal
+        ):
+            raise ValueError("venue minimum quantity cannot exceed the maximum quantity")
+        if (
+            self.maximum_notional is not None
+            and self.minimum_notional.decimal > self.maximum_notional.decimal
+        ):
+            raise ValueError("venue minimum notional cannot exceed the maximum notional")
+        if self.max_open_orders is not None and self.max_open_orders <= 0:
+            raise ValueError("venue max open orders must be positive when provided")
+        if self.foreign_open_orders < 0:
+            raise ValueError("venue foreign open orders must be non-negative")
 
     @property
     def evidence_id(self) -> str:

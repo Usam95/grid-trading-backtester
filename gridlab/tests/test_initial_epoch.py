@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import replace
 from datetime import datetime, timedelta, timezone
+from decimal import Decimal
 
 import pytest
 
@@ -15,10 +16,17 @@ from gridlab.canonical.adaptation import (
 from gridlab.canonical.configuration import AdaptationPolicy, Spacing, StrategyConfiguration
 from gridlab.canonical.events import DomainTime, EventSource
 from gridlab.canonical.initial_epoch import (
+    AdjacentCycleEconomics,
     ActivationGate,
     ActivationGateOutcome,
     ActivationLifecycle,
     BootstrapEvidence,
+    PlanAdmissionContext,
+    PlanAdmissionAssessment,
+    PostOnlyRetryPolicy,
+    PrincipalFeasibilityPoint,
+    PrincipalFeasibilityReport,
+    RuleFeeContract,
     derive_initial_epoch,
 )
 from gridlab.canonical.plan import (
@@ -131,10 +139,15 @@ def venue_rules() -> VenueRuleEvidence:
         schema_version="venue-rules/v1",
         source=EventSource("bounded-fixture", "BTCEUR:rules"),
         observed_at=DomainTime(BOUNDARY),
+        environment="production",
         tick_size=exact("0.01", "price_increment"),
         step_size=exact("0.00001", "quantity_increment"),
+        minimum_price=exact("0.01", "price"),
+        maximum_price=None,
         minimum_quantity=exact("0.00010", "base_quantity"),
+        maximum_quantity=None,
         minimum_notional=exact("5.00", "quote_quantity"),
+        maximum_notional=None,
     )
 
 
@@ -263,6 +276,35 @@ def test_post_rounding_notional_below_venue_minimum_rejects_activation() -> None
     assert result.gates[-1].reason == "quantized_obligation_below_minimum_notional"
 
 
+@pytest.mark.parametrize(
+    ("changes", "reason"),
+    [
+        (
+            {"observed_at": DomainTime(BOUNDARY + timedelta(seconds=1))},
+            "venue_rules_observed_in_the_future",
+        ),
+        ({"observed_at": DomainTime(BOUNDARY - timedelta(minutes=16))}, "venue_rules_are_stale"),
+        ({"symbol_status": "SUSPENDED"}, "venue_rules_symbol_suspended"),
+        ({"spot_trading_allowed": False}, "venue_rules_spot_trading_unsupported"),
+        ({"limit_maker_supported": False}, "venue_rules_post_only_unsupported"),
+        ({"contradictory": True}, "venue_rules_are_contradictory"),
+    ],
+)
+def test_invalid_venue_rule_contract_rejects_activation(changes: dict, reason: str) -> None:
+    result = derive_initial_epoch(
+        configuration=strategy(),
+        observation=observation(),
+        decision_time=DomainTime(BOUNDARY),
+        activation_price=exact("100", "price"),
+        derivation_causation_id="sha256:" + "a" * 64,
+        venue_rules=replace(venue_rules(), **changes),
+        bootstrap_evidence=BootstrapEvidence.incomplete(),
+    )
+
+    assert result.lifecycle is ActivationLifecycle.REJECTED
+    assert result.gates[-1].reason == reason
+
+
 def test_incomplete_bootstrap_remains_blocked_without_scaling() -> None:
     result = derive(bootstrap=BootstrapEvidence.incomplete())
     assert result.lifecycle is ActivationLifecycle.BOOTSTRAPPING
@@ -360,6 +402,149 @@ def test_initial_epoch_value_objects_reject_invalid_states() -> None:
             replace(rejected if "rejected" in message else pending, **changes)
 
 
+def test_plan_admission_and_post_only_value_objects_reject_invalid_states() -> None:
+    context = PlanAdmissionContext.initial()
+    assessment = PlanAdmissionAssessment(
+        schema_version="plan-admission-assessment/v1",
+        capital_envelope=exact("250", "quote_quantity"),
+        still_effective_quote_commitment=exact("0", "quote_quantity"),
+        proposed_quote_commitment=exact("98", "quote_quantity"),
+        bootstrap_quote_commitment=exact("38", "quote_quantity"),
+        total_quote_commitment=exact("98", "quote_quantity"),
+        fee_reserve=exact("5", "quote_quantity"),
+        still_effective_inventory_commitment=exact("0", "base_quantity"),
+        additional_bootstrap_inventory=exact("0.3", "base_quantity"),
+        maximum_planned_inventory=exact("1.0", "base_quantity"),
+        total_worst_case_inventory=exact("1.0", "base_quantity"),
+        still_effective_order_count=0,
+        proposed_order_count=5,
+        total_order_count=5,
+        venue_order_capacity=10,
+        foreign_open_orders=0,
+    )
+    cycle = AdjacentCycleEconomics(
+        schema_version="adjacent-cycle-economics/v1",
+        buy_rung_index=0,
+        sell_rung_index=1,
+        buy_price=exact("99", "price"),
+        sell_price=exact("101", "price"),
+        cycle_quantity=exact("0.1", "base_quantity"),
+        net_margin=exact("0.1", "quote_quantity"),
+        positive=True,
+        reason="ok",
+    )
+    report = PrincipalFeasibilityReport(
+        schema_version="principal-feasibility-report/v1",
+        points=(PrincipalFeasibilityPoint(exact("10", "quote_quantity"), True, ()),),
+    )
+    policy = PostOnlyRetryPolicy.accepted()
+    contract = RuleFeeContract(
+        schema_version="rule-fee-contract/v1",
+        venue_rule_evidence_id=venue_rules().evidence_id,
+        maker_fee=exact("0.0010", "fee_rate"),
+        taker_fee=exact("0.0010", "fee_rate"),
+    )
+
+    invalid_objects = [
+        (
+            lambda: PlanAdmissionContext(
+                "plan-admission-context/v2",
+                exact("0", "quote_quantity"),
+                exact("0", "base_quantity"),
+                0,
+            ),
+            "context schema",
+        ),
+        (
+            lambda: PlanAdmissionContext(
+                "plan-admission-context/v1", exact("0", "price"), exact("0", "base_quantity"), 0
+            ),
+            "quote commitment",
+        ),
+        (
+            lambda: PlanAdmissionContext(
+                "plan-admission-context/v1",
+                exact("0", "quote_quantity"),
+                exact("0", "quote_quantity"),
+                0,
+            ),
+            "inventory commitment",
+        ),
+        (
+            lambda: PlanAdmissionContext(
+                "plan-admission-context/v1",
+                exact("0", "quote_quantity"),
+                exact("0", "base_quantity"),
+                -1,
+            ),
+            "order count",
+        ),
+        (
+            lambda: replace(assessment, schema_version="plan-admission-assessment/v2"),
+            "assessment schema",
+        ),
+        (lambda: replace(assessment, capital_envelope=exact("1", "price")), "quote quantities"),
+        (
+            lambda: replace(assessment, maximum_planned_inventory=exact("1", "quote_quantity")),
+            "base quantities",
+        ),
+        (lambda: replace(assessment, foreign_open_orders=-1), "order counts"),
+        (lambda: replace(assessment, venue_order_capacity=0), "order capacity"),
+        (lambda: replace(cycle, schema_version="adjacent-cycle-economics/v2"), "economics schema"),
+        (lambda: replace(cycle, buy_rung_index=1, sell_rung_index=1), "rung indices"),
+        (lambda: replace(cycle, buy_price=exact("0", "price")), "prices"),
+        (lambda: replace(cycle, cycle_quantity=exact("0", "base_quantity")), "quantity"),
+        (lambda: replace(cycle, net_margin=exact("1", "ratio")), "net margin"),
+        (lambda: replace(cycle, reason=""), "reason is required"),
+        (
+            lambda: PrincipalFeasibilityPoint(exact("0", "quote_quantity"), True, ()),
+            "positive quote quantity",
+        ),
+        (
+            lambda: PrincipalFeasibilityPoint(exact("10", "quote_quantity"), True, ("blocked",)),
+            "cannot carry rejection reasons",
+        ),
+        (
+            lambda: PrincipalFeasibilityPoint(exact("10", "quote_quantity"), False, ()),
+            "must explain their rejection",
+        ),
+        (
+            lambda: PrincipalFeasibilityReport("principal-feasibility-report/v2", report.points),
+            "feasibility report schema",
+        ),
+        (
+            lambda: PrincipalFeasibilityReport("principal-feasibility-report/v1", ()),
+            "points are required",
+        ),
+        (
+            lambda: replace(policy, schema_version="post-only-retry-policy/v2"),
+            "retry policy schema",
+        ),
+        (lambda: replace(policy, order_type="LIMIT"), "LIMIT_MAKER"),
+        (lambda: replace(policy, max_attempts=2), "accepted bounds"),
+        (
+            lambda: replace(policy, retry_delays=(exact("1", "duration_seconds"),)),
+            "250 ms then one second",
+        ),
+        (
+            lambda: replace(
+                policy, retry_delays=(exact("0.25", "ratio"), exact("1", "duration_seconds"))
+            ),
+            "exact durations",
+        ),
+        (
+            lambda: replace(policy, max_price_displacement_ratio=exact("0.0030", "ratio")),
+            "displacement limits",
+        ),
+        (lambda: replace(contract, schema_version="rule-fee-contract/v2"), "contract schema"),
+        (lambda: replace(contract, venue_rule_evidence_id="not-an-id"), "evidence identity"),
+        (lambda: replace(contract, maker_fee=exact("0.1", "ratio")), "fee rates"),
+    ]
+    for build, message in invalid_objects:
+        with pytest.raises(ValueError, match=message):
+            build()
+
+
 def test_initial_epoch_rejects_invalid_activation_and_policy_or_venue_limits() -> None:
     with pytest.raises(ValueError, match="activation price"):
         derive_initial_epoch(
@@ -440,6 +625,165 @@ def test_initial_epoch_rejects_invalid_activation_and_policy_or_venue_limits() -
         )
     )
     assert capital.gates[-1].reason == "planned_obligations_exceed_capital_envelope"
+
+
+def test_plan_admission_enforces_maximum_filters_capacity_and_inventory_commitments() -> None:
+    minimum_price = derive_initial_epoch(
+        configuration=strategy(),
+        observation=observation(),
+        decision_time=DomainTime(BOUNDARY),
+        activation_price=exact("100", "price"),
+        derivation_causation_id="sha256:" + "a" * 64,
+        venue_rules=replace(venue_rules(), minimum_price=exact("100.01", "price")),
+        bootstrap_evidence=BootstrapEvidence.incomplete(),
+    )
+    assert minimum_price.gates[-1].reason == "quantized_price_below_minimum_price"
+
+    maximum_price = derive_initial_epoch(
+        configuration=strategy(),
+        observation=observation(),
+        decision_time=DomainTime(BOUNDARY),
+        activation_price=exact("100", "price"),
+        derivation_causation_id="sha256:" + "a" * 64,
+        venue_rules=replace(venue_rules(), maximum_price=exact("99.00", "price")),
+        bootstrap_evidence=BootstrapEvidence.incomplete(),
+    )
+    assert maximum_price.gates[-1].reason == "quantized_price_above_maximum_price"
+
+    zero_quantity = derive_initial_epoch(
+        configuration=strategy(),
+        observation=observation(),
+        decision_time=DomainTime(BOUNDARY),
+        activation_price=exact("100", "price"),
+        derivation_causation_id="sha256:" + "a" * 64,
+        venue_rules=replace(venue_rules(), step_size=exact("1", "quantity_increment")),
+        bootstrap_evidence=BootstrapEvidence.incomplete(),
+    )
+    assert zero_quantity.gates[-1].reason == "quantized_obligation_zero_quantity"
+
+    maximum_quantity = derive_initial_epoch(
+        configuration=strategy(),
+        observation=observation(),
+        decision_time=DomainTime(BOUNDARY),
+        activation_price=exact("100", "price"),
+        derivation_causation_id="sha256:" + "a" * 64,
+        venue_rules=replace(venue_rules(), maximum_quantity=exact("0.10", "base_quantity")),
+        bootstrap_evidence=BootstrapEvidence.incomplete(),
+    )
+    assert maximum_quantity.gates[-1].reason == "quantized_obligation_above_maximum_quantity"
+
+    maximum_notional = derive_initial_epoch(
+        configuration=strategy(),
+        observation=observation(),
+        decision_time=DomainTime(BOUNDARY),
+        activation_price=exact("100", "price"),
+        derivation_causation_id="sha256:" + "a" * 64,
+        venue_rules=replace(venue_rules(), maximum_notional=exact("10", "quote_quantity")),
+        bootstrap_evidence=BootstrapEvidence.incomplete(),
+    )
+    assert maximum_notional.gates[-1].reason == "quantized_obligation_above_maximum_notional"
+
+    capacity = derive_initial_epoch(
+        configuration=strategy(),
+        observation=observation(),
+        decision_time=DomainTime(BOUNDARY),
+        activation_price=exact("100", "price"),
+        derivation_causation_id="sha256:" + "a" * 64,
+        venue_rules=replace(venue_rules(), max_open_orders=3, foreign_open_orders=1),
+        bootstrap_evidence=BootstrapEvidence.incomplete(),
+    )
+    assert capacity.gates[-1].reason == "planned_orders_exceed_venue_capacity"
+
+    inventory = derive_initial_epoch(
+        configuration=strategy(),
+        observation=observation(),
+        decision_time=DomainTime(BOUNDARY),
+        activation_price=exact("100", "price"),
+        derivation_causation_id="sha256:" + "a" * 64,
+        venue_rules=venue_rules(),
+        bootstrap_evidence=BootstrapEvidence.incomplete(),
+        admission_context=PlanAdmissionContext(
+            schema_version="plan-admission-context/v1",
+            still_effective_quote_commitment=exact("0", "quote_quantity"),
+            still_effective_inventory_commitment=exact("1.00000", "base_quantity"),
+            still_effective_order_count=0,
+        ),
+    )
+    assert inventory.gates[-1].reason == "planned_inventory_exceeds_maximum_inventory"
+
+
+def test_positive_adjacent_cycle_report_and_post_only_policy_are_admitted_deterministically() -> (
+    None
+):
+    result = derive()
+
+    assert result.epoch is not None
+    assert result.admission_assessment is not None
+    assert result.post_only_retry_policy.order_type == "LIMIT_MAKER"
+    assert result.post_only_retry_policy.max_attempts == 3
+    assert result.rule_fee_contract.contract_id.startswith("sha256:")
+    assert all(item.positive for item in result.adjacent_cycle_economics)
+    assert result.principal_feasibility.points[0].principal.decimal == Decimal("10")
+    assert result.principal_feasibility.points[-1].principal.decimal == Decimal("20")
+    assert len(result.principal_feasibility.points) == 11
+
+    restrictive = derive_initial_epoch(
+        configuration=strategy(),
+        observation=observation(),
+        decision_time=DomainTime(BOUNDARY),
+        activation_price=exact("100", "price"),
+        derivation_causation_id="sha256:" + "a" * 64,
+        venue_rules=replace(venue_rules(), maximum_quantity=exact("0.10", "base_quantity")),
+        bootstrap_evidence=BootstrapEvidence.incomplete(),
+    )
+    assert any(not point.feasible for point in restrictive.principal_feasibility.points)
+    assert (
+        "quantized_obligation_above_maximum_quantity"
+        in restrictive.principal_feasibility.points[0].reasons
+    )
+
+    capital_restrictive = derive_initial_epoch(
+        configuration=strategy(),
+        observation=observation(),
+        decision_time=DomainTime(BOUNDARY),
+        activation_price=exact("100", "price"),
+        derivation_causation_id="sha256:" + "a" * 64,
+        venue_rules=replace(venue_rules(), minimum_notional=exact("0", "quote_quantity")),
+        bootstrap_evidence=BootstrapEvidence.incomplete(),
+        admission_context=PlanAdmissionContext(
+            schema_version="plan-admission-context/v1",
+            still_effective_quote_commitment=exact("245", "quote_quantity"),
+            still_effective_inventory_commitment=exact("0", "base_quantity"),
+            still_effective_order_count=0,
+        ),
+    )
+    assert "planned_obligations_exceed_capital_envelope" in (
+        capital_restrictive.principal_feasibility.points[-1].reasons
+    )
+
+    dust_cycle = derive_initial_epoch(
+        configuration=replace(
+            strategy(),
+            fixed_quote_principal=exact("0.0104", "quote_quantity"),
+        ),
+        observation=observation(),
+        decision_time=DomainTime(BOUNDARY),
+        activation_price=exact("100", "price"),
+        derivation_causation_id="sha256:" + "a" * 64,
+        venue_rules=replace(venue_rules(), minimum_notional=exact("0", "quote_quantity")),
+        bootstrap_evidence=BootstrapEvidence.incomplete(),
+    )
+    assert dust_cycle.gates[-1].reason == "adjacent_cycle_quantity_below_minimum_quantity"
+
+    non_positive = derive(
+        configuration=replace(
+            strategy(),
+            maker_fee=exact("0.0200", "fee_rate"),
+        )
+    )
+    assert non_positive.gates[-1].reason == (
+        "adjacent_cycle_not_positive_after_fees_rounding_allowance_and_margin"
+    )
 
 
 @pytest.mark.parametrize(
