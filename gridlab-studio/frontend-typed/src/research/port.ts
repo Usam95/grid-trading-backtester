@@ -13,6 +13,8 @@ export type CanonicalAdaptivePresentation =
   components["schemas"]["CanonicalAdaptivePresentation"];
 export type SafetyPosturePresentation =
   components["schemas"]["SafetyPosturePresentation"];
+export type OperatorControlsPresentation =
+  components["schemas"]["OperatorControlsPresentation"];
 
 export interface ResearchPort {
   getConfiguration(): Promise<StudioConfiguration>;
@@ -21,6 +23,7 @@ export interface ResearchPort {
     request: CanonicalAdaptiveRequest,
   ): Promise<CanonicalAdaptivePresentation>;
   getSafetyPosture(): Promise<SafetyPosturePresentation>;
+  getOperatorControls(): Promise<OperatorControlsPresentation>;
   executeBacktest(request: RunBacktestBody): Promise<StudioBacktestRun>;
   getBacktest(runId: string): Promise<StudioBacktestRun>;
   previewProductionDataset(request: BinanceDatasetRequest): Promise<BinanceDatasetPreview>;

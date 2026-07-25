@@ -494,6 +494,122 @@ class SafetyPosturePresentation(_Block):
     venue: SafetyVenuePresentation
 
 
+class OperatorProjectionPresentation(_Block):
+    active_epoch_id: str
+    proposed_epoch_id: Optional[str]
+    transition_state: str
+    posture: Literal[
+        "NORMAL", "REDUCE_ONLY", "TERMINAL_LIQUIDATION", "FROZEN", "CLOSED"
+    ]
+
+
+class AuthoritativeInventoryBasisPresentation(_Block):
+    basis_id: str
+    source: str
+    base_asset: str
+    quantity: ExactValuePresentation
+    authoritative: bool
+    reconciled_at: Optional[datetime]
+
+
+class OperatorPreviewGatePresentation(_Block):
+    name: str
+    outcome: Literal["PASSED", "FAILED"]
+    reason: str
+
+
+class OperatorCommandPreviewPresentation(_Block):
+    action: Literal["PAUSE", "RESUME", "OPERATOR_STOP", "EMERGENCY_STOP"]
+    availability: Literal["IMMEDIATE", "PREVIEW_REQUIRED", "BLOCKED", "LATCHED"]
+    confirmation_required: bool
+    environment_bound: bool
+    idempotent: bool
+    preempts_pending_activation: bool
+    blocks_new_epoch_placement: bool
+    admission_order_preserved: bool
+    active_epoch_id: str
+    proposed_epoch_id: Optional[str]
+    transition_state: str
+    posture: Literal[
+        "NORMAL", "REDUCE_ONLY", "TERMINAL_LIQUIDATION", "FROZEN", "CLOSED"
+    ]
+    inventory_basis_id: str
+    cancel_obligation_ids: list[str]
+    retained_obligation_ids: list[str]
+    late_fill_ids: list[str]
+    gates: list[OperatorPreviewGatePresentation]
+    reason_codes: list[str]
+    available_dispositions: list[Literal["RETAIN_HOLDING", "DISPOSE"]]
+    selected_disposition: Optional[Literal["RETAIN_HOLDING", "DISPOSE"]]
+
+
+class TerminalDisposalWavePresentation(_Block):
+    wave: int
+    order_type: Literal["IOC"]
+    quantity_limit: ExactValuePresentation
+    notional_limit: ExactValuePresentation
+    max_depth_age: ExactValuePresentation
+    price_band_bps: ExactValuePresentation
+    attempt_limit: int
+    elapsed_time_limit: ExactValuePresentation
+    outcome: Literal[
+        "PARTIAL", "REJECTED", "UNKNOWN", "EXHAUSTED", "RESIDUAL_RETAINED", "COMPLETED"
+    ]
+    reconciled_before_next_wave: bool
+    authoritative_inventory_after_wave: ExactValuePresentation
+
+
+class TerminalGoldenReplayPresentation(_Block):
+    case_name: Literal[
+        "GAP_THROUGH",
+        "PARTIAL_DISPOSAL",
+        "REJECTION",
+        "UNKNOWN_OUTCOME",
+        "ATTEMPT_EXHAUSTION",
+        "RESIDUAL_HOLDINGS",
+    ]
+    outcome: str
+    replay_fingerprint: str
+
+
+class TerminalDisposalPresentation(_Block):
+    trigger: Literal["NONE", "OPERATOR_EMERGENCY", "TERMINAL_LOSS"]
+    state: Literal[
+        "NONE",
+        "AWAITING_AUTHORITATIVE_INVENTORY",
+        "DISPOSING",
+        "DISPOSED",
+        "RETAINED",
+    ]
+    global_stop_latched: bool
+    operator_emergency_latched: bool
+    automatic_liquidation: bool
+    preempts_pending_activation: bool
+    admission_order_preserved: bool
+    active_epoch_id: str
+    proposed_epoch_id: Optional[str]
+    transition_state: str
+    posture: Literal[
+        "NORMAL", "REDUCE_ONLY", "TERMINAL_LIQUIDATION", "FROZEN", "CLOSED"
+    ]
+    inventory_basis_id: str
+    waves: list[TerminalDisposalWavePresentation]
+    golden_replay_cases: list[TerminalGoldenReplayPresentation]
+
+
+class OperatorControlsPresentation(_Block):
+    schema_version: Literal["operator-controls-presentation/v1"]
+    decision_time: datetime
+    fingerprint: str
+    projection: OperatorProjectionPresentation
+    inventory_basis: AuthoritativeInventoryBasisPresentation
+    pause: OperatorCommandPreviewPresentation
+    resume: OperatorCommandPreviewPresentation
+    operator_stop: OperatorCommandPreviewPresentation
+    emergency_stop: OperatorCommandPreviewPresentation
+    terminal: TerminalDisposalPresentation
+
+
 class BinanceDatasetRequest(_Block):
     catalog_id: Optional[str] = Field(
         default=None, min_length=64, max_length=64, pattern=r"^[0-9a-f]{64}$"

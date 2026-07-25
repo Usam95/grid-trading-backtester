@@ -42,6 +42,7 @@ from backend.schemas import (
     ManifestedBacktestBody,
     MonteCarloBody,
     ProductionDatasetProvenance,
+    OperatorControlsPresentation,
     RobustnessBody,
     RunBacktestBody,
     SafetyPosturePresentation,
@@ -181,6 +182,17 @@ def safety_posture() -> SafetyPosturePresentation:
     """Present separate deterministic Ticket 09 safety and lifecycle facts."""
     return SafetyPosturePresentation.model_validate(
         _guard(service.characterize_safety_posture)
+    )
+
+
+@app.get(
+    "/api/studio/operator-controls",
+    response_model=OperatorControlsPresentation,
+)
+def operator_controls() -> OperatorControlsPresentation:
+    """Present deterministic Ticket 10 control previews and terminal disposal."""
+    return OperatorControlsPresentation.model_validate(
+        _guard(service.characterize_operator_controls)
     )
 
 

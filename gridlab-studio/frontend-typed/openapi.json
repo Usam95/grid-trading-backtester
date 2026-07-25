@@ -102,6 +102,51 @@
         "title": "ArchiveSourcePreview",
         "type": "object"
       },
+      "AuthoritativeInventoryBasisPresentation": {
+        "properties": {
+          "authoritative": {
+            "title": "Authoritative",
+            "type": "boolean"
+          },
+          "base_asset": {
+            "title": "Base Asset",
+            "type": "string"
+          },
+          "basis_id": {
+            "title": "Basis Id",
+            "type": "string"
+          },
+          "quantity": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "reconciled_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reconciled At"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          }
+        },
+        "required": [
+          "basis_id",
+          "source",
+          "base_asset",
+          "quantity",
+          "authoritative",
+          "reconciled_at"
+        ],
+        "title": "AuthoritativeInventoryBasisPresentation",
+        "type": "object"
+      },
       "BacktestOptions": {
         "properties": {
           "include_trades": {
@@ -2460,6 +2505,295 @@
         "title": "MonteCarloBody",
         "type": "object"
       },
+      "OperatorCommandPreviewPresentation": {
+        "properties": {
+          "action": {
+            "enum": [
+              "PAUSE",
+              "RESUME",
+              "OPERATOR_STOP",
+              "EMERGENCY_STOP"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "active_epoch_id": {
+            "title": "Active Epoch Id",
+            "type": "string"
+          },
+          "admission_order_preserved": {
+            "title": "Admission Order Preserved",
+            "type": "boolean"
+          },
+          "availability": {
+            "enum": [
+              "IMMEDIATE",
+              "PREVIEW_REQUIRED",
+              "BLOCKED",
+              "LATCHED"
+            ],
+            "title": "Availability",
+            "type": "string"
+          },
+          "available_dispositions": {
+            "items": {
+              "enum": [
+                "RETAIN_HOLDING",
+                "DISPOSE"
+              ],
+              "type": "string"
+            },
+            "title": "Available Dispositions",
+            "type": "array"
+          },
+          "blocks_new_epoch_placement": {
+            "title": "Blocks New Epoch Placement",
+            "type": "boolean"
+          },
+          "cancel_obligation_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Cancel Obligation Ids",
+            "type": "array"
+          },
+          "confirmation_required": {
+            "title": "Confirmation Required",
+            "type": "boolean"
+          },
+          "environment_bound": {
+            "title": "Environment Bound",
+            "type": "boolean"
+          },
+          "gates": {
+            "items": {
+              "$ref": "#/components/schemas/OperatorPreviewGatePresentation"
+            },
+            "title": "Gates",
+            "type": "array"
+          },
+          "idempotent": {
+            "title": "Idempotent",
+            "type": "boolean"
+          },
+          "inventory_basis_id": {
+            "title": "Inventory Basis Id",
+            "type": "string"
+          },
+          "late_fill_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Late Fill Ids",
+            "type": "array"
+          },
+          "posture": {
+            "enum": [
+              "NORMAL",
+              "REDUCE_ONLY",
+              "TERMINAL_LIQUIDATION",
+              "FROZEN",
+              "CLOSED"
+            ],
+            "title": "Posture",
+            "type": "string"
+          },
+          "preempts_pending_activation": {
+            "title": "Preempts Pending Activation",
+            "type": "boolean"
+          },
+          "proposed_epoch_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Proposed Epoch Id"
+          },
+          "reason_codes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Reason Codes",
+            "type": "array"
+          },
+          "retained_obligation_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Retained Obligation Ids",
+            "type": "array"
+          },
+          "selected_disposition": {
+            "anyOf": [
+              {
+                "enum": [
+                  "RETAIN_HOLDING",
+                  "DISPOSE"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Disposition"
+          },
+          "transition_state": {
+            "title": "Transition State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "action",
+          "availability",
+          "confirmation_required",
+          "environment_bound",
+          "idempotent",
+          "preempts_pending_activation",
+          "blocks_new_epoch_placement",
+          "admission_order_preserved",
+          "active_epoch_id",
+          "proposed_epoch_id",
+          "transition_state",
+          "posture",
+          "inventory_basis_id",
+          "cancel_obligation_ids",
+          "retained_obligation_ids",
+          "late_fill_ids",
+          "gates",
+          "reason_codes",
+          "available_dispositions",
+          "selected_disposition"
+        ],
+        "title": "OperatorCommandPreviewPresentation",
+        "type": "object"
+      },
+      "OperatorControlsPresentation": {
+        "properties": {
+          "decision_time": {
+            "format": "date-time",
+            "title": "Decision Time",
+            "type": "string"
+          },
+          "emergency_stop": {
+            "$ref": "#/components/schemas/OperatorCommandPreviewPresentation"
+          },
+          "fingerprint": {
+            "title": "Fingerprint",
+            "type": "string"
+          },
+          "inventory_basis": {
+            "$ref": "#/components/schemas/AuthoritativeInventoryBasisPresentation"
+          },
+          "operator_stop": {
+            "$ref": "#/components/schemas/OperatorCommandPreviewPresentation"
+          },
+          "pause": {
+            "$ref": "#/components/schemas/OperatorCommandPreviewPresentation"
+          },
+          "projection": {
+            "$ref": "#/components/schemas/OperatorProjectionPresentation"
+          },
+          "resume": {
+            "$ref": "#/components/schemas/OperatorCommandPreviewPresentation"
+          },
+          "schema_version": {
+            "const": "operator-controls-presentation/v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "terminal": {
+            "$ref": "#/components/schemas/TerminalDisposalPresentation"
+          }
+        },
+        "required": [
+          "schema_version",
+          "decision_time",
+          "fingerprint",
+          "projection",
+          "inventory_basis",
+          "pause",
+          "resume",
+          "operator_stop",
+          "emergency_stop",
+          "terminal"
+        ],
+        "title": "OperatorControlsPresentation",
+        "type": "object"
+      },
+      "OperatorPreviewGatePresentation": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "outcome": {
+            "enum": [
+              "PASSED",
+              "FAILED"
+            ],
+            "title": "Outcome",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "outcome",
+          "reason"
+        ],
+        "title": "OperatorPreviewGatePresentation",
+        "type": "object"
+      },
+      "OperatorProjectionPresentation": {
+        "properties": {
+          "active_epoch_id": {
+            "title": "Active Epoch Id",
+            "type": "string"
+          },
+          "posture": {
+            "enum": [
+              "NORMAL",
+              "REDUCE_ONLY",
+              "TERMINAL_LIQUIDATION",
+              "FROZEN",
+              "CLOSED"
+            ],
+            "title": "Posture",
+            "type": "string"
+          },
+          "proposed_epoch_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Proposed Epoch Id"
+          },
+          "transition_state": {
+            "title": "Transition State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "active_epoch_id",
+          "proposed_epoch_id",
+          "transition_state",
+          "posture"
+        ],
+        "title": "OperatorProjectionPresentation",
+        "type": "object"
+      },
       "ParquetField": {
         "properties": {
           "name": {
@@ -3284,6 +3618,213 @@
         "title": "StudioVerdict",
         "type": "object"
       },
+      "TerminalDisposalPresentation": {
+        "properties": {
+          "active_epoch_id": {
+            "title": "Active Epoch Id",
+            "type": "string"
+          },
+          "admission_order_preserved": {
+            "title": "Admission Order Preserved",
+            "type": "boolean"
+          },
+          "automatic_liquidation": {
+            "title": "Automatic Liquidation",
+            "type": "boolean"
+          },
+          "global_stop_latched": {
+            "title": "Global Stop Latched",
+            "type": "boolean"
+          },
+          "golden_replay_cases": {
+            "items": {
+              "$ref": "#/components/schemas/TerminalGoldenReplayPresentation"
+            },
+            "title": "Golden Replay Cases",
+            "type": "array"
+          },
+          "inventory_basis_id": {
+            "title": "Inventory Basis Id",
+            "type": "string"
+          },
+          "operator_emergency_latched": {
+            "title": "Operator Emergency Latched",
+            "type": "boolean"
+          },
+          "posture": {
+            "enum": [
+              "NORMAL",
+              "REDUCE_ONLY",
+              "TERMINAL_LIQUIDATION",
+              "FROZEN",
+              "CLOSED"
+            ],
+            "title": "Posture",
+            "type": "string"
+          },
+          "preempts_pending_activation": {
+            "title": "Preempts Pending Activation",
+            "type": "boolean"
+          },
+          "proposed_epoch_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Proposed Epoch Id"
+          },
+          "state": {
+            "enum": [
+              "NONE",
+              "AWAITING_AUTHORITATIVE_INVENTORY",
+              "DISPOSING",
+              "DISPOSED",
+              "RETAINED"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "transition_state": {
+            "title": "Transition State",
+            "type": "string"
+          },
+          "trigger": {
+            "enum": [
+              "NONE",
+              "OPERATOR_EMERGENCY",
+              "TERMINAL_LOSS"
+            ],
+            "title": "Trigger",
+            "type": "string"
+          },
+          "waves": {
+            "items": {
+              "$ref": "#/components/schemas/TerminalDisposalWavePresentation"
+            },
+            "title": "Waves",
+            "type": "array"
+          }
+        },
+        "required": [
+          "trigger",
+          "state",
+          "global_stop_latched",
+          "operator_emergency_latched",
+          "automatic_liquidation",
+          "preempts_pending_activation",
+          "admission_order_preserved",
+          "active_epoch_id",
+          "proposed_epoch_id",
+          "transition_state",
+          "posture",
+          "inventory_basis_id",
+          "waves",
+          "golden_replay_cases"
+        ],
+        "title": "TerminalDisposalPresentation",
+        "type": "object"
+      },
+      "TerminalDisposalWavePresentation": {
+        "properties": {
+          "attempt_limit": {
+            "title": "Attempt Limit",
+            "type": "integer"
+          },
+          "authoritative_inventory_after_wave": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "elapsed_time_limit": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "max_depth_age": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "notional_limit": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "order_type": {
+            "const": "IOC",
+            "title": "Order Type",
+            "type": "string"
+          },
+          "outcome": {
+            "enum": [
+              "PARTIAL",
+              "REJECTED",
+              "UNKNOWN",
+              "EXHAUSTED",
+              "RESIDUAL_RETAINED",
+              "COMPLETED"
+            ],
+            "title": "Outcome",
+            "type": "string"
+          },
+          "price_band_bps": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "quantity_limit": {
+            "$ref": "#/components/schemas/ExactValuePresentation"
+          },
+          "reconciled_before_next_wave": {
+            "title": "Reconciled Before Next Wave",
+            "type": "boolean"
+          },
+          "wave": {
+            "title": "Wave",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "wave",
+          "order_type",
+          "quantity_limit",
+          "notional_limit",
+          "max_depth_age",
+          "price_band_bps",
+          "attempt_limit",
+          "elapsed_time_limit",
+          "outcome",
+          "reconciled_before_next_wave",
+          "authoritative_inventory_after_wave"
+        ],
+        "title": "TerminalDisposalWavePresentation",
+        "type": "object"
+      },
+      "TerminalGoldenReplayPresentation": {
+        "properties": {
+          "case_name": {
+            "enum": [
+              "GAP_THROUGH",
+              "PARTIAL_DISPOSAL",
+              "REJECTION",
+              "UNKNOWN_OUTCOME",
+              "ATTEMPT_EXHAUSTION",
+              "RESIDUAL_HOLDINGS"
+            ],
+            "title": "Case Name",
+            "type": "string"
+          },
+          "outcome": {
+            "title": "Outcome",
+            "type": "string"
+          },
+          "replay_fingerprint": {
+            "title": "Replay Fingerprint",
+            "type": "string"
+          }
+        },
+        "required": [
+          "case_name",
+          "outcome",
+          "replay_fingerprint"
+        ],
+        "title": "TerminalGoldenReplayPresentation",
+        "type": "object"
+      },
       "ValidationError": {
         "properties": {
           "ctx": {
@@ -4010,6 +4551,25 @@
           }
         },
         "summary": "Get Studio Dataset"
+      }
+    },
+    "/api/studio/operator-controls": {
+      "get": {
+        "description": "Present deterministic Ticket 10 control previews and terminal disposal.",
+        "operationId": "operator_controls_api_studio_operator_controls_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperatorControlsPresentation"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Operator Controls"
       }
     },
     "/api/studio/safety-posture": {

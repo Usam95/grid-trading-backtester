@@ -6,6 +6,7 @@ import type {
   CanonicalAdaptivePresentation,
   DatasetManifest,
   ManifestedBacktestBody,
+  OperatorControlsPresentation,
   ResearchPort,
   RunBacktestBody,
   SafetyPosturePresentation,
@@ -489,6 +490,7 @@ function ResearchWorkspace({ research }: { research: ResearchPort }) {
 
 function OperationsWorkspace({ research }: { research: ResearchPort }) {
   const [presentation, setPresentation] = useState<SafetyPosturePresentation>();
+  const [controls, setControls] = useState<OperatorControlsPresentation>();
   const [error, setError] = useState<string>();
   useEffect(() => {
     let current = true;
@@ -496,6 +498,11 @@ function OperationsWorkspace({ research }: { research: ResearchPort }) {
       .then((value) => current && setPresentation(value))
       .catch((reason: unknown) => current && setError(
         reason instanceof Error ? reason.message : "Safety posture unavailable",
+      ));
+    research.getOperatorControls()
+      .then((value) => current && setControls(value))
+      .catch((reason: unknown) => current && setError(
+        reason instanceof Error ? reason.message : "Operator controls unavailable",
       ));
     return () => { current = false; };
   }, [research]);
@@ -524,6 +531,26 @@ function OperationsWorkspace({ research }: { research: ResearchPort }) {
         <div><strong>Allowed command classes</strong><span>{presentation.safety.allowed_command_classes.join(" · ")}</span></div>
         <div><strong>Clock evidence</strong><span>{presentation.safety.clock_offset.value}s offset · {presentation.safety.scheduling_delay.value}s scheduling delay · {presentation.safety.round_trip_latency.value}s observation round trip</span></div>
         <div><strong>Capital evidence</strong><span>{presentation.capital.committed_principal.value} / {presentation.capital.capital_envelope.value} quote committed · {presentation.capital.fee_reserve.value} fee reserve</span></div>
+      </div>
+    </section>}
+    {controls && <section className="production-data" aria-labelledby="operator-controls-heading">
+      <div className="result-heading">
+        <div><p className="eyebrow">Canonical operator lifecycle</p><h2 id="operator-controls-heading">Operate controls and terminal disposal</h2></div>
+        <span className="scope">{controls.projection.transition_state}</span>
+      </div>
+      <div className="production-provenance">
+        <span>Deterministic control fingerprint</span><code>{controls.fingerprint}</code>
+        <div><strong>Active epoch</strong><span>{controls.projection.active_epoch_id}</span></div>
+        <div><strong>Proposed epoch</strong><span>{controls.projection.proposed_epoch_id ?? "none"}</span></div>
+        <div><strong>Posture</strong><span>{controls.projection.posture}</span></div>
+        <div><strong>Inventory basis</strong><span>{controls.inventory_basis.quantity.value} {controls.inventory_basis.base_asset} · {controls.inventory_basis.source}</span></div>
+        <div><strong>Pause</strong><span>{controls.pause.availability} · cancel {controls.pause.cancel_obligation_ids.length} obligations · retain {controls.pause.retained_obligation_ids.length}</span></div>
+        <div><strong>Resume</strong><span>{controls.resume.availability} · {controls.resume.gates.filter((gate) => gate.outcome === "FAILED").map((gate) => gate.name).join(" · ")}</span></div>
+        <div><strong>Operator Stop</strong><span>{controls.operator_stop.availability} · {controls.operator_stop.selected_disposition ?? "DISPOSITION REQUIRED"} · {controls.operator_stop.late_fill_ids.length} late fills admitted</span></div>
+        <div><strong>Emergency Stop</strong><span>{controls.emergency_stop.availability} · {controls.emergency_stop.idempotent ? "IDEMPOTENT" : "NON-IDEMPOTENT"} · {controls.emergency_stop.environment_bound ? "ENVIRONMENT-BOUND" : "UNSCOPED"}</span></div>
+        <div><strong>Terminal trigger</strong><span>{controls.terminal.trigger} · {controls.terminal.state}</span></div>
+        <div><strong>Terminal disposal waves</strong><span>{controls.terminal.waves.map((wave) => `W${wave.wave} ${wave.order_type} ${wave.outcome}`).join(" · ")}</span></div>
+        <div><strong>Golden replay cases</strong><span>{controls.terminal.golden_replay_cases.map((item) => item.case_name).join(" · ")}</span></div>
       </div>
     </section>}
   </main>;

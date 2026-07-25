@@ -6,6 +6,7 @@ import type {
   CanonicalAdaptiveRequest,
   DatasetManifest,
   ManifestedBacktestBody,
+  OperatorControlsPresentation,
   ResearchPort,
   RunBacktestBody,
   SafetyPosturePresentation,
@@ -49,6 +50,10 @@ export class FastApiResearchClient implements ResearchPort {
 
   async getSafetyPosture(): Promise<SafetyPosturePresentation> {
     return jsonResponse(fetch("/api/studio/safety-posture"));
+  }
+
+  async getOperatorControls(): Promise<OperatorControlsPresentation> {
+    return jsonResponse(fetch("/api/studio/operator-controls"));
   }
 
   async executeBacktest(request: RunBacktestBody): Promise<StudioBacktestRun> {

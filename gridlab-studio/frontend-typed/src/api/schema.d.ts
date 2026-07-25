@@ -334,6 +334,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/studio/operator-controls": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Operator Controls
+         * @description Present deterministic Ticket 10 control previews and terminal disposal.
+         */
+        get: operations["operator_controls_api_studio_operator_controls_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/studio/safety-posture": {
         parameters: {
             query?: never;
@@ -398,6 +418,20 @@ export interface components {
             expected_sha256: string;
             /** Url */
             url: string;
+        };
+        /** AuthoritativeInventoryBasisPresentation */
+        AuthoritativeInventoryBasisPresentation: {
+            /** Authoritative */
+            authoritative: boolean;
+            /** Base Asset */
+            base_asset: string;
+            /** Basis Id */
+            basis_id: string;
+            quantity: components["schemas"]["ExactValuePresentation"];
+            /** Reconciled At */
+            reconciled_at: string | null;
+            /** Source */
+            source: string;
         };
         /** BacktestOptions */
         BacktestOptions: {
@@ -1238,6 +1272,106 @@ export interface components {
              */
             seed: number;
         };
+        /** OperatorCommandPreviewPresentation */
+        OperatorCommandPreviewPresentation: {
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "PAUSE" | "RESUME" | "OPERATOR_STOP" | "EMERGENCY_STOP";
+            /** Active Epoch Id */
+            active_epoch_id: string;
+            /** Admission Order Preserved */
+            admission_order_preserved: boolean;
+            /**
+             * Availability
+             * @enum {string}
+             */
+            availability: "IMMEDIATE" | "PREVIEW_REQUIRED" | "BLOCKED" | "LATCHED";
+            /** Available Dispositions */
+            available_dispositions: ("RETAIN_HOLDING" | "DISPOSE")[];
+            /** Blocks New Epoch Placement */
+            blocks_new_epoch_placement: boolean;
+            /** Cancel Obligation Ids */
+            cancel_obligation_ids: string[];
+            /** Confirmation Required */
+            confirmation_required: boolean;
+            /** Environment Bound */
+            environment_bound: boolean;
+            /** Gates */
+            gates: components["schemas"]["OperatorPreviewGatePresentation"][];
+            /** Idempotent */
+            idempotent: boolean;
+            /** Inventory Basis Id */
+            inventory_basis_id: string;
+            /** Late Fill Ids */
+            late_fill_ids: string[];
+            /**
+             * Posture
+             * @enum {string}
+             */
+            posture: "NORMAL" | "REDUCE_ONLY" | "TERMINAL_LIQUIDATION" | "FROZEN" | "CLOSED";
+            /** Preempts Pending Activation */
+            preempts_pending_activation: boolean;
+            /** Proposed Epoch Id */
+            proposed_epoch_id: string | null;
+            /** Reason Codes */
+            reason_codes: string[];
+            /** Retained Obligation Ids */
+            retained_obligation_ids: string[];
+            /** Selected Disposition */
+            selected_disposition: ("RETAIN_HOLDING" | "DISPOSE") | null;
+            /** Transition State */
+            transition_state: string;
+        };
+        /** OperatorControlsPresentation */
+        OperatorControlsPresentation: {
+            /**
+             * Decision Time
+             * Format: date-time
+             */
+            decision_time: string;
+            emergency_stop: components["schemas"]["OperatorCommandPreviewPresentation"];
+            /** Fingerprint */
+            fingerprint: string;
+            inventory_basis: components["schemas"]["AuthoritativeInventoryBasisPresentation"];
+            operator_stop: components["schemas"]["OperatorCommandPreviewPresentation"];
+            pause: components["schemas"]["OperatorCommandPreviewPresentation"];
+            projection: components["schemas"]["OperatorProjectionPresentation"];
+            resume: components["schemas"]["OperatorCommandPreviewPresentation"];
+            /**
+             * Schema Version
+             * @constant
+             */
+            schema_version: "operator-controls-presentation/v1";
+            terminal: components["schemas"]["TerminalDisposalPresentation"];
+        };
+        /** OperatorPreviewGatePresentation */
+        OperatorPreviewGatePresentation: {
+            /** Name */
+            name: string;
+            /**
+             * Outcome
+             * @enum {string}
+             */
+            outcome: "PASSED" | "FAILED";
+            /** Reason */
+            reason: string;
+        };
+        /** OperatorProjectionPresentation */
+        OperatorProjectionPresentation: {
+            /** Active Epoch Id */
+            active_epoch_id: string;
+            /**
+             * Posture
+             * @enum {string}
+             */
+            posture: "NORMAL" | "REDUCE_ONLY" | "TERMINAL_LIQUIDATION" | "FROZEN" | "CLOSED";
+            /** Proposed Epoch Id */
+            proposed_epoch_id: string | null;
+            /** Transition State */
+            transition_state: string;
+        };
         /** ParquetField */
         ParquetField: {
             /** Name */
@@ -1543,6 +1677,83 @@ export interface components {
              * @enum {string}
              */
             tone: "good" | "warn" | "bad";
+        };
+        /** TerminalDisposalPresentation */
+        TerminalDisposalPresentation: {
+            /** Active Epoch Id */
+            active_epoch_id: string;
+            /** Admission Order Preserved */
+            admission_order_preserved: boolean;
+            /** Automatic Liquidation */
+            automatic_liquidation: boolean;
+            /** Global Stop Latched */
+            global_stop_latched: boolean;
+            /** Golden Replay Cases */
+            golden_replay_cases: components["schemas"]["TerminalGoldenReplayPresentation"][];
+            /** Inventory Basis Id */
+            inventory_basis_id: string;
+            /** Operator Emergency Latched */
+            operator_emergency_latched: boolean;
+            /**
+             * Posture
+             * @enum {string}
+             */
+            posture: "NORMAL" | "REDUCE_ONLY" | "TERMINAL_LIQUIDATION" | "FROZEN" | "CLOSED";
+            /** Preempts Pending Activation */
+            preempts_pending_activation: boolean;
+            /** Proposed Epoch Id */
+            proposed_epoch_id: string | null;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "NONE" | "AWAITING_AUTHORITATIVE_INVENTORY" | "DISPOSING" | "DISPOSED" | "RETAINED";
+            /** Transition State */
+            transition_state: string;
+            /**
+             * Trigger
+             * @enum {string}
+             */
+            trigger: "NONE" | "OPERATOR_EMERGENCY" | "TERMINAL_LOSS";
+            /** Waves */
+            waves: components["schemas"]["TerminalDisposalWavePresentation"][];
+        };
+        /** TerminalDisposalWavePresentation */
+        TerminalDisposalWavePresentation: {
+            /** Attempt Limit */
+            attempt_limit: number;
+            authoritative_inventory_after_wave: components["schemas"]["ExactValuePresentation"];
+            elapsed_time_limit: components["schemas"]["ExactValuePresentation"];
+            max_depth_age: components["schemas"]["ExactValuePresentation"];
+            notional_limit: components["schemas"]["ExactValuePresentation"];
+            /**
+             * Order Type
+             * @constant
+             */
+            order_type: "IOC";
+            /**
+             * Outcome
+             * @enum {string}
+             */
+            outcome: "PARTIAL" | "REJECTED" | "UNKNOWN" | "EXHAUSTED" | "RESIDUAL_RETAINED" | "COMPLETED";
+            price_band_bps: components["schemas"]["ExactValuePresentation"];
+            quantity_limit: components["schemas"]["ExactValuePresentation"];
+            /** Reconciled Before Next Wave */
+            reconciled_before_next_wave: boolean;
+            /** Wave */
+            wave: number;
+        };
+        /** TerminalGoldenReplayPresentation */
+        TerminalGoldenReplayPresentation: {
+            /**
+             * Case Name
+             * @enum {string}
+             */
+            case_name: "GAP_THROUGH" | "PARTIAL_DISPOSAL" | "REJECTION" | "UNKNOWN_OUTCOME" | "ATTEMPT_EXHAUSTION" | "RESIDUAL_HOLDINGS";
+            /** Outcome */
+            outcome: string;
+            /** Replay Fingerprint */
+            replay_fingerprint: string;
         };
         /** ValidationError */
         ValidationError: {
@@ -2145,6 +2356,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    operator_controls_api_studio_operator_controls_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OperatorControlsPresentation"];
                 };
             };
         };

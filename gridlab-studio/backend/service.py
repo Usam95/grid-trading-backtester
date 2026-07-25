@@ -37,6 +37,16 @@ from gridlab.canonical.adaptation import (
 from gridlab.canonical.configuration import Spacing
 from gridlab.canonical.events import CanonicalEvent, DomainTime
 from gridlab.canonical.initial_epoch import BootstrapEvidence, derive_initial_epoch
+from gridlab.canonical.operator_controls import (
+    GoldenReplayCase,
+    InventoryBasis,
+    ManagedObligation,
+    OperatorControlFacts,
+    StopDisposition,
+    TerminalDisposalWave,
+    TerminalWaveOutcome,
+    evaluate_operator_controls,
+)
 from gridlab.canonical.safety import (
     CapitalCommitmentFacts,
     ClockEvidence,
@@ -258,6 +268,344 @@ def characterize_safety_posture() -> dict[str, Any]:
             if venue.wind_down_deadline is not None
             else None,
         },
+    }
+
+
+def characterize_operator_controls() -> dict[str, Any]:
+    """Present deterministic Ticket 10 operator previews and terminal disposal facts."""
+    decision_time = DomainTime(pd.Timestamp("2025-01-02T12:05:00Z").to_pydatetime())
+    safety = evaluate_safety_posture(
+        decision_time=decision_time,
+        capital=CapitalCommitmentFacts(
+            schema_version="capital-commitment-facts/v1",
+            allocation_fingerprint=content_identity(
+                "allocation-projection/v2",
+                {"run_id": "run:ticket-10", "allocation_id": "allocation:ticket-10"},
+            ),
+            epoch_id=content_identity(
+                "grid-plan-epoch/v1",
+                {"configuration_id": "ticket-10", "observation_id": "active"},
+            ),
+            capital_envelope=ExactDecimal.parse("250.00", kind="quote_quantity"),
+            committed_principal=ExactDecimal.parse("210.00", kind="quote_quantity"),
+            fee_reserve=ExactDecimal.parse("8.00", kind="quote_quantity"),
+            projected_obligation_fees=ExactDecimal.parse("2.00", kind="quote_quantity"),
+            projected_terminal_fees=ExactDecimal.parse("1.00", kind="quote_quantity"),
+            exposure_increasing_buy_principals=(
+                ExactDecimal.parse("20.00", kind="quote_quantity"),
+            ),
+            effective_managed_orders=6,
+            foreign_open_orders=1,
+            authenticated_order_limit=100,
+            current_inventory=ExactDecimal.parse("0.80000000", kind="base_quantity"),
+            pending_buy_inventory=ExactDecimal.parse(
+                "0.00000000", kind="base_quantity"
+            ),
+            transition_bootstrap_inventory=ExactDecimal.parse(
+                "0.00000000", kind="base_quantity"
+            ),
+            proposed_maximum_inventory=ExactDecimal.parse(
+                "0.80000000", kind="base_quantity"
+            ),
+            maximum_planned_inventory=ExactDecimal.parse(
+                "1.00000000", kind="base_quantity"
+            ),
+        ),
+        loss=LossFacts(
+            schema_version="loss-facts/v1",
+            initial_equity=ExactDecimal.parse("250.00", kind="quote_quantity"),
+            risk_day_baseline=ExactDecimal.parse("250.00", kind="quote_quantity"),
+            run_high_water_mark=ExactDecimal.parse("250.00", kind="quote_quantity"),
+            conservative_liquidation_equity=ExactDecimal.parse(
+                "249.00", kind="quote_quantity"
+            ),
+            prior_daily_loss_latched=False,
+            prior_run_drawdown_latched=False,
+            guardrail_recovery_approved=False,
+            global_stop_latched=False,
+        ),
+        freshness=tuple(
+            FreshnessEvidence(
+                schema_version="freshness-evidence/v1",
+                evidence_class=evidence_class,
+                condition=EvidenceCondition.HEALTHY,
+                observed_at=DomainTime(decision_time.value - timedelta(seconds=2)),
+                evidence_id=content_identity(
+                    "freshness-evidence/v1",
+                    {"class": evidence_class, "decision_time": decision_time},
+                ),
+            )
+            for evidence_class in EvidenceClass
+        ),
+        clock=ClockEvidence(
+            schema_version="clock-evidence/v1",
+            condition=EvidenceCondition.HEALTHY,
+            request_sent_at=DomainTime(
+                decision_time.value - timedelta(milliseconds=200)
+            ),
+            response_received_at=decision_time,
+            venue_time=DomainTime(decision_time.value - timedelta(milliseconds=50)),
+            scheduling_delay=ExactDecimal.parse("0.025000", kind="duration_seconds"),
+            authenticated_timestamp_rejected=False,
+            evidence_id=content_identity(
+                "clock-evidence/v1", {"decision_time": decision_time}
+            ),
+        ),
+        lifecycle=LifecycleFacts(
+            schema_version="lifecycle-facts/v1",
+            grid_lifecycle="ACTIVE",
+            adaptation_state=AdaptationState.RANGE_NORMAL,
+            epoch_transition_state="ACTIVATION_PENDING",
+            runtime_lifecycle="OPERATING",
+            reconciliation_state="RECONCILED",
+        ),
+        recovery=SafetyRecoveryFacts(
+            schema_version="safety-recovery-facts/v1",
+            prior_frozen_latched=False,
+            frozen_recovery_approved=False,
+        ),
+        range_condition=RangeCondition.IN_RANGE,
+        recovery_obligations=(),
+        venue=VenueConditionEvidence.trading(),
+        prior_global_stop_latched=False,
+    )
+    active_epoch_id = content_identity(
+        "grid-plan-epoch/v1",
+        {"configuration_id": "ticket-10", "observation_id": "active"},
+    )
+    proposed_epoch_id = content_identity(
+        "grid-plan-epoch/v1",
+        {"configuration_id": "ticket-10", "observation_id": "proposed"},
+    )
+    evaluation = evaluate_operator_controls(
+        OperatorControlFacts(
+            decision_time=decision_time,
+            environment="paper",
+            active_epoch_id=active_epoch_id,
+            proposed_epoch_id=proposed_epoch_id,
+            transition_state="ACTIVATION_PENDING",
+            activation_pending=True,
+            paused=True,
+            safety=safety,
+            managed_obligations=(
+                ManagedObligation(
+                    obligation_id=content_identity(
+                        "managed-obligation/v1",
+                        {"epoch_id": active_epoch_id, "rung": 1, "side": "BUY"},
+                    ),
+                    side="BUY",
+                    exposure_increasing=True,
+                    inventory_reducing=False,
+                    fully_backed=False,
+                ),
+                ManagedObligation(
+                    obligation_id=content_identity(
+                        "managed-obligation/v1",
+                        {"epoch_id": active_epoch_id, "rung": 2, "side": "BUY"},
+                    ),
+                    side="BUY",
+                    exposure_increasing=True,
+                    inventory_reducing=False,
+                    fully_backed=False,
+                ),
+                ManagedObligation(
+                    obligation_id=content_identity(
+                        "managed-obligation/v1",
+                        {"epoch_id": active_epoch_id, "rung": 3, "side": "SELL"},
+                    ),
+                    side="SELL",
+                    exposure_increasing=False,
+                    inventory_reducing=True,
+                    fully_backed=True,
+                ),
+            ),
+            inventory_basis=InventoryBasis(
+                basis_id=content_identity(
+                    "authoritative-inventory-basis/v1",
+                    {"epoch_id": active_epoch_id, "decision_time": decision_time},
+                ),
+                source="reconciliation-ledger",
+                base_asset="BTC",
+                quantity=ExactDecimal.parse("0.80000000", kind="base_quantity"),
+                authoritative=True,
+                reconciled_at=decision_time,
+            ),
+            resume_evidence_current=False,
+            resume_reconciliation_ok=False,
+            resume_invariants_ok=True,
+            resume_plan_valid=True,
+            resume_authority_ok=False,
+            operator_stop_disposition=StopDisposition.DISPOSE,
+            late_fill_ids=(
+                content_identity(
+                    "late-fill/v1",
+                    {"epoch_id": active_epoch_id, "fill": "late-1"},
+                ),
+            ),
+            emergency_stop_requested=False,
+            prior_operator_emergency_latched=False,
+            disposal_waves=(
+                TerminalDisposalWave(
+                    wave=1,
+                    quantity_limit=ExactDecimal.parse(
+                        "0.50000000", kind="base_quantity"
+                    ),
+                    notional_limit=ExactDecimal.parse("50.00", kind="quote_quantity"),
+                    max_depth_age=ExactDecimal.parse(
+                        "3.000000", kind="duration_seconds"
+                    ),
+                    price_band_bps=ExactDecimal.parse("35", kind="basis_points"),
+                    attempt_limit=2,
+                    elapsed_time_limit=ExactDecimal.parse(
+                        "15.000000", kind="duration_seconds"
+                    ),
+                    outcome=TerminalWaveOutcome.PARTIAL,
+                    reconciled_before_next_wave=True,
+                    authoritative_inventory_after_wave=ExactDecimal.parse(
+                        "0.30000000", kind="base_quantity"
+                    ),
+                ),
+                TerminalDisposalWave(
+                    wave=2,
+                    quantity_limit=ExactDecimal.parse(
+                        "0.30000000", kind="base_quantity"
+                    ),
+                    notional_limit=ExactDecimal.parse("30.00", kind="quote_quantity"),
+                    max_depth_age=ExactDecimal.parse(
+                        "3.000000", kind="duration_seconds"
+                    ),
+                    price_band_bps=ExactDecimal.parse("45", kind="basis_points"),
+                    attempt_limit=3,
+                    elapsed_time_limit=ExactDecimal.parse(
+                        "20.000000", kind="duration_seconds"
+                    ),
+                    outcome=TerminalWaveOutcome.COMPLETED,
+                    reconciled_before_next_wave=True,
+                    authoritative_inventory_after_wave=ExactDecimal.parse(
+                        "0.00000000", kind="base_quantity"
+                    ),
+                ),
+            ),
+            golden_replay_cases=tuple(
+                GoldenReplayCase(
+                    case_name=case_name,
+                    outcome=outcome,
+                    replay_fingerprint=content_identity(
+                        "terminal-disposal-replay/v1",
+                        {"case_name": case_name},
+                    ),
+                )
+                for case_name, outcome in (
+                    ("GAP_THROUGH", "IOC walks accepted price band and reconciles"),
+                    ("PARTIAL_DISPOSAL", "partial fill reconciles before next wave"),
+                    ("REJECTION", "venue rejection remains bounded and terminal"),
+                    (
+                        "UNKNOWN_OUTCOME",
+                        "unknown child outcome freezes until reconciliation",
+                    ),
+                    ("ATTEMPT_EXHAUSTION", "attempt limit retains bounded residual"),
+                    ("RESIDUAL_HOLDINGS", "dust remains retained with provenance"),
+                )
+            ),
+        )
+    )
+    inventory_basis = evaluation.pause.inventory_basis_id
+    return {
+        "schema_version": "operator-controls-presentation/v1",
+        "decision_time": decision_time.identity_payload(),
+        "fingerprint": evaluation.fingerprint,
+        "projection": {
+            "active_epoch_id": active_epoch_id,
+            "proposed_epoch_id": proposed_epoch_id,
+            "transition_state": "ACTIVATION_PENDING",
+            "posture": evaluation.pause.posture,
+        },
+        "inventory_basis": {
+            "basis_id": inventory_basis,
+            "source": "reconciliation-ledger",
+            "base_asset": "BTC",
+            "quantity": {"kind": "base_quantity", "value": "0.80000000"},
+            "authoritative": True,
+            "reconciled_at": decision_time.identity_payload(),
+        },
+        "pause": _operator_preview_payload(evaluation.pause),
+        "resume": _operator_preview_payload(evaluation.resume),
+        "operator_stop": _operator_preview_payload(evaluation.operator_stop),
+        "emergency_stop": _operator_preview_payload(evaluation.emergency_stop),
+        "terminal": {
+            "trigger": evaluation.terminal.trigger.value,
+            "state": evaluation.terminal.state.value,
+            "global_stop_latched": evaluation.terminal.global_stop_latched,
+            "operator_emergency_latched": evaluation.terminal.operator_emergency_latched,
+            "automatic_liquidation": evaluation.terminal.automatic_liquidation,
+            "preempts_pending_activation": evaluation.terminal.preempts_pending_activation,
+            "admission_order_preserved": evaluation.terminal.admission_order_preserved,
+            "active_epoch_id": evaluation.terminal.active_epoch_id,
+            "proposed_epoch_id": evaluation.terminal.proposed_epoch_id,
+            "transition_state": evaluation.terminal.transition_state,
+            "posture": evaluation.terminal.posture,
+            "inventory_basis_id": evaluation.terminal.inventory_basis_id,
+            "waves": [
+                {
+                    "wave": wave.wave,
+                    "order_type": "IOC",
+                    "quantity_limit": wave.quantity_limit.to_payload(),
+                    "notional_limit": wave.notional_limit.to_payload(),
+                    "max_depth_age": wave.max_depth_age.to_payload(),
+                    "price_band_bps": wave.price_band_bps.to_payload(),
+                    "attempt_limit": wave.attempt_limit,
+                    "elapsed_time_limit": wave.elapsed_time_limit.to_payload(),
+                    "outcome": wave.outcome.value,
+                    "reconciled_before_next_wave": wave.reconciled_before_next_wave,
+                    "authoritative_inventory_after_wave": (
+                        wave.authoritative_inventory_after_wave.to_payload()
+                    ),
+                }
+                for wave in evaluation.terminal.waves
+            ],
+            "golden_replay_cases": [
+                {
+                    "case_name": case.case_name,
+                    "outcome": case.outcome,
+                    "replay_fingerprint": case.replay_fingerprint,
+                }
+                for case in evaluation.terminal.golden_replay_cases
+            ],
+        },
+    }
+
+
+def _operator_preview_payload(preview: Any) -> dict[str, Any]:
+    return {
+        "action": preview.action,
+        "availability": preview.availability.value,
+        "confirmation_required": preview.confirmation_required,
+        "environment_bound": preview.environment_bound,
+        "idempotent": preview.idempotent,
+        "preempts_pending_activation": preview.preempts_pending_activation,
+        "blocks_new_epoch_placement": preview.blocks_new_epoch_placement,
+        "admission_order_preserved": preview.admission_order_preserved,
+        "active_epoch_id": preview.active_epoch_id,
+        "proposed_epoch_id": preview.proposed_epoch_id,
+        "transition_state": preview.transition_state,
+        "posture": preview.posture,
+        "inventory_basis_id": preview.inventory_basis_id,
+        "cancel_obligation_ids": list(preview.cancel_obligation_ids),
+        "retained_obligation_ids": list(preview.retained_obligation_ids),
+        "late_fill_ids": list(preview.late_fill_ids),
+        "gates": [
+            {"name": gate.name, "outcome": gate.outcome.value, "reason": gate.reason}
+            for gate in preview.gates
+        ],
+        "reason_codes": list(preview.reason_codes),
+        "available_dispositions": [
+            disposition.value for disposition in preview.available_dispositions
+        ],
+        "selected_disposition": (
+            preview.selected_disposition.value
+            if preview.selected_disposition is not None
+            else None
+        ),
     }
 
 

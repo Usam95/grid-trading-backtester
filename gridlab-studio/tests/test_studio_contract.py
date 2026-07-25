@@ -216,6 +216,48 @@ def test_safety_posture_contract_is_typed_separate_and_deterministic() -> None:
     }
 
 
+def test_operator_control_contract_is_typed_and_identifies_projection_basis() -> None:
+    with TestClient(app) as client:
+        first = client.get("/api/studio/operator-controls")
+        second = client.get("/api/studio/operator-controls")
+
+    assert first.status_code == 200, first.text
+    assert first.json() == second.json()
+    payload = first.json()
+    assert payload["projection"]["transition_state"] == "ACTIVATION_PENDING"
+    assert payload["projection"]["posture"] == "NORMAL"
+    assert payload["inventory_basis"] == {
+        "basis_id": payload["pause"]["inventory_basis_id"],
+        "source": "reconciliation-ledger",
+        "base_asset": "BTC",
+        "quantity": {"kind": "base_quantity", "value": "0.80000000"},
+        "authoritative": True,
+        "reconciled_at": "2025-01-02T12:05:00Z",
+    }
+    assert payload["pause"]["availability"] == "LATCHED"
+    assert payload["pause"]["retained_obligation_ids"]
+    assert payload["resume"]["availability"] == "BLOCKED"
+    assert payload["operator_stop"]["selected_disposition"] == "DISPOSE"
+    assert payload["terminal"]["state"] == "DISPOSED"
+    assert len(payload["terminal"]["waves"]) == 2
+    assert {
+        case["case_name"] for case in payload["terminal"]["golden_replay_cases"]
+    } == {
+        "GAP_THROUGH",
+        "PARTIAL_DISPOSAL",
+        "REJECTION",
+        "UNKNOWN_OUTCOME",
+        "ATTEMPT_EXHAUSTION",
+        "RESIDUAL_HOLDINGS",
+    }
+    schema = app.openapi()
+    assert schema["paths"]["/api/studio/operator-controls"]["get"]["responses"]["200"][
+        "content"
+    ]["application/json"]["schema"] == {
+        "$ref": "#/components/schemas/OperatorControlsPresentation"
+    }
+
+
 def test_initial_epoch_contract_supports_arithmetic_and_blocks_boundaries() -> None:
     request = {
         "symbol": "BTCEUR",
