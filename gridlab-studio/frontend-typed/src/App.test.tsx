@@ -106,6 +106,14 @@ const completedRun: StudioBacktestRun = {
     },
     verdict: { label: "Strong", tone: "good", score: 6, max_score: 7 },
     trades: [],
+    simulation: {
+      mode: "candle",
+      canonical_core: false,
+      venue_execution_proof: false,
+      limitations: [
+        "Normal orders become eligible only from the candle after they begin resting.",
+      ],
+    },
   },
 };
 
@@ -671,6 +679,8 @@ describe("typed Studio shell", () => {
     expect(screen.getByText("+3.12%")).toBeTruthy();
     expect(screen.getByText("10,312.00 USDT")).toBeTruthy();
     expect(screen.getByText("run-typed-001")).toBeTruthy();
+    expect(screen.getByText("CANDLE SIMULATION ONLY")).toBeTruthy();
+    expect(screen.getByText("NOT VENUE EXECUTION PROOF")).toBeTruthy();
   });
 
   it("presents the obligation-backed adaptive initial epoch and activation gates", async () => {

@@ -189,6 +189,14 @@ class StudioBacktestResult(_Block):
     metrics: StudioMetrics
     verdict: StudioVerdict
     trades: list[dict[str, Any]]
+    simulation: "StudioSimulationPresentation"
+
+
+class StudioSimulationPresentation(_Block):
+    mode: Literal["candle"]
+    canonical_core: bool
+    venue_execution_proof: bool
+    limitations: list[str]
 
 
 class StudioPrimaryResult(_Block):

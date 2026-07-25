@@ -1408,6 +1408,7 @@ def _run_backtest_with_data(
 ) -> dict:
     config = _build_config(spec)
     gc = GridConfig(**spec.grid)
+    uses_canonical_adaptive_core = bool(gc.adaptive and config.fill.mode.value == "conservative")
     if gc.adaptive or (spec.filter or {}).get("kind") in ("trend", "regime", "rsi"):
         data = _enrich_indicators(data, gc)
 
@@ -1465,6 +1466,16 @@ def _run_backtest_with_data(
         else [],
         "n_closed_trades": len(result.closed_trades),
         "config_summary": _config_summary(spec, config),
+        "simulation": {
+            "mode": "candle",
+            "canonical_core": uses_canonical_adaptive_core,
+            "venue_execution_proof": False,
+            "limitations": [
+                "Normal orders become eligible only from the candle after they begin resting.",
+                "Touches at the limit remain candle touches; they are not venue execution proof.",
+                "Intrabar order and volume are conservative bounded assumptions, not authenticated venue evidence.",
+            ],
+        },
     }
 
     # Grid overlay for the price chart (mapped onto the down-sampled axis).

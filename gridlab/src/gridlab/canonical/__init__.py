@@ -10,6 +10,18 @@ from gridlab.canonical.adaptation import (
     PriorDecisionEvidence,
     decide_adaptation,
 )
+from gridlab.canonical.candle_simulation import (
+    CandleBar,
+    CandleFillOutcome,
+    CandleLimitOrder,
+    CandleSimulationMode,
+    ParitySimulationSnapshot,
+    ParitySnapshots,
+    build_observation_from_closed_candles,
+    conservative_fill_assumptions,
+    parity_snapshot,
+    resolve_candle_limit_fills,
+)
 from gridlab.canonical.configuration import (
     AdaptationPolicy,
     Spacing,
@@ -99,6 +111,10 @@ __all__ = [
     "BootstrapEvidence",
     "BootstrapObligation",
     "CapitalCommitmentFacts",
+    "CandleBar",
+    "CandleFillOutcome",
+    "CandleLimitOrder",
+    "CandleSimulationMode",
     "CanonicalEvent",
     "ConfirmationEvidence",
     "ClockEvidence",
@@ -160,4 +176,10 @@ __all__ = [
     "evaluate_operator_controls",
     "evaluate_safety_posture",
     "InitialEpochActivation",
+    "ParitySimulationSnapshot",
+    "ParitySnapshots",
+    "build_observation_from_closed_candles",
+    "conservative_fill_assumptions",
+    "parity_snapshot",
+    "resolve_candle_limit_fills",
 ]

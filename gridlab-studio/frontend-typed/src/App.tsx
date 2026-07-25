@@ -157,6 +157,10 @@ function Results({ run }: { run: StudioBacktestRun }) {
         <article><span>Fees paid</span><strong>{formatMoney(result.fees_paid, quoteAsset)}</strong></article>
       </div>
       <div className="record"><span>Authoritative local record</span><code>{run.id}</code><span>Saved by the research service · {new Date(run.created_at).toLocaleString()}</span></div>
+      <div className="production-provenance">
+        <div><strong>CANDLE SIMULATION ONLY</strong><span>{run.result.simulation?.canonical_core ? "Canonical adaptive core" : "Research candle harness"}</span></div>
+        <div><strong>NOT VENUE EXECUTION PROOF</strong><span>{run.result.simulation?.limitations?.[0] ?? "Candle fills remain conservative assumptions."}</span></div>
+      </div>
       {run.provenance && <div className="production-provenance">
         <div><strong>PRODUCTION HISTORY</strong><span>Official Binance Spot archive</span></div>
         <div><strong>TESTNET HISTORY NOT USED</strong><span>Testnet is not profitability evidence</span></div>
