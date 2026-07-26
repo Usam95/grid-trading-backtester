@@ -1,0 +1,80 @@
+schema_version: '1.0'
+prompt_version: '1.0'
+book_id: stock-market-investing-for-beginners-2020
+sources:
+  - absolute_path: 'C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical Trading\Stock Market Investing For Beginners.pdf'
+    relative_path: Stock Market Investing For Beginners.pdf
+    sha256: ab03f15451a4937642934dded7792babdc0cb94888d7f5bc51f3df9d401985a2
+title: Stock Market Investing For Beginners
+authors:
+  - William Kerkovan
+  - Wild Horse Media Publications
+edition: null
+publication_year: 2020
+publisher_or_identifier: Wild Horse Media Publications
+format: pdf
+language: English
+page_count: 182
+chapter_count: 6
+extraction_quality: good
+ocr_quality: good
+processing_status: "audited"
+extraction_timestamp: '2026-07-25T01:31:10Z'
+synthesis_timestamp: '2026-07-25T01:31:10Z'
+audit_timestamp: '2026-07-25T05:18:55Z'
+duplicate_relationships: null
+limitations_and_warnings:
+  - "Book is self-published with no identifiable academic credentials for author; credibility low"
+  - "No citations to academic studies or published research; primarily anecdotal and experiential"
+  - "Broker-specific information (APIs, fees) may be outdated; publication year 2020"
+  - "Contains trading advice but should not be considered actionable without independent verification"
+  - "No backtesting results or empirical validation provided for strategies discussed"
+
+scores:
+  source_credibility:
+    score: 1
+    justification: "Self-published, no verifiable credentials; author is self-described 'man on street investor' with no institutional affiliation."
+  
+  citation_quality:
+    score: 1
+    justification: "No formal citations, academic references, or citations to primary sources; relies on author assertion and anecdote."
+  
+  reproducibility:
+    score: 2
+    justification: "Strategies described in narrative form without precise parameters, backtesting results, or code; difficult to reproduce programmatically."
+  
+  likely_freshness:
+    score: 2
+    justification: "Published 2020; broker APIs, regulations, and market structure have evolved; trading costs and technology outdated."
+  
+  system_engineering_relevance:
+    score: 1
+    justification: "Book focuses on trading psychology and strategy narrative, not system design, backtester architecture, or execution infrastructure."
+  
+  grid_relevance:
+    score: 1
+    justification: "No discussion of grid strategies, delta-neutral positioning, or systematic market-making; content is equity/general trading focused."
+  
+  stock_strategy_relevance:
+    score: 3
+    justification: "Discusses stock selection criteria, fundamental analysis, technical analysis, and entry/exit decision-making for equities."
+  
+  backtesting_relevance:
+    score: 2
+    justification: "Discusses strategy concepts but provides no test data, metrics, drawdown analysis, or formal backtesting methodology."
+  
+  live_execution_relevance:
+    score: 2
+    justification: "Touches on order types (market, limit), stop-loss mechanics, position sizing; lacks detail on execution slippage, partial fills, or real-world constraints."
+  
+  risk_relevance:
+    score: 2
+    justification: "Mentions stop-loss, margin requirements, leverage risks (CFD/margin); does not formalize risk models, VaR, or position-level risk management."
+  
+  data_quality_relevance:
+    score: 1
+    justification: "No discussion of data cleanliness, survivorship bias, corporate actions adjustment, or data validation for backtesting."
+  
+  machine_learning_relevance:
+    score: 0
+    justification: "No machine learning content; purely rule-based and technical/fundamental heuristics."

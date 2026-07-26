@@ -1,0 +1,49 @@
+book_id: stock-market-investing-for-beginners-2020
+sections:
+  - ref: intro
+    title: Introduction
+    pdf_page_start: 0
+    status: processed
+    reason: "Establishes author background and book intent; motivational framing."
+
+  - ref: rule1
+    title: "Chapter 1: Rule Number One - Don't Leave Home Without Doing It"
+    pdf_page_start: 10
+    status: processed
+    reason: "Core content on fundamental analysis, stock selection criteria, due diligence prerequisites."
+
+  - ref: rule2
+    title: "Chapter 2: Rule Number Two - Do This And Better Your Chances To Win"
+    pdf_page_start: 35
+    status: processed
+    reason: "Discusses market timing, entry strategies, buying on down days, dollar cost averaging."
+
+  - ref: rule3
+    title: "Chapter 3: Rule Number Three - Things Which You Want To Know"
+    pdf_page_start: 55
+    status: processed
+    reason: "Covers financial instruments: stocks, options, futures, forex, CFDs, margins; leverage discussion."
+
+  - ref: rule4
+    title: "Chapter 4: Rule Number Four - Facts And Numbers To Help You"
+    pdf_page_start: 80
+    status: processed
+    reason: "Fundamental analysis deep-dive; valuation metrics, earnings, dividend analysis."
+
+  - ref: rule5
+    title: "Chapter 5: Rule Number Five - Master The Mystic Arts"
+    pdf_page_start: 115
+    status: processed
+    reason: "Technical analysis instruction; support/resistance, timeframe analysis, Fibonacci, chart patterns."
+
+  - ref: rule6
+    title: "Chapter 6: Rule Number Six - Constant Profits"
+    pdf_page_start: 150
+    status: processed
+    reason: "Risk management, stop-loss placement, position sizing, trade psychology; trade execution details."
+
+  - ref: conclusion
+    title: Conclusion
+    pdf_page_start: 175
+    status: processed
+    reason: "Closing remarks and trading psychology emphasis."

@@ -1,0 +1,155 @@
+book_id: trading-options-greeks-how-time-volatility-and-other-pricing-2013
+sections:
+  - ref: "part-1"
+    title: "PART I: THE BASICS OF OPTION GREEKS"
+    pdf_page_start: null
+    chapter_range: "1-8"
+    status: "processed"
+    reason: "Foundational Greeks framework; direct relevance to backtester/live system design."
+
+  - ref: "chapter-1"
+    title: "CHAPTER 1: The Basics"
+    pdf_page_start: 2
+    chapter: 1
+    status: "processed"
+    reason: "Introductory material on options contractual mechanics and strategy diagrams; essential reference."
+
+  - ref: "chapter-2"
+    title: "CHAPTER 2: Greek Philosophy"
+    pdf_page_start: 22
+    chapter: 2
+    status: "processed"
+    reason: "Core Greeks (delta, gamma, theta, vega, rho) definitions and interpretations; highest priority."
+
+  - ref: "chapter-3"
+    title: "CHAPTER 3: Understanding Volatility"
+    pdf_page_start: 54
+    chapter: 3
+    status: "processed"
+    reason: "Historical, implied, and expected volatility; volatility skew; essential for backtesting realism."
+
+  - ref: "chapter-4"
+    title: "CHAPTER 4: Option-Specific Risk and Opportunity"
+    pdf_page_start: 72
+    chapter: 4
+    status: "processed"
+    reason: "Risk/reward profiles of long calls, puts, and ATM/OTM/ITM variants; strategy selection guidance."
+
+  - ref: "chapter-5"
+    title: "CHAPTER 5: An Introduction to Volatility-Selling Strategies"
+    pdf_page_start: 94
+    chapter: 5
+    status: "processed"
+    reason: "Vega and short-premium strategies; grid-trading and volatility edge concepts."
+
+  - ref: "chapter-6"
+    title: "CHAPTER 6: Put-Call Parity and Synthetics"
+    pdf_page_start: 112
+    chapter: 6
+    status: "processed"
+    reason: "Arbitrage framework, synthetic positions, early-exercise decisions; fundamental for backtester."
+
+  - ref: "chapter-7"
+    title: "CHAPTER 7: Rho"
+    pdf_page_start: 134
+    chapter: 7
+    status: "processed"
+    reason: "Interest-rate sensitivity; relevance moderate (2012 low-rate environment); framework sound."
+
+  - ref: "chapter-8"
+    title: "CHAPTER 8: Dividends and Option Pricing"
+    pdf_page_start: 144
+    chapter: 8
+    status: "processed"
+    reason: "Dividend impact on early exercise, pricing, hedging; critical for realistic equity option simulation."
+
+  - ref: "part-2"
+    title: "PART II: SPREADS"
+    pdf_page_start: null
+    chapter_range: "9-11"
+    status: "processed"
+    reason: "Multi-leg strategies and Greeks management in spreads; foundation for advanced trading."
+
+  - ref: "chapter-9"
+    title: "CHAPTER 9: Vertical Spreads"
+    pdf_page_start: 162
+    chapter: 9
+    status: "processed"
+    reason: "Credit/debit spreads, Greeks in multi-leg positions, risk management; widely used in live trading."
+
+  - ref: "chapter-10"
+    title: "CHAPTER 10: Wing Spreads"
+    pdf_page_start: 184
+    chapter: 10
+    status: "processed"
+    reason: "Butterflies, condors, directional spreads; Greeks construction; advanced trade design."
+
+  - ref: "chapter-11"
+    title: "CHAPTER 11: Calendar and Diagonal Spreads"
+    pdf_page_start: 208
+    chapter: 11
+    status: "processed"
+    reason: "Term-structure trading, theta exploitation, volatility term structure; backtest edge detection."
+
+  - ref: "part-3"
+    title: "PART III: VOLATILITY"
+    pdf_page_start: null
+    chapter_range: "12-14"
+    status: "processed"
+    reason: "Delta-neutral trading, gamma scalping, volatility regimes; core strategies for edge extraction."
+
+  - ref: "chapter-12"
+    title: "CHAPTER 12: Delta-Neutral Trading: Trading Implied Volatility"
+    pdf_page_start: 236
+    chapter: 12
+    status: "processed"
+    reason: "IV trading, vega P&L, hedging mechanics, pricing model reliance; essential for vol strategies."
+
+  - ref: "chapter-13"
+    title: "CHAPTER 13: Delta-Neutral Trading: Trading Realized Volatility"
+    pdf_page_start: 252
+    chapter: 13
+    status: "processed"
+    reason: "Gamma scalping, theta/gamma tradeoff, realized vs. implied, hedging costs; core risk management."
+
+  - ref: "chapter-14"
+    title: "CHAPTER 14: Studying Volatility Charts"
+    pdf_page_start: 268
+    chapter: 14
+    status: "processed"
+    reason: "Volatility chart patterns, regime identification; regime-dependent backtest validation."
+
+  - ref: "part-4"
+    title: "PART IV: ADVANCED OPTION TRADING"
+    pdf_page_start: null
+    chapter_range: "15-17"
+    status: "processed"
+    reason: "Advanced strategy mechanics and portfolio Greeks management; live trading coordination."
+
+  - ref: "chapter-15"
+    title: "CHAPTER 15: Straddles and Strangles"
+    pdf_page_start: 284
+    chapter: 15
+    status: "processed"
+    reason: "Volatility-directional hybrids, Greeks construction, P&L dynamics; useful edge scenarios."
+
+  - ref: "chapter-16"
+    title: "CHAPTER 16: Ratio Spreads and Complex Spreads"
+    pdf_page_start: 306
+    chapter: 16
+    status: "processed"
+    reason: "Greeks imbalance management, skew trading, multiple-class risk; advanced portfolio construction."
+
+  - ref: "chapter-17"
+    title: "CHAPTER 17: Putting the Greeks into Action"
+    pdf_page_start: 324
+    chapter: 17
+    status: "processed"
+    reason: "Practical Greeks management, trade selection, adjustments, failure modes; synthesis chapter."
+
+summary:
+  total_chapters: 17
+  processed_chapters: 17
+  coverage_percentage: 100
+  prioritized_chapters: [2, 3, 6, 8, 9, 12, 13]
+  notes: "Complete book coverage; all chapters processed as they contribute essential Greeks framework and practical trading guidance."

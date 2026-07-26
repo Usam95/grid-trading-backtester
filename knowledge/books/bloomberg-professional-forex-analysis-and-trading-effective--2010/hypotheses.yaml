@@ -1,0 +1,203 @@
+- id: HYP-001
+  title: "EUR/USD Fair Value Deviation from Monthly Regression Predicts 3-6 Month Reversion"
+  status: proposed
+  derived_from: ["FXA-ch4-001"]
+  statement: "When EUR/USD trades >1.5 standard deviations above or below the monthly fair-value regression model (using inflation ratio, bond spreads, S&P 500 as explanatory variables), the pair reverts toward the mean within 3-6 months with >60% probability."
+  proposed_mechanism: "Macro fundamentals (inflation, yield differentials) anchor exchange rates over medium horizons. Transient sentiment shocks push prices beyond fair-value bands, but mean reversion occurs as fundamental drivers reassert."
+  applicable_markets_and_regimes: "EUR/USD currency pair; mid-to-long-term (3-6 month) trading horizons; non-crisis regimes. Model assumes stable capital flows and macro policy."
+  assumptions:
+    - "Regression coefficients remain stable within 1-2 year windows"
+    - "Explanatory variables (CPI, yields, equity prices) lead exchange rates"
+    - "No structural breaks from geopolitical/policy shocks"
+    - "Margin financing available to hold positions through drawdowns"
+  data_requirements:
+    - "Monthly CPI data (Europe, USA)"
+    - "10-year government bond yields (German, US)"
+    - "S&P 500 Index monthly closes"
+    - "EUR/USD monthly closes 1993-present"
+  baseline_or_null_hypothesis: "EUR/USD follows a random walk; fair-value bands have no predictive power."
+  validation_approach: "Train regression on data through 2008Q2. Backtest 2008Q3-2009 period: track percentage of trades where >1.5σ deviations preceded reversion within 3-6 months. Measure annualized return if pairs were entered at extreme levels with 3-6 month hold and exited at mean."
+  transaction_cost_and_fill_considerations: "Assume 2-3 pips bid/ask spread on EUR/USD. Slippage on entry/exit ~1 pip. Transaction costs reduce annual return by ~0.5-1%."
+  robustness_checks:
+    - "Test on other currency pairs (USD/CAD, GBP/USD) with pair-specific regressions"
+    - "Vary regression window (monthly vs. weekly vs. daily models) and compare reversion timing"
+    - "Stress test in crisis periods (2008 Q4, 2011 euro crisis) to measure failure rates"
+    - "Validate R-squared threshold for entry (e.g., only enter if regressor R² > 0.20)"
+  rejection_criteria:
+    - "If reversion occurs in <20% of instances at >1.5σ deviation, hypothesis is rejected"
+    - "If drawdown before reversion exceeds 3% on average, hypothesis is rejected for practical trading"
+    - "If model R² drops below 0.15 in any 12-month period, validate before re-deployment"
+  failure_modes:
+    - "Structural breaks (e.g., Iraq invasion 2003, 9/11) invalidate model for weeks/months"
+    - "QE policy (2008+) violates assumption that yields anchor rates"
+    - "Capital-flow reversals (financial crises) cause deviations to widen before reverting"
+  freshness_concerns: "Post-2008 macro policy (negative rates, QE, currency intervention) has altered fundamental relationships. Regression coefficients may not transfer forward."
+  unresolved_questions:
+    - "How to adapt model in zero/negative yield environment?"
+    - "How to detect structural breaks in real-time?"
+    - "Should commodity prices be added as regressors for commodity-linked currencies (CAD, AUD, NZD)?"
+
+- id: HYP-002
+  title: "CFTC Non-Commercial Positioning Extremes Precede Trend Reversal by 2-4 Weeks"
+  status: proposed
+  derived_from: ["FXA-ch5-001"]
+  statement: "When CFTC non-commercial net long EUR/USD position reaches >120K contracts (>90th percentile) or <-20K (<10th percentile), a reversal in EUR/USD direction is likely within 2-4 weeks with elevated probability."
+  proposed_mechanism: "Speculators drive trends via carry trades and momentum strategies. Crowded positioning indicates exhaustion. When speculators have pushed positions to extremes, few are left to buy (in long crowding) or sell (in short crowding), setting up reversal as position liquidation begins."
+  applicable_markets_and_regimes: "EUR/USD futures; 2-4 week tactical horizons. Works best in non-crisis periods (normal backwardation, carry stable). Breaks down in VaR-driven sell-offs (2008, 2011)."
+  assumptions:
+    - "CFTC non-commercial trader cohort is reasonably stable"
+    - "Position extremes reflect crowding, not just open-interest growth"
+    - "Reversals are not masked by other fundamental developments (Fed announcements, ECB policy)"
+  data_requirements:
+    - "CFTC COT report (non-commercial positions EUR) weekly"
+    - "EUR/USD weekly closes and daily closes for intra-week management"
+    - "Historical open-interest levels to normalize for scale"
+  baseline_or_null_hypothesis: "CFTC positioning is noise; peaks/troughs are not predictive of reversals."
+  validation_approach: "Identify all instances of positioning >90th or <10th percentile 2000-2008. Count reversal occurrences within 2-4 weeks (define reversal as >2% move opposite the crowded direction). Measure win rate and average time-to-reversal. Compare to random walk."
+  transaction_cost_and_fill_considerations: "Futures spread ~0.5 pips; entry/exit slippage ~1 pip. Cost per round-turn ~0.15% of notional."
+  robustness_checks:
+    - "Test on other currency pairs with CFTC data (GBP, JPY)"
+    - "Vary percentile thresholds (80th/20th, 95th/5th) to find optimal entry level"
+    - "Measure impact of CFTC data lag (3 days) on entry timing"
+    - "Validate against different market regimes (range-bound vs. trending)"
+  rejection_criteria:
+    - "If win rate <40% across all pairs and periods, reject"
+    - "If average reversal time >6 weeks, reject (too slow for 2-4 week thesis)"
+    - "If drawdown to reversal exceeds 2%, reject for risk-management purposes"
+  failure_modes:
+    - "CFTC data 3 days old; reversals may already be underway by Friday release"
+    - "Position extremes can persist for weeks in strong trends (EUR/USD 2006-2008)"
+    - "Open-interest growth (2x from 2000 to 2008) changes meaning of absolute position sizes"
+    - "In crisis, positioning liquidation is violent and unidirectional (2008, 2011); reversal hypothesis breaks"
+  freshness_concerns: "Post-Dodd-Frank 2010, position limits capped speculative net longs. CFTC positions no longer reach 2008 extremes. Thresholds need re-calibration."
+  unresolved_questions:
+    - "How to normalize positioning for open-interest growth?"
+    - "Should positioning extremes be relative (e.g., >1 std from rolling median) rather than absolute?"
+    - "Can positioning extremes be detected intra-week from options market risk reversals (real-time proxy)?"
+
+- id: HYP-003
+  title: "Oscillator Overbought/Oversold in Range-Bound Markets Predicts Reversal; Fails in Trends"
+  status: proposed
+  derived_from: ["FXA-ch8-001", "FXA-ch8-005", "FXA-risk-001"]
+  statement: "RSI > 70 or Stochastic > 80 in range-bound (volatile but non-trending) markets predicts reversal within 3-5 days with >55% win rate. The same signals in trending markets produce <40% win rate and large drawdowns (20-30%)."
+  proposed_mechanism: "Oscillators measure momentum exhaustion. In range-bound markets, reversions to mean are frequent. In trending markets, oscillators can stay extreme for weeks while prices continue trending, causing repeated whipsaws."
+  applicable_markets_and_regimes: "Multi-currency (EUR/USD, GBP/USD, AUD/USD shown); 3-5 day to 1-week trading horizons. Regime-dependent: works in Bollinger Band ranges (±2σ), fails in sustained trends (>2 weeks, >2% directional move)."
+  assumptions:
+    - "Trend regime can be detected in real-time (e.g., >2 week trend = exclude oscillator signals)"
+    - "Oscillators are calculated identically across currency pairs"
+    - "Volatility (ATR) is available to define range-bound regime"
+  data_requirements:
+    - "Weekly/daily RSI (14-period) and Stochastic (5,3) for EUR/USD, GBP/USD, AUD/USD"
+    - "Average True Range (ATR) for volatility measurement"
+    - "Price levels and highs/lows for range identification"
+  baseline_or_null_hypothesis: "Oscillator signals have no predictive power across all market regimes."
+  validation_approach: "Classify each trading week as range-bound (ATR <1%, price within Bollinger Bands) or trending (ATR >1.5% or price outside bands). Test oscillator signals separately in each regime. In range-bound: measure % signals that lead to reversal within 3-5 days. In trending: measure % signals that are whipsaws. Compute Sharpe ratio for each regime."
+  transaction_cost_and_fill_considerations: "Spot FX: 2-3 pips bid/ask; futures: 0.5 pips. Assume 1 pip slippage on entry/exit."
+  robustness_checks:
+    - "Test on 1-hour, 4-hour, daily, and weekly timeframes to measure robustness to timeframe"
+    - "Measure out-of-sample performance on rolling 6-month test windows"
+    - "Vary oscillator thresholds (RSI > 65, > 75; Stochastic > 75, > 85) to optimize for regime"
+  rejection_criteria:
+    - "If range-bound win rate <50% across pairs, reject"
+    - "If drawdown in trending regime >15%, reject (unacceptable for position sizing)"
+    - "If parameters over-fit to one pair and fail to transfer to others, reject generalizability"
+  failure_modes:
+    - "Regime detection lag: markets transition from range to trend; oscillator signals cluster just before transition, leading to large drawdowns"
+    - "Oscillator settings vary by pair; ETH/BTC may require 7-period vs. 14-period RSI"
+    - "Tick-by-tick whipsaws and slippage erode small 0.5-1% trades in real execution"
+  freshness_concerns: "Post-2010, algorithmic trading and HFT increased intraday volatility and noise. Oscillator signals may be noisier than in 2009 book-era."
+  unresolved_questions:
+    - "Can regime shifts be predicted 1-2 days ahead to avoid whipsaws during transitions?"
+    - "Should oscillator signals be weighted by volume or market depth?"
+    - "How to set stop-loss below oscillator reversal trades given non-linear risk?"
+
+- id: HYP-004
+  title: "Combined Fundamental-Positioning-Technical Filter Reduces False Signals vs. Any Single Pillar"
+  status: proposed
+  derived_from: ["FXA-intro-001", "FXA-case-001"]
+  statement: "A combined signal (all three filters active: fair-value deviation >1σ, CFTC positioning extreme, AND oscillator overbought/oversold) produces win rate >60% and drawdown <10% on EUR/USD medium-term trades. Single-pillar signals produce <50% win rate and >15% drawdowns."
+  proposed_mechanism: "Fundamental fair value provides context; positioning shows sentiment extremes; technical signals provide entry timing. Requiring all three reduces false positives that occur when one pillar is misaligned."
+  applicable_markets_and_regimes: "EUR/USD and other major pairs; medium-term (2-4 week) tactical trades; normal market regimes (no crisis, currency intervention stable)."
+  assumptions:
+    - "The three pillars are sufficiently uncorrelated to reduce false signals through AND logic"
+    - "Position sizing and stops can accommodate >10% drawdowns"
+  data_requirements: "All data required for HYP-001, HYP-002, HYP-003"
+  baseline_or_null_hypothesis: "Single-pillar signals are sufficient; combining them adds complexity without improving returns."
+  validation_approach: "Backtest 2003-2008 on EUR/USD: count all instances of combined signal (all three filters). Measure win rate (price moves >100 pips in expected direction within 2-4 weeks). Measure maximum drawdown. Compare to win rates for each pillar independently. Report Sharpe ratio improvement."
+  transaction_cost_and_fill_considerations: "2-3 pips per trade; assume 1-2 trades per signal."
+  robustness_checks:
+    - "Test on other pairs (GBP/USD, USD/JPY) with same filter logic"
+    - "Measure robustness to parameter changes (fair-value threshold 1.0σ vs. 1.5σ, etc.)"
+    - "Test on crisis periods (2008 Q4, 2011) to measure failure rates and drawdowns"
+  rejection_criteria:
+    - "If combined filter win rate <55%, reject"
+    - "If combined filter drawdown >15%, reject"
+    - "If combined filter frequency <1-2 signals per month (too infrequent to trade), reject"
+  failure_modes:
+    - "All three pillars can align during bubble peaks (e.g., 2008 EUR/USD 1.60 spike), leading to catastrophic signal failure"
+    - "Correlation of pillars increases in crises; AND logic breaks down"
+    - "Signal lag: by time all three filters align, entry point has passed and momentum exhausted"
+  freshness_concerns: "Book-era market structure and correlations have evolved. Fundamentals, positioning, and technicals may be less orthogonal post-2010."
+  unresolved_questions:
+    - "What weights should each pillar receive? Equally 1/3 each, or should technical have lower weight?"
+    - "Should we use OR (any signal) vs. AND (all signals) logic, or weighted probability?"
+
+- id: HYP-005
+  title: "Moving Average Crossovers Identify Trend Onset; Lag Limits Scalability to Intraday"
+  status: proposed
+  derived_from: ["FXA-ch7-001"]
+  statement: "13/26-week moving average crossovers on weekly EUR/USD identify trend onset with 3-5 week lead time on average. Daily 5/20-day MA crossovers have <2 day lead time and are too lagged for intraday scalping but useful for swing trades (3-5 day holds)."
+  proposed_mechanism: "Moving averages smooth price noise and reveal sustained directional bias. Crossover indicates acceleration. Lag increases with MA period; 52-week MA is most lagged but most reliable."
+  applicable_markets_and_regimes: "All currency pairs; 3-5 day (swing) and 1-4 week (tactical) trading horizons. Less useful for intraday scalping or very short-term (hours)."
+  assumptions:
+    - "Trends persist for weeks/months (not reversing intra-week)"
+    - "Lag cost is acceptable relative to trend size"
+  data_requirements: "Weekly and daily closing prices for EUR/USD, GBP/USD, USD/JPY, etc."
+  baseline_or_null_hypothesis: "Moving average crossovers are lagged noise; they do not predict trends significantly better than flipping a coin."
+  validation_approach: "Identify all 13/26-week MA crossovers on EUR/USD 1999-2008. Measure % of crossovers followed by >100 pips move in crossover direction within 3-5 weeks. Measure average time-to-entry (lag) and average winning trade size. Compare Sharpe ratio to buy-and-hold."
+  transaction_cost_and_fill_considerations: "2-3 pips per trade; assume 1 trade per crossover."
+  robustness_checks:
+    - "Test on all major pairs (GBP, JPY, CHF)"
+    - "Vary MA periods (12/24, 13/26, 20/50) to find optimal lag/signal trade-off"
+    - "Measure performance in different volatility regimes (normal vs. high vol)"
+  rejection_criteria:
+    - "If win rate <55%, reject"
+    - "If average lag >2 weeks, reject for intraday strategies"
+  failure_modes:
+    - "MA lag: entry is 2-3 weeks late; by then, 50% of trend has already occurred"
+    - "Choppy markets cause repeated false crossovers (death by a thousand cuts)"
+    - "Sharp reversals cause large drawdowns before MA lags are realized as losses"
+  freshness_concerns: "Low; moving averages are algorithmic and stable over time."
+  unresolved_questions:
+    - "Should moving averages be adjusted for volatility (adaptive MAs) rather than fixed periods?"
+    - "Can entry be accelerated by detecting momentum before MA crossover?"
+
+- id: HYP-006
+  title: "Risk-Reversal Skew Extremes Precede Options-Market Reversals by 1-3 Days"
+  status: proposed
+  derived_from: ["FXA-ch6-001"]
+  statement: "When 1-month EUR/USD risk-reversal skew reaches >2% (calls >2% more expensive than puts) or <-2%, the options market is off-balance and reverts within 1-3 days with >60% probability, as hedging demand unwinds."
+  proposed_mechanism: "Risk reversals reflect options traders' skewed directional view. Extreme skew indicates one-sided positioning. Unwinding/covering of extreme skew leads to quick reversals."
+  applicable_markets_and_regimes: "Currency options market (1-month implied volatility skew); 1-3 day intraday/overnight trading horizons. Real-time data, no publication lag unlike CFTC."
+  assumptions:
+    - "Options market risk-reversal skew is observable and tradeable (tight bid/ask)"
+    - "Skew extremes are rare and reliable predictors"
+  data_requirements: "1-month EUR/USD implied volatility for calls and puts (25-delta conventions)"
+  baseline_or_null_hypothesis: "Risk-reversal skew extremes are noise; no predictive power for reversals."
+  validation_approach: "Collect daily 1-month call/put IV for EUR/USD 2005-2008. Identify days when skew >2% or <-2%. Measure % of such days followed by reversal (>0.5% opposite-direction move) within 1-3 days. Measure average reversal size and entry profitability."
+  transaction_cost_and_fill_considerations: "Options spreads: 0.05-0.10 vol point; FX spot slippage ~1 pip on reversal entry."
+  robustness_checks:
+    - "Test on other pairs (GBP, JPY)"
+    - "Vary skew threshold (1.5%, 2.0%, 2.5%) to find optimal entry level"
+    - "Compare to CFTC positioning extremes: are they correlated?"
+  rejection_criteria:
+    - "If win rate <55%, reject"
+    - "If data availability is limited (options pricing may not be public), mark as high-uncertainty"
+  failure_modes:
+    - "Options market can be illiquid away from ATM; execution slippage may eliminate edge"
+    - "Skew extremes can persist (sticky strike effect) rather than quickly reverting"
+  freshness_concerns: "High. Options market structure, retail access, and vol surface dynamics have changed post-2008."
+  unresolved_questions:
+    - "How to trade risk-reversal skew directionally (is skew a directional signal or just a volatility signal)?"
+    - "Should skew be combined with implied-vol level (elevated vol + extreme skew = stronger signal)?"
+

@@ -1,0 +1,247 @@
+book_id: beginners-guide-to-trading-this-book-includes-day-forex-opti-2020
+sections:
+- ref: intro
+  title: Introduction (Futures & Derivatives)
+  pdf_page_start: 5
+  status: processed
+  reason: Extracted and analyzed
+- ref: dt_ch1
+  title: 'Chapter 1: How to Start Day Trading'
+  pdf_page_start: 9
+  status: processed
+  reason: Extracted and analyzed
+- ref: dt_ch2
+  title: 'Chapter 2: Trading Platforms'
+  pdf_page_start: 21
+  status: processed
+  reason: Extracted and analyzed
+- ref: dt_ch3
+  title: 'Chapter 3: Selecting a Broker'
+  pdf_page_start: 24
+  status: processed
+  reason: Extracted and analyzed
+- ref: dt_ch4
+  title: 'Chapter 4: Day Trading Orders'
+  pdf_page_start: 32
+  status: processed
+  reason: Extracted and analyzed
+- ref: dt_ch5
+  title: 'Chapter 5: Most Important Day Trading Strategies'
+  pdf_page_start: 53
+  status: processed
+  reason: Extracted and analyzed
+- ref: dt_ch6
+  title: 'Chapter 6: Trading and Time'
+  pdf_page_start: 57
+  status: processed
+  reason: Extracted and analyzed
+- ref: dt_ch7
+  title: 'Chapter 7: What Should You Invest'
+  pdf_page_start: 61
+  status: processed
+  reason: Extracted and analyzed
+- ref: dt_ch8
+  title: 'Chapter 8: From Income to Vocation'
+  pdf_page_start: 72
+  status: processed
+  reason: Extracted and analyzed
+- ref: dt_ch9
+  title: 'Chapter 9: Momentum Trading'
+  pdf_page_start: 75
+  status: processed
+  reason: Extracted and analyzed
+- ref: dt_ch10
+  title: 'Chapter 10: Deflation vs Inflation'
+  pdf_page_start: 87
+  status: processed
+  reason: Extracted and analyzed
+- ref: dt_ch11
+  title: 'Chapter 11: Portfolio Diversification'
+  pdf_page_start: 89
+  status: processed
+  reason: Extracted and analyzed
+- ref: dt_ch12
+  title: 'Chapter 12: Money Management'
+  pdf_page_start: 111
+  status: processed
+  reason: Extracted and analyzed
+- ref: dt_ch13
+  title: 'Chapter 13: Risk Management Strategies'
+  pdf_page_start: 137
+  status: processed
+  reason: Extracted and analyzed
+- ref: fx_intro
+  title: Introduction (Forex)
+  pdf_page_start: 147
+  status: processed
+  reason: Extracted and analyzed
+- ref: fx_ch1
+  title: 'Chapter 1: Forex Trading Pros and Cons'
+  pdf_page_start: 150
+  status: processed
+  reason: Extracted and analyzed
+- ref: fx_ch2
+  title: 'Chapter 2: Opening a Brokerage Account'
+  pdf_page_start: 161
+  status: processed
+  reason: Extracted and analyzed
+- ref: fx_ch3
+  title: 'Chapter 3: Currency Pairs and PIPS'
+  pdf_page_start: 168
+  status: processed
+  reason: Extracted and analyzed
+- ref: fx_ch4
+  title: 'Chapter 4: Fundamental and Technical Analysis'
+  pdf_page_start: 191
+  status: processed
+  reason: Extracted and analyzed
+- ref: fx_ch5
+  title: 'Chapter 5: Tools, Indicators, and Patterns'
+  pdf_page_start: 210
+  status: processed
+  reason: Extracted and analyzed
+- ref: fx_ch6
+  title: 'Chapter 6: Scalping Strategy'
+  pdf_page_start: 222
+  status: processed
+  reason: Extracted and analyzed
+- ref: fx_ch7
+  title: 'Chapter 7: Popular Forex Strategies'
+  pdf_page_start: 231
+  status: processed
+  reason: Extracted and analyzed
+- ref: fx_ch8
+  title: 'Chapter 8: Cryptocurrency'
+  pdf_page_start: 246
+  status: processed
+  reason: Extracted and analyzed
+- ref: fx_ch9
+  title: 'Chapter 9: Developing a Winning Routine'
+  pdf_page_start: 251
+  status: processed
+  reason: Extracted and analyzed
+- ref: fx_ch10
+  title: 'Chapter 10: Trading Psychology'
+  pdf_page_start: 260
+  status: processed
+  reason: Extracted and analyzed
+- ref: fx_ch11
+  title: 'Chapter 11: Risk Management & Trading Plan'
+  pdf_page_start: 270
+  status: processed
+  reason: Extracted and analyzed
+- ref: fx_ch12
+  title: 'Chapter 12: Common Mistakes and Tips'
+  pdf_page_start: 278
+  status: processed
+  reason: Extracted and analyzed
+- ref: opt_intro
+  title: Introduction (Options)
+  pdf_page_start: 289
+  status: processed
+  reason: Extracted and analyzed
+- ref: opt_ch1
+  title: 'Chapter 1: History of Options'
+  pdf_page_start: 295
+  status: processed
+  reason: Extracted and analyzed
+- ref: opt_ch2
+  title: 'Chapter 2: The Types of Options'
+  pdf_page_start: 300
+  status: processed
+  reason: Extracted and analyzed
+- ref: opt_ch3
+  title: 'Chapter 3: Options Trading vs Day Trading'
+  pdf_page_start: 309
+  status: processed
+  reason: Extracted and analyzed
+- ref: opt_ch4
+  title: 'Chapter 4: Managing Options Positions'
+  pdf_page_start: 319
+  status: processed
+  reason: Extracted and analyzed
+- ref: opt_ch5
+  title: 'Chapter 5: Binary Options'
+  pdf_page_start: 344
+  status: processed
+  reason: Extracted and analyzed
+- ref: opt_ch6
+  title: 'Chapter 6: Trading Varying Time Frames'
+  pdf_page_start: 353
+  status: processed
+  reason: Extracted and analyzed
+- ref: opt_ch7
+  title: 'Chapter 7: Buying and Selling Puts'
+  pdf_page_start: 361
+  status: processed
+  reason: Extracted and analyzed
+- ref: opt_ch8
+  title: 'Chapter 8: How to Use the Collar Strategy'
+  pdf_page_start: 380
+  status: processed
+  reason: Extracted and analyzed
+- ref: opt_ch9
+  title: 'Chapter 9: Market Environment'
+  pdf_page_start: 392
+  status: processed
+  reason: Extracted and analyzed
+- ref: opt_ch10
+  title: 'Chapter 10: Rules for Successful Trading'
+  pdf_page_start: 402
+  status: processed
+  reason: Extracted and analyzed
+- ref: opt_ch11
+  title: 'Chapter 11: Tips for Trading Options'
+  pdf_page_start: 409
+  status: processed
+  reason: Extracted and analyzed
+- ref: sw_intro
+  title: Introduction (Swing Trading)
+  pdf_page_start: 419
+  status: processed
+  reason: Extracted and analyzed
+- ref: sw_ch1
+  title: 'Chapter 1: Swing Trading Basics'
+  pdf_page_start: 428
+  status: processed
+  reason: Extracted and analyzed
+- ref: sw_ch2
+  title: 'Chapter 2: Characteristics of a Swing Trader'
+  pdf_page_start: 454
+  status: processed
+  reason: Extracted and analyzed
+- ref: sw_ch3
+  title: 'Chapter 3: Swing Trading Market Characteristics'
+  pdf_page_start: 460
+  status: processed
+  reason: Extracted and analyzed
+- ref: sw_ch4
+  title: 'Chapter 4: Finding a Suitable Market'
+  pdf_page_start: 474
+  status: processed
+  reason: Extracted and analyzed
+- ref: sw_ch5
+  title: 'Chapter 5: Tools for Every Beginner'
+  pdf_page_start: 487
+  status: processed
+  reason: Extracted and analyzed
+- ref: sw_ch6
+  title: 'Chapter 6: Fundamental Analysis'
+  pdf_page_start: 503
+  status: processed
+  reason: Extracted and analyzed
+- ref: sw_ch7
+  title: 'Chapter 7: Psychology of a Successful Swing Trader'
+  pdf_page_start: 508
+  status: processed
+  reason: Extracted and analyzed
+- ref: sw_ch8
+  title: 'Chapter 8: Money Management'
+  pdf_page_start: 515
+  status: processed
+  reason: Extracted and analyzed
+- ref: sw_ch9
+  title: 'Chapter 9: Risk and Account Management'
+  pdf_page_start: 537
+  status: processed
+  reason: Extracted and analyzed

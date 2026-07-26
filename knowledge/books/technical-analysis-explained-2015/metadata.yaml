@@ -1,0 +1,69 @@
+schema_version: "1.0"
+prompt_version: "1.0"
+book_id: "technical-analysis-explained-2015"
+title: "Technical Analysis Explained: The Successful Investor's Guide to Spotting Investment Trends and Turning Points"
+authors:
+  - "Martin J. Pring"
+edition: "5th Edition"
+publication_year: 2015
+publisher_or_identifier: "McGraw-Hill Education"
+format: "pdf"
+language: "en"
+page_count: 814
+chapter_count: 35
+processing_status: "audited"
+timestamps:
+  extraction_start: "2026-07-24T23:25:00Z"
+  extraction_end: "2026-07-24T23:50:00Z"
+  validation: "2026-07-24T23:50:00Z"
+sources:
+  - absolute_path: "C:\\Users\\W4TV5V8\\PROJECTS\\Codex\\Research\\Books_03_07_26\\Algorithmical Trading\\_KNOWLEDGE_EXTRACTION\\books\\technical-analysis-explained-2015"
+    relative_path: "books/technical-analysis-explained-2015"
+    format: "pdf"
+    sha256: "unknown"
+extraction_quality: "high"
+ocr_quality: "good"
+limitations_and_warnings:
+  - "Published 2015; market structure and broker APIs described may be obsolete"
+  - "Historical examples drawn from 1990-2001; patterns may not apply to modern markets"
+  - "No backtesting or statistical validation presented in text; Pring's claims must be validated independently"
+  - "Algorithmic and high-frequency trading changes market microstructure since publication"
+  - "Regulation (Dodd-Frank, EMIR, etc.) may affect applicability of broker/clearing recommendations"
+duplicate_relationships: []
+scores:
+  source_credibility:
+    score: 4
+    justification: "Martin Pring is a widely-recognized TA author with 40+ years experience; McGraw-Hill is reputable, but TA remains contentious in academic finance."
+  citation_quality:
+    score: 3
+    justification: "Book cites historical examples and references but lacks formal citations to academic studies; mostly relies on Pring's interpretations."
+  reproducibility:
+    score: 2
+    justification: "Many TA concepts are qualitative (e.g., 'support zone') and difficult to operationalize exactly as described without additional specification."
+  likely_freshness:
+    score: 1
+    justification: "Published 2015; broker APIs, market venues, and trading technology have evolved significantly; high-frequency trading and dark pools were nascent in 2001 examples."
+  system_engineering_relevance:
+    score: 3
+    justification: "Describes indicator calculations and TA methodology relevant for signal generation; limited guidance on risk management, execution, or live trading infrastructure."
+  grid_relevance:
+    score: 2
+    justification: "Grid trading not directly discussed; momentum, volatility bands, and cycle concepts are somewhat relevant; support/resistance less applicable to algorithmic grid systems."
+  stock_strategy_relevance:
+    score: 4
+    justification: "Book heavily focused on equity index technical analysis; many examples use stock indices and individual stocks; directly relevant for stock-based strategies."
+  backtesting_relevance:
+    score: 3
+    justification: "Provides entry/exit rules and pattern definitions that can be backtested; no guidance on backtesting methodology, overfitting, or walk-forward validation."
+  live_execution_relevance:
+    score: 2
+    justification: "Limited discussion of execution timing, slippage, or order management; assumes manual execution or simple rules."
+  risk_relevance:
+    score: 2
+    justification: "No systematic risk management framework; stop-loss recommendations are qualitative; portfolio-level risk not addressed."
+  data_quality_relevance:
+    score: 2
+    justification: "Assumes OHLCV data; no discussion of data quality, corporate actions, splits, or survivorship bias."
+  machine_learning_relevance:
+    score: 1
+    justification: "No ML content; purely classical TA; feature engineering from TA indicators may be relevant for ML pipelines but not discussed."

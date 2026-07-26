@@ -1,0 +1,68 @@
+schema_version: "1.0"
+prompt_version: "1.0"
+book_id: "trading-technical-analysis-masterclass-master-the-financial--2021"
+title: "Trading: Technical Analysis Masterclass: Master the Financial Markets"
+authors:
+  - "Rolf Schlotmann"
+  - "Moritz Czubatinski"
+edition: "1st"
+publication_year: 2019
+publisher_or_identifier: "Quantum Trade Solutions GmbH"
+format: "pdf"
+language: "English"
+page_count: 145
+chapter_count: 8
+extraction_quality: "high"
+ocr_quality: "high"
+processing_status: "audited"
+sources:
+  - absolute_path: "C:\\Users\\W4TV5V8\\PROJECTS\\Codex\\Research\\Books_03_07_26\\Algorithmical Trading"
+    relative_path: "\\Trading_Technical_Analysis_Masterclass.pdf"
+    sha256: "unknown"
+timestamps:
+  extraction_started: "2026-07-24T22:22:52.115+02:00"
+  extraction_completed: "2026-07-24T22:30:00.000+02:00"
+duplicate_relationships: []
+limitations_and_warnings:
+  - "Self-published/uncertain-provenance compilation: no peer review evident"
+  - "Publication date 2019; market conditions and broker APIs may have changed"
+  - "Book disclaims specific investment recommendations; focus is educational"
+  - "Many citations are dated or lack full attribution; needs primary-source verification"
+  - "No empirical backtesting results provided; strategies are illustrative only"
+scores:
+  source_credibility:
+    score: 2
+    justification: "Self-published educational material; author has trading experience but no independent verification of claims."
+  citation_quality:
+    score: 2
+    justification: "Limited citations; mostly references studies without full details; no comprehensive bibliography."
+  reproducibility:
+    score: 2
+    justification: "Descriptive and illustrative rather than prescriptive; no reproducible code or step-by-step formulas."
+  likely_freshness:
+    score: 1
+    justification: "2019 publication; market structure, broker APIs, and regulations have evolved; specific examples may be outdated."
+  system_engineering_relevance:
+    score: 3
+    justification: "Relevant for backtesting simulation fidelity and signal logic design; limited on execution infrastructure."
+  grid_relevance:
+    score: 2
+    justification: "No explicit grid-trading material; focus is on price-action and reversal patterns, less applicable to grid systems."
+  stock_strategy_relevance:
+    score: 4
+    justification: "Technical analysis concepts transfer well to equities; multiple candlestick and chart pattern examples use stock charts."
+  backtesting_relevance:
+    score: 3
+    justification: "Provides testable hypotheses and signal definitions; no built-in backtesting validation or walk-forward testing guidance."
+  live_execution_relevance:
+    score: 3
+    justification: "Discusses trade entry/exit timing and risk management concepts; limited on order management, slippage, or broker integration."
+  risk_relevance:
+    score: 3
+    justification: "Emphasizes risk management and position sizing as core trader responsibilities; limited quantitative risk frameworks."
+  data_quality_relevance:
+    score: 2
+    justification: "Assumes clean, pre-aggregated charts; no discussion of data quality, vendor bias, or survivorship issues."
+  machine_learning_relevance:
+    score: 1
+    justification: "No ML content; traditional rule-based technical analysis; unlikely to guide feature engineering or model design."

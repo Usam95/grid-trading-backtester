@@ -1,0 +1,265 @@
+book_id: "machine-learning-for-algorithm-trading-master-as-a-pro-appli"
+sections:
+  - ref: "0"
+    title: "Front Matter"
+    epub_chapter_index: 0
+    status: "processed"
+    reason: "Empty front matter."
+
+  - ref: "1"
+    title: "Title & Credits"
+    epub_chapter_index: 1
+    status: "processed"
+    reason: "Title page and cover."
+
+  - ref: "2"
+    title: "Copyright & Legal Disclaimer"
+    epub_chapter_index: 2
+    status: "processed"
+    reason: "Standard copyright and disclaimer; no technical content."
+
+  - ref: "3"
+    title: "Table of Contents"
+    epub_chapter_index: 3
+    status: "processed"
+    reason: "TOC only; used for structure."
+
+  - ref: "4"
+    title: "Section Intro: Python for Beginners"
+    epub_chapter_index: 4
+    status: "processed"
+    reason: "Section introduction; marketing language, no decision-relevant content."
+
+  - ref: "5"
+    title: "Introduction to Python & Design Patterns"
+    epub_chapter_index: 5
+    status: "processed"
+    reason: "Generic design pattern theory; not trading-specific; low utility."
+
+  - ref: "6"
+    title: "Python Code Optimization with ctypes"
+    epub_chapter_index: 6
+    status: "processed"
+    reason: "Performance optimization via C interop; potentially relevant for live execution but no trading context."
+
+  - ref: "7"
+    title: "Finding Python Project Toolkit Best Practices"
+    epub_chapter_index: 7
+    status: "processed"
+    reason: "Dev tooling survey (Flake8, pytest, Sphinx, Poetry); low relevance to trading systems."
+
+  - ref: "8"
+    title: "Python Arbitrary-Precision Integer Implementation"
+    epub_chapter_index: 8
+    status: "low_priority"
+    reason: "Low-level Python internals; not relevant to trading or backtesting logic."
+
+  - ref: "9"
+    title: "English Learning Bot in Python"
+    epub_chapter_index: 9
+    status: "irrelevant_to_mission"
+    reason: "Telegram bot for language learning; no trading or ML relevance."
+
+  - ref: "10"
+    title: "Thermal Imaging with Raspberry Pi"
+    epub_chapter_index: 10
+    status: "irrelevant_to_mission"
+    reason: "IoT hardware project; no relevance to algorithmic trading."
+
+  - ref: "11"
+    title: "Free Parking Space Detection with Deep Learning"
+    epub_chapter_index: 11
+    status: "processed"
+    reason: "CNN image detection pipeline; demonstrates ML workflow and overfitting risks but not trading-specific."
+
+  - ref: "12"
+    title: "Pygame Game Development Part 1-3"
+    epub_chapter_index: 12
+    status: "irrelevant_to_mission"
+    reason: "Game framework tutorial; no trading content."
+
+  - ref: "13"
+    title: "Object-Oriented Programming in Python 3"
+    epub_chapter_index: 13
+    status: "low_priority"
+    reason: "Basic OOP patterns; foundational but not trading-specific."
+
+  - ref: "14"
+    title: "Python for Beginners Conclusion"
+    epub_chapter_index: 14
+    status: "processed"
+    reason: "Section summary; no new content."
+
+  - ref: "15"
+    title: "Section Intro & Data Science Significance"
+    epub_chapter_index: 15
+    status: "processed"
+    reason: "Data science motivation; marketing language, generic career information."
+
+  - ref: "16"
+    title: "Python Basics"
+    epub_chapter_index: 16
+    status: "processed"
+    reason: "Basic syntax, variables, control flow; foundational but no trading specifics."
+
+  - ref: "17"
+    title: "Functions"
+    epub_chapter_index: 17
+    status: "low_priority"
+    reason: "Generic function definition and usage; no trading context."
+
+  - ref: "18"
+    title: "Lists and Loops"
+    epub_chapter_index: 18
+    status: "low_priority"
+    reason: "Data structure basics; no trading application."
+
+  - ref: "19"
+    title: "Multiple-Valued Data in Python"
+    epub_chapter_index: 19
+    status: "low_priority"
+    reason: "Input handling; not relevant to algorithmic trading."
+
+  - ref: "20"
+    title: "String Data in Python"
+    epub_chapter_index: 20
+    status: "low_priority"
+    reason: "String manipulation; no trading relevance."
+
+  - ref: "21"
+    title: "Module Data (likely Collections/NumPy)"
+    epub_chapter_index: 21
+    status: "processed"
+    reason: "Python modules for data handling; potentially relevant for data pipeline but vague chapter."
+
+  - ref: "22"
+    title: "Python for Data Science Conclusion"
+    epub_chapter_index: 22
+    status: "processed"
+    reason: "Section wrap-up; no new content."
+
+  - ref: "23"
+    title: "Section Intro: Options Trading for Beginners"
+    epub_chapter_index: 23
+    status: "processed"
+    reason: "Section marketing intro; no technical content."
+
+  - ref: "24"
+    title: "Options Trading Basics"
+    epub_chapter_index: 24
+    status: "processed"
+    reason: "Foundational options concepts (calls, puts, strike, expiration); decision-relevant for options strategies."
+
+  - ref: "25"
+    title: "Why Trade with Options"
+    epub_chapter_index: 25
+    status: "processed"
+    reason: "Options use cases (leverage, hedging); motivational but contains testable claims about risk/reward."
+
+  - ref: "26"
+    title: "Major Option Trading Concepts"
+    epub_chapter_index: 26
+    status: "processed"
+    reason: "Greeks, time decay, implied volatility; core concepts for options strategy validation."
+
+  - ref: "27"
+    title: "Options Trading Myths and Misconceptions"
+    epub_chapter_index: 27
+    status: "processed"
+    reason: "Addresses myths about leverage, selling, and profitability; contains testable distinctions."
+
+  - ref: "28"
+    title: "Top Options Trading Strategies"
+    epub_chapter_index: 28
+    status: "processed"
+    reason: "Strategy overview (covered calls, spreads, collars); potentially testable via backtest."
+
+  - ref: "29"
+    title: "Qualities of Successful Options Trader"
+    epub_chapter_index: 29
+    status: "processed"
+    reason: "Behavioral and risk management traits; relevant to live execution framework design."
+
+  - ref: "30"
+    title: "How to Select the Right Option for Major Gain"
+    epub_chapter_index: 30
+    status: "processed"
+    reason: "Option selection heuristics; claims testable via backtest but likely lacks rigor."
+
+  - ref: "31"
+    title: "Important Tips & Tricks about Options Trading"
+    epub_chapter_index: 31
+    status: "processed"
+    reason: "Miscellaneous options best practices; mixed evidence quality."
+
+  - ref: "32"
+    title: "Important FAQs of Options Trading"
+    epub_chapter_index: 32
+    status: "processed"
+    reason: "Q&A on basics, strategies, and Greeks; reinforces earlier content."
+
+  - ref: "33"
+    title: "Options Trading Conclusion"
+    epub_chapter_index: 33
+    status: "processed"
+    reason: "Section summary."
+
+  - ref: "34"
+    title: "Section Intro: Day and Swing Trading"
+    epub_chapter_index: 34
+    status: "processed"
+    reason: "Section intro; marketing framing."
+
+  - ref: "35"
+    title: "Difference Between Swing and Day Trading"
+    epub_chapter_index: 35
+    status: "processed"
+    reason: "Timeframe and holding period distinctions; foundational for strategy classification."
+
+  - ref: "36"
+    title: "How Does It Work?"
+    epub_chapter_index: 36
+    status: "processed"
+    reason: "Mechanics of entry/exit, order types, margin; relevant to execution framework."
+
+  - ref: "37"
+    title: "Swing & Day Trading: Tactics and Strategies"
+    epub_chapter_index: 37
+    status: "processed"
+    reason: "Strategy examples (scalping, breakout, support/resistance); testable via backtest."
+
+  - ref: "38"
+    title: "Swing and Day Trading Indicators"
+    epub_chapter_index: 38
+    status: "processed"
+    reason: "Technical indicators (RSI, MACD, Bollinger Bands); signal generation candidates."
+
+  - ref: "39"
+    title: "Pros and Cons of Swing and Day Trading"
+    epub_chapter_index: 39
+    status: "processed"
+    reason: "Risk/reward trade-offs; relevant to backtest design and live deployment assumptions."
+
+  - ref: "40"
+    title: "Day and Swing Trading Conclusion"
+    epub_chapter_index: 40
+    status: "processed"
+    reason: "Section wrap-up."
+
+  - ref: "41"
+    title: "Appendix or Overflow Content"
+    epub_chapter_index: 41
+    status: "processed"
+    reason: "Unknown content; not extracted in preview."
+
+  - ref: "42"
+    title: "Appendix or Overflow Content"
+    epub_chapter_index: 42
+    status: "processed"
+    reason: "Unknown content; not extracted in preview."
+
+  - ref: "43"
+    title: "Appendix or Overflow Content"
+    epub_chapter_index: 43
+    status: "processed"
+    reason: "Unknown content; not extracted in preview."

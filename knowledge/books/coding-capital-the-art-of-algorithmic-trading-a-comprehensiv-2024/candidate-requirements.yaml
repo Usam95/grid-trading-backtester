@@ -1,0 +1,161 @@
+- id: "CODCAP-R1"
+  title: "Backtesting framework shall support slippage and partial fill modeling"
+  status: "proposed"
+  derived_from: ["CODCAP-C6-002"]
+  derivation_type: "agent_inference"
+  rationale: "Book backtesting chapter does not address fill assumptions; backtest-to-live gap is a known source of strategy failure. Framework must model latency-induced slippage and partial fills to match live execution."
+  applies_to: {strategy: ["stock_signal", "grid"], lifecycle: ["backtest"], asset_class: ["equities", "crypto_spot", "crypto_futures"], concern: ["simulation", "data"]}
+  requirement: "The backtesting framework shall accept configurable slippage parameters (fixed basis points, percentage-based, or latency-based model) and shall model partial order fills based on available liquidity at execution price, with results logged per-trade."
+  acceptance_tests:
+    - "Execute a mock strategy in backtest with zero slippage; compare to live broker fills (if available)"
+    - "Run same strategy with +5bp slippage; verify P&L decreased by expected amount"
+    - "Test partial fill scenario; verify order queue and remaining size tracked correctly"
+  failure_prevented: "Strategy deployed and fails live due to unmodeled slippage; trader blames backtest tool rather than strategy."
+  capability_enabled: "Realistic backtest P&L; reduced backtest-to-live divergence; more honest strategy performance assessment."
+  assumptions: ["Slippage model parameters can be estimated from broker data", "Partial fill logic is deterministic and reproducible"]
+  open_questions: ["How to model slippage for illiquid venues?", "Should slippage model include market impact?"]
+  dependencies: ["CODCAP-R2"]
+  verification_needed: "Audit broker logs to calibrate slippage model; compare backtest P&L to live P&L on same strategy."
+  priority_hint: "correctness"
+
+- id: "CODCAP-R2"
+  title: "Data pipeline shall validate incoming ticks for staleness, out-of-order, and price anomalies"
+  status: "proposed"
+  derived_from: ["CODCAP-C12-001"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Real-time data processing chapter discusses streaming architectures but does not specify data quality checks. Malformed or stale data poisons backtest and live signal quality."
+  applies_to: {strategy: ["stock_signal", "grid", "shared"], lifecycle: ["backtest", "paper", "live"], asset_class: ["equities", "crypto_spot", "crypto_futures"], concern: ["data", "monitoring"]}
+  requirement: "The data ingestion pipeline shall implement validation checks: (1) tick sequence is monotonically increasing by timestamp, (2) quote staleness (quote age > 10s triggers alert), (3) price anomaly detection (price move > 5% from last valid quote triggers review), and (4) duplicate tick rejection. All anomalies shall be logged for audit."
+  acceptance_tests:
+    - "Inject out-of-order ticks; verify rejected or reordered"
+    - "Inject stale quotes; verify alert raised"
+    - "Inject price spike (realistic market event); verify anomaly flagged and logged"
+    - "Backtest with validation ON vs. OFF; document any P&L divergence"
+  failure_prevented: "Bad data causes unexecutable orders, phantom fills, or incorrect risk calculations."
+  capability_enabled: "High-confidence data pipeline; audit trail for anomalies; early detection of broker/feed issues."
+  assumptions: ["Anomaly thresholds are calibrated to specific market and asset class", "Validation does not introduce unacceptable latency"]
+  open_questions: ["How aggressive should price anomaly threshold be?", "What is acceptable data loss rate due to validation?"]
+  dependencies: []
+  verification_needed: "Audit incoming data for anomalies; compare detected rate to industry benchmarks; test live vs. historical quality."
+  priority_hint: "correctness"
+
+- id: "CODCAP-R3"
+  title: "Risk management system shall halt trading if maximum drawdown threshold is exceeded"
+  status: "proposed"
+  derived_from: ["CODCAP-C8-001"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Risk chapter identifies maximum drawdown as key control; system must enforce it operationally to prevent spiral losses during adverse market conditions."
+  applies_to: {strategy: ["stock_signal", "grid", "shared"], lifecycle: ["paper", "live"], asset_class: ["equities", "crypto_spot", "crypto_futures"], concern: ["risk", "monitoring", "operations"]}
+  requirement: "The risk management system shall calculate rolling maximum drawdown (peak equity minus current equity) every trading cycle. If drawdown exceeds configured threshold (e.g., 20% of peak equity), system shall (1) flatten all open positions, (2) halt new trade entry, (3) alert operations, and (4) log decision with timestamp and reason."
+  acceptance_tests:
+    - "Run strategy in backtest; artificially trigger drawdown scenario; verify halt executed at correct threshold"
+    - "Paper trade with 20% drawdown threshold; simulate 25% adverse move; verify positions closed"
+    - "Verify that halt decision is logged and retrievable for audit"
+  failure_prevented: "Uncontrolled loss spiral; trader loses entire account before reacting."
+  capability_enabled: "Bounded loss protection; clear operational halt signal; auditability for regulatory compliance."
+  assumptions: ["Drawdown calculation is real-time and accurate", "Position flatten is deterministic and does not introduce additional slippage"]
+  open_questions: ["Should drawdown be absolute or relative to initial account?", "How long should halt persist (manual resume vs. automatic after fixed time)?"]
+  dependencies: []
+  verification_needed: "Stress test with rapidly declining market; verify halt triggered within acceptable latency; audit log entries."
+  priority_hint: "safety"
+
+- id: "CODCAP-R4"
+  title: "Execution layer shall support async I/O for multi-stream market data ingestion"
+  status: "proposed"
+  derived_from: ["CODCAP-C9-001"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Python chapter on concurrency recommends async patterns; event-driven architecture enables low-latency handling of multiple concurrent market feeds without thread proliferation."
+  applies_to: {strategy: ["stock_signal", "grid", "shared"], lifecycle: ["backtest", "paper", "live"], asset_class: ["equities", "crypto_spot", "crypto_futures"], concern: ["execution", "operations"]}
+  requirement: "The market data ingestion layer shall use Python asyncio (or equivalent event-driven library) to multiplex multiple broker/feed connections onto a single event loop, with maximum latency from broker tick emission to algorithm receipt < 100ms and maximum CPU thread count <= 4 for 100+ concurrent streams."
+  acceptance_tests:
+    - "Benchmark latency: emit test ticks from mock broker; measure time to algorithm receipt (p50, p99, p999)"
+    - "Load test: connect 100+ concurrent streams; verify CPU usage is linear, not exponential in thread count"
+    - "Verify no data loss or duplicate ticks under sustained high-frequency load"
+  failure_prevented: "Naive synchronous multi-threading causes context-switch overhead and limits scalability; high latency misses trading opportunities."
+  capability_enabled: "Scalable low-latency data ingestion; efficient resource utilization; foundation for multi-asset strategies."
+  assumptions: ["Async client libraries are available for all broker APIs", "Event loop does not block on any I/O operation"]
+  open_questions: ["Can we safely multiplex order execution on same event loop as data ingestion?", "How to debug async race conditions in production?"]
+  dependencies: []
+  verification_needed: "Latency benchmark on production broker connection; compare to existing synchronous implementation."
+  priority_hint: "operability"
+
+- id: "CODCAP-R5"
+  title: "Backtesting framework shall implement walk-forward validation for parameter optimization"
+  status: "proposed"
+  derived_from: ["CODCAP-C13-002"]
+  derivation_type: "agent_inference"
+  rationale: "Book discusses ML and overfitting but does not provide detailed validation methodology. Walk-forward testing is gold standard for detecting overfitting; framework must automate it."
+  applies_to: {strategy: ["stock_signal", "grid", "shared"], lifecycle: ["research", "backtest"], asset_class: ["equities", "crypto_spot", "crypto_futures"], concern: ["reproducibility", "alpha"]}
+  requirement: "The backtesting framework shall support walk-forward optimization: specify train window size, test window size, and step size; for each window, optimize parameters on train data, evaluate on held-out test data, and report per-window test performance (Sharpe, max drawdown, return). System shall track parameter stability across windows and flag overfitting (high in-sample performance, low out-of-sample performance)."
+  acceptance_tests:
+    - "Define 5-year historical backtest; set train=3y, test=1y, step=6m; verify 10 windows generated"
+    - "Optimize strategy parameters on first train window; evaluate on first test window; repeat for remaining windows"
+    - "Compare parameter values across windows; if identical, flag as potential underfit; if highly variable, flag as potential overfit"
+    - "Generate report showing test-set Sharpe per window; verify consistency"
+  failure_prevented: "Strategy optimized on single backtest period; overfits to that period; fails in live trading."
+  capability_enabled: "Robust parameter discovery; early detection of overfitting; higher confidence in strategy generalization."
+  assumptions: ["Historical data is sufficient for multiple windows", "Parameter optimization is deterministic and reproducible"]
+  open_questions: ["Optimal window sizes for different market regimes?", "How to compare strategies with different parameter counts?"]
+  dependencies: []
+  verification_needed: "Validate walk-forward implementation against academic literature; compare to industry standard tools."
+  priority_hint: "research_quality"
+
+- id: "CODCAP-R6"
+  title: "Monitoring system shall alert on infrastructure health degradation (latency spikes, data loss)"
+  status: "proposed"
+  derived_from: ["CODCAP-C11-001"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Infrastructure chapter emphasizes resilience and monitoring; system must proactively detect degradation before it causes trading failures."
+  applies_to: {strategy: ["stock_signal", "grid", "shared"], lifecycle: ["paper", "live"], asset_class: ["equities", "crypto_spot", "crypto_futures"], concern: ["monitoring", "operations"]}
+  requirement: "The monitoring system shall measure and alert on: (1) order execution latency (submission to fill, target < 500ms; alert if p99 > 1s), (2) data ingestion latency (broker tick to algorithm receipt, target < 100ms; alert if p99 > 500ms), (3) data loss (fractional ticks received vs. expected, target > 99.9%; alert if < 99%), and (4) infrastructure process health (CPU/memory usage, thread count, exception rate). Alerts shall be logged and sent to operations channel in real-time."
+  acceptance_tests:
+    - "Simulate latency spike; verify alert triggered within 1 minute"
+    - "Simulate data loss scenario (dropped packets); verify < 99% threshold triggers alert"
+    - "Verify alert contains actionable context (timestamp, metric value, threshold)"
+  failure_prevented: "Degraded infrastructure goes unnoticed; strategy makes decisions on stale data; losses accumulate before remedy."
+  capability_enabled: "Early detection of system issues; rapid response; reduced mean time to recovery."
+  assumptions: ["Metrics can be collected without significant latency overhead", "Alert thresholds are calibrated to strategy and market"]
+  open_questions: ["What latency is acceptable for different strategy types?", "How to distinguish legitimate operational degradation from market anomalies?"]
+  dependencies: []
+  verification_needed: "Audit alerting during live trading; verify responsiveness and accuracy."
+  priority_hint: "operability"
+
+- id: "CODCAP-R7"
+  title: "Position sizing logic shall respect per-venue liquidity constraints to avoid failed fills"
+  status: "proposed"
+  derived_from: ["CODCAP-C10-001", "CODCAP-C8-001"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Multi-asset chapter emphasizes asset-class differences; risk chapter discusses position sizing but does not address liquidity. Position size must be calibrated to venue liquidity to avoid execution failure."
+  applies_to: {strategy: ["stock_signal", "grid", "shared"], lifecycle: ["backtest", "paper", "live"], asset_class: ["equities", "crypto_spot", "crypto_futures"], concern: ["execution", "risk"]}
+  requirement: "Position sizing logic shall query available liquidity (bid-ask volume at execution price) before finalizing order size. If desired position size exceeds available liquidity in a single tick, logic shall (1) split order across multiple price levels, (2) reduce position size to fit in best available liquidity, or (3) reject trade if position size cannot be met. Configuration shall specify venue-specific liquidity thresholds per asset class."
+  acceptance_tests:
+    - "Query mock liquidity data; request position size > available; verify order is split or rejected per policy"
+    - "Backtest with varying liquidity profiles; track fill rate (should be near 100%)"
+    - "Paper trade with live liquidity data; verify no stuck orders or unexpected partial fills"
+  failure_prevented: "Position size exceeds available liquidity; order times out or fills at much worse prices than expected."
+  capability_enabled: "Reliable execution; reduced slippage; fewer stuck orders."
+  assumptions: ["Liquidity data is available in real-time", "Liquidity snapshot is reasonably stable over order lifetime"]
+  open_questions: ["How to handle intraday liquidity seasonality?", "Should we prioritize execution speed or liquidity availability?"]
+  dependencies: ["CODCAP-R2"]
+  verification_needed: "Audit fill rates across different venues; compare backtest liquidity assumptions to live experience."
+  priority_hint: "correctness"
+
+- id: "CODCAP-R8"
+  title: "Strategy shall not deploy without completed walk-forward backtest and positive out-of-sample Sharpe ratio"
+  status: "proposed"
+  derived_from: ["CODCAP-C13-002", "CODCAP-C6-002"]
+  derivation_type: "agent_inference"
+  rationale: "Book does not validate profitability claims; risk of deploying untested strategies is high. Require evidence of out-of-sample performance before live deployment."
+  applies_to: {strategy: ["stock_signal", "grid", "shared"], lifecycle: ["backtest", "live"], asset_class: ["equities", "crypto_spot", "crypto_futures"], concern: ["alpha", "reproducibility"]}
+  requirement: "Before deploying a strategy to paper or live trading, strategy shall have completed walk-forward backtest across at least 5 windows, with test-set (out-of-sample) Sharpe ratio >= 0.5 averaged across windows, and test-set maximum drawdown <= 25%. Backtest shall include slippage, transaction costs, and risk controls. Report shall be archived and linked to deployment."
+  acceptance_tests:
+    - "Attempt to deploy strategy without walk-forward test; system rejects with clear error message"
+    - "Run walk-forward test; generate compliance report with pass/fail criteria"
+    - "Verify test-set metrics meet thresholds; deployment proceeds only if passed"
+  failure_prevented: "Untested strategy deployed; fails live and causes losses."
+  capability_enabled: "Higher confidence strategy selection; documented decision trail; compliance audit trail."
+  assumptions: ["Test-set Sharpe is predictive of live Sharpe", "Thresholds are reasonably calibrated"]
+  open_questions: ["Are Sharpe and max drawdown the right criteria?", "Should we include other tests (e.g., calmar ratio, sortino)?"]
+  dependencies: ["CODCAP-R5"]
+  verification_needed: "Audit deployed strategies; correlate backtest metrics to live performance; refine thresholds based on experience."
+  priority_hint: "correctness"

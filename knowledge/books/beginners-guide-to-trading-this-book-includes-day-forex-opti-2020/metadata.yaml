@@ -1,0 +1,80 @@
+schema_version: '1.0'
+prompt_version: '1.0'
+book_id: beginners-guide-to-trading-this-book-includes-day-forex-opti-2020
+title: 'Beginners Guide to Trading: Day, Forex, Options and Swing Trading for Beginners'
+authors:
+- Alexander Peace
+edition: First
+publication_year: 2020
+publisher_or_identifier: Self-published via Calibre
+format: pdf
+language: English
+page_count: 553
+chapter_count: 49
+extraction_quality: good
+ocr_quality: good
+processing_status: audited
+extraction_timestamp: '2026-07-24T23:11:12.216969+00:00'
+sources:
+- absolute_path: C:\Users\W4TV5V8\.copilot\session-state\a55e8123-c79b-4d55-ace8-c7dd582db539\files\tooling
+  relative_path: tooling
+  book_id: beginners-guide-to-trading-this-book-includes-day-forex-opti-2020
+  format: pdf
+  page_count: 553
+duplicate_relationships: none
+limitations_and_warnings:
+- Self-published omnibus with uncertain editorial review; treat claims as preliminary
+- Broker APIs, fees, regulations, and market structure described circa 2020; verify
+  current versions
+- Binary options heavily regulated/banned in many jurisdictions; legality and broker
+  availability variable
+- Specific broker names and minimum balances may be outdated
+- No empirical validation of strategies provided; only author assertions
+scores:
+  source_credibility:
+    score: 2
+    justification: Self-published omnibus; no editorial board; author credentials
+      not verified; uncertain provenance
+  citation_quality:
+    score: 1
+    justification: No citations to research, primary sources, or data; assertions
+      unsupported by external references
+  reproducibility:
+    score: 2
+    justification: No specific data, parameters, or code; strategies described qualitatively
+      only
+  likely_freshness:
+    score: 2
+    justification: Published 2020; broker minimums, fees, APIs likely changed; regulatory
+      environment evolving
+  system_engineering_relevance:
+    score: 3
+    justification: Risk management and position sizing concepts applicable; data quality
+      and trading plan concepts relevant
+  grid_relevance:
+    score: 2
+    justification: Limited grid-specific content; general risk/money management principles
+      applicable
+  stock_strategy_relevance:
+    score: 3
+    justification: Swing trading section relevant; technicals, fundamentals, psychology
+      applicable; position sizing useful
+  backtesting_relevance:
+    score: 2
+    justification: No backtesting methodology described; gaps, transaction costs,
+      regime detection not addressed
+  live_execution_relevance:
+    score: 3
+    justification: Broker selection, trading plans, risk management, psychology concepts
+      applicable to live trading
+  risk_relevance:
+    score: 4
+    justification: Position sizing, money management, stops, drawdown concepts emphasized;
+      margin and leverage risks discussed
+  data_quality_relevance:
+    score: 2
+    justification: Data quality not addressed; broker API integrity not discussed
+  machine_learning_relevance:
+    score: 1
+    justification: No ML concepts; no optimization or learning methods discussed
+synthesis_timestamp: '2026-07-24T23:17:35.991978+00:00'

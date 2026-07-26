@@ -1,0 +1,186 @@
+- id: NTFL-HYP-001
+  title: "Stopping trading after 20% drawdown improves long-term returns vs continuous trading"
+  status: proposed
+  derived_from:
+    - NTFL-C1-003
+  statement: |
+    After a drawdown of 20% or greater, traders who stop trading for 5-10 days to analyze
+    losing trades will achieve better returns over subsequent 12 months than traders who
+    continue trading without interruption.
+  proposed_mechanism: "Reflection period allows identification of systematic errors; prevents revenge trading and emotional escalation"
+  applicable_markets_and_regimes: "All markets; most applicable in trend-following and mean-reversion strategies"
+  assumptions:
+    - Drawdown is accurately measured
+    - Trader can objectively analyze losses
+    - Trading opportunity set is same before and after pause
+  data_requirements:
+    - 50+ individual trades per strategy per test period
+    - Trade-level entry/exit records with timestamps
+    - Account equity over time
+  baseline_or_null_hypothesis: "Continuous trading produces equal or better returns than trading with reflective pauses"
+  validation_approach: |
+    Randomized controlled trial on simulated account:
+    (1) Trade using strategy for 12 months
+    (2) Randomly select 50% of 20%+ drawdowns as "treatment" (forced pause 7 days)
+    (3) Compare returns post-treatment vs control drawdowns
+  transaction_cost_and_fill_considerations: "Pause eliminates all trading costs during analysis window; opportunity cost depends on trend"
+  robustness_checks:
+    - Test across market regimes (trending, ranging, volatile)
+    - Test with different pause lengths (3, 7, 14 days)
+    - Test with different drawdown thresholds (10%, 15%, 20%, 30%)
+  rejection_criteria: "If pause-group returns are not significantly higher (p<0.05) after adjusting for market beta, hypothesis is rejected"
+  failure_modes:
+    - Pause occurs before market reversal; trader misses recovery
+    - Drawdown continues beyond pause period
+    - Systematic analysis reveals no fixable errors
+  freshness_concerns: "none"
+  unresolved_questions:
+    - Optimal pause length?
+    - Drawdown threshold for triggering pause?
+    - Does pause effectiveness vary by strategy type?
+
+- id: NTFL-HYP-002
+  title: "Fixed risk percentage per trade prevents drawdowns exceeding predicted level"
+  status: proposed
+  derived_from:
+    - NTFL-C9-002
+  statement: |
+    If a trader maintains fixed risk percentage per trade (e.g., 2% of account equity),
+    the maximum observed drawdown will not exceed the product of (# consecutive losses) × (risk percentage),
+    with 95% confidence.
+  proposed_mechanism: |
+    Mathematical: max_loss = n_losses × risk_percentage.
+    If losses are random, distribution of drawdowns follows binomial/geometric patterns.
+  applicable_markets_and_regimes: "All markets, all strategies; holds under any win/loss distribution"
+  assumptions:
+    - Risk limit is strictly enforced (no exceptions)
+    - Stop losses are honored at designated levels
+    - Position sizing scales with account equity changes
+  data_requirements:
+    - 100+ trades with documented entry, exit, risk per trade
+    - Account equity measurements (daily minimum)
+  baseline_or_null_hypothesis: "Fixed risk percentage does not control drawdown; other factors dominate"
+  validation_approach: |
+    (1) Backtest strategy with fixed-risk sizing across 20+ year history
+    (2) Calculate realized max drawdown
+    (3) Compare to predicted max given win rate and loss count
+    (4) Run bootstrap resampling: permute trade sequence, measure max drawdown distribution
+  robustness_checks:
+    - Test with different risk percentages (0.5%, 1%, 2%, 5%)
+    - Test across different market regimes
+    - Test with different win rates (40%, 50%, 60%)
+  rejection_criteria: "If 5+ instances where realized drawdown > 1.5× predicted drawdown, hypothesis rejected"
+  failure_modes:
+    - Gap risk: loss size exceeds initial stop level
+    - Highly correlated losses (regime shift) exceed prediction
+    - Slippage on stops worse than assumed
+  freshness_concerns: "Gap risk has changed with market microstructure; modern circuit breakers reduce but do not eliminate"
+
+- id: NTFL-HYP-003
+  title: "Commercial trading systems fail within 2 years after purchase due to regime shift"
+  status: proposed
+  derived_from:
+    - NTFL-C1-004
+    - NTFL-C7-001
+  statement: |
+    A trading system purchased with historical backtest track record will underperform its
+    backtest by >20% within 12-24 months of deployment, due to market regime change
+    and/or curve-fitting.
+  proposed_mechanism: |
+    Systems are optimized on historical data; parameters capture both signal and noise.
+    When regime shifts, noise disappears but signal patterns may also invalidate.
+  applicable_markets_and_regimes: "All markets; applies to all curve-fit systems; least applicable to robust factor-based systems"
+  assumptions:
+    - System is traded exactly as specified in documentation
+    - Backtest quality is industry-standard (not deliberately misleading)
+    - Market regime does change over 12-24 month period
+  data_requirements:
+    - Backtest record (equity curve, trades)
+    - Live deployment record (same timeframe post-launch)
+  baseline_or_null_hypothesis: "Commercial systems continue to perform as backtested; regime stability"
+  validation_approach: |
+    (1) Collect 30+ commercial systems with 5+ year live records
+    (2) Extract backtest-reported returns
+    (3) Compare to first 24 months live returns
+    (4) Calculate performance degradation distribution
+  transaction_cost_and_fill_considerations: "Backtest often uses unrealistic slippage/commission assumptions; live execution costs higher"
+  robustness_checks:
+    - Stratify by system type (momentum, mean-reversion, machine learning)
+    - Stratify by asset class (stocks, futures, forex)
+    - Control for market regime using regime detection indicator
+  rejection_criteria: "If >50% of systems maintain 80%+ of backtest performance in live trading, hypothesis rejected"
+  failure_modes:
+    - System designer adapts parameters during live period
+    - Buy-and-hold market returns confound (system performance worse but market also down)
+    - System seller stops marketing and data disappears
+  freshness_concerns: "High; machine learning and AI-based systems may have different curve-fitting behavior than traditional technical systems"
+
+- id: NTFL-HYP-004
+  title: "Limit orders reduce entry slippage by >50% vs market orders"
+  status: proposed
+  derived_from:
+    - NTFL-C10-001
+  statement: |
+    Using limit orders for trade entries reduces average slippage vs market orders by 50% or more,
+    with tradeoff of occasional missed entries.
+  proposed_mechanism: |
+    Limit orders execute only at or better than specified price; market orders accept best available.
+    Slippage = (execution_price - market_price_at_order). Limit orders eliminate upside slippage.
+  applicable_markets_and_regimes: "Stocks, ETFs; less applicable in low-liquidity instruments or fast-moving markets"
+  assumptions:
+    - Limit price is set at reasonable distance from market price (not too far, not too tight)
+    - Broker does not internalize or delay execution
+    - Trader does not cancel unfilled orders too quickly
+  data_requirements:
+    - 100+ trade entries with (bid-ask spread, limit price, execution price, fill status)
+    - If unfilled, market price at end of trading session
+  baseline_or_null_hypothesis: "Limit and market orders produce equivalent slippage"
+  validation_approach: |
+    (1) Run same entry signal on same dates with two algorithms:
+        A: Market orders
+        B: Limit orders at mid-quote - 0.5 × spread
+    (2) Measure average fill price vs market price at order time
+    (3) Measure fill rates (% of orders executed)
+    (4) Compare net slippage accounting for missed fills
+  robustness_checks:
+    - Test with different limit price offsets (0.25×, 0.5×, 1.0× spread)
+    - Test across market conditions (liquid, illiquid, volatile)
+    - Test with different order sizes
+  rejection_criteria: "If limit order slippage is not >40% less than market order slippage, hypothesis rejected"
+  failure_modes:
+    - Limit too tight: many missed fills, subsequent re-entry at worse price
+    - Limit too loose: no slippage improvement
+    - Fast market: limit orders obsolete before fill
+  freshness_concerns: "Very high; modern market microstructure (high-speed trading, maker-taker fees) may eliminate edge"
+
+- id: NTFL-HYP-005
+  title: "Traders replicating personal irresponsibility experience trading losses"
+  status: proposed
+  derived_from:
+    - NTFL-C1-002
+  statement: |
+    Traders who exhibit low personal discipline in life (missed deadlines, poor financial record-keeping,
+    traffic violations, tax delinquency) will show higher trading losses and shorter trading survival
+    than traders with high personal discipline, independent of trading system quality.
+  proposed_mechanism: "Impulsive behavior and poor planning transfer to trading decisions; lack of accountability prevents learning"
+  applicable_markets_and_regimes: "All markets; applies to all trader populations"
+  assumptions:
+    - Personal discipline is accurately measured (e.g., credit score, employment history)
+    - Trading performance is accurately measured
+    - Causality is not reverse (trading losses don't cause personal irresponsibility)
+  data_requirements:
+    - 100+ traders with (personal discipline proxy, trading account P&L, trading history length)
+  baseline_or_null_hypothesis: "Personal discipline uncorrelated with trading outcomes"
+  validation_approach: |
+    (1) Develop personal discipline score from credit history, employment records, tax compliance
+    (2) Correlate vs trading P&L over 2-year period
+    (3) Survival analysis: time to 50% account loss by discipline quartile
+  rejection_criteria: "If correlation between discipline and returns is <0.3 or not significant (p>0.05), hypothesis rejected"
+  failure_modes:
+    - Personal discipline data not available or unreliable
+    - Survivorship bias: high-discipline traders may self-select out of trading earlier
+    - Reverse causality: trading losses drive personal stress and irresponsibility
+  freshness_concerns: "Behavioral measurement and access to historical personal data limited"
+  unresolved_questions:
+    - Can trading-only discipline (plan adherence, journaling) substitute for life discipline?
+    - How is causality established?

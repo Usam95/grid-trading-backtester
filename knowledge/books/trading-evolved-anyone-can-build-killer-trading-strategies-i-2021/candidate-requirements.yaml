@@ -1,0 +1,277 @@
+- id: TRADEVO-R01
+  title: Backtesting framework shall support configurable commission and slippage assumptions
+  status: proposed
+  derived_from:
+    - TRADEVO-C7-001
+    - TRADEVO-C8-001
+  derivation_type: direct_book_recommendation
+  rationale: Realistic backtest results require accurate modeling of transaction costs; framework must allow per-asset or strategy-level customization of commission and slippage
+  applies_to:
+    strategy: [shared]
+    lifecycle: [research, backtest]
+    asset_class: [shared]
+    concern: [simulation]
+  requirement: "The backtesting engine shall accept and apply commission and slippage parameters on a per-trade basis and produce a detailed transaction cost report showing realized costs vs. backtest assumptions"
+  acceptance_tests:
+    - Verify that changing commission rate changes final backtest return proportionally
+    - Verify that slippage reduces returns and increases volatility relative to assumption-free backtest
+    - Verify transaction cost report matches manual calculation
+  failure_prevented: Overoptimistic backtest results causing live trading losses
+  capability_enabled: Accurate return and risk estimates for strategy comparison
+  assumptions:
+    - Commission and slippage can be estimated from historical execution data or broker specs
+    - Framework can link commission to order characteristics (size, venue, asset)
+  open_questions: How to model market impact for large positions? Should slippage vary by market regimes?
+  dependencies: [TRADEVO-R02, TRADEVO-R07]
+  verification_needed: null
+  priority_hint: correctness
+
+- id: TRADEVO-R02
+  title: Backtesting framework shall validate data quality with automated checks
+  status: proposed
+  derived_from:
+    - TRADEVO-C23-001
+    - TRADEVO-C24-001
+  derivation_type: direct_book_recommendation
+  rationale: Data quality directly impacts backtest result accuracy; framework must detect and report common data issues (gaps, duplicates, stale prices, incorrect adjustments)
+  applies_to:
+    strategy: [shared]
+    lifecycle: [research, backtest]
+    asset_class: [shared]
+    concern: [data, simulation]
+  requirement: "Data ingestion pipeline shall run automated validation checks including gap detection (missing dates), duplicate price records, price change outlier detection, and corporate action adjustment verification; all failures shall be reported before backtest execution"
+  acceptance_tests:
+    - Detect missing data (e.g., 1-day gap in daily prices)
+    - Detect duplicate records with same OHLCV
+    - Detect suspicious price movements (e.g., 50% move on no-dividend day)
+    - Verify dividend and split adjustments match official sources
+  failure_prevented: Corrupted backtest results from bad data; reproducibility issues
+  capability_enabled: Confidence in data integrity and backtest result reliability
+  assumptions:
+    - Correct reference data available for adjustments (corporate actions, dividends)
+    - Outliers are data errors not genuine market moves (requires manual review)
+  open_questions: How to distinguish genuine outliers from data errors? Which checks are mandatory vs. optional?
+  dependencies: [TRADEVO-R03, TRADEVO-R04]
+  verification_needed: null
+  priority_hint: correctness
+
+- id: TRADEVO-R03
+  title: Environment setup shall use locked dependency specifications for reproducibility
+  status: proposed
+  derived_from:
+    - TRADEVO-C5-001
+    - TRADEVO-C5-002
+  derivation_type: direct_book_recommendation
+  rationale: Python and library API changes cause backtest results to diverge; reproducibility requires explicit version pinning
+  applies_to:
+    strategy: [shared]
+    lifecycle: [research, backtest]
+    asset_class: [shared]
+    concern: [reproducibility]
+  requirement: "Backtesting environment setup shall document and enforce specific Python, pandas, numpy, and other critical library versions in locked dependency file (e.g., requirements.txt with pinned versions or Poetry.lock); all backtests shall record environment version fingerprint in results metadata"
+  acceptance_tests:
+    - Verify that environment setup reproduces exact dependency versions
+    - Verify backtest results are identical when run in locked vs. unlocked environment (same versions)
+    - Verify backtest results differ when run in different library versions (demonstrating sensitivity)
+  failure_prevented: Non-reproducible backtest results; forward progress loss from library updates
+  capability_enabled: Long-term reproducibility and audit trail of strategy performance
+  assumptions:
+    - Libraries remain stable within patch versions
+    - Numerical algorithms are deterministic
+  open_questions: How frequently should environment be updated? How to handle breaking changes in dependencies?
+  dependencies: []
+  verification_needed: null
+  priority_hint: correctness
+
+- id: TRADEVO-R04
+  title: Backtesting framework shall produce OHLCV candle data in standard format
+  status: proposed
+  derived_from:
+    - TRADEVO-C6-001
+    - TRADEVO-C7-001
+  derivation_type: agent_inference
+  rationale: Backtesting requires standard OHLCV format to enable data interoperability and reproducibility
+  applies_to:
+    strategy: [shared]
+    lifecycle: [research, backtest]
+    asset_class: [shared]
+    concern: [data, reproducibility]
+  requirement: "Data pipeline shall normalize all price sources into standard OHLCV format (open, high, low, close, volume) with explicit timestamp, asset identifier, and timeframe labels; format shall be usable by pandas DataFrame without transformation"
+  acceptance_tests:
+    - Load normalized data into pandas; verify OHLC values are numeric and volume is integer
+    - Verify timestamp is properly indexed (DatetimeIndex)
+    - Compare output to original source data for accuracy
+  failure_prevented: Data format mismatches causing import errors or silent failures
+  capability_enabled: Seamless data portability and strategy replication across tools
+  assumptions:
+    - OHLCV is sufficient for most backtesting use cases
+    - Timestamps can be unambiguously mapped to UTC
+  open_questions: Should additional fields (bid/ask, volume breakdown) be included? How to handle gaps?
+  dependencies: [TRADEVO-R02]
+  verification_needed: null
+  priority_hint: operability
+
+- id: TRADEVO-R05
+  title: Backtesting results shall include comprehensive performance metrics and risk statistics
+  status: proposed
+  derived_from:
+    - TRADEVO-C8-001
+    - TRADEVO-C20-001
+  derivation_type: direct_book_recommendation
+  rationale: Single-metric optimization leads to overfitting; comprehensive metrics enable robust strategy evaluation
+  applies_to:
+    strategy: [shared]
+    lifecycle: [research, backtest]
+    asset_class: [shared]
+    concern: [alpha, reproducibility]
+  requirement: "Backtest reporting shall produce metrics including total return, annualized return, Sharpe ratio, Sortino ratio, maximum drawdown, recovery time, win rate, profit factor, and transaction cost summary; all metrics shall be computed for full period and rolling 1-year/3-year windows"
+  acceptance_tests:
+    - Verify Sharpe ratio calculation matches standard formula (excess return / volatility)
+    - Verify maximum drawdown matches manual inspection of cumulative returns
+    - Verify rolling window metrics are continuous and non-overlapping where specified
+  failure_prevented: Metric gaming and spurious strategy selection
+  capability_enabled: Robust strategy comparison on multiple risk-adjusted dimensions
+  assumptions:
+    - Returns are sufficiently sampled for statistical validity
+    - Sharpe and other metrics are appropriate for strategy returns
+  open_questions: What is minimum sample size for statistical validity? How to weight recent vs. historical metrics?
+  dependencies: []
+  verification_needed: null
+  priority_hint: research_quality
+
+- id: TRADEVO-R06
+  title: Backtesting framework shall support out-of-sample validation and walk-forward analysis
+  status: proposed
+  derived_from:
+    - TRADEVO-C21-001
+    - TRADEVO-C3-001
+  derivation_type: direct_book_recommendation
+  rationale: Out-of-sample validation detects overfitting; walk-forward analysis tests robustness to parameter changes
+  applies_to:
+    strategy: [shared]
+    lifecycle: [research, backtest]
+    asset_class: [shared]
+    concern: [reproducibility, alpha]
+  requirement: "Framework shall support train/test split with configurable ratio, time-based walk-forward analysis with rolling windows, and statistical testing of significance (e.g., Sharpe ratio hypothesis tests); framework shall report in-sample vs. out-of-sample performance separately"
+  acceptance_tests:
+    - Execute walk-forward analysis with 1-year training / 6-month testing windows
+    - Verify test performance does not look ahead to training future
+    - Verify Sharpe ratio from test period is reported separately from training period
+  failure_prevented: Overfitting and false discovery of spurious patterns
+  capability_enabled: Confidence in forward performance of strategies
+  assumptions:
+    - Out-of-sample period is truly independent
+    - Strategy is not optimized using any test period data
+  open_questions: Optimal train/test ratio and window sizes? How to handle regime changes?
+  dependencies: []
+  verification_needed: null
+  priority_hint: research_quality
+
+- id: TRADEVO-R07
+  title: Backtesting framework shall model realistic order execution with configurable fill assumptions
+  status: proposed
+  derived_from:
+    - TRADEVO-C7-001
+  derivation_type: direct_book_recommendation
+  rationale: Backtests often assume perfect fills that don't occur in reality; realistic order models improve execution quality in live trading
+  applies_to:
+    strategy: [shared]
+    lifecycle: [research, backtest]
+    asset_class: [shared]
+    concern: [simulation, execution]
+  requirement: "Backtest engine shall support configurable order fill models including: (1) fill at close price, (2) fill with intrabar slippage, (3) partial fills for large orders, (4) rejected fills due to insufficient liquidity; framework shall allow per-strategy or per-asset configuration"
+  acceptance_tests:
+    - Verify that orders larger than typical daily volume trigger partial fill warnings
+    - Verify that fill prices differ by estimated slippage amount from order price
+    - Verify filled quantity and realized price are tracked separately
+  failure_prevented: Unrealistic backtest results leading to live execution problems
+  capability_enabled: Better alignment between backtest and live execution
+  assumptions:
+    - Fill assumptions can be estimated from market microstructure data
+    - Order queue position and partial execution can be simulated
+  open_questions: How to model market impact accurately? What is representative slippage by asset/size/venue?
+  dependencies: [TRADEVO-R01]
+  verification_needed: null
+  priority_hint: correctness
+
+- id: TRADEVO-R08
+  title: Strategy design shall require explicit parameter ranges and robustness validation
+  status: proposed
+  derived_from:
+    - TRADEVO-C3-001
+    - TRADEVO-C12-001
+  derivation_type: agent_inference
+  rationale: Parameter sensitivity testing prevents selection of parameters that break under small perturbations
+  applies_to:
+    strategy: [grid, stock_signal, portfolio]
+    lifecycle: [research, backtest]
+    asset_class: [shared]
+    concern: [reproducibility, alpha]
+  requirement: "Strategy specification shall include documented ranges and decision logic for key parameters (e.g., momentum lookback 60-250 days); validation suite shall test parameter sensitivity (±20% perturbation) and report stability of key metrics"
+  acceptance_tests:
+    - Run parameter sensitivity analysis on all major parameters
+    - Verify Sharpe ratio stays within 20% when parameters are perturbed by ±10%
+    - Report parameter values used in best backtest
+  failure_prevented: Overfitting to specific parameter values that break in forward trading
+  capability_enabled: Robust strategy design with realistic expectations for live parameter sensitivity
+  assumptions:
+    - Parameter ranges can be estimated from literature or multiple test periods
+    - Small perturbations represent realistic implementation variations
+  open_questions: What perturbation magnitude represents realistic implementation tolerance? How to weight different parameters?
+  dependencies: [TRADEVO-R05, TRADEVO-R06]
+  verification_needed: null
+  priority_hint: research_quality
+
+- id: TRADEVO-R09
+  title: Platform shall support backtesting on multiple asset classes (equities, futures, crypto)
+  status: proposed
+  derived_from:
+    - TRADEVO-C9-001
+  derivation_type: agent_inference
+  rationale: Systematic strategies should work across asset classes; multi-asset support enables portfolio construction and risk management
+  applies_to:
+    strategy: [shared]
+    lifecycle: [research, backtest]
+    asset_class: [equities, crypto_futures]
+    concern: [reproducibility, alpha]
+  requirement: "Backtesting engine shall support (1) equities with dividend adjustments, (2) futures with roll handling and contract-specific costs, (3) crypto spot and futures; framework shall handle asset-class-specific quirks (expiration dates, funding rates, etc.)"
+  acceptance_tests:
+    - Backtest equity strategy with known dividend-paying stocks
+    - Backtest futures strategy across contract roll boundaries
+    - Backtest crypto spot and futures strategies with realistic market hours
+  failure_prevented: Inability to test diversified strategies across asset classes
+  capability_enabled: Portfolio construction and cross-asset validation of systematic strategies
+  assumptions:
+    - Data is available for all supported asset classes
+    - Asset-class-specific costs can be estimated
+  open_questions: Which asset classes are highest priority? How to handle trading hours differences?
+  dependencies: [TRADEVO-R02, TRADEVO-R04]
+  verification_needed: null
+  priority_hint: research_quality
+
+- id: TRADEVO-R10
+  title: Backtesting framework shall detect and flag overfitting and data snooping risks
+  status: proposed
+  derived_from:
+    - TRADEVO-C21-001
+  derivation_type: direct_book_recommendation
+  rationale: Automated warnings help practitioners avoid common pitfalls
+  applies_to:
+    strategy: [shared]
+    lifecycle: [research, backtest]
+    asset_class: [shared]
+    concern: [alpha, reproducibility]
+  requirement: "Framework shall analyze backtest configuration and report risks including: (1) too many parameters for sample size, (2) test period length insufficient for statistical significance, (3) parameter values outside typical ranges, (4) walk-forward test not performed; warnings shall suggest mitigation steps"
+  acceptance_tests:
+    - Backtest with 50 parameters on 2 years data shall flag insufficient sample size
+    - Backtest with out-of-range parameters (e.g., 10000-day lookback on 15 years data) shall flag
+    - Run walk-forward test and verify no warnings if properly configured
+  failure_prevented: False discoveries and overfitting leading to live trading losses
+  capability_enabled: Practitioner awareness of risks and best practices
+  assumptions:
+    - Sample size and parameter count heuristics are well-established
+    - Practitioners will heed and act on warnings
+  open_questions: What are optimal heuristic thresholds? How to distinguish overfitting from genuine alpha?
+  dependencies: [TRADEVO-R05, TRADEVO-R06]
+  verification_needed: null
+  priority_hint: research_quality

@@ -1,0 +1,309 @@
+- id: NTFL-REQ-001
+  title: "Backtester shall account for round-trip execution costs (commissions + slippage)"
+  status: proposed
+  derived_from:
+    - NTFL-C0-001
+    - NTFL-C0-003
+  derivation_type: direct_book_recommendation
+  rationale: |
+    Study guide emphasizes that commissions and slippage form a "minus-sum game" tax on trades.
+    Backtest results that ignore these costs are misleading and will not transfer to live trading.
+  applies_to:
+    strategy:
+      - grid
+      - stock_signal
+    lifecycle:
+      - backtest
+    asset_class:
+      - equities
+      - crypto_futures
+    concern:
+      - simulation
+      - execution
+  requirement: |
+    The backtester shall deduct from gross P&L: (1) round-trip commissions per trade,
+    calculated as (commission_per_share × shares × 2) or (commission_percent × notional × 2);
+    (2) slippage as (execution_price - mid_quote_at_order_time) on both entry and exit.
+    Slippage shall be configurable per asset class and market condition regime.
+  acceptance_tests:
+    - "Backtest result shows negative P&L when trading 100 shares of $20 stock with $10 round-trip commission and $0.10 per-share average slippage"
+    - "Backtest allows per-trade commission configuration: flat ($X), per-share ($X), percentage (Y%)"
+    - "Slippage can be set to 0 (pessimistic), historical calibration (realistic), or optimistic (conservative)"
+  failure_prevented: "Trader discovers live trading profitability is lower than backtest, leading to reduced allocation"
+  capability_enabled: "Accurate forecasting of live trading performance based on backtest"
+  assumptions:
+    - Commission rates from broker are accurate
+    - Slippage distribution is stable over time
+  open_questions:
+    - Should slippage be per-trade fixed or stochastic distribution?
+    - How to calibrate slippage for instruments without historical execution data?
+  dependencies:
+    - Trade execution log with timestamps and prices
+  verification_needed: "Compare backtest P&L (with costs) to live trading P&L for 20+ trades per instrument"
+  priority_hint: correctness
+
+- id: NTFL-REQ-002
+  title: "Trading system shall implement fixed-risk position sizing"
+  status: proposed
+  derived_from:
+    - NTFL-C9-001
+    - NTFL-C9-002
+  derivation_type: direct_book_recommendation
+  rationale: |
+    Study guide emphasizes position sizing discipline as non-negotiable risk management.
+    Fixed risk percentage per trade ensures drawdown is bounded and predictable.
+  applies_to:
+    strategy:
+      - grid
+      - stock_signal
+    lifecycle:
+      - backtest
+      - live
+    asset_class:
+      - equities
+      - crypto_spot
+      - crypto_futures
+    concern:
+      - risk
+      - execution
+  requirement: |
+    The trading system shall calculate position size as: shares = (account_equity × risk_percent) / stop_loss_points.
+    The system shall enforce that no single trade risks more than (risk_percent) of current account equity,
+    where risk_percent is configurable (default 2%). Position size shall adjust as account equity changes.
+  acceptance_tests:
+    - "For $100k account, 2% risk, $20 stock, 50¢ stop loss: system calculates position = (100k × 0.02) / 0.50 = 4000 shares"
+    - "After profit, account becomes $105k; next trade calculates position based on $105k, not $100k"
+    - "If calculated position exceeds maximum shares allowed, system reduces risk_percent proportionally or skips trade"
+  failure_prevented: "Trader oversizes after winning streak, incurring unexpected large drawdown"
+  capability_enabled: "Predictable maximum drawdown; trader can pre-calculate margin requirements and capital requirements"
+  assumptions:
+    - Stop loss level is predetermined before trade entry
+    - Account equity is accurately reported
+  open_questions:
+    - Should system use account equity at previous day's close or real-time equity?
+    - How to handle margin requirements vs equity-based sizing?
+  dependencies:
+    - Entry signal with predetermined stop loss
+  verification_needed: "Backtest 100+ trades; verify max observed drawdown ≤ (# max consecutive losses × risk_percent × 1.2)"
+  priority_hint: safety
+
+- id: NTFL-REQ-003
+  title: "Trading platform shall support limit orders for entries and market-if-touched for exits"
+  status: proposed
+  derived_from:
+    - NTFL-C10-001
+    - NTFL-C10-002
+  derivation_type: direct_book_recommendation
+  rationale: |
+    Study guide recommends limit orders to reduce entry slippage, and MIT orders to ensure exits execute
+    (especially stops during fast markets). Broker order type availability is critical to execution quality.
+  applies_to:
+    strategy:
+      - grid
+      - stock_signal
+    lifecycle:
+      - live
+    asset_class:
+      - equities
+    concern:
+      - execution
+      - operations
+  requirement: |
+    The trading platform shall support: (1) limit orders for buy/sell with configurable limit price offset;
+    (2) market-if-touched (MIT) orders for stops, converting to market orders when triggered;
+    (3) time-in-force (day, GTC) for limit orders; (4) bracket orders combining entry limit + stop MIT + profit target.
+  acceptance_tests:
+    - "User can set limit order to buy 100 shares at mid-quote - $0.10"
+    - "User can set stop loss as MIT order with trigger at $19.50, executes as market order when touched"
+    - "MIT order executes even if price gaps past trigger level"
+  failure_prevented: "Trader forced to use market orders, incurring higher slippage; or stops fail to execute during gaps, causing max loss to exceed plan"
+  capability_enabled: "Trader can reduce entry costs and guarantee stop execution"
+  assumptions:
+    - Broker supports these order types
+    - Platform has API or UI to configure advanced order types
+  open_questions:
+    - What broker APIs support these order types reliably?
+  dependencies:
+    - Broker API or direct platform connection
+  verification_needed: "Live trading: compare slippage distribution with limit orders vs market orders; measure stop execution rate"
+  priority_hint: operability
+
+- id: NTFL-REQ-004
+  title: "Trading system shall maintain detailed trade journal with entry/exit/reasoning"
+  status: proposed
+  derived_from:
+    - NTFL-C11-001
+  derivation_type: direct_book_recommendation
+  rationale: |
+    Study guide emphasizes record-keeping as essential feedback loop for improvement.
+    Without detailed records, trader cannot identify patterns or systematic errors.
+  applies_to:
+    strategy:
+      - grid
+      - stock_signal
+      - shared
+    lifecycle:
+      - backtest
+      - paper
+      - live
+    asset_class:
+      - equities
+      - crypto_spot
+      - crypto_futures
+      - shared
+    concern:
+      - reproducibility
+      - data
+  requirement: |
+    The trading system shall automatically log each trade with: (1) entry timestamp, entry price, entry reasoning (signal ID);
+    (2) exit timestamp, exit price, exit reasoning (take-profit / stop / reversal);
+    (3) position size, stop loss level, profit target level; (4) gross P&L, net P&L (after commissions/slippage);
+    (5) win/loss classification; (6) trader notes (optional). All records shall be timestamped and immutable.
+  acceptance_tests:
+    - "Trade log includes all 10+ fields for every trade"
+    - "Trader can export log as CSV for external analysis"
+    - "System calculates: total trades, win%, avg winner, avg loser, consecutive losses, max drawdown from journal"
+  failure_prevented: "Trader cannot identify systematic errors or patterns due to incomplete records"
+  capability_enabled: "Continuous improvement cycle: identify edge, validate hypothesis, refine parameters"
+  assumptions:
+    - Trader can access and understand the trade journal
+    - Automation does not miss trades
+  open_questions:
+    - How to handle partial fills and cancellations?
+    - What metadata should be logged for futures/options?
+  dependencies:
+    - Trade execution log from platform
+  verification_needed: "Compare trader-reported P&L vs system-calculated P&L; variance <1%"
+  priority_hint: research_quality
+
+- id: NTFL-REQ-005
+  title: "Trader development program shall include psychology and discipline modules"
+  status: proposed
+  derived_from:
+    - NTFL-C1-001
+    - NTFL-C1-002
+    - NTFL-C1-008
+  derivation_type: agent_inference
+  rationale: |
+    Study guide dedicates multiple chapters to individual psychology, personal discipline, emotional control,
+    and self-awareness. Book argues these are non-negotiable and equal in importance to method and money management.
+  applies_to:
+    strategy:
+      - shared
+      - other
+    lifecycle:
+      - research
+    asset_class:
+      - shared
+    concern:
+      - alpha
+      - reproducibility
+  requirement: |
+    Any trader development or onboarding program shall include mandatory training on:
+    (1) emotional regulation during winning and losing streaks; (2) trade plan discipline (write before enter);
+    (3) personal responsibility and loss analysis (no blame externalization);
+    (4) warning signs of gambling behavior (inability to sit out, reversing losses, emotional swings).
+    Program shall measure baseline and post-training changes in (a) trade plan adherence, (b) loss acceptance, (c) position sizing discipline.
+  acceptance_tests:
+    - "Trader can articulate personal discipline goal and mechanism for achievement"
+    - "Trader journal shows 90%+ trades have pre-written entry/exit/stop before market entry"
+    - "After losing streak, trader documents analysis of root causes before resuming trading"
+  failure_prevented: "Trader replicates personal irresponsibility in trading; compulsive trading and gambling behavior"
+  capability_enabled: "Trainer can identify at-risk traders before account blowup; improve overall program retention"
+  assumptions:
+    - Trainer can assess discipline and psychology realistically
+    - Trader is willing to engage with self-assessment
+  open_questions:
+    - How to measure psychological readiness quantitatively?
+    - What is minimum training duration for measurable improvement?
+  dependencies:
+    - Behavioral assessment tools
+  verification_needed: "Compare trader retention, P&L, and drawdown statistics before/after psychology training"
+  priority_hint: correctness
+
+- id: NTFL-REQ-006
+  title: "Backtester shall implement walk-forward validation and out-of-sample testing"
+  status: proposed
+  derived_from:
+    - NTFL-C1-004
+    - NTFL-C7-001
+  derivation_type: direct_book_recommendation
+  rationale: |
+    Study guide warns that systems optimized on historical data self-destruct when markets change.
+    Walk-forward and out-of-sample testing detect curve-fitting and reveal generalization ability.
+  applies_to:
+    strategy:
+      - grid
+      - stock_signal
+    lifecycle:
+      - backtest
+    asset_class:
+      - equities
+      - crypto_futures
+    concern:
+      - simulation
+      - reproducibility
+  requirement: |
+    The backtester shall support walk-forward validation: divide history into (1) training window (e.g., 2 years),
+    (2) out-of-sample test window (e.g., 6 months), repeat with rolling windows. For each window, system shall:
+    Optimize parameters on training data; apply fixed parameters to test data; report test performance separately.
+    System shall also support bootstrap resampling of trades to estimate parameter sensitivity.
+  acceptance_tests:
+    - "Walk-forward report shows in-sample (training) vs out-of-sample (test) Sharpe ratio; out-of-sample ≥ 80% of in-sample indicates acceptable generalization"
+    - "System can reorder trades randomly and measure P&L distribution (robustness check)"
+    - "Parameter sensitivity report shows which parameters have outsized impact on returns"
+  failure_prevented: "Trader deploys system believing backtest performance will persist, but system fails in live trading due to curve-fitting"
+  capability_enabled: "Honest assessment of true strategy edge; detection of over-optimization"
+  assumptions:
+    - Historical data is representative of future regime
+  open_questions:
+    - What ratio (in-sample / out-of-sample) indicates acceptable generalization?
+    - How large should training and test windows be?
+  dependencies:
+    - Historical price and trade data
+  verification_needed: "Compare backtest out-of-sample returns to live trading returns for 20+ deployed systems; correlation >0.5"
+  priority_hint: correctness
+
+- id: NTFL-REQ-007
+  title: "Trader shall pause trading and analyze losses after significant drawdown"
+  status: proposed
+  derived_from:
+    - NTFL-C1-003
+  derivation_type: agent_inference
+  rationale: |
+    Study guide recommends that trader stop trading after losing 20% of account and analyze causes.
+    Continuing to trade without reflection increases risk of revenge trading and compulsive behavior.
+    Implementation as system rule enforces discipline at critical moments.
+  applies_to:
+    strategy:
+      - shared
+      - other
+    lifecycle:
+      - backtest
+      - live
+    asset_class:
+      - shared
+    concern:
+      - risk
+      - alpha
+  requirement: |
+    The trading system shall implement a mandatory trading pause rule: if peak-to-trough drawdown exceeds threshold (e.g., 20%),
+    the system shall automatically halt new trade entries for N days (configurable, default 7 days).
+    During pause, system shall generate drawdown analysis report: list of losing trades, common patterns, rule violations.
+    Trader shall review report before resuming. System shall log trader acknowledgment before re-enabling entries.
+  acceptance_tests:
+    - "After 20% drawdown triggered, system rejects new entry signals for 7 days"
+    - "System generates report of all trades in drawdown period with entry signal, exit signal, and loss amount"
+    - "System flags any trades that violated money management rules (e.g., over-sized) or stop loss discipline"
+  failure_prevented: "Trader continues compulsive trading during drawdown period, escalating losses"
+  capability_enabled: "Automatic circuit breaker prevents catastrophic account blowup; forces reflection"
+  assumptions:
+    - Drawdown calculation is accurate
+    - Trader will comply with pause and analysis requirement
+  open_questions:
+    - Optimal pause length?
+    - Should pause be system-enforced or manual?
+  dependencies:
+    - Real-time account equity tracking
+  verification_needed: "A/B test: compare accounts with auto-pause vs without; measure time-to-recovery and subsequent 12-month returns"
+  priority_hint: safety

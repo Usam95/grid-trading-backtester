@@ -1,0 +1,249 @@
+- id: "TTAM-REQ-001"
+  title: "Backtester shall support OHLC data ingestion with time validation"
+  status: "proposed"
+  derived_from: ["TTAM-C3-001"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Candlestick analysis requires complete OHLC (open, high, low, close) data for each time period. Backtester must ingest and validate OHLC data to enable accurate signal testing."
+  applies_to:
+    strategy: ["stock_signal", "grid", "shared"]
+    lifecycle: ["backtest", "research"]
+    asset_class: ["equities", "shared"]
+    concern: ["data", "simulation"]
+  requirement: "The backtester shall accept OHLC data in standard formats (CSV, Parquet, HDF5) and validate that high >= open,close >= low and high >= low for every bar."
+  acceptance_tests: "Valid OHLC data ingests without errors; Invalid OHLC (high < low) rejected; Timestamp ordering validated"
+  failure_prevented: "Data quality issues (reversed OHLC, missing bars) that would invalidate backtests"
+  capability_enabled: "Accurate candlestick pattern identification and signal testing"
+  assumptions:
+    - "OHLC data is sourced from reliable provider"
+    - "Time series is continuous or gaps are documented"
+  open_questions:
+    - "Should backtester handle tick data or only OHLC?"
+    - "What is acceptable gap tolerance between bars?"
+  dependencies: []
+  verification_needed: "Unit test: ingest valid OHLC, reject invalid OHLC; Integration test: backtest with real market data"
+  priority_hint: "correctness"
+
+- id: "TTAM-REQ-002"
+  title: "Signal engine shall support candlestick pattern identification"
+  status: "proposed"
+  derived_from: ["TTAM-C3-002", "TTAM-C3-003"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Book defines specific candlestick patterns (Pinbar, Doji, Engulfing, 3BC, 3WS, Evening Star) as tradeable signals. Signal engine must identify these patterns on any time series."
+  applies_to:
+    strategy: ["stock_signal"]
+    lifecycle: ["backtest", "paper", "live"]
+    asset_class: ["equities"]
+    concern: ["simulation", "execution"]
+  requirement: "The signal engine shall provide functions to identify single and multi-candle patterns (Pinbar, Doji, Engulfing, 3BC, 3WS, Evening Star) with configurable thresholds for body-to-wick ratios and body size."
+  acceptance_tests: "Pinbar identified when lower wick >= 2x body; Doji identified when open ~= close and wicks > 1x range; Engulfing when body fully contains first candle"
+  failure_prevented: "Manual pattern identification errors; inconsistent pattern definitions across backtests"
+  capability_enabled: "Automated signal generation from candlestick patterns across multiple timeframes"
+  assumptions:
+    - "Candlestick patterns are relevant to asset class (equities, FX)"
+    - "Pattern thresholds can be tuned per market"
+  open_questions:
+    - "Should patterns be context-aware (trend vs consolidation)?"
+    - "How sensitive should thresholds be to market volatility?"
+  dependencies: ["TTAM-REQ-001"]
+  verification_needed: "Unit test: identify known patterns on historical data; Integration test: compare against manual chart review"
+  priority_hint: "correctness"
+
+- id: "TTAM-REQ-003"
+  title: "Chart analysis engine shall identify swing points and chart phases"
+  status: "proposed"
+  derived_from: ["TTAM-C4-001", "TTAM-C4-002"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Book emphasizes price waves and swing points as fundamental chart components. Backtester must decompose price series into trends, corrections, consolidations, breakouts, and reversals."
+  applies_to:
+    strategy: ["stock_signal", "shared"]
+    lifecycle: ["backtest", "research"]
+    asset_class: ["equities", "shared"]
+    concern: ["simulation", "data"]
+  requirement: "The chart analysis engine shall identify swing highs (local price maxima) and swing lows (local price minima), then classify consecutive swings into chart phases (trend, correction, consolidation, breakout, reversal) using configurable lookback periods."
+  acceptance_tests: "Swing highs identified as bars where high > adjacent bars; Swing lows identified as bars where low < adjacent bars; Uptrend phase when upswings > downswings; Consolidation when upswings ~= downswings"
+  failure_prevented: "Incorrect wave decomposition leading to false trend signals; missed consolidation periods"
+  capability_enabled: "Context-aware signal generation (e.g., pinbar entry only in correction phase, not consolidation)"
+  assumptions:
+    - "Swing point lookback period is meaningful (typically 2-5 bars)"
+    - "Chart phase classification is deterministic given OHLC data"
+  open_questions:
+    - "How should swing points be identified in noisy/choppy data?"
+    - "Should higher-timeframe swings override lower-timeframe classification?"
+  dependencies: ["TTAM-REQ-001"]
+  verification_needed: "Unit test: swing point identification on synthetic and historical data; Manual validation: compare automated swings against chart review"
+  priority_hint: "correctness"
+
+- id: "TTAM-REQ-004"
+  title: "Chart pattern detector shall identify support/resistance levels with 3+ touches"
+  status: "proposed"
+  derived_from: ["TTAM-C6-002"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Book defines support and resistance as price levels with 3+ reversals. Backtester must identify these levels to test S/R-based entry signals."
+  applies_to:
+    strategy: ["stock_signal", "shared"]
+    lifecycle: ["backtest", "research"]
+    asset_class: ["equities", "shared"]
+    concern: ["simulation"]
+  requirement: "The pattern detector shall identify support and resistance levels by finding price clusters where the price has reversed (changed direction) at least 3 times within a configurable tolerance zone."
+  acceptance_tests: "Support level identified when price bounces up 3+ times from zone; Resistance level identified when price bounces down 3+ times; Level tolerance configurable (0.5% of price); Recent levels weighted higher"
+  failure_prevented: "Arbitrary support/resistance lines; false signal entries at non-confirmed levels"
+  capability_enabled: "Support/resistance-based confluence signals; validation of pattern formation at known levels"
+  assumptions:
+    - "S/R zones remain meaningful across time"
+    - "Recency weighting reflects trader focus on recent levels"
+  open_questions:
+    - "Should S/R levels expire if not touched for X bars?"
+    - "How to handle merged/overlapping S/R zones?"
+  dependencies: ["TTAM-REQ-001", "TTAM-REQ-003"]
+  verification_needed: "Unit test: identify S/R levels on synthetic test cases; Integration test: validate against manual chart analysis"
+  priority_hint: "correctness"
+
+- id: "TTAM-REQ-005"
+  title: "Backtester shall calculate indicator values (MA, RSI, Bollinger Bands, MACD)"
+  status: "proposed"
+  derived_from: ["TTAM-C7-002", "TTAM-C7-003", "TTAM-C7-004", "TTAM-C7-005"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Book describes moving averages, RSI, Bollinger Bands, and MACD as key indicators for signal generation. Backtester must calculate these indicators accurately."
+  applies_to:
+    strategy: ["stock_signal", "shared"]
+    lifecycle: ["backtest", "paper", "live"]
+    asset_class: ["equities", "shared"]
+    concern: ["simulation"]
+  requirement: "The backtester shall provide libraries to calculate Moving Averages (SMA, EMA with configurable periods), RSI (14-period default), Bollinger Bands (20-period MA, 2-std deviation), and MACD (12-26-9 default) with customizable parameters."
+  acceptance_tests: "SMA and EMA calculations match standard implementations; RSI converges to 0-100 range; Bollinger Bands envelope contains ~95% price action; MACD crossovers correctly identified"
+  failure_prevented: "Calculation errors leading to incorrect signal generation; inconsistent backtests across platforms"
+  capability_enabled: "Indicator-based signal generation; divergence detection"
+  assumptions:
+    - "Indicator calculations match financial industry standards"
+    - "Indicators are available as lookback history (not real-time)"
+  open_questions:
+    - "Should indicators be normalized for different asset classes?"
+    - "How many historical bars needed for indicator warm-up?"
+  dependencies: ["TTAM-REQ-001"]
+  verification_needed: "Unit test: verify calculations against reference implementations; Integration test: compare with industry-standard charting software"
+  priority_hint: "correctness"
+
+- id: "TTAM-REQ-006"
+  title: "Backtester shall track entries with confluence factor counts for statistical analysis"
+  status: "proposed"
+  derived_from: ["TTAM-C6-003"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Book emphasizes confluence (multiple signals) increases trade success. Backtester must track how many confluence factors were present at each entry to enable post-hoc analysis."
+  applies_to:
+    strategy: ["stock_signal", "shared"]
+    lifecycle: ["backtest", "research"]
+    asset_class: ["equities", "shared"]
+    concern: ["simulation"]
+  requirement: "The backtester shall record for each entry the count and identities of confluence factors present (candlestick pattern, S/R level, trend line, indicator signal, chart pattern)."
+  acceptance_tests: "Confluence factor count logged at every entry; Entry metadata includes list of factors; Post-backtest report stratifies by confluence factor count; Win rate and profit factor separated for 1, 2, 3+ factor entries"
+  failure_prevented: "Inability to validate confluence hypothesis; missed opportunity to improve signal weighting"
+  capability_enabled: "Validation of confluence hypothesis; potential weighting by signal strength"
+  assumptions:
+    - "Confluence factors are sufficiently independent"
+    - "Confluence impact is linear (not interactions)"
+  open_questions:
+    - "Should some factors be weighted higher than others?"
+    - "How to handle correlated signals (e.g., MA and trend line)?"
+  dependencies: ["TTAM-REQ-002", "TTAM-REQ-004", "TTAM-REQ-005"]
+  verification_needed: "Unit test: confluence factor counting logic; Integration test: backtest report includes confluence stratification"
+  priority_hint: "research_quality"
+
+- id: "TTAM-REQ-007"
+  title: "Backtester shall support trend line identification and breakout detection"
+  status: "proposed"
+  derived_from: ["TTAM-C6-001", "TTAM-C6-005"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Book describes trend lines as core analysis tool. Backtester must identify trend lines (3+ contact points) and detect breakouts for signal generation."
+  applies_to:
+    strategy: ["stock_signal", "shared"]
+    lifecycle: ["backtest", "research"]
+    asset_class: ["equities", "shared"]
+    concern: ["simulation"]
+  requirement: "The backtester shall provide a trend line detection module that identifies trend lines with 3+ contact points (price touches) and signals when price breaks the line, optionally requiring confirmation (new high/low following break)."
+  acceptance_tests: "Trend line identified when 3+ swing points touch line with <0.2% error; Trend line break detected when price crosses by configured margin; Optional confirmation: new high/low after break; Multiple trend lines tracked simultaneously"
+  failure_prevented: "Arbitrary trend lines; false breakout signals without confirmation"
+  capability_enabled: "Trend line-based confluence signals; reversal pattern detection"
+  assumptions:
+    - "Trend lines are useful despite subjectivity (author recommendation)"
+    - "Confirmation (new extreme) materially improves signal quality"
+  open_questions:
+    - "How to handle multiple valid trend lines on same data?"
+    - "Should trend line angle/steepness affect signal strength?"
+  dependencies: ["TTAM-REQ-001", "TTAM-REQ-003"]
+  verification_needed: "Unit test: trend line identification on synthetic and real data; Manual validation: compare against chart review"
+  priority_hint: "correctness"
+
+- id: "TTAM-REQ-008"
+  title: "Backtester performance shall not degrade with 5+ years of historical data"
+  status: "proposed"
+  derived_from: ["TTAM-C6-001"]
+  derivation_type: "agent_inference"
+  rationale: "Hypothesis validation and robustness checks require 5+ years of historical data. Backtester must maintain acceptable performance with large datasets."
+  applies_to:
+    strategy: ["shared"]
+    lifecycle: ["backtest", "research"]
+    asset_class: ["shared"]
+    concern: ["operations"]
+  requirement: "The backtester shall complete a full backtest on 5 years of daily OHLC data (1,250+ bars) for a typical signal strategy within 5 seconds on a standard development machine (8-core, 16GB RAM)."
+  acceptance_tests: "5-year backtest completes in <5 seconds; Memory usage stays under 2GB for typical strategies; Indicator calculations do not introduce accumulating errors"
+  failure_prevented: "Backtester unusable for validation-quality research; extended iteration time"
+  capability_enabled: "Rapid hypothesis iteration; walk-forward testing feasibility"
+  assumptions:
+    - "Backtester is optimized (not naive loop)"
+    - "Standard dev machine is baseline for performance"
+  open_questions:
+    - "Should performance requirements scale with data volume (daily vs 5-min bars)?"
+    - "Is 5 seconds sufficient for interactive research?"
+  dependencies: ["TTAM-REQ-001", "TTAM-REQ-005"]
+  verification_needed: "Performance benchmark: 5-year backtest timing and memory profile"
+  priority_hint: "operability"
+
+- id: "TTAM-REQ-009"
+  title: "Risk management shall validate position sizing for maximum drawdown constraint"
+  status: "proposed"
+  derived_from: ["TTAM-C1-001"]
+  derivation_type: "agent_inference"
+  rationale: "Book emphasizes trading is about managing risk. Risk control system must validate that position sizing respects maximum drawdown constraints."
+  applies_to:
+    strategy: ["stock_signal", "grid", "shared"]
+    lifecycle: ["backtest", "paper", "live"]
+    asset_class: ["equities", "shared"]
+    concern: ["risk"]
+  requirement: "The risk management module shall calculate maximum drawdown for each trade position (initial capital to lowest point) and reject trades that would cause portfolio drawdown to exceed configured limit (e.g., 20%)."
+  acceptance_tests: "Trade approved if portfolio remains within max drawdown limit; Trade rejected if drawdown would exceed limit; Running drawdown tracked and reported; Drawdown constraint reduces maximum observed loss"
+  failure_prevented: "Uncontrolled drawdown; account ruin from over-leveraged positions"
+  capability_enabled: "Capital preservation; controlled risk exposure"
+  assumptions:
+    - "Drawdown constraint is enforced before trade entry (not reactive)"
+    - "Position sizing is adjusted to meet constraint"
+  open_questions:
+    - "Should drawdown constraint be portfolio-level or per-strategy?"
+    - "How to handle overnight gaps in live trading?"
+  dependencies: ["TTAM-REQ-001"]
+  verification_needed: "Unit test: drawdown calculation accuracy; Integration test: position sizing respects constraints"
+  priority_hint: "safety"
+
+- id: "TTAM-REQ-010"
+  title: "Backtester shall report results stratified by signal type and confluence factor count"
+  status: "proposed"
+  derived_from: ["TTAM-C6-003", "TTAM-INF-001"]
+  derivation_type: "agent_inference"
+  rationale: "To validate hypotheses about signal effectiveness and confluence impact, backtester must provide stratified reporting showing results by signal type and confluence count."
+  applies_to:
+    strategy: ["shared"]
+    lifecycle: ["backtest", "research"]
+    asset_class: ["shared"]
+    concern: ["reproducibility"]
+  requirement: "The backtester report shall include tables stratifying results by: (1) signal type (candlestick pattern, S/R, trend line, indicator), (2) confluence factor count (1, 2, 3+), and (3) market regime (trending, consolidating), showing for each stratum: entry count, win rate, profit factor, average R:R ratio, average duration."
+  acceptance_tests: "Report includes all requested strata; Win rates calculated correctly; Profit factor calculated correctly; Results reproducible across runs"
+  failure_prevented: "Inability to validate hypothesis assumptions; missed signal quality improvements"
+  capability_enabled: "Data-driven signal weighting; regime-specific strategy tuning"
+  assumptions:
+    - "Stratification is valid and not over-fitted"
+    - "Sample sizes are sufficient in each stratum"
+  open_questions:
+    - "How many trades per stratum are sufficient for statistical significance?"
+    - "Should stratification include time period as dimension?"
+  dependencies: ["TTAM-REQ-006"]
+  verification_needed: "Unit test: stratification logic and aggregation; Integration test: report accuracy against manual calculation"
+  priority_hint: "research_quality"

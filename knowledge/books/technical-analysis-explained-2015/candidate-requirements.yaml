@@ -1,0 +1,324 @@
+- id: "TAE-REQ-001"
+  title: "Compute support and resistance levels"
+  status: "proposed"
+  derived_from:
+    - "TAE-C5-001"
+    - "TAE-CROSS-002"
+  derivation_type: "direct_book_recommendation"
+  rationale: "Pring identifies support/resistance as foundational. Book claims 65%+ test accuracy."
+  applies_to:
+    strategy: ["grid", "stock_signal", "shared"]
+    lifecycle: ["backtest", "live"]
+    asset_class: ["equities", "shared"]
+    concern: ["alpha", "data"]
+  requirement: "Shall compute support as prior swing lows, resistance as prior swing highs; update dynamically."
+  acceptance_tests:
+    - "Levels match manual inspection ±1%"
+    - "Identifies S/R holds in >= 65% of tests"
+  failure_prevented: "price_breakaway_without_warning"
+  capability_enabled: "support_resistance_based_trading; risk_management"
+  assumptions:
+    - "Swing: high > prior 10 bars, low < prior 10 bars"
+  open_questions:
+    - "How many bars back for S/R history?"
+  dependencies: ["OHLC data stream"]
+  verification_needed: "Backtest 500+ tests measuring hold rate accuracy"
+  priority_hint: "correctness"
+
+- id: "TAE-REQ-002"
+  title: "Detect trendline breaks"
+  status: "proposed"
+  derived_from:
+    - "TAE-C6-001"
+  derivation_type: "direct_book_recommendation"
+  rationale: "Trendline breaks signal reversal per Pring."
+  applies_to:
+    strategy: ["stock_signal", "shared"]
+    lifecycle: ["backtest", "live"]
+    asset_class: ["equities"]
+    concern: ["alpha", "execution"]
+  requirement: "Shall detect trendline (2+ touches) and signal on close outside trendline."
+  acceptance_tests:
+    - "Trendline endpoints correct"
+    - "Break fires on first close outside"
+    - "Backtest >= 55% win rate over 500+ trades"
+  failure_prevented: "late_trend_reversal_detection"
+  capability_enabled: "trend_reversal_signals; automated_entry_logic"
+  assumptions:
+    - "2+ touches define trendline"
+    - "Close outside = break (not intrabar)"
+  open_questions:
+    - "Auto-detect or manual input?"
+  dependencies: ["OHLC data stream"]
+  verification_needed: "Compare algorithmic vs manual trendline detection accuracy"
+  priority_hint: "correctness"
+
+- id: "TAE-REQ-003"
+  title: "Compute volume-weighted signal confirmation"
+  status: "proposed"
+  derived_from:
+    - "TAE-C7-001"
+  derivation_type: "direct_book_recommendation"
+  rationale: "Volume >2x SMA(20) on breakout yields 70%+ success per Pring."
+  applies_to:
+    strategy: ["grid", "stock_signal", "shared"]
+    lifecycle: ["backtest", "live"]
+    asset_class: ["equities", "shared"]
+    concern: ["alpha", "data"]
+  requirement: "Shall compute volume SMA(20) and flag signals as high_confidence when volume > 2x SMA(20)."
+  acceptance_tests:
+    - "Volume SMA(20) matches exchange reference"
+    - "High-volume signal win rate >= 70%; low-volume <= 50%"
+  failure_prevented: "low_conviction_signal_execution"
+  capability_enabled: "volume_confirmation; signal_quality_ranking"
+  assumptions:
+    - "Volume from exchange data"
+  open_questions:
+    - "Should threshold be adaptive?"
+  dependencies: ["OHLC + Volume data stream"]
+  verification_needed: "Backtest win rate distribution across volume tiers"
+  priority_hint: "operability"
+
+- id: "TAE-REQ-004"
+  title: "Compute moving averages"
+  status: "proposed"
+  derived_from:
+    - "TAE-C11-001"
+  derivation_type: "direct_book_recommendation"
+  rationale: "MA(10/50) crossovers and MA(50/200) trend filters are core Pring indicators."
+  applies_to:
+    strategy: ["grid", "stock_signal", "shared"]
+    lifecycle: ["backtest", "live"]
+    asset_class: ["equities", "shared"]
+    concern: ["alpha", "simulation"]
+  requirement: "Shall compute SMA(10,50,200) and EMA(12,26) from closing prices; signal crossovers."
+  acceptance_tests:
+    - "MA values match standard TA libraries ±0.01%"
+    - "Crossover signals at exact bar of cross"
+    - "Backtest SMA(10/50) crossover > 55% win rate"
+  failure_prevented: "missing_trend_signals"
+  capability_enabled: "trend_filtering; momentum_confirmation"
+  assumptions:
+    - "SMA = simple average; EMA = exponential weighted"
+  open_questions:
+    - "Should periods be adaptive?"
+  dependencies: ["closing price data stream"]
+  verification_needed: "Unit test against standard TA libraries; backtest win rates"
+  priority_hint: "correctness"
+
+- id: "TAE-REQ-005"
+  title: "Compute Bollinger Bands and detect extremes"
+  status: "proposed"
+  derived_from:
+    - "TAE-C12-001"
+  derivation_type: "direct_book_recommendation"
+  rationale: "Bollinger Bands detect overbought/oversold with 65%+ reversion accuracy."
+  applies_to:
+    strategy: ["grid", "stock_signal", "shared"]
+    lifecycle: ["backtest", "live"]
+    asset_class: ["equities", "shared"]
+    concern: ["alpha"]
+  requirement: "Shall compute BB(SMA(20) ± 2*StDev); flag overbought when close > upper, oversold when < lower."
+  acceptance_tests:
+    - "BB values match standard TA libraries ±0.01%"
+    - "Extreme detection on close outside band"
+    - "Backtest mean reversion after extreme 65%+ accuracy"
+  failure_prevented: "missing_mean_reversion_signals"
+  capability_enabled: "overbought_oversold_detection; range_trading"
+  assumptions:
+    - "SMA(20) middle, ±2 StDev bands"
+  open_questions:
+    - "Should StDev period differ from MA?"
+  dependencies: ["OHLC price data stream"]
+  verification_needed: "Backtest BB extreme reversion across timeframes and assets"
+  priority_hint: "operability"
+
+- id: "TAE-REQ-006"
+  title: "Compute RSI(14) and detect extremes"
+  status: "proposed"
+  derived_from:
+    - "TAE-C13-001"
+  derivation_type: "direct_book_recommendation"
+  rationale: "RSI extremes (>70, <30) predict mean reversion per Pring."
+  applies_to:
+    strategy: ["grid", "stock_signal", "shared"]
+    lifecycle: ["backtest", "live"]
+    asset_class: ["equities"]
+    concern: ["alpha"]
+  requirement: "Shall compute RSI(14)=100-100/(1+RS); flag RSI>70 overbought, RSI<30 oversold."
+  acceptance_tests:
+    - "RSI values match standard libraries ±1 point"
+    - "Overbought/oversold flags at correct thresholds"
+    - "Backtest RSI extreme mean reversion 55%+ win rate"
+  failure_prevented: "unsignaled_momentum_extremes"
+  capability_enabled: "mean_reversion_signals; momentum_divergence_detection"
+  assumptions:
+    - "RSI period = 14 bars; thresholds 70/30"
+  open_questions:
+    - "Should thresholds adapt by asset class?"
+  dependencies: ["OHLC price data stream"]
+  verification_needed: "Unit test RSI formula against standard implementations"
+  priority_hint: "correctness"
+
+- id: "TAE-REQ-007"
+  title: "Compute MACD and signal line crossovers"
+  status: "proposed"
+  derived_from:
+    - "TAE-C14-001"
+  derivation_type: "direct_book_recommendation"
+  rationale: "MACD momentum signals trend changes with 55%+ win rate."
+  applies_to:
+    strategy: ["grid", "stock_signal", "shared"]
+    lifecycle: ["backtest", "live"]
+    asset_class: ["equities"]
+    concern: ["alpha"]
+  requirement: "Shall compute MACD=EMA(12)-EMA(26), Signal=EMA(9) of MACD, Histogram=MACD-Signal; signal crossovers."
+  acceptance_tests:
+    - "MACD/Signal/Histogram match standard TA ±0.01%"
+    - "Crossover signals at bar of cross"
+    - "Backtest MACD crossover 55%+ win rate"
+  failure_prevented: "missing_momentum_changes"
+  capability_enabled: "momentum_signals; trend_confirmation"
+  assumptions:
+    - "EMA periods: 12, 26, 9 per Pring"
+  open_questions:
+    - "Should histogram divergence be tracked?"
+  dependencies: ["OHLC price data stream"]
+  verification_needed: "Unit test MACD computation and backtest crossover accuracy"
+  priority_hint: "operability"
+
+- id: "TAE-REQ-008"
+  title: "Detect divergences (price vs momentum)"
+  status: "proposed"
+  derived_from:
+    - "TAE-C26-001"
+  derivation_type: "agent_inference"
+  rationale: "Bearish divergence (price HH, OBV/MACD LL) predicts reversal within 10 bars."
+  applies_to:
+    strategy: ["stock_signal", "shared"]
+    lifecycle: ["backtest", "live"]
+    asset_class: ["equities"]
+    concern: ["alpha"]
+  requirement: "Shall identify divergences: price new high but MACD/OBV lower; flag as reversal signal."
+  acceptance_tests:
+    - "Divergence detection identifies peaks correctly"
+    - "Backtest divergence 60%+ reversal accuracy within 10 bars"
+  failure_prevented: "unsignaled_momentum_failure"
+  capability_enabled: "reversal_signals; momentum_failure_detection"
+  assumptions:
+    - "Divergence: price HH but momentum LL (or vice versa)"
+  open_questions:
+    - "Auto-detect or accept manual input?"
+  dependencies: ["OHLC, Volume; MACD/OBV/RSI indicators"]
+  verification_needed: "Backtest divergence predictive power across assets and regimes"
+  priority_hint: "research_quality"
+
+- id: "TAE-REQ-009"
+  title: "Track major averages for confirmation"
+  status: "proposed"
+  derived_from:
+    - "TAE-C21-001"
+  derivation_type: "direct_book_recommendation"
+  rationale: "All three major averages should confirm trend; divergence warns of reversal."
+  applies_to:
+    strategy: ["stock_signal", "shared"]
+    lifecycle: ["research", "live"]
+    asset_class: ["equities"]
+    concern: ["alpha", "data"]
+  requirement: "Shall track S&P 500, Dow, Nasdaq daily closes; identify divergences as reversal warning."
+  acceptance_tests:
+    - "Index data from reliable feed"
+    - "Divergence detection identifies new highs mismatch"
+    - "Backtest divergence 60%+ accuracy reversing within 20 bars"
+  failure_prevented: "unsignaled_market_weakness"
+  capability_enabled: "market_breadth_confirmation"
+  assumptions:
+    - "Daily data sufficient for divergence analysis"
+  open_questions:
+    - "Use futures/ETF proxies instead of indexes?"
+  dependencies: ["Daily S&P 500, Dow, Nasdaq closes"]
+  verification_needed: "Backtest divergence predictive power and data reliability"
+  priority_hint: "operability"
+
+- id: "TAE-REQ-010"
+  title: "Compute On-Balance Volume (OBV)"
+  status: "proposed"
+  derived_from:
+    - "TAE-C26-001"
+  derivation_type: "direct_book_recommendation"
+  rationale: "OBV divergence from price signals momentum failure."
+  applies_to:
+    strategy: ["stock_signal", "shared"]
+    lifecycle: ["backtest", "live"]
+    asset_class: ["equities"]
+    concern: ["alpha", "data"]
+  requirement: "Shall compute OBV = cumsum(volume on up days - down days); track divergence from price."
+  acceptance_tests:
+    - "OBV matches standard TA libraries"
+    - "Divergence detection accurate"
+    - "Backtest OBV divergence 60%+ reversal accuracy"
+  failure_prevented: "unsignaled_volume_divergence"
+  capability_enabled: "volume_confirmation; divergence_signals"
+  assumptions:
+    - "OBV = cumsum(+vol on up, -vol on down)"
+  open_questions:
+    - "Should OBV be normalized?"
+  dependencies: ["OHLC + Volume data stream"]
+  verification_needed: "Backtest OBV divergence predictive power across assets"
+  priority_hint: "operability"
+
+- id: "TAE-REQ-011"
+  title: "Implement multi-indicator confirmation rule"
+  status: "proposed"
+  derived_from:
+    - "TAE-CROSS-001"
+  derivation_type: "agent_inference"
+  rationale: "Multi-indicator convergence (trendline + MA + MACD + volume) yields 70%+ win rate vs 55% single."
+  applies_to:
+    strategy: ["stock_signal", "shared"]
+    lifecycle: ["backtest", "live"]
+    asset_class: ["equities"]
+    concern: ["alpha"]
+  requirement: "Shall generate entry signal ONLY when 4+ confirmations within 2 bars: trendline break, MA crossover, MACD cross, volume >2x SMA(20)."
+  acceptance_tests:
+    - "System counts confirmations correctly"
+    - "4-confirmation signals >= 70% win rate"
+    - "1-2 confirmation signals <= 55% win rate"
+    - "Entry delay < 2 bars"
+  failure_prevented: "false_signal_execution"
+  capability_enabled: "high_confidence_signal_filtering; alpha_enhancement"
+  assumptions:
+    - "All 4 confirmations within 2-bar window"
+  open_questions:
+    - "Should confirmations be weighted differently?"
+  dependencies: ["Trendline, MA, MACD, volume all available"]
+  verification_needed: "Backtest win rate by confirmation count; measure entry timing"
+  priority_hint: "alpha"
+
+- id: "TAE-REQ-012"
+  title: "Monitor market breadth (A/D ratio)"
+  status: "proposed"
+  derived_from:
+    - "TAE-C27-001"
+  derivation_type: "direct_book_recommendation"
+  rationale: "A/D ratio > 2.0 indicates strong uptrend; divergence warns of reversal."
+  applies_to:
+    strategy: ["stock_signal", "shared"]
+    lifecycle: ["research", "live"]
+    asset_class: ["equities"]
+    concern: ["alpha", "data"]
+  requirement: "Shall track daily advancing/declining issue counts; compute A/D ratio; flag divergence if price HH but ratio < 1.5."
+  acceptance_tests:
+    - "A/D ratio computed correctly from exchange"
+    - "Divergence flags correctly when price/breadth mismatch"
+    - "Backtest divergence 60%+ reversal accuracy"
+  failure_prevented: "unsignaled_trend_weakness"
+  capability_enabled: "breadth_confirmation; internal_strength_assessment"
+  assumptions:
+    - "NYSE data available daily"
+  open_questions:
+    - "Track Nasdaq A/D separately?"
+  dependencies: ["Daily advancing/declining issue counts (NYSE)"]
+  verification_needed: "Test data availability, latency, and divergence predictive power"
+  priority_hint: "research_quality"
+

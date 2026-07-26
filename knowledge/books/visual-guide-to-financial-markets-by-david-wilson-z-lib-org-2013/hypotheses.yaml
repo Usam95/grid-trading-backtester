@@ -1,0 +1,131 @@
+- id: VGF-H1
+  title: "Interest rate differentials across maturities reflect risk and time value, enabling tactical curve positioning"
+  status: proposed
+  derived_from:
+    - VGF-C2-001
+    - VGF-C2-002
+  statement: |
+    Government yield curves reflect investor expectations about future rates, inflation, and risk. 
+    Abnormally steep or inverted curves signal economic regime changes. Tactical positioning along 
+    the curve can outperform buy-and-hold if curve shape reverts to historical norms.
+  proposed_mechanism: |
+    Yield curve steepness is mean-reverting; extreme slopes are temporary. Positioning short duration 
+    when curves are unusually flat and long duration when curves are steep capture mean-reversion alpha.
+  applicable_markets_and_regimes: |
+    Fixed income markets, periods of extreme monetary policy (zero rates, negative rates), 
+    pre/post recession environments
+  assumptions:
+    - Yield curve shape mean-reverts over 6-24 month horizons
+    - Transaction costs and bid-ask spreads do not eliminate alpha
+    - Curve adjustments are not perfectly efficient
+  data_requirements: |
+    Daily historical yield curves, transaction costs, borrowing costs for positioning
+  baseline_or_null_hypothesis: |
+    Yield curve is an efficient summary of available information; no tactical alpha exists
+  validation_approach: |
+    Backtest positioning strategies (duration/convexity trades) against historical yield curve data. 
+    Compare strategy returns to curve momentum and mean-reversion periods.
+  transaction_cost_and_fill_considerations: |
+    Treasury market liquidity is high; bid-ask spreads are tight (1-5 bps depending on maturity). 
+    Repo financing is available at low cost, enabling leveraged positioning.
+  robustness_checks: |
+    Test across multiple recession/expansion cycles. Vary curve positioning thresholds. 
+    Account for regime change (e.g., unconventional monetary policy).
+  rejection_criteria: |
+    Curve mean-reversion does not occur or occurs too slowly (>3 years) to justify trading costs
+  failure_modes:
+    - Regime shift (e.g., permanent low rates, negative rates) breaks mean-reversion
+    - Liquidity evaporation during crises widens bid-ask spreads
+  freshness_concerns: |
+    Book published 2013. Post-2020 monetary policy (QE, negative rates, yield-curve control) has altered 
+    curve dynamics. Current applicability uncertain.
+  unresolved_questions: |
+    How have curves behaved in 2020-2026 low-rate environment? Are historical mean-reversion patterns 
+    reproducible post-COVID? What is the optimal rebalancing frequency?
+
+- id: VGF-H2
+  title: "Stock market indexes efficiently aggregate individual security prices; passive index funds should match market returns"
+  status: proposed
+  derived_from:
+    - VGF-C5-001
+  statement: |
+    If indexes accurately aggregate individual security prices and index-based funds charge low fees, 
+    then passive index funds should replicate market returns over long periods, underperforming only 
+    by the amount of their fees.
+  proposed_mechanism: |
+    Index construction captures market-wide price discovery. Passive funds minimizing turnover and costs 
+    can match index returns. Most active managers underperform due to fees and turnover costs.
+  applicable_markets_and_regimes: |
+    Equity markets in developed countries with transparent pricing and low trading costs (U.S., Europe, etc.)
+  assumptions:
+    - Index construction is efficient and stable
+    - Fee competition keeps passive fund costs low
+    - Markets are sufficiently efficient that outperformance is rare after costs
+  data_requirements: |
+    Historical fund returns, index returns, fee schedules, turnover data
+  baseline_or_null_hypothesis: |
+    Some active managers outperform indexes after fees due to skill or informational advantages
+  validation_approach: |
+    Compare returns of passive index funds to underlying indexes and to active funds over 10+ year periods. 
+    Measure fee impact and turnover costs.
+  transaction_cost_and_fill_considerations: |
+    Index rebalancing costs (turnover) vary by methodology. Standard indices (S&P 500) have low turnover 
+    (5-10% annual); factor indices can have higher turnover (20-50% annual).
+  robustness_checks: |
+    Test across different index types (large-cap, small-cap, factor-based). Vary measurement periods. 
+    Account for survivorship bias in fund datasets.
+  rejection_criteria: |
+    Significant fraction (>20%) of active funds persistently outperform after fees
+  failure_modes:
+    - Index concentration in mega-cap names reduces diversification
+    - Passive flows destabilize markets during crises
+  freshness_concerns: |
+    Passive management has grown substantially since 2013 book publication. 
+    Impact on index-based fund returns and market efficiency is an open question.
+  unresolved_questions: |
+    How has the rise of passive investing (2013-2026) changed market efficiency and index returns? 
+    Are factor-based indices sufficiently stable? What is the cost of index rebalancing?
+
+- id: VGF-H3
+  title: "Derivatives pricing reflects underlying asset volatility; changes in volatility regime drive realized vs. implied volatility divergence"
+  status: proposed
+  derived_from:
+    - VGF-C10-001
+    - VGF-C10-003
+  statement: |
+    Option prices reflect market expectations of future volatility (implied volatility). 
+    When realized volatility deviates from implied volatility, traders can profit from the divergence.
+  proposed_mechanism: |
+    Option premium incorporates expected volatility; realized volatility often differs from expectations. 
+    Long volatility positioning profits when realized > implied; short volatility profits when realized < implied.
+  applicable_markets_and_regimes: |
+    Options on equities, indices, futures; periods of regime change, earnings announcements, crisis events
+  assumptions:
+    - Implied volatility reflects market expectations fairly
+    - Realized volatility is measurable and tractable
+    - Volatility mean-reverts to long-term averages
+  data_requirements: |
+    Daily option prices (implied volatility surfaces), realized volatility, underlying asset prices
+  baseline_or_null_hypothesis: |
+    Options are priced efficiently; no systematic alpha from vol trading
+  validation_approach: |
+    Backtest vol trading strategies (straddles, strangles, vol swaps) on historical option data. 
+    Measure P&L from realized vs. implied vol divergence.
+  transaction_cost_and_fill_considerations: |
+    Option bid-ask spreads are higher than equities (1-5% depending on moneyness and liquidity). 
+    Gamma losses from rehedging can erode vol trading profits.
+  robustness_checks: |
+    Test across different underlying assets, maturities, moneyness levels. Account for transaction costs 
+    and market impact. Vary holding periods.
+  rejection_criteria: |
+    Realized volatility is random and unpredictable; alpha disappears after transaction costs
+  failure_modes:
+    - Gamma losses (rehedging costs) exceed vol trading profits
+    - Implied volatility skews systematically; vol trading is biased
+    - Extreme events cause gap moves that invalidate hedges
+  freshness_concerns: |
+    Option pricing models and volatility regimes have evolved post-2013. 
+    Model risk and vol surface dynamics may differ from book's simplified treatment.
+  unresolved_questions: |
+    How has market structure (HFT, option flow) changed vol trading since 2013? 
+    Are simple vol strategies still profitable? What role does tail risk play?

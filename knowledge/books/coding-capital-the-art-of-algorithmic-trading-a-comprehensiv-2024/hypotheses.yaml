@@ -1,0 +1,164 @@
+- id: "CODCAP-H1"
+  title: "Position sizing based on account percentage reduces drawdown volatility"
+  status: "proposed"
+  derived_from: ["CODCAP-C8-001"]
+  statement: "Allocating a fixed fraction of account equity to each position (e.g., 2% of account per trade) produces lower equity curve volatility and more predictable maximum drawdown than fixed-size position allocation."
+  proposed_mechanism: "Fractional position sizing automatically reduces size during drawdown periods, curtailing compounding losses and slowing account erosion."
+  applicable_markets_and_regimes: "All markets with sufficient liquidity to accommodate fractional sizing; more effective in trending or momentum-driven regimes where drawdowns are gradual."
+  assumptions:
+    - "Account equity is observable and updated in real-time"
+    - "Position sizing constraints honor maximum allocation rules"
+    - "Broker supports fractional share/contract sizing"
+  data_requirements:
+    - "Historical account equity curve"
+    - "Historical trade-by-trade P&L and position sizes"
+    - "Comparison: same strategy with fixed position size vs. fractional sizing"
+  baseline_or_null_hypothesis: "Fixed-size position allocation performs equally or better; fractional sizing adds no benefit."
+  validation_approach: "Backtest same strategy with fixed 1-lot sizing vs. 2% fractional sizing; measure Sharpe ratio, max drawdown, and drawdown duration."
+  transaction_cost_and_fill_considerations: "Fractional sizing may increase round-lot fragmentation; verify that smaller position sizes do not incur higher per-unit commissions."
+  robustness_checks:
+    - "Walk-forward test across multiple market periods"
+    - "Test with different percentage allocations (1%, 2%, 5%)"
+    - "Verify performance across different asset classes"
+  rejection_criteria:
+    - "Fractional sizing produces higher Sharpe ratio or lower max drawdown than fixed sizing"
+    - "Equity curve is not smoother; volatility similar to fixed sizing"
+  failure_modes:
+    - "Fractional sizing fails if account is heavily depleted; position sizes become too small to execute"
+    - "Sizing rule interacts with portfolio constraints; may cause unintended underutilization"
+  freshness_concerns: "Low; position sizing math does not depend on current market data."
+  unresolved_questions:
+    - "What is the optimal fraction (Kelly, half-Kelly, 2% rule)?"
+    - "Does fractional sizing interact with entry/exit logic to reduce alpha?"
+
+- id: "CODCAP-H2"
+  title: "Real-time data quality validation prevents stale and corrupt data from poisoning backtest"
+  status: "proposed"
+  derived_from: ["CODCAP-C12-001"]
+  statement: "Implementing data quality checks (stale quote detection, out-of-order tick rejection, gap detection, price anomaly flagging) in the real-time data pipeline reduces backtest-to-live divergence due to bad data."
+  proposed_mechanism: "Streaming data validation identifies and filters or quarantines malformed ticks before algorithm consumption; bad data never enters strategy or risk calculations."
+  applicable_markets_and_regimes: "All markets with streaming data feeds; particularly important in volatile or illiquid markets with higher anomaly rates."
+  assumptions:
+    - "Data anomalies are deterministic (e.g., out-of-order, stale, price spike)"
+    - "Validation rules correctly identify anomalies without false positives"
+    - "Quarantined or filtered data is logged for audit"
+  data_requirements:
+    - "Historical data samples with known anomalies"
+    - "Broker/data vendor documentation of expected tick sequence and timing"
+    - "Backtest results with and without validation applied"
+  baseline_or_null_hypothesis: "Accepting all incoming ticks without validation is sufficient; data quality is high enough that filtering adds no material benefit."
+  validation_approach: "Audit incoming real-time data for anomalies; measure fraction detected; compare backtest P&L with validation ON vs. OFF; verify live data matches historical quality."
+  transaction_cost_and_fill_considerations: "Filtering data may cause temporary blind spots during anomaly windows; verify strategy does not inadvertently benefit from data gaps."
+  robustness_checks:
+    - "Inject synthetic anomalies (duplicates, reversals, stale quotes); verify detection"
+    - "Test on multiple data vendors; check if anomaly signatures differ"
+    - "Compare detected anomalies to broker logs; verify ground truth"
+  rejection_criteria:
+    - "Data validation produces high false positive rate; legitimate ticks are rejected"
+    - "Strategy performance unchanged; validation detects no material anomalies"
+  failure_modes:
+    - "Overly aggressive filtering removes valid edge cases; strategy becomes blind"
+    - "Validation logic has bug; rejects correct data or accepts bad data"
+  freshness_concerns: "MEDIUM; broker data formats and anomaly signatures may change."
+  unresolved_questions:
+    - "What is the cost of missed ticks during anomaly quarantine?"
+    - "How do we coordinate validation with order execution (e.g., reject trade if quote is flagged anomalous)?"
+
+- id: "CODCAP-H3"
+  title: "Async I/O concurrency reduces market data ingestion latency by 50%+ vs. synchronous polling"
+  status: "proposed"
+  derived_from: ["CODCAP-C9-001"]
+  statement: "Event-driven async I/O (asyncio, aiohttp) handles market data subscriptions with lower thread count and reduced wake-latency compared to thread-per-stream synchronous polling."
+  proposed_mechanism: "Async I/O multiplexes multiple network streams onto a single OS thread; event loop wakes when data arrives, avoiding scheduler delays from thread context switching."
+  applicable_markets_and_regimes: "All market feed scenarios with multiple concurrent data streams (multiple tickers, multiple brokers, multi-asset)."
+  assumptions:
+    - "Async implementation is correct (no blocking I/O in event loop)"
+    - "Python version supports asyncio natively"
+    - "Broker APIs support async client libraries"
+  data_requirements:
+    - "Baseline latency measurement: synchronous multi-threaded client"
+    - "Async implementation latency measurement"
+    - "CPU and memory usage comparison"
+  baseline_or_null_hypothesis: "Synchronous threading is sufficiently fast; async adds complexity without latency benefit."
+  validation_approach: "Benchmark ingestion latency and CPU/memory usage on same hardware: 100-stream synchronous vs. 100-stream async; measure time from broker emission to strategy receipt."
+  transaction_cost_and_fill_considerations: "Low; latency improvement does not affect fill quality directly but enables faster order response."
+  robustness_checks:
+    - "Test with 10, 100, 1000 concurrent streams"
+    - "Measure latency tail (p99, p999)"
+    - "Verify no data loss or duplicates under high load"
+  rejection_criteria:
+    - "Async implementation is slower than threading or uses more memory"
+    - "Latency improvement is < 10%"
+  failure_modes:
+    - "Async I/O implementation blocks or deadlocks; event loop stalls"
+    - "Broker API async client is buggy or unmaintained"
+  freshness_concerns: "LOW; async I/O patterns are stable."
+  unresolved_questions:
+    - "Can we pipeline market data ingestion with order execution in a single async event loop safely?"
+    - "How does latency scale with number of streams?"
+
+- id: "CODCAP-H4"
+  title: "Walk-forward backtesting detects overfitting more reliably than static train/test split"
+  status: "proposed"
+  derived_from: ["CODCAP-C6-001", "CODCAP-C13-002"]
+  statement: "Rolling train-test windows (e.g., train on 3 years, validate on 1 year, step forward 6 months) reveal overfitting earlier than single train/test split because model is re-trained on different data repeatedly."
+  proposed_mechanism: "As model is re-fitted across different train windows, parameter values shift if they were overfit to specific historical data; if strategy has true edge, parameters should be stable across windows."
+  applicable_markets_and_regimes: "All strategy types; especially important for parameter-rich strategies and ML-based approaches."
+  assumptions:
+    - "Strategy parameters are tracked across windows"
+    - "Test windows are hold-out (no information leakage from test back to training)"
+    - "Market periods are reasonably independent (e.g., do not use overlapping train/test windows)"
+  data_requirements:
+    - "Historical data spanning multiple years"
+    - "Time series of fitted parameters per window"
+    - "Per-window test performance metrics (Sharpe, max drawdown, return)"
+  baseline_or_null_hypothesis: "Static train/test split is sufficient; walk-forward adds computational cost without material improvement in overfitting detection."
+  validation_approach: "Backtest same strategy with both methods; measure stability of fitted parameters across walk-forward windows; compare test-set Sharpe across windows."
+  transaction_cost_and_fill_considerations: "Walk-forward requires more backtesting runs (e.g., 10 windows vs. 1 split); computational cost increases."
+  robustness_checks:
+    - "Verify test-set metrics are consistent across windows (low variance)"
+    - "Check that out-of-sample period is truly unseen at training time"
+    - "Test with multiple window sizes and step sizes"
+  rejection_criteria:
+    - "Walk-forward performance is more volatile than single train/test"
+    - "Parameter stability is same across methods"
+  failure_modes:
+    - "Walk-forward windows are too small; insufficient data for reliable estimation"
+    - "Windows overlap; information leakage occurs"
+  freshness_concerns: "LOW; walk-forward methodology is stable."
+  unresolved_questions:
+    - "Optimal window size and step size for different asset classes?"
+    - "How to handle strategies with long lookback periods?"
+
+- id: "CODCAP-H5"
+  title: "Infrastructure redundancy and failover detection reduce trading outage duration to < 1 minute"
+  status: "proposed"
+  derived_from: ["CODCAP-C11-001"]
+  statement: "Trading infrastructure with redundant order gateways, automatic failover detection (heartbeat timeout), and backup data connections recovers from single component failure with < 1 minute service interruption."
+  proposed_mechanism: "Primary system fails; health check times out (e.g., 10s heartbeat missing); failover logic switches to backup system; orders resume on backup, no additional market impact."
+  applicable_markets_and_regimes: "All live trading scenarios; critical for strategies that scale and cannot tolerate outages."
+  assumptions:
+    - "Backup system is synchronized with primary (order state, account positions)"
+    - "Failover detection is deterministic (no false positives)"
+    - "Backup system has capacity to handle full load"
+  data_requirements:
+    - "Historical outage logs"
+    - "Failover detection latency measurements"
+    - "Recovery time from primary to backup (order replay, connection re-establishment)"
+  baseline_or_null_hypothesis: "Single system is sufficient; redundancy adds cost without material outage reduction."
+  validation_approach: "Inject component failures (kill primary order gateway, simulate network partition); measure time to failover and order resumption; verify no orders are lost or duplicated."
+  transaction_cost_and_fill_considerations: "Failover may incur slippage if orders are re-submitted; verify market conditions have not changed during outage window."
+  robustness_checks:
+    - "Test failover during market hours (high volume, volatility)"
+    - "Verify order state consistency between primary and backup"
+    - "Measure false positive rate of health checks"
+  rejection_criteria:
+    - "Failover latency > 1 minute"
+    - "Orders are lost or duplicated during failover"
+  failure_modes:
+    - "Split-brain: both primary and backup active; orders doubled"
+    - "Backup system is also down; no failover target"
+  freshness_concerns: "LOW; failover patterns are stable."
+  unresolved_questions:
+    - "How to maintain consistency of order state across primary and backup?"
+    - "Can we failover without re-submitting orders or risk-checks?"

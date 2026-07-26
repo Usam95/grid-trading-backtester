@@ -1,0 +1,61 @@
+book_id: high-probability-trading-strategies-2008
+sections:
+  - ref: "Ch1"
+    title: "High Probability Trade Strategies for Any Market and Any Time Frame"
+    pdf_page_start: 16
+    status: processed
+    reason: "Introduction; establishes book's philosophy of specific entry/exit rules vs vague guidance"
+
+  - ref: "Ch2"
+    title: "Multiple Time Frame Momentum Strategy"
+    pdf_page_start: 23
+    status: processed
+    reason: "Core methodology; dual timeframe momentum, indicator selection, strategy rules"
+
+  - ref: "Ch3"
+    title: "Practical Pattern Recognition for Trends and Corrections"
+    pdf_page_start: 63
+    status: processed
+    reason: "Elliott Wave-based trend identification; overlap guideline for corrections"
+
+  - ref: "Ch4"
+    title: "Beyond Fib Retracements"
+    pdf_page_start: 97
+    status: processed
+    reason: "Price targets via internal/external retracements and pattern projections"
+
+  - ref: "Ch5"
+    title: "Beyond Traditional Cycles"
+    pdf_page_start: 125
+    status: processed
+    reason: "Time retracements, time targets, time bands for entry/exit timing"
+
+  - ref: "Ch6"
+    title: "Entry Strategies and Position Size"
+    pdf_page_start: 153
+    status: processed
+    reason: "Trailing-bar and swing entry tactics; position sizing rules"
+
+  - ref: "Ch7"
+    title: "Exit Strategies and Trade Management"
+    pdf_page_start: 177
+    status: processed
+    reason: "Multiple-unit trading, risk/reward ratios, exit management, stop-loss adjustment"
+
+  - ref: "Ch8"
+    title: "Real Traders, Real Time"
+    pdf_page_start: 215
+    status: processed
+    reason: "Seven trader profiles; low priority—anecdotal examples, not systematic methodology"
+
+  - ref: "Ch9"
+    title: "The Business of Trading and Other Matters"
+    pdf_page_start: 251
+    status: processed
+    reason: "Routines, record-keeping, psychology; moderate priority for live execution context"
+
+  - ref: "Ch10"
+    title: "Bar-by-Bar Examples, Glossary, Bibliography"
+    pdf_page_start: 261
+    status: processed
+    reason: "Illustrative examples and reference material; lower extraction priority"

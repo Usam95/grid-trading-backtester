@@ -1,0 +1,189 @@
+- id: "REGIME-REQ-001"
+  title: "Real-time regime tracking must detect regime transitions within configurable latency threshold"
+  status: "proposed"
+  derived_from: ["REGIME-C5-001", "REGIME-C5-002"]
+  derivation_type: "agent_inference"
+  rationale: "For live trading and early-warning systems, regime transition detection must occur before drawdown onset or volatility spike. Unacceptable lag reduces edge and increases loss exposure."
+  applies_to:
+    strategy: ["grid", "stock_signal", "portfolio", "shared"]
+    lifecycle: ["live"]
+    asset_class: ["equities", "crypto_spot", "shared"]
+    concern: ["monitoring", "risk", "execution"]
+  requirement: "The regime tracking system shall detect regime transitions (measured as Naive Bayes posterior probability crossing a threshold) within 60 seconds (configurable, defaults to 60 seconds) of the actual regime change onset, measured against ground-truth labels or secondary volatility indicators."
+  acceptance_tests:
+    - "Given a regime transition event (marked by HMM state change or known market shock), when regime tracking pipeline runs, then Naive Bayes posterior probability for new regime exceeds threshold within 60 seconds."
+    - "Measured on backtests spanning at least 3 known regime transitions (Brexit June 2016, COVID March 2020, another major event)."
+    - "Out-of-sample validation on independent market data confirms latency within SLA for 95% of regime transitions."
+  failure_prevented: "Delayed regime detection would cause late entry/exit, missing the early-warning benefit and potentially locking in losses."
+  capability_enabled: "Early trade entry/exit based on regime changes; proactive risk management; edge capture before other market participants."
+  assumptions:
+    - "Regime transitions are detectable before volatility spikes materialize (detection lag < realized volatility lag)"
+    - "60-second latency is acceptable for target trading strategies and markets"
+    - "Latency budget is dominated by DC event accumulation and Naive Bayes inference, not I/O or network"
+  open_questions:
+    - "Is 60 seconds optimal, or should it be market-dependent (longer for equities, shorter for crypto)?"
+    - "How does latency scale with market data volume (high-frequency vs. low-frequency instruments)?"
+  dependencies:
+    - "Requires data ingestion latency <5 seconds (other requirement)"
+    - "Requires HMM/Naive Bayes model pre-trained and deployed (other requirement)"
+  verification_needed: "Backtest latency measurement (compare timestamp of regime-change signal to timestamp of underlying market move); live system monitoring of latency distribution (mean, p95, p99)."
+  priority_hint: "correctness"
+
+- id: "REGIME-REQ-002"
+  title: "DC indicator calculation must tolerate data quality gaps and edge cases"
+  status: "proposed"
+  derived_from: ["REGIME-C2-002", "REGIME-C3-003"]
+  derivation_type: "agent_inference"
+  rationale: "In production, tick data often has gaps (market halts, exchange downtime, data feed outages), duplicates, and outliers. Naive DC calculation would break or produce spurious indicators; robust handling is needed for operability."
+  applies_to:
+    strategy: ["grid", "stock_signal", "portfolio", "shared"]
+    lifecycle: ["backtest", "live"]
+    asset_class: ["equities", "crypto_spot", "shared"]
+    concern: ["data", "simulation", "operations"]
+  requirement: "The DC indicator calculation pipeline shall handle missing data points (>10-second gaps), duplicate ticks, zero-volume candles, and outlier prices (>5σ from rolling mean) by either interpolating/imputing or flagging as unreliable and skipping; shall not crash or produce NaN indicators. Shall document handling method and impact on regime signal reliability."
+  acceptance_tests:
+    - "Given tick data with 5% missing points, when DC calculation runs, then indicator R is computed for all valid trends without crashing; no NaN or inf values in output."
+    - "Given tick data with duplicate timestamps, when DC calculation runs, then duplicates are deduplicated before trend calculation; R matches expected output."
+    - "Given tick data with outlier price spike (flash crash), when DC calculation runs, then spike is either flagged or handled via rolling median; regime signal does not flap erratically."
+    - "Test on real market data from multiple venues/assets with known data quality issues."
+  failure_prevented: "Production pipeline crashes on malformed data, leading to loss of regime signals and trading downtime."
+  capability_enabled: "Robust regime tracking across real market data with imperfect quality; operational resilience."
+  assumptions:
+    - "Data gaps are random, not systematic (e.g., not correlated with regime transitions)"
+    - "Imputation method (e.g., forward-fill, linear interpolation) does not systematically bias DC indicator"
+    - "Outlier handling (flagging or median-filter) preserves signal while rejecting noise"
+  open_questions:
+    - "What imputation method minimizes bias in DC indicator for different asset classes?"
+    - "Should data quality issues be logged and trigger manual review, or handled silently?"
+  dependencies:
+    - "Requires data validation and cleaning layer before DC calculation"
+  verification_needed: "Test on real data with injected gaps and outliers; compare to clean-data baseline. Operational monitoring: track fraction of DC calculations that encounter data issues and recovery method."
+  priority_hint: "operability"
+
+- id: "REGIME-REQ-003"
+  title: "HMM regime model must be calibrated and validated on representative data; out-of-sample validation required"
+  status: "proposed"
+  derived_from: ["REGIME-C3-001", "REGIME-C3-002"]
+  derivation_type: "agent_inference"
+  rationale: "HMM parameter fitting is prone to overfitting, especially on short datasets or during extreme market periods. Without rigorous out-of-sample validation, deployed models may fail in novel regimes. Prevents catastrophic underperformance."
+  applies_to:
+    strategy: ["grid", "stock_signal", "portfolio", "shared"]
+    lifecycle: ["research", "backtest"]
+    asset_class: ["equities", "crypto_spot", "shared"]
+    concern: ["reproducibility", "risk"]
+  requirement: "For each market and asset class, the HMM regime model shall be trained on ≥2 years of representative data (including at least one normal and one stress period), then validated on held-out data (≥6 months, different calendar period). Model acceptance requires: (a) regime classification accuracy ≥75% on validation set, (b) detected regimes align with known market events (major volatility spikes), (c) out-of-sample performance within 20% of in-sample performance (no overfitting). Training/validation/test split and model parameters shall be documented in model card."
+  acceptance_tests:
+    - "Given training data for market X (2 years), when HMM is fitted via EM, then likelihood converges and parameters are stable (no EM divergence)."
+    - "Given validation data (6 months, disjoint from training), when HMM regime inference runs, then regime transitions align with known volatility spikes or market events; accuracy ≥75%."
+    - "Measured across multiple markets (DJIA, FTSE 100, EUR-GBP, etc.); consistency indicates generalization."
+    - "Out-of-sample accuracy within 20% of in-sample; if accuracy drops >20%, model flagged for retraining."
+  failure_prevented: "Deployed model overfitted to backtest period; fails to detect regimes in live trading, undermining entire system."
+  capability_enabled: "Reliable regime detection in novel market conditions; confidence in model generalization."
+  assumptions:
+    - "2 years of data is sufficient for stable HMM fit (EM convergence)"
+    - "Held-out validation data is representative of future market regimes (stationarity assumption, which may be violated)"
+    - "Regime classification accuracy ≥75% is acceptable threshold (tradeoff between overfitting and underfitting)"
+  open_questions:
+    - "How to handle non-stationary markets where held-out validation data is from different regime distribution?"
+    - "Should model be refit monthly/quarterly to adapt to regime drift, or is annual refit sufficient?"
+  dependencies:
+    - "Requires data quality/validation pipeline (REGIME-REQ-002)"
+    - "Requires definition of ground-truth regime labels for validation"
+  verification_needed: "Model card: document training data dates, validation dates, hyperparameters, accuracy metrics. Rolling-window backtest to assess model stability over time."
+  priority_hint: "correctness"
+
+- id: "REGIME-REQ-004"
+  title: "DC threshold theta must be selected via principled tuning procedure or adaptive mechanism"
+  status: "proposed"
+  derived_from: ["REGIME-C3-003", "REGIME-C2-002"]
+  derivation_type: "agent_inference"
+  rationale: "The DC threshold theta significantly affects regime detection sensitivity. Arbitrary choice (e.g., theta=0.4% in book) may not generalize to new markets or time periods. Requires systematic selection or adaptation to prevent threshold misselection."
+  applies_to:
+    strategy: ["grid", "stock_signal", "portfolio", "shared"]
+    lifecycle: ["research"]
+    asset_class: ["equities", "crypto_spot", "shared"]
+    concern: ["reproducibility"]
+  requirement: "For each market and asset class, the DC threshold theta shall be selected via one of: (a) grid search on validation data using regime classification accuracy as metric, or (b) adaptive mechanism (e.g., percentile of recent volatility) that adjusts theta quarterly. Tuning procedure shall be documented, reproducible, and tested on at least 3 markets. Sensitivity analysis shall report how regime detection results change with ±20% variation in theta."
+  acceptance_tests:
+    - "Given range of candidate thresholds (e.g., 0.2%, 0.4%, 0.6%, 0.8%), when grid search runs on validation data, then optimal theta identified with regime classification accuracy as criterion."
+    - "Given optimal theta for market X, when applied to market Y without retuning, then regime classification accuracy on Y is within 15% of accuracy when theta is tuned on Y (generalization test)."
+    - "Given optimal theta, when ±20% perturbation applied, then regime transitions change by <5% (stability test)."
+    - "Procedure is reproducible: same data + procedure → same theta."
+  failure_prevented: "Threshold mismatch (too low → excessive false regimes; too high → missed transitions) leads to poor regime detection and trading performance."
+  capability_enabled: "Systematic, reproducible threshold selection; confidence in threshold applicability across markets."
+  assumptions:
+    - "Optimal theta is stable within ±20% perturbation"
+    - "Grid search or adaptive mechanism can identify reasonable theta in reasonable time"
+    - "Threshold is transferable across related markets (e.g., EUR pairs) with 85%+ accuracy"
+  open_questions:
+    - "Is adaptive theta better than fixed, tuned theta? Does intra-market drift in theta require continuous adaptation?"
+    - "Can machine learning (e.g., Bayesian optimization) improve threshold selection?"
+  dependencies:
+    - "Requires validation dataset with regime labels"
+    - "Requires DC indicator computation (REGIME-REQ-002)"
+  verification_needed: "Sensitivity analysis: plot regime classification accuracy vs. theta; report optimal and +/-20% values. Generalization test: tune theta on one market, test on another; report accuracy degradation."
+  priority_hint: "research_quality"
+
+- id: "REGIME-REQ-005"
+  title: "Regime-aware trading strategies must include realistic transaction cost model and live trading validation"
+  status: "proposed"
+  derived_from: ["REGIME-C6-001", "REGIME-C6-003"]
+  derivation_type: "agent_inference"
+  rationale: "Proof-of-concept algorithms (JC1, JC2) are backtested without slippage, commissions, or market impact. In live trading, these costs often erase backtest gains. Strategies must be validated with realistic cost assumptions and live testing before capital deployment."
+  applies_to:
+    strategy: ["stock_signal"]
+    lifecycle: ["backtest", "live"]
+    asset_class: ["equities", "crypto_spot"]
+    concern: ["execution", "risk", "alpha"]
+  requirement: "Before deploying a regime-aware trading strategy to live trading, the strategy shall be: (a) backtested with transaction cost model including bid-ask spread (realistic per-instrument), commissions (e.g., 2 bps), and estimated market impact (e.g., 0.5-2 bps depending on order size/venue), (b) forward-tested on live data (paper trading) for ≥3 months, reporting realized vs. backtest metrics (win rate, Sharpe ratio, drawdown, transaction costs), (c) deployed with position size ≤10% of single-instrument live P&L allocation until 100+ signal-driven trades accumulated and out-of-sample metrics confirm backtest assumptions."
+  acceptance_tests:
+    - "Given backtest with transaction costs included, when strategy runs, then out-of-sample Sharpe ratio ≥80% of in-sample (allowable degradation)."
+    - "Given live paper-trading run (3 months), when results compared to backtest, then realized transaction costs within 20% of model; Sharpe ratio within 25% of backtest."
+    - "Given live deployment at reduced position size, when 100+ trades accumulated, then live Sharpe ratio ≥70% of paper trading, with no catastrophic loss events (max single-trade loss <2% of position size)."
+  failure_prevented: "Strategies that work in backtest but fail in live trading due to underestimated costs; loss of capital and confidence."
+  capability_enabled: "Confidence that regime-based trading strategies have real-world edge; safe capital deployment."
+  assumptions:
+    - "Backtest cost model reflects realistic market conditions for target venue/asset"
+    - "Paper trading accurately reflects live execution"
+    - "100 trades in 3 months provides sufficient sample for statistical validation"
+  open_questions:
+    - "How to model market impact for different order sizes and market conditions?"
+    - "Should position sizing adapt to regime or regime-change probability, or remain fixed?"
+  dependencies:
+    - "Requires live trading infrastructure (order execution, position tracking)"
+    - "Requires regime tracking system deployed and validated (REGIME-REQ-001)"
+  verification_needed: "Backtest: compare results with and without costs; report cost drag. Paper trading: log all signals, fills, costs; compare to backtest assumptions. Live deployment: monitor Sharpe ratio, drawdown, and costs; alert if out-of-sample performance degrades >30%."
+  priority_hint: "safety"
+
+- id: "REGIME-REQ-006"
+  title: "Regime model must be retrained or re-validated periodically to detect regime-definition drift"
+  status: "proposed"
+  derived_from: ["REGIME-C7-001"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Markets evolve over time. Regimes defined on 2016-2018 data may not apply to 2023-2024 markets due to regulatory changes, algorithmic trading proliferation, or structural shifts. Periodic retraining ensures regime definitions remain relevant; monitoring for drift provides early warning of model staleness."
+  applies_to:
+    strategy: ["grid", "stock_signal", "portfolio", "shared"]
+    lifecycle: ["live"]
+    asset_class: ["equities", "crypto_spot", "shared"]
+    concern: ["monitoring", "operations", "risk"]
+  requirement: "Regime models shall be re-validated quarterly on recent data (past 3-6 months, disjoint from training set). If regime classification accuracy drops >15% vs. previous validation (indicating drift), the model shall be flagged for retraining. Retraining shall incorporate recent market data and re-calibrate HMM parameters. Model versioning and change log shall be maintained. Any major market regime (e.g., crisis) not represented in training data shall trigger emergency retraining and alert."
+  acceptance_tests:
+    - "Given quarterly validation run, when model accuracy is computed on recent data, then accuracy is compared to baseline; if drop >15%, retraining triggered."
+    - "Given retraining procedure, when new data and EM algorithm applied, then new model converges and accuracy on held-out validation data ≥75%."
+    - "Given model deployment, when accuracy metrics logged quarterly, then trend of accuracy degradation is visible; alerts triggered if trend crosses threshold."
+    - "Model version and change log maintained; retraining rationale and data periods documented."
+  failure_prevented: "Model staleness: regimes become obsolete, detection fails, trading strategy underperforms or incurs unexpected losses."
+  capability_enabled: "Continuous model monitoring and updating; adaptive regime detection over time."
+  assumptions:
+    - "Quarterly revalidation is sufficient frequency (tradeoff between monitoring overhead and drift detection)"
+    - "15% accuracy drop is detectable signal of meaningful regime drift (not just noise)"
+    - "Retraining is feasible within 1-2 weeks; does not disrupt live operations"
+  open_questions:
+    - "What is appropriate retraining frequency? Should it be data-driven (adaptive) or calendar-driven (quarterly)?"
+    - "How to detect emergent regimes (e.g., new regime type not seen in training data)?"
+  dependencies:
+    - "Requires model validation infrastructure and alerts (REGIME-REQ-003)"
+    - "Requires data pipeline and HMM training setup"
+  verification_needed: "Operational dashboard: display quarterly model accuracy, retraining triggers, model version history. Alerting: automated notification when accuracy drop triggers retraining."
+  priority_hint: "operability"
+

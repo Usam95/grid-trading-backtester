@@ -1,0 +1,144 @@
+- id: FINMAC-HYP-001
+  title: Supervised learning outperforms linear models on financial time series
+  status: proposed
+  derived_from:
+  - FINMAC-C06-002
+  - FINMAC-C18-001
+  - FINMAC-C23-001
+  statement: Non-linear ML models (neural networks, gradient boosting) produce statistically
+    significant superior Sharpe ratios on stock returns prediction vs. linear regression
+    baselines
+  proposed_mechanism: Non-linear relationships in price dynamics; feature interactions
+  applicable_markets_and_regimes: Equity spot markets with sufficient liquidity; trending/mean-reverting
+    regimes
+  assumptions:
+  - Data stationarity assumptions hold after preprocessing
+  - Train/test regimes are similar
+  data_requirements: Daily OHLCV + derived technical indicators; 5+ years history
+  baseline_or_null_hypothesis: Linear regression on raw returns and standardized features
+  validation_approach: Walk-forward backtest with Sharpe ratio comparison; statistical
+    t-test on out-of-sample returns
+  transaction_cost_and_fill_considerations: Assume 0.1% round-trip commission; no
+    slippage initially
+  robustness_checks:
+  - Out-of-sample testing on hold-out year
+  - Sensitivity to feature scaling
+  - Model stability across rolling windows
+  rejection_criteria: Sharpe ratio difference not statistically significant (p>0.05);
+    in-sample Sharpe >> OOS Sharpe
+  failure_modes:
+  - Overfitting to training period regime
+  - Data look-ahead bias
+  - Non-stationarity breaks model
+  freshness_concerns: Market regimes change; model retraining frequency TBD
+  unresolved_questions: Optimal retraining frequency? Feature engineering generalization?
+- id: FINMAC-HYP-002
+  title: Walk-forward validation prevents backtest overfitting
+  status: proposed
+  derived_from:
+  - FINMAC-C27-002
+  - FINMAC-C42-001
+  statement: Walk-forward backtesting (expanding train window, non-overlapping test
+    windows) yields Sharpe ratios significantly closer to live performance than static
+    train/test split
+  proposed_mechanism: Walk-forward simulates actual deployment retraining; no look-ahead
+    bias
+  applicable_markets_and_regimes: All; especially regime-sensitive strategies
+  assumptions:
+  - Live deployment uses walk-forward logic
+  data_requirements: Multi-year price series; daily frequency minimum
+  baseline_or_null_hypothesis: Static 80/20 train/test split yields similar OOS Sharpe
+    as walk-forward
+  validation_approach: Implement both backtests; compare in-sample vs. OOS drawdowns,
+    Sharpe, max DD
+  transaction_cost_and_fill_considerations: Include realistic commissions (0.1% round-trip)
+  robustness_checks:
+  - Vary train/test window sizes
+  - Check for regime change at boundaries
+  rejection_criteria: Walk-forward OOS performance < 50% of static train OOS Sharpe
+  failure_modes:
+  - Over-optimization of retraining frequency
+  - Computation cost prohibitive
+  freshness_concerns: Regime persistence assumption may break in crisis
+  unresolved_questions: Optimal train window? Retraining frequency trade-offs?
+- id: FINMAC-HYP-003
+  title: Feature engineering reduces model complexity and improves generalization
+  status: proposed
+  derived_from:
+  - FINMAC-C06-002
+  - FINMAC-C26-001
+  statement: Hand-crafted domain features (momentum, volatility, technical indicators)
+    reduce model degrees of freedom and improve OOS Sharpe vs. raw price inputs
+  proposed_mechanism: Encodes domain knowledge; reduces noise
+  applicable_markets_and_regimes: Equity markets; trending strategies
+  assumptions:
+  - Domain features capture persistent patterns
+  data_requirements: OHLCV data; 5+ years
+  baseline_or_null_hypothesis: Raw close prices and volume fed directly to model
+  validation_approach: 'Ablation: retrain model without domain features; compare OOS
+    Sharpe'
+  transaction_cost_and_fill_considerations: Cost model same for both
+  robustness_checks:
+  - Feature stability across regimes
+  - Correlation with forward returns
+  rejection_criteria: OOS Sharpe with domain features < baseline by >10%
+  failure_modes:
+  - Look-ahead bias in feature construction
+  - Regime-specific feature redundancy
+  freshness_concerns: Features may become crowded/arbitraged
+  unresolved_questions: Which feature subset optimal for each regime?
+- id: FINMAC-HYP-004
+  title: Ensemble methods reduce model variance without increasing lookback
+  status: proposed
+  derived_from:
+  - FINMAC-C23-001
+  statement: Voting ensembles (random forest, gradient boosting) achieve lower OOS
+    variance and max drawdown than single base learners with same feature set and
+    lookback window
+  proposed_mechanism: Uncorrelated base model predictions average out idiosyncratic
+    errors
+  applicable_markets_and_regimes: All equity strategies
+  assumptions:
+  - Base learners are sufficiently diverse and uncorrelated
+  data_requirements: Same feature set as single-model baseline
+  baseline_or_null_hypothesis: Single decision tree or linear model on same data
+  validation_approach: Backtest single vs. ensemble; compare max DD, Sharpe, tail
+    risk (VaR)
+  transaction_cost_and_fill_considerations: Same for both
+  robustness_checks:
+  - Check base-model correlation on OOS periods
+  - Sensitivity to ensemble size
+  rejection_criteria: Ensemble variance >= single model variance
+  failure_modes:
+  - Base models all fail simultaneously in crash
+  - Ensemble lag in regime shifts
+  freshness_concerns: Regime change breaks correlation structure
+  unresolved_questions: Optimal ensemble size? Base learner selection strategy?
+- id: FINMAC-HYP-005
+  title: Volatility clustering can be exploited via GARCH-informed position sizing
+  status: proposed
+  derived_from:
+  - FINMAC-C25-001
+  statement: Scaling position size inversely to conditional volatility (via GARCH
+    forecast) reduces max drawdown and tail risk vs. fixed-size positions
+  proposed_mechanism: High volatility regimes increase crash risk; reduce exposure
+  applicable_markets_and_regimes: Equity spot; trending + mean-reverting regimes
+  assumptions:
+  - GARCH(1,1) captures conditional volatility structure
+  - Position sizing controls realized risk
+  data_requirements: Daily close price series; 5+ years
+  baseline_or_null_hypothesis: Fixed position size regardless of volatility
+  validation_approach: Backtest signal (e.g., simple momentum) with fixed vs. vol-scaled
+    sizing; compare max DD, Sharpe, Sortino
+  transaction_cost_and_fill_considerations: Position scaling incurs dynamic commissions;
+    account for rebalancing costs
+  robustness_checks:
+  - GARCH parameter sensitivity
+  - Forecasting accuracy on OOS
+  - Scaling factor tuning
+  rejection_criteria: Vol-scaled max DD >= fixed-size max DD
+  failure_modes:
+  - GARCH fails to capture tail events
+  - Lag in volatility forecast causes whipsaw
+  freshness_concerns: Volatility regimes can shift structurally (post-crisis)
+  unresolved_questions: Optimal scaling function? Real-time GARCH estimation stability?

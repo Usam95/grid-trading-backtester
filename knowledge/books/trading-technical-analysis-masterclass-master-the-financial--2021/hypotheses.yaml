@@ -1,0 +1,212 @@
+- id: "TTAM-H1"
+  title: "Pinbar at support/resistance predicts short-term reversal"
+  status: "proposed"
+  derived_from: ["TTAM-C3-002"]
+  statement: "A Pinbar (small body, long wick rejecting price extreme) appearing at a confirmed support or resistance level will result in a reversal within the next 1-3 bars with win rate >55% and reward/risk ratio >1.5:1."
+  proposed_mechanism: "Extreme price rejection combined with known price level creates high-probability reversal setup; order cluster at level provides technical resistance."
+  applicable_markets_and_regimes: "Equities (mid-cap and large-cap), FX pairs (major); effective in trending regimes, less in choppy consolidations."
+  assumptions:
+    - "Support/resistance identified using 3+ historical reversals"
+    - "Pinbar has lower wick at least 2x the body size"
+    - "Entry taken on close of pinbar or following bar"
+  data_requirements:
+    - "OHLC data at signal timeframe (1hr, 4hr, daily)"
+    - "Historical price levels (3+ touch points) to identify support/resistance"
+  baseline_or_null_hypothesis: "Random entry at support/resistance (no pinbar) has win rate ~50%."
+  validation_approach: "Backtest pinbar entries at support/resistance across 5+ years of data for 3+ assets; measure win rate, average profit factor, and Sharpe ratio."
+  transaction_cost_and_fill_considerations: "1-2 pip slippage assumed; sufficient liquidity at identified levels; commission impact on small moves."
+  robustness_checks:
+    - "Test across different timeframes (1hr, 4hr, daily)"
+    - "Test across different asset classes (equities, FX, commodities)"
+    - "Walk-forward validation (80/20 train/test split)"
+  rejection_criteria:
+    - "Win rate <50%"
+    - "Profit factor <1.2:1"
+    - "Sharpe ratio <0.5"
+    - "Drawdown >25% of initial capital"
+  failure_modes:
+    - "Failed breakouts (level breaks decisively, pinbar was bear trap)"
+    - "Reversal does not initiate within 3 bars"
+    - "High slippage in low-liquidity regimes"
+  freshness_concerns: "Technical patterns may evolve with algorithmic trading dominance; market microstructure shifts may reduce effectiveness."
+  unresolved_questions:
+    - "Does pinbar effectiveness vary by asset class or market regime?"
+    - "What is optimal timeframe for pinbar trading?"
+    - "Should confluence factors (MA, trend line) improve win rate?"
+
+- id: "TTAM-H2"
+  title: "Head-and-Shoulders neckline break predicts reversal to opposite trend"
+  status: "proposed"
+  derived_from: ["TTAM-C5-001"]
+  statement: "A Head-and-Shoulders formation with confirmed neckline (3 touches) will result in trend reversal with entry on neckline break, achieving win rate >55% and profit factor >1.5 over 1-6 months."
+  proposed_mechanism: "Diminishing upwave peaks (left shoulder < head > right shoulder) indicate buyer exhaustion; neckline break confirms sellers' control shift."
+  applicable_markets_and_regimes: "Equities, indices, FX (trending markets); less effective in range-bound or choppy regimes."
+  assumptions:
+    - "Head-and-Shoulders components correctly identified"
+    - "Neckline is horizontal or slightly sloped"
+    - "Right shoulder forms after head, not during"
+  data_requirements:
+    - "Daily or higher OHLC data"
+    - "Multiple touch points to confirm neckline"
+  baseline_or_null_hypothesis: "Random entry at neckline level (no HAS pattern context) has 50% win rate."
+  validation_approach: "Identify all HAS formations on historical charts; backtest entry on neckline break; measure win rate, move magnitude, and time to reversal confirmation."
+  transaction_cost_and_fill_considerations: "2-5 pip slippage; sufficient volume at neckline to absorb orders."
+  robustness_checks:
+    - "Test across bull and bear contexts"
+    - "Test across market regimes (trending vs choppy)"
+    - "Measure time to reversal confirmation"
+  rejection_criteria:
+    - "Win rate <50%"
+    - "Average move after neckline break <2x the neckline depth"
+    - "False breakouts (neckline holds, reversal fails)"
+  failure_modes:
+    - "Neckline acts as resistance and bounces back into consolidation"
+    - "Reversal initiates but stalls before target (premature false break)"
+    - "Whipsaw after neckline break"
+  freshness_concerns: "Head-and-Shoulders may be less reliable in highly algorithmic markets; pattern recognition by algos may front-run retail traders."
+  unresolved_questions:
+    - "Does inverse HAS (downtrend reversal) have same effectiveness?"
+    - "What is optimal profit target based on HAS depth?"
+    - "Does volume confirmation at neckline improve success rate?"
+
+- id: "TTAM-H3"
+  title: "Ascending Triangle breakout predicts continuation of prevailing uptrend"
+  status: "proposed"
+  derived_from: ["TTAM-C5-003"]
+  statement: "An Ascending Triangle (horizontal resistance with rising support floor) will break upward with entry on resistance break, achieving win rate >60% and average move >1.5x triangle height within 2 weeks."
+  proposed_mechanism: "Rising lows indicate increasing buyer interest; horizontal resistance represents buyer supply exhaustion point; upside break confirms trend continuation."
+  applicable_markets_and_regimes: "Equities, indices, FX; effective in uptrending markets; less in downtrends or consolidations."
+  assumptions:
+    - "Ascending Triangle components correctly identified"
+    - "At least 3 touches on horizontal resistance"
+    - "At least 3 contact points on rising support"
+  data_requirements:
+    - "4hr or daily OHLC data"
+    - "Confirmed horizontal resistance with multiple touches"
+  baseline_or_null_hypothesis: "Random entry at resistance level (no triangle context) has 50% win rate."
+  validation_approach: "Identify all Ascending Triangle formations on historical charts; backtest entry on resistance break; measure win rate, move magnitude, and time to target."
+  transaction_cost_and_fill_considerations: "1-3 pip slippage; volume confirmation at breakout crucial."
+  robustness_checks:
+    - "Test across different timeframes"
+    - "Test across different market regimes"
+    - "Measure average move vs triangle height ratio"
+  rejection_criteria:
+    - "Win rate <55%"
+    - "Average move <1.2x triangle height"
+    - "High false-breakout rate (>30% of breakouts reverse)"
+  failure_modes:
+    - "Downside breakdown instead of upside breakout (bearish reversal)"
+    - "Breakout lacks follow-through (exhaustion)"
+    - "Consolidation continues despite breakout"
+  freshness_concerns: "Chart pattern effectiveness may decline with algorithmic pattern recognition; market structure changes affect breakout dynamics."
+  unresolved_questions:
+    - "Does volume confirmation at breakout improve win rate?"
+    - "What is optimal profit target based on triangle height?"
+    - "Does confluence with moving averages or trend lines improve success?"
+
+- id: "TTAM-H4"
+  title: "Confluence of multiple technical signals increases entry success"
+  status: "proposed"
+  derived_from: ["TTAM-C6-003"]
+  statement: "Entries with 3+ concurrent technical signals (e.g., trend line break + candlestick pattern + support/resistance + indicator divergence) will achieve win rate 65%+ and profit factor 2.0+ compared to single-signal entries (~50% win rate)."
+  proposed_mechanism: "Multiple converging signals increase trader awareness and order clustering, making support/resistance levels more sticky and reversals more reliable."
+  applicable_markets_and_regimes: "All equities and FX; effective across all timeframes and regimes."
+  assumptions:
+    - "Signals are correctly identified"
+    - "Signals are relatively independent (not measuring the same concept)"
+    - "Confluence factors occur within 1-2 bars of each other"
+  data_requirements:
+    - "Indicator data (MA, RSI, MACD, Bollinger Bands)"
+    - "Chart pattern and support/resistance data"
+    - "Trend line data"
+  baseline_or_null_hypothesis: "Single-signal entries have ~50-52% win rate based on historical analysis."
+  validation_approach: "Categorize all historical entries by signal count (1, 2, 3+); compare win rates, profit factors, and Sharpe ratios."
+  transaction_cost_and_fill_considerations: "Standard slippage and commissions; higher signal counts may indicate tighter areas with better fills."
+  robustness_checks:
+    - "Test confluence across different signal combinations"
+    - "Measure win rate degradation as signals become correlated"
+    - "Test across market regimes"
+  rejection_criteria:
+    - "Win rate improvement <5% vs single-signal entries"
+    - "Profit factor <1.5:1"
+    - "Over-optimization to specific signal combinations"
+  failure_modes:
+    - "False signals from multiple sources simultaneously (coincidence, not causation)"
+    - "Signal correlation increases in certain market regimes"
+    - "Bias toward high-signal-count entries that may be false"
+  freshness_concerns: "Confluence concept relies on human trader behavior; algorithmic execution may not respect the same levels, reducing confluence effect."
+  unresolved_questions:
+    - "Which signal combinations are most effective?"
+    - "Is there a diminishing return beyond 3 signals?"
+    - "How do signals correlate in different market regimes?"
+
+- id: "TTAM-H5"
+  title: "RSI divergence predicts momentum reversal within 2-5 bars"
+  status: "proposed"
+  derived_from: ["TTAM-C7-003"]
+  statement: "RSI divergence (price makes new high/low but RSI does not) will result in trend reversal within 2-5 bars with win rate >58% and average reversal move >2 ATR."
+  proposed_mechanism: "Divergence indicates weakening momentum despite price movement; suggests exhaustion of prevailing move and imminent reversal."
+  applicable_markets_and_regimes: "Equities, FX, commodities; effective at local highs/lows; less effective in strong trending regimes."
+  assumptions:
+    - "RSI divergence correctly identified (price extreme vs RSI extreme)"
+    - "Divergence occurs at recognizable support/resistance level"
+    - "RSI period is optimized (typically 14)"
+  data_requirements:
+    - "RSI indicator (14-period standard)"
+    - "Price highs/lows for divergence identification"
+  baseline_or_null_hypothesis: "Random entry at price extremes (no RSI context) has 50% win rate."
+  validation_approach: "Identify all RSI divergences on historical data; backtest entry on confirmed divergence; measure win rate, move magnitude, and time to reversal."
+  transaction_cost_and_fill_considerations: "Standard slippage; entries often at extremes where liquidity may be lower."
+  robustness_checks:
+    - "Test across different RSI periods"
+    - "Test at local vs global extremes"
+    - "Measure win rate by market regime"
+  rejection_criteria:
+    - "Win rate <55%"
+    - "Average reversal move <1.5 ATR"
+    - "High false-signal rate (divergence persists without reversal)"
+  failure_modes:
+    - "Divergence can persist for extended periods without reversal"
+    - "Strong trends override divergence signals"
+    - "False divergences from price/RSI misalignment"
+  freshness_concerns: "RSI lagging in fast-moving markets; divergence may be identified too late for profitable entry."
+  unresolved_questions:
+    - "Should divergence confirmation require price break of recent swing?"
+    - "Does volume confirmation at divergence improve success rate?"
+    - "What is optimal holding period for divergence trades?"
+
+- id: "TTAM-H6"
+  title: "Trend line break followed by new swing extreme signals trend reversal"
+  status: "proposed"
+  derived_from: ["TTAM-C6-001", "TTAM-C6-005"]
+  statement: "Trend line break (3+ contact points) combined with formation of new swing high/low will result in trend reversal with win rate >62% and profit factor >1.8 when confirmed by additional confluence."
+  proposed_mechanism: "Trend line break indicates structure shift; preceding swing extreme change confirms weakening of prevailing trend; confluence increases signal reliability."
+  applicable_markets_and_regimes: "Equities, FX, indices; effective across all timeframes; more reliable in trending markets."
+  assumptions:
+    - "Trend line correctly drawn with 3+ contact points"
+    - "Swing points correctly identified"
+    - "Confluence factors (support/resistance, candlestick patterns) present"
+  data_requirements:
+    - "Correct trend line identification (subjective but with rules)"
+    - "Swing point data"
+    - "Support/resistance levels and candlestick patterns"
+  baseline_or_null_hypothesis: "Trend line break alone has ~55% win rate; confluence addition improves to 62%+."
+  validation_approach: "Identify all trend line breaks with preceding swing changes; test with and without confluence; compare win rates and profit factors."
+  transaction_cost_and_fill_considerations: "Entries at trend line breaks may face slippage; confluence confirmation may delay entry but improve reliability."
+  robustness_checks:
+    - "Test across different trend line types (steep vs shallow)"
+    - "Test impact of each confluence factor separately"
+    - "Measure win rate improvement from confluence"
+  rejection_criteria:
+    - "Win rate <58%"
+    - "Profit factor <1.5:1"
+    - "Confluence does not materially improve win rate (>5% improvement)"
+  failure_modes:
+    - "Trend line break is minor retest, not full reversal"
+    - "Whipsaw after line break"
+    - "Over-reliance on subjective trend line drawing"
+  freshness_concerns: "Subjectivity of trend line drawing may lead to over-optimization; trend lines may be less effective in algorithmic markets."
+  unresolved_questions:
+    - "Should confluence be present at break or develop after?"
+    - "What is optimal holding period for trend line break trades?"
+    - "How sensitive is this pattern to trend line angle?"

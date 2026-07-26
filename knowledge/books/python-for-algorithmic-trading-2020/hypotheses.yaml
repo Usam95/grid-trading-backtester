@@ -1,0 +1,156 @@
+- id: PYALGO-HYP-001
+  title: "Vectorized backtesting edge estimate inflated by 20-50% vs event-based due to slippage and commission underestimation"
+  status: proposed
+  derived_from: [PYALGO-C4-001, PYALGO-C4-002]
+  statement: "A simple SMA crossover strategy backtested vectorized will show Sharpe ratio 20-50% higher than identical strategy backtested event-based with realistic slippage (1-5 ticks) and commissions (0.1-0.5 bps)."
+  proposed_mechanism: "Vectorized assumes single close price and fixed commission; event-based simulates tick-level entry/exit allowing slippage fill; slippage consumes 30-50% of small edges."
+  applicable_markets_and_regimes: 
+    - regime: "trending" 
+      note: "SMA edges largest in trending; slippage impact 30-40%"
+    - regime: "mean-reverting"
+      note: "Edges smaller; slippage impact 50-70%"
+    - instrument: "liquid equities (SPY, QQQ)"
+      note: "Slippage 1-2 ticks"
+    - instrument: "small-cap equities"
+      note: "Slippage 5-20 ticks; vectorized severely overestimates"
+  assumptions:
+    - "Slippage model: 1-2 ticks for liquid, 5-10 for less liquid"
+    - "Commission: 0.1-0.5 bps per round-trip"
+    - "Daily data; no intraday regimes"
+  data_requirements:
+    - "Tick-level OHLCV or order book for slippage estimation"
+    - "Executed fill prices from live trading or venue data"
+  baseline_or_null_hypothesis: "Edge and Sharpe equal between vectorized and event-based; slippage/commission negligible."
+  validation_approach: "Backtest identical SMA strategy on same data using both vectorized and event-based frameworks; measure Sharpe, max drawdown, and trade timing differences. Correlate with live results if available."
+  transaction_cost_and_fill_considerations: "Entry slippage liquidity-dependent; limit orders safer than market for small size. Exit slippage amplified during adverse moves (gap down). Commission 0.5 bps * 100 trades/year = 0.5% drag on 5% edge."
+  robustness_checks:
+    - "Vary slippage model: constant, volatility-proportional, order-size-dependent"
+    - "Test on trending vs mean-reverting subperiods"
+    - "Test on different liquidity tiers (large-cap vs micro-cap)"
+  rejection_criteria:
+    - "If event-based Sharpe > vectorized Sharpe by < 5%, slippage model may be too pessimistic or edge robust"
+    - "If rejection occurs on large-cap but not small-cap, liquidity-dependent edge confirmed"
+  failure_modes:
+    - "If vectorized edge disappears in backtest (Sharpe < 0), edge is spurious; test with bootstrap or subsample"
+    - "If event-based Sharpe < 0 but vectorized > 1.0, over-fitting or lookahead bias in vectorized implementation suspected"
+  freshness_concerns: "Slippage and commission rates change with venue rules and market structure. Equity markets (1-2 ticks slippage) stable; crypto (5-50 ticks) volatile."
+  unresolved_questions:
+    - "How much of edge is attributable to timing vs alpha signal?"
+    - "Does fractional Kelly (0.5x) reduce sensitivity to slippage overestimation?"
+
+- id: PYALGO-HYP-002
+  title: "Linear regression market prediction model unstable across regime change; coefficients flip sign"
+  status: proposed
+  derived_from: [PYALGO-C5-001, PYALGO-C5-002]
+  statement: "Linear regression model trained on 2015-2019 data predicting daily future returns will have flipped sign coefficients (mean-reversion → momentum or vice versa) when tested on 2020+ data; Sharpe collapses from in-sample 0.5+ to out-of-sample < 0."
+  proposed_mechanism: "Equity market regime in 2015-2019 was mean-reverting (short-term momentum reversals); post-2020 regime became more trending (correlation persistence). Regression coefficients were optimized for mean-reversion; when trend regime dominates, coefficients become counterintuitive."
+  applicable_markets_and_regimes:
+    - regime: "mean-reversion (2015-2019)"
+      note: "Negative coefficients on short-term momentum; positive on reversal signals"
+    - regime: "trending (2020+)"
+      note: "Positive coefficients on momentum; negative on reversal signals"
+    - instrument: "large-cap equities (S&P 500 constituents)"
+      note: "Regime shifts every 3-7 years; expect coefficient instability"
+  assumptions:
+    - "Regression model includes momentum features (returns_t-1, ..., returns_t-5)"
+    - "Target is forward return (return_t+1)"
+    - "Model trained on 5+ years of data (in-sample optimization)"
+  data_requirements:
+    - "Daily OHLCV for 10+ year period"
+    - "Regime classification or regime-switching indicator (VIX, market correlation)"
+  baseline_or_null_hypothesis: "Coefficients stable across regimes; forward returns predictable with constant model."
+  validation_approach: "Train model on 2015-2019; test on 2020-2022. Measure coefficient signs and magnitudes. Repeat train/test on rolling 5-year windows; track coefficient stability. Correlate coefficient flips with regime changes (detected via rolling Sharpe or correlation)."
+  transaction_cost_and_fill_considerations: "If model flips regime-dependent signals, trading costs amplify losses as model churns between contradictory signals. Consider regime-switching model or ensemble of regime-specific models instead of single OLS."
+  robustness_checks:
+    - "Bootstrap resampling to measure coefficient confidence intervals"
+    - "Lasso/Ridge regression to compare L1/L2-regularized coefficients vs OLS"
+    - "Train/test on alternative regime definitions (sorted by Sharpe, returns, volatility)"
+  rejection_criteria:
+    - "If coefficients stable and out-of-sample Sharpe > 0.2, hypothesis rejected; model is robust to regime"
+    - "If in-sample Sharpe >> out-of-sample Sharpe but both positive, overfitting suspected rather than regime change"
+  failure_modes:
+    - "If test-set Sharpe highly negative despite statistical significance of coefficients, model captures noise"
+    - "If coefficients flip but out-of-sample Sharpe rises, regime change is beneficial (momentum now dominant)"
+  freshness_concerns: "Market regime depends on macroeconomic conditions (rates, inflation, risk-on/risk-off); subject to structural change. Machine learning models non-stationary by nature; assume all models require periodic retraining (quarterly or annual)."
+  unresolved_questions:
+    - "Can regime-detection model (e.g. HMM) predict regime switches in advance? (Forward-looking regime switching)"
+    - "Is the correlation of features to forward returns spurious due to common exposure to market beta?"
+
+- id: PYALGO-HYP-003
+  title: "Kelly Criterion position sizing optimal IF win probability estimated accurately; 1-2% error in p causes 2-5x wrong leverage"
+  status: proposed
+  derived_from: [PYALGO-C10-001, PYALGO-C10-002]
+  statement: "If true win probability is 52% but estimated at 50.5% due to overfitting or small sample, Kelly formula f* = (0.505*1 - 0.495) / 1 = 1% produces leverage 1x; if overstated to 53%, f* = 3%, leverage 3x; Kelly allocation highly sensitive to p estimate error."
+  proposed_mechanism: "Kelly formula is linear in (p*b - q); small errors in p (from overfitting, data snooping, regime change) cause large errors in f*. Leverage ramps non-linearly with edge; strategy using f* suffers 10x larger drawdowns if p is wrong."
+  applicable_markets_and_regimes:
+    - regime: "high-edge strategies (p > 55%)"
+      note: "Kelly sizing safe; error in p from 57% → 55% causes 50% leverage reduction but strategy still profitable"
+    - regime: "low-edge strategies (p = 50-52%)"
+      note: "Kelly sizing catastrophic; 1% error in p flips strategy from 3x leverage to 0.3x or unprofitable"
+    - instrument: "equities with SMA edges (typically p=51-53%)"
+      note: "Overfitting risk high; Kelly over-leverages frequently"
+  assumptions:
+    - "Win probability p estimated from backtest sample (N = 100-500 trades)"
+    - "Trade samples are i.i.d. (independence assumption violated in regimes)"
+    - "B (payoff ratio) known accurately"
+  data_requirements:
+    - "Trade-by-trade record with entry, exit, P&L"
+    - "Out-of-sample test period to validate p estimate"
+  baseline_or_null_hypothesis: "Win probability is stationary and accurately estimated from backtest; Kelly sizing optimal and stable."
+  validation_approach: "Estimate p from in-sample backtest (2010-2018). Validate p on out-of-sample period (2019-2022). Measure divergence between in-sample Kelly allocation and out-of-sample-optimal allocation. Backtest: apply in-sample Kelly to out-of-sample data; measure realized Sharpe vs expected."
+  transaction_cost_and_fill_considerations: "Commissions reduce effective edge by 0.2-0.5%; Kelly allocation should discount by this amount. If commission affects payoff ratio b, Kelly formula changes significantly."
+  robustness_checks:
+    - "Use fractional Kelly (0.5x, 0.25x) to reduce leverage sensitivity"
+    - "Bootstrap confidence intervals on p; report Kelly range (25th-75th percentile)"
+    - "Test Kelly on independent asset class to validate p generalization"
+  rejection_criteria:
+    - "If out-of-sample p within 95% confidence interval of in-sample p, hypothesis rejected; p is stable"
+    - "If out-of-sample Sharpe > in-sample even with different leverage, p estimate and Kelly allocation both conservative"
+  failure_modes:
+    - "If out-of-sample p < 50%, strategy was fundamentally unprofitable; Kelly returns negative or zero leverage"
+    - "If leverage-search finds optimal leverage 0.5x Kelly or 2x Kelly, Kelly formula violated; examine payoff ratio or trade dependence"
+  freshness_concerns: "Win probability is regime-dependent; Kelly must be recomputed quarterly or annually. Structural market changes (regulation, latency, competition) alter win probability; Kelly requires model updates."
+  unresolved_questions:
+    - "How to estimate p when trades are correlated (clusters of wins/losses)? Standard Kelly assumes independence."
+    - "Should Kelly account for utility penalty for drawdown (e.g. reduce f* to limit max drawdown < 20%)?"
+
+- id: PYALGO-HYP-004
+  title: "Oanda API latency and rate limits cause real-world slippage 2-10x worse than simulated in event-based backtest"
+  status: proposed
+  derived_from: [PYALGO-C8-001, PYALGO-C10-001]
+  statement: "Oanda streaming quotes have 50-200ms latency; order placement has 100-500ms latency; in-sample backtest assumes deterministic execution at quoted price; live execution slippage 2-10x larger due to latency, rate limiting (max 200 orders/min), and competing traders."
+  proposed_mechanism: "When trading robot receives signal at time t, Oanda quote may be 50-200ms stale. Order placed at t+50ms; execution happens at t+200ms. Price moved 2-10 bips against position. Rate limiting causes queue delays if robot places too many orders."
+  applicable_markets_and_regimes:
+    - regime: "high-volatility"
+      note: "50ms latency translates to 2-5 bips slippage; if position sizing high, can wipe out edge"
+    - regime: "low-liquidity hours (Asia morning)"
+      note: "Wider spreads; slippage 5-20 bips"
+    - instrument: "major pairs (EUR/USD, USD/JPY)"
+      note: "Tight spreads but high latency; slippage 2-3 bips"
+    - instrument: "emerging market pairs (USDCAD, USDBRL)"
+      note: "Wider spreads; slippage 5-10 bips"
+  assumptions:
+    - "Oanda streaming quotes 50-200ms latent"
+    - "Order execution 100-500ms latent"
+    - "Rate limit 200 orders/minute (hard limit)"
+  data_requirements:
+    - "Oanda API response time logs (timestamp quote vs timestamp execution)"
+    - "Live order fill prices vs quoted prices at order entry time"
+  baseline_or_null_hypothesis: "Oanda latency and rate limits negligible; backtest slippage models accurate for live execution."
+  validation_approach: "Deploy strategy on Oanda sandbox; measure actual order latency, fill price vs quoted price, and rate limit hit frequency. Compare with event-based backtest assuming instant execution. Backtest same strategy with latency model (50-200ms) and rate limiting (200 orders/min); measure Sharpe vs live results."
+  transaction_cost_and_fill_considerations: "Order latency impacts both entry and exit; exit latency can turn losing trade into breakeven or vice versa. Rate limiting means robot cannot scalp more than 200 times/day; strategy must batch orders or be longer-term."
+  robustness_checks:
+    - "Vary latency model: fixed 100ms, variable 50-200ms, correlated with volatility"
+    - "Test rate-limit queue behavior: FIFO vs priority; measure queue depth and delay"
+    - "Measure fill price distribution: percentiles (10th, 50th, 90th) of slippage"
+  rejection_criteria:
+    - "If live slippage < backtest slippage by > 20%, backtest model too pessimistic; adjust model"
+    - "If live Sharpe > (backtest Sharpe - 30%), latency and rate limiting impact negligible"
+  failure_modes:
+    - "If rate limiter triggered during drawdown, robot forced to wait; drawdown worsens"
+    - "If streaming connection drops and reconnects, quote gap causes whipsaw fills"
+  freshness_concerns: "Oanda latency infrastructure and rate limits change; verify current settings via API. Competing trading traffic affects latency; high-volatility periods have increased latency."
+  unresolved_questions:
+    - "How much of trading edge is attributable to latency arbitrage vs fundamental alpha?"
+    - "Can latency be reduced by co-locating in Oanda data center or using FIX protocol?"
+

@@ -1,0 +1,212 @@
+- id: PYALGO-REQ-001
+  title: "Event-based backtester must support tick-level order placement with configurable slippage model"
+  status: proposed
+  derived_from: [PYALGO-C4-002, PYALGO-C6-001]
+  derivation_type: agent_inference
+  rationale: "Vectorized backtesting systematically inflates edge by 20-50% due to assumed-perfect execution. Event-based framework must simulate tick-level order entry/exit with realistic slippage (constant, volatility-proportional, or liquidity-dependent) to detect overfitting and validate edge robustness."
+  applies_to:
+    strategy: [stock_signal, grid, portfolio]
+    lifecycle: [backtest]
+    asset_class: [equities, crypto_spot, crypto_futures]
+    concern: [simulation, reproducibility]
+  requirement: "The backtester shall accept a configurable slippage model (function or table) and apply slippage to each order entry/exit based on order time, direction, and optionally volatility or order size."
+  acceptance_tests: "Backtester accepts configurable slippage model (function or table); applies slippage to order entry/exit. Backtest Sharpe with slippage 20-50% lower than without. Slippage model matches live distribution (R² > 0.7 on fill price prediction)."
+  failure_prevented: "Prevents false positives in strategy research due to backtest-live discrepancy; eliminates risk of deploying unprofitable strategy."
+  capability_enabled: "Enables realistic performance assessment and robust strategy selection before live deployment."
+  assumptions:
+    - "Slippage model can be parameterized from historical data or vendor estimates"
+    - "Order execution model is single-fill"
+  open_questions:
+    - "Should slippage be event-driven or trade-driven?"
+    - "How to model adverse selection?"
+  dependencies:
+    - "Tick-level data available for backtest period"
+    - "Order timing logic must be deterministic"
+  verification_needed: "Backtester slippage output logged and compared to live fill prices. Sharpe ratio sensitivity to slippage parameterization documented."
+  priority_hint: correctness
+
+- id: PYALGO-REQ-002
+  title: "Backtest framework shall implement walk-forward validation to detect overfitting and data snooping"
+  status: proposed
+  derived_from: [PYALGO-C4-003, PYALGO-C5-001]
+  derivation_type: agent_inference
+  rationale: "Parameter optimization on full historical data inflates Sharpe by 50-200% due to overfitting. Walk-forward validation (rolling train/test windows) is essential to estimate out-of-sample performance and identify strategies that fail on new data."
+  applies_to:
+    strategy: [stock_signal, grid, portfolio]
+    lifecycle: [research, backtest]
+    asset_class: [equities, crypto_spot, crypto_futures]
+    concern: [alpha, reproducibility]
+  requirement: "Backtester framework shall provide a walk-forward optimizer that partitions historical data into train/test windows and reports in-sample and out-of-sample Sharpe, max drawdown, and parameter stability."
+  acceptance_tests: "Walk-forward optimizer generates N train/test splits with no data leakage. Output includes: train_sharpe, test_sharpe, parameter_values_train, parameter_values_test. If test_sharpe << train_sharpe, overfitting flagged. Parameter stability metric >= 0.5 for robust strategies."
+  failure_prevented: "Prevents deployment of overfit strategies that fail in live trading; protects capital from research process bias."
+  capability_enabled: "Enables identification of robust, generalizable strategy parameters; supports confidence intervals on out-of-sample performance."
+  assumptions:
+    - "Historical data spans >= 10 years"
+    - "Train/test split >= 3 years train, 1 year test"
+  open_questions:
+    - "What train/test ratio minimizes overfitting? (3:1? 5:1?)"
+    - "How to apply walk-forward with forward-looking features?"
+  dependencies:
+    - "Backtest engine supports re-optimization loop"
+    - "Parameter ranges and constraints specified"
+  verification_needed: "Walk-forward optimization tested on synthetic data with known parameters. Out-of-sample Sharpe compared to live results; correlation >= 0.7 indicates validity."
+  priority_hint: research_quality
+
+- id: PYALGO-REQ-003
+  title: "Live trading system shall implement maximum daily loss limit and position-freezing circuit breaker"
+  status: proposed
+  derived_from: [PYALGO-C10-004]
+  derivation_type: agent_inference
+  rationale: "Automated trading systems risk runaway losses if strategy logic breaks or data feed corrupts. Circuit breaker (max daily loss, freeze trading) is a production safety requirement to protect capital and operator from catastrophic loss."
+  applies_to:
+    strategy: [stock_signal, grid, portfolio]
+    lifecycle: [live]
+    asset_class: [equities, crypto_spot, crypto_futures]
+    concern: [risk, operations]
+  requirement: "Live trading system shall track cumulative daily P&L; if daily P&L <= -X% of account equity, halt all new orders and close open positions using market orders; log circuit breaker trigger with timestamp, daily P&L, and triggering condition."
+  acceptance_tests: "Given a live account with $100k, circuit breaker threshold -5% ($5k), system shall place market order to close all positions when daily loss reaches $5k. System shall log circuit breaker event with trigger time, daily P&L, and open positions at trigger time. No new orders shall be placed after circuit breaker trigger unless manual override issued."
+  failure_prevented: "Prevents 2-3x losses from runaway strategy during data corruption or logic failure; limits capital at risk to < 5% per day."
+  capability_enabled: "Enables safe automated trading with confidence that worst-case loss is bounded; operator can investigate failure without accumulating additional losses."
+  assumptions:
+    - "Circuit breaker threshold (e.g., -5%) acceptable to operator"
+    - "Market orders executable on all positions"
+    - "System has permission to liquidate"
+  open_questions:
+    - "Should circuit breaker freeze new trades while keeping positions open, or close all positions?"
+    - "How to handle partial fills during circuit breaker position close?"
+  dependencies:
+    - "Daily P&L calculation implemented and logged"
+    - "Order execution API supports market order liquidation"
+    - "Monitoring system alerts operator to circuit breaker trigger"
+  verification_needed: "Test on sandbox: simulate daily loss reaching threshold; verify system halts trading. Measure time from circuit breaker trigger to position close completion; should be < 5 minutes."
+  priority_hint: safety
+
+- id: PYALGO-REQ-004
+  title: "Backtester must separate realized and unrealized P&L tracking with tick-by-tick reconciliation"
+  status: proposed
+  derived_from: [PYALGO-C6-002]
+  derivation_type: direct_book_recommendation
+  rationale: "Event-based backtester must maintain accurate P&L accounting: realized P&L from closed positions, unrealized P&L from mark-to-market on open positions. Reconciliation errors accumulate over thousands of ticks and invalidate backtest results."
+  applies_to:
+    strategy: [stock_signal, grid, portfolio]
+    lifecycle: [backtest]
+    asset_class: [equities, crypto_futures]
+    concern: [simulation, reproducibility]
+  requirement: "Backtester shall maintain: (1) cumulative_cash = sum of realized P&L from closed trades; (2) open_position_value = current_price * shares_held; (3) total_equity = cumulative_cash + open_position_value. At each tick, backtester shall verify: equity_prev + (price_change * shares) = equity_current (within rounding tolerance)."
+  acceptance_tests: "Backtester log output includes tick-by-tick: cumulative_cash, open_position_value, total_equity. Equity reconciliation check passes for 100% of ticks. Total equity at end matches: initial_cash + sum(closed_trade_P&L) + final_position_mark_to_market."
+  failure_prevented: "Prevents P&L reporting errors that mask strategy weakness or claim false profitability; ensures backtest replicability."
+  capability_enabled: "Enables accurate strategy comparison and capital allocation based on true realized returns."
+  assumptions:
+    - "Rounding tolerance set to 1e-6"
+    - "Single currency"
+  open_questions:
+    - "How to handle corporate actions (splits, dividends) in P&L accounting?"
+  dependencies:
+    - "Backtester trades logged with entry price, exit price, shares"
+    - "Tick-by-tick price data available"
+  verification_needed: "Run backtest, export tick-by-tick P&L log, verify reconciliation formula for sample of ticks. Compare final equity to independent calculation (sum of trades + mark-to-market)."
+  priority_hint: correctness
+
+- id: PYALGO-REQ-005
+  title: "Data storage for backtesting shall support both fast (HDF5) and portable (SQLite) backends with schema migration"
+  status: proposed
+  derived_from: [PYALGO-C3-001]
+  derivation_type: direct_book_recommendation
+  rationale: "HDF5 (TsTables) offers 2-3x faster read/write than SQLite but is binary and vendor-specific. SQLite is portable and queryable but slower. Backtester should support both to balance speed (development/testing) and portability (sharing, archival)."
+  applies_to:
+    strategy: [stock_signal, grid, portfolio]
+    lifecycle: [backtest]
+    asset_class: [equities, crypto_spot, crypto_futures]
+    concern: [data, reproducibility, operations]
+  requirement: "Data layer shall support pluggable backends: HDF5 (TsTables) for speed, SQLite for portability. Schema migration tool shall convert HDF5 → SQLite and vice versa without data loss. API shall be identical regardless of backend."
+  acceptance_tests: "Write 1M OHLCV rows to HDF5; measure write time. Write same data to SQLite; measure. HDF5 >= 2x faster. Convert HDF5 → SQLite using migration tool; verify row count and statistics (min, max, mean) match original HDF5. Query backend-agnostic API; result identical for both backends."
+  failure_prevented: "Prevents data loss or corruption during format conversions; enables data sharing without licensing constraints."
+  capability_enabled: "Enables fast development iteration with HDF5; production deployment with portable SQLite; team collaboration without vendor dependencies."
+  assumptions:
+    - "Schema is tabular (OHLCV with symbol, timestamp, open, high, low, close, volume)"
+    - "No schema evolution"
+  open_questions:
+    - "Should migration tool preserve index performance?"
+    - "How to handle schema versioning?"
+  dependencies:
+    - "HDF5 library (h5py, tables)"
+    - "SQLite driver (sqlite3, pandas)"
+  verification_needed: "Migration tool tested on 10GB+ dataset; measure time and memory usage. Schema compatibility verified across versions."
+  priority_hint: operability
+
+- id: PYALGO-REQ-006
+  title: "Oanda API integration layer shall implement retry logic, rate limiting, and token refresh"
+  status: proposed
+  derived_from: [PYALGO-C8-001]
+  derivation_type: agent_inference
+  rationale: "Oanda API has latency (100-500ms), rate limits (200 orders/min), and token expiry. Integration layer must handle transient failures (retries), queued requests (rate limit backoff), and credential refresh to ensure robust live execution."
+  applies_to:
+    strategy: [stock_signal, grid]
+    lifecycle: [live]
+    asset_class: [crypto_spot, crypto_futures]
+    concern: [execution, operations]
+  requirement: "Oanda API client shall: (1) implement exponential backoff retry (initial 1s, max 30s) for transient errors (5xx, 429); (2) enforce rate limit (queue requests, max 200/min); (3) detect and refresh expired OAuth tokens automatically; (4) log all API calls with timestamp, endpoint, status, response time."
+  acceptance_tests: "Oanda API returns 429 (rate limited), client shall queue request and retry within 1 minute. Oanda API returns 401 (token expired), client shall refresh token and retry request automatically. Flaky network (50% packet loss), client shall retry with exponential backoff; final success or timeout after 30s. API call log includes: timestamp, endpoint, status_code, response_time_ms; rate limit compliance verified (< 200 calls/min)."
+  failure_prevented: "Prevents trading halts due to transient API failures or rate limiting; enables continuous operation during network congestion."
+  capability_enabled: "Enables reliable live trading with recovery from API failures and automatic credential management."
+  assumptions:
+    - "Oanda token can be refreshed without user interaction"
+    - "Rate limit 200 orders/min is stable"
+  open_questions:
+    - "Should rate limiter prioritize critical orders (close) over regular orders (entry)?"
+    - "How to detect and warn if rate limit frequently hit?"
+  dependencies:
+    - "OAuth2 credentials"
+    - "Oanda API endpoint URL and schema"
+  verification_needed: "Test retry logic with intentional API errors (mock 5xx responses). Measure rate limit compliance in production; verify never > 200 orders/min."
+  priority_hint: operability
+
+- id: PYALGO-REQ-007
+  title: "Strategy position state must enforce invariant: never both long and short simultaneously"
+  status: proposed
+  derived_from: [PYALGO-C6-002]
+  derivation_type: direct_book_recommendation
+  rationale: "Long-short backtester must maintain consistent position state: at any time, either long position > 0, short position > 0, or neutral (both 0). Violating this invariant introduces leverage violations and P&L errors."
+  applies_to:
+    strategy: [stock_signal, grid]
+    lifecycle: [backtest, live]
+    asset_class: [equities]
+    concern: [execution, risk]
+  requirement: "Position state machine shall enforce: if position_long > 0 and sell_signal fires, close long position first before opening short. If position_short > 0 and buy_signal fires, close short position first before opening long. Position state invariant check: assert (position_long > 0 and position_short == 0) or (position_long == 0 and position_short > 0) or (position_long == 0 and position_short == 0)."
+  acceptance_tests: "Backtest with strategy generating alternating buy/sell signals; verify position_long and position_short never both > 0. Test edge case: buy signal while short 100 shares; system shall close short 100, then open long 100; final position = long 100, short 0. Position state log shows entry/exit sequence; invariant check passes for 100% of ticks."
+  failure_prevented: "Prevents unintended leverage (both long and short on same asset) that violates broker margin rules and risk policy."
+  capability_enabled: "Ensures correct position tracking and P&L accounting; enables accurate risk reporting."
+  assumptions:
+    - "Single asset per backtester instance"
+    - "Position sizing allows full reversal"
+  open_questions:
+    - "Should reversal execute as close+open (2 orders) or single reverse order?"
+  dependencies:
+    - "Signal generation logic available and deterministic"
+  verification_needed: "Backtest position state machine with adversarial signals (rapid flips); verify invariant holds."
+  priority_hint: correctness
+
+- id: PYALGO-REQ-008
+  title: "Research documentation must include explicit caveat on freshness and applicability of Oanda/FXCM API and broker details"
+  status: proposed
+  derived_from: [PYALGO-C8-001, PYALGO-C9-001]
+  derivation_type: agent_inference
+  rationale: "Oanda API endpoints and fee structures change; FXCM broker shut down in 2019. Strategies relying on outdated broker APIs fail on deployment. Research documentation must warn that broker-specific code requires verification against current API and risk disclosure."
+  applies_to:
+    strategy: [stock_signal, grid]
+    lifecycle: [research, backtest, live]
+    asset_class: [crypto_spot]
+    concern: [data, operations]
+  requirement: "Research documentation (e.g., strategy design doc, backtest report) shall include: (1) Freshness Warning section flagging broker APIs, fees, and market hours as subject to change; (2) list of items requiring verification before live deployment (Oanda endpoints, spreads, commission, leverage limits, margin requirements); (3) owner/date of last verification."
+  acceptance_tests: "Documentation includes Freshness Warning section. Section lists >= 5 items requiring verification (endpoints, fees, leverage, etc.). Owner name and last-verified date present and recent (< 6 months)."
+  failure_prevented: "Prevents deployment of strategies using outdated broker APIs or fee structures; reduces ops debugging time."
+  capability_enabled: "Enables transparent communication of research assumptions and their stability; supports handoff to implementation team."
+  assumptions:
+    - "Documentation templates exist and are followed"
+  open_questions:
+    - "Who is responsible for periodic verification?"
+  dependencies:
+    - "Documentation template with Freshness Warning section"
+  verification_needed: "Audit strategy documentation for freshness warnings; verify recent verification date."
+  priority_hint: research_quality
+

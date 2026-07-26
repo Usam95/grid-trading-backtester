@@ -1,0 +1,73 @@
+book_id: quantitative-finance-advanced-analysis-with-python-a-compreh-2024
+sections:
+  - ref: 0
+    title: Title Page
+    epub_chapter_index: 0
+    status: processed
+    reason: Front matter
+
+  - ref: 1
+    title: Chapter 1 - Introduction to Algorithmic Trading
+    epub_chapter_index: 1
+    status: processed
+    reason: Core algorithmic trading fundamentals extracted
+
+  - ref: 2
+    title: Chapter 2 - Understanding Financial Markets
+    epub_chapter_index: 2
+    status: processed
+    reason: Market structure and microstructure analyzed
+
+  - ref: 3
+    title: Chapter 3 - Python for Finance
+    epub_chapter_index: 3
+    status: processed
+    reason: Python tooling overview processed
+
+  - ref: 4
+    title: Chapter 4 - Quantitative Analysis and Modeling
+    epub_chapter_index: 4
+    status: processed
+    reason: Statistical methods and algorithm design principles extracted
+
+  - ref: 5
+    title: Chapter 5 - Strategy Identification and Hypothesis
+    epub_chapter_index: 5
+    status: processed
+    reason: Strategy development process analyzed
+
+  - ref: 6
+    title: Chapter 6 - Building and Backtesting Strategies
+    epub_chapter_index: 6
+    status: processed
+    reason: Backtesting frameworks and optimization techniques extracted
+
+  - ref: 7
+    title: Chapter 7 - Advanced Trading Strategies
+    epub_chapter_index: 7
+    status: processed
+    reason: ML, HFT, sentiment analysis strategies processed
+
+  - ref: 8
+    title: Chapter 8 - Real-Time Backtesting and Paper Trading
+    epub_chapter_index: 8
+    status: processed
+    reason: Live execution validation and robustness testing concepts extracted
+
+  - ref: 9
+    title: Chapter 9 - Machine Learning and AI
+    epub_chapter_index: 9
+    status: processed
+    reason: Deep learning, reinforcement learning, NLP applications analyzed
+
+  - ref: 10
+    title: Chapter 10 - Blockchain and Cryptocurrency Markets
+    epub_chapter_index: 10
+    status: processed
+    reason: Crypto trading characteristics and DeFi discussed
+
+  - ref: 11
+    title: Chapter 11 - Quantum Computing in Finance
+    epub_chapter_index: 11
+    status: processed
+    reason: Speculative quantum computing applications noted as low-priority

@@ -1,0 +1,68 @@
+schema_version: "1.0"
+prompt_version: "1.0"
+book_id: "learn-algorithmic-trading-build-and-deploy-algorithmic-tradi-2019"
+title: "Learn Algorithmic Trading: Build and Deploy Algorithmic Trading Systems and Strategies"
+authors:
+  - "Donadio"
+  - "Ghosh"
+edition: "1st"
+publication_year: 2019
+publisher_or_identifier: "Packt Publishing"
+format: "pdf"
+language: "English"
+page_count: 378
+chapter_count: 10
+extraction_quality: "high"
+ocr_quality: "excellent"
+processing_status: "audited"
+timestamps:
+  created: "2026-07-24T18:24:03Z"
+  extraction_completed: "2026-07-24T18:35:00Z"
+  last_modified: "2026-07-24T18:35:00Z"
+duplicate_relationships: []
+limitations_and_warnings:
+  - "Chapter 8 (Exchange APIs) references FIX protocol specifications and broker APIs as of 2019 — requires primary-source verification for current state"
+  - "All performance claims and backtest results are author-provided examples; no independent verification"
+  - "Python libraries and dependencies reference 2019 versions — modern equivalents may differ"
+  - "Risk management thresholds and formulas are illustrative; production use requires domain expert review"
+scores:
+  source_credibility:
+    score: 4
+    justification: "Practical trading-focused textbook by experienced practitioners; provides reproducible concepts but no research citations"
+  citation_quality:
+    score: 2
+    justification: "Minimal external citations; mostly conceptual explanations and original examples without academic references"
+  reproducibility:
+    score: 4
+    justification: "Python implementations provided for strategies and backtesting; assumes standard market data; full reproducibility requires live environment setup"
+  likely_freshness:
+    score: 2
+    justification: "Published 2019; market microstructure, regulation, and technology have evolved significantly; broker APIs and FIX protocols are snapshot-in-time"
+  system_engineering_relevance:
+    score: 5
+    justification: "Comprehensive coverage of trading system architecture, order management, gateway design, and component integration"
+  grid_relevance:
+    score: 4
+    justification: "Discusses volatility-adjusted strategies and risk management applicable to grid trading; less direct grid-specific content"
+  stock_strategy_relevance:
+    score: 3
+    justification: "Technical analysis and ML predictions for equities; reversion and trend-following examples; limited sector-specific insights"
+  backtesting_relevance:
+    score: 5
+    justification: "Dedicated chapter on backtester design, event-driven vs for-loop systems, data handling, assumption validation"
+  live_execution_relevance:
+    score: 5
+    justification: "Covers real execution challenges: slippage, fees, latency, market impact, order types, FIX protocols, fill handling"
+  risk_relevance:
+    score: 5
+    justification: "Comprehensive risk chapter covering risk types, measures (Sharpe, max drawdown, position limits), real-time management algorithms"
+  data_quality_relevance:
+    score: 4
+    justification: "Discusses data storage (HDF5, databases), in-sample vs out-of-sample, data accuracy issues; less on data validation"
+  machine_learning_relevance:
+    score: 3
+    justification: "Chapter 3 introduces linear regression, classification (KNN, SVM, logistic); limited depth on validation or overfitting"
+sources:
+  - absolute_path: "C:\\Users\\W4TV5V8\\PROJECTS\\IDC-Repos\\inventory\\books\\learn-algorithmic-trading-build-and-deploy-algorithmic-tradi-2019.pdf"
+    relative_path: "learn-algorithmic-trading-build-and-deploy-algorithmic-tradi-2019.pdf"
+    sha256: "not_yet_computed"

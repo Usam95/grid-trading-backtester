@@ -1,0 +1,146 @@
+- id: VGF-R1
+  title: "Backtester shall support both direct (spot) and indirect (derivatives) asset classes with separate settlement mechanics"
+  status: proposed
+  derived_from:
+    - VGF-C1-001
+    - VGF-C1-002
+    - VGF-C10-001
+  derivation_type: agent_inference
+  rationale: |
+    Book distinguishes direct investing (stocks, bonds, hard assets) from indirect (derivatives, funds). 
+    Each has different settlement models, cash flow mechanics, and risk profiles. Backtester must handle 
+    both to capture realistic P&L across strategy types.
+  applies_to:
+    strategy: ["stock_signal", "grid"]
+    lifecycle: ["backtest"]
+    asset_class: ["equities", "crypto_futures"]
+    concern: ["simulation", "reproducibility"]
+  requirement: |
+    Backtester shall implement separate position models for direct (with maturity/dividend/accrual mechanics) 
+    and indirect (with daily settlement for futures, option gamma for options) assets. 
+    Settlement timing and cash flows shall match market conventions for each asset class.
+  acceptance_tests:
+    - "Bond positions accrue interest daily; coupons are paid on schedule"
+    - "Futures positions mark-to-market daily; losses/gains settle immediately"
+    - "Dividend events reduce stock basis and increase cash"
+    - "Option exercises settle correctly (call fills at strike, put requires delivery)"
+  failure_prevented: Incorrect P&L calculation; unrealistic cash flow modeling
+  capability_enabled: Accurate cross-asset backtesting; blended strategy evaluation
+  assumptions:
+    - Settlement conventions are documented for each asset class
+    - Market data includes all necessary events (coupons, dividends, expirations)
+  open_questions: |
+    Should backtester model partial fills or assume full execution? 
+    How to handle corporate actions (splits, mergers)?
+  dependencies: Market data pipeline must provide all event data
+  verification_needed: Validate against live trading data for accuracy
+  priority_hint: correctness
+
+- id: VGF-R2
+  title: "Backtester shall implement primary and secondary market mechanics with liquidity modeling"
+  status: proposed
+  derived_from:
+    - VGF-C1-001
+  derivation_type: agent_inference
+  rationale: |
+    Book emphasizes distinction between primary (new issuance) and secondary (trading) markets. 
+    Most backtests use secondary market data. Accurate simulation requires modeling bid-ask spreads, 
+    market depth, and execution impact that vary by market and liquidity regime.
+  applies_to:
+    strategy: ["stock_signal", "grid"]
+    lifecycle: ["backtest"]
+    asset_class: ["equities", "shared"]
+    concern: ["simulation", "data"]
+  requirement: |
+    Backtester shall provide configurable models for bid-ask spreads, market depth, and execution impact. 
+    Default shall use intraday data when available; fallback to average spreads by liquidity tier. 
+    Execution impact shall scale with order size and market volatility.
+  acceptance_tests:
+    - "Entry/exit prices include bid-ask spread"
+    - "Large orders incur impact costs scaling with size and volatility"
+    - "Illiquid securities have wider spreads than liquid ones"
+    - "Execution impact is proportional to order-to-volume ratio"
+  failure_prevented: Overoptimistic backtest returns; unrealistic fill assumptions
+  capability_enabled: More realistic P&L modeling; better parameter transfer to live trading
+  assumptions:
+    - Liquidity varies predictably by instrument and regime
+    - Impact costs are proportional to order size and market conditions
+  open_questions: |
+    How to model partial fills? Should priority be price or speed of execution?
+  dependencies: Intraday bid-ask data or alternative liquidity estimates
+  verification_needed: Compare backtester execution cost to live trading data
+  priority_hint: correctness
+
+- id: VGF-R3
+  title: "Backtester shall support the Three Rs analytical framework: returns, risks, and relative value"
+  status: proposed
+  derived_from:
+    - VGF-C1-003
+  derivation_type: agent_inference
+  rationale: |
+    Book centers on three Rs: returns (interest, dividends), risks (volatility, default), and relative value. 
+    Backtester output should decompose strategy returns along these lines, aiding research and diagnosis.
+  applies_to:
+    strategy: ["stock_signal", "portfolio"]
+    lifecycle: ["backtest"]
+    asset_class: ["equities", "shared"]
+    concern: ["reproducibility", "alpha"]
+  requirement: |
+    Backtest report shall include attribution analysis decomposing returns into: 
+    (1) yield/dividend income, (2) price appreciation/depreciation, (3) relative value shifts (spread changes). 
+    Risk metrics shall include realized volatility, max drawdown, and duration or beta to major factors.
+  acceptance_tests:
+    - "Income component isolated and reported separately"
+    - "Capital gains/losses clearly stated"
+    - "Relative value shifts (e.g., yield spread changes) quantified"
+    - "Risk metrics include volatility and drawdown"
+  failure_prevented: Incomplete understanding of strategy drivers; opaque P&L
+  capability_enabled: Better strategy diagnosis; alignment with book's educational framework
+  assumptions:
+    - Returns can be decomposed into isolated components
+    - Risk metrics are standard and well-defined
+  open_questions: |
+    How to assign relative value shifts to specific factors (sector, credit, curve)?
+  dependencies: Market data with factor and spread data
+  verification_needed: Validate attribution against live trading records
+  priority_hint: research_quality
+
+- id: VGF-R4
+  title: "Backtester shall enforce asset class and instrument constraints consistent with market structure"
+  status: proposed
+  derived_from:
+    - VGF-C1-005
+    - VGF-C10-002
+    - VGF-C10-003
+  derivation_type: agent_inference
+  rationale: |
+    Book shows different instruments (stocks, bonds, derivatives) have different mechanics. 
+    Backtester should prevent invalid operations (e.g., negative-cost shorts, exercise timing violations). 
+    Constraints ensure backtest realism and prevent hidden bugs.
+  applies_to:
+    strategy: ["grid", "stock_signal"]
+    lifecycle: ["backtest"]
+    asset_class: ["equities", "crypto_futures"]
+    concern: ["simulation", "reproducibility"]
+  requirement: |
+    Backtester shall implement instrument-specific constraints: 
+    (1) Stocks allow long and short, but shorts require borrow availability; 
+    (2) Bonds accrue interest and settle on maturity; 
+    (3) Options allow exercise only at or before expiration; 
+    (4) Futures settle daily. Violations shall raise exceptions or warnings.
+  acceptance_tests:
+    - "Short sells are rejected if no borrow is available"
+    - "Bond exercises on non-coupon-date raise warning"
+    - "Option exercise after expiration is rejected"
+    - "Futures marked-to-market daily; no EOD-to-EOD carryover"
+  failure_prevented: Unrealistic strategy backtests; silent bugs in position mechanics
+  capability_enabled: Enforcement of market realism; early detection of strategy errors
+  assumptions:
+    - Borrow constraints are documented and available
+    - Exercise and settlement rules are standardized
+  open_questions: |
+    How strict should constraint enforcement be (hard error vs. warning)? 
+    How to model partial borrows?
+  dependencies: Borrow availability data
+  verification_needed: Validate against market rules documentation
+  priority_hint: correctness

@@ -1,0 +1,117 @@
+schema_version: "1.0"
+prompt_version: "1.0"
+
+book_id: "hands-on-machine-learning-for-algorithmic-trading-2018"
+title: "Hands-On Machine Learning for Algorithmic Trading"
+processing_status: "audited"
+book_title: "Hands-On Machine Learning for Algorithmic Trading"
+book_subtitle: ""
+authors:
+  - "Stefan Jansen"
+edition: "1st Edition"
+publication_year: 2018
+publisher: "Packt Publishing"
+language: "English"
+page_count: 503
+chapter_count: 16
+format: "PDF"
+
+sources:
+  - source_name: "Packt Publishing - Hands-On Machine Learning for Algorithmic Trading"
+    absolute_path: "C:\\Users\\W4TV5V8\\PROJECTS\\Codex\\Research\\Books_03_07_26\\Algorithmical Trading\\_BOOK_SOURCES\\hands-on-machine-learning-for-algorithmic-trading-2018.pdf"
+    relative_path: "./_BOOK_SOURCES/hands-on-machine-learning-for-algorithmic-trading-2018.pdf"
+    sha256: "computed_on_validation"
+    url_if_available: ""
+    license: "Copyright Packt Publishing 2018"
+    acquisition_date: "2024-12-15"
+
+extraction_metadata:
+  extraction_quality: "high"
+  extraction_quality_justification: "OCR text is clean and readable; no significant formatting corruption; code examples preserved; technical terminology accurate"
+  ocr_quality: "high"
+  ocr_quality_justification: "Mathematical notation preserved; formulas readable; no systematic OCR errors in code blocks; margins clean"
+  completeness: "full_book"
+  coverage_sections: 16
+  coverage_sections_status: "all_processed"
+  notes: "All 16 chapters fully extracted and synthesized; see coverage.yaml for section-level detail"
+
+processing_metadata:
+  processing_status: "audited"
+  worker_prompt_version: "1.0"
+  extraction_date: "2024-12-22"
+  validation_status: "passed"
+  validation_date: "2024-12-22"
+  audit_date: "2026-07-24"
+  audit_status: "passed"
+  reliability_grade: "A"
+  processing_notes: "Successfully validated; all 6 artifacts complete and passing schema validation. Independent audit completed: 40 insights verified, coverage complete (16 chapters), all high-confidence records defensible, PDF spot-checks passed, no material defects. Ready for use in research and backtest methodology."
+
+artifact_inventory:
+  coverage: "coverage.yaml"
+  insights: "insights.jsonl (40 records)"
+  hypotheses: "hypotheses.yaml (10 proposed)"
+  candidate_requirements: "candidate-requirements.yaml (12 proposed)"
+  synthesis: "synthesis.md (17 sections)"
+  metadata: "metadata.yaml (this file)"
+
+scoring:
+  source_credibility:
+    score: 4
+    justification: "Packt Publishing is reputable trade publisher; Jansen is established practitioner/author; content aligns with academic literature and industry practice"
+  
+  citation_quality:
+    score: 3
+    justification: "Book references academic papers (Fama-French, de Prado, Bailey et al.) and code libraries (Zipline, Alphalens) with URLs; some citations are implicit (referenced by reputation, not explicit DOI)"
+  
+  reproducibility:
+    score: 4
+    justification: "Book emphasizes reproducible workflows; open-source tool integration (Zipline, Alphalens, scikit-learn, statsmodels) enables readers to replicate examples; code examples provided throughout"
+  
+  likely_freshness:
+    score: 2
+    justification: "2018 publication; broker fees, APIs, and market conditions have changed. Quantopian platform shut down (2020). Sentiment/NLP tools have evolved. Factors show post-publication IC decay. Requires verification against 2024+ data"
+  
+  system_engineering_relevance:
+    score: 4
+    justification: "Comprehensive treatment of ML pipeline (data → features → model → backtest → deploy); directly applicable to platform/framework architecture design"
+  
+  grid_strategy_relevance:
+    score: 3
+    justification: "Walk-forward optimization, cost modeling, and hyperparameter tuning directly applicable; less emphasis on order execution and high-volume grid mechanics"
+  
+  stock_strategy_relevance:
+    score: 5
+    justification: "Factor framework, IC measurement, Alphalens integration, feature engineering, and multi-model ensembling are core to stock signal development"
+  
+  backtesting_relevance:
+    score: 5
+    justification: "Chapter 5 (Strategy Evaluation) is foundational; covers all major backtest biases and mitigation strategies; walk-forward, purged CV, deflated Sharpe are industry standard"
+  
+  live_execution_relevance:
+    score: 3
+    justification: "Cost modeling and basic monitoring concepts present; limited depth on order execution, latency, or live system constraints; production system details missing"
+  
+  risk_relevance:
+    score: 3
+    justification: "Bayesian uncertainty quantification, copula models, and volatility modeling covered; limited emphasis on portfolio risk metrics (drawdown, VaR) or dynamic risk limits"
+  
+  data_quality_relevance:
+    score: 4
+    justification: "Chapter 2 (Market Data) covers OHLC aggregation, survivorship bias, alternative data evaluation, and data quality checks; essential for platform data layer"
+  
+  machine_learning_relevance:
+    score: 5
+    justification: "Comprehensive ML fundamentals (linear, tree, ensemble, Bayesian, NLP); emphasis on finance-specific pitfalls (overfitting, time-series CV, walk-forward validation)"
+
+summary:
+  one_liner: "Comprehensive ML-for-trading framework emphasizing backtest bias avoidance, factor engineering, and reproducible research; practical open-source tooling; 2018 publication requires freshness verification on recent data"
+  
+  research_value: |
+    High value for research methodology and backtest design. Provides systematic approach to factor validation (IC measurement), bias avoidance (purged CV, walk-forward), and model selection (regularization, nested CV). Ideal reference for ML pipeline architecture and hypothesis generation.
+  
+  platform_value: |
+    Directly applicable to platform design. Cost modeling, factor IC monitoring, data quality layers, and model retraining SLAs are all addressed. Recommendations on Zipline/Alphalens integration and open-source stack are actionable.
+  
+  trading_value: |
+    Moderate trading value for live deployment. Methodology and framework are sound; strategy examples are pedagogical, not production-ready. Factor examples (Fama-French, momentum) are widely published and likely crowded. Alternative data integration requires case-by-case cost/alpha validation.
+

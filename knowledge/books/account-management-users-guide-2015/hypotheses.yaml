@@ -1,0 +1,165 @@
+- id: IBAPI-H001
+  title: "Order ID sequencing is the primary order identity mechanism in IB API"
+  status: "proposed"
+  derived_from:
+    - IBAPI-C1-002
+    - IBAPI-C1-005
+  statement: "The IB API uses order ID as the primary identifier for new vs. modified orders; failing to increment order ID will silently modify an existing order instead of placing a new one, leading to unintended trade cancellations or unwanted fills."
+  proposed_mechanism: "Order ID is checked against IB's internal order registry; if ID exists, the order is treated as a modification rather than a new order."
+  applicable_markets_and_regimes: "All markets, all asset classes."
+  assumptions:
+    - "Order ID counter must be incremented across all API clients connecting to the same account (or coordination is required)"
+    - "Order ID reset does not occur on account or session boundaries"
+    - "Modification of order ID > previously used ID is always accepted"
+  data_requirements:
+    - "Historical order ID sequence from IB account (to establish baseline)"
+    - "Order submission logs with timestamps and IDs"
+  baseline_or_null_hypothesis: "Null hypothesis: Order ID has no special semantics; each submission is independent."
+  validation_approach: "Send two orders with IDs [1, 2] (correct); then resend ID 1 with different price and verify modification. Then attempt ID 1 with ID 2 as next (incorrect ordering) and verify failure or unexpected behavior."
+  transaction_cost_and_fill_considerations: "If order ID mistake causes unintended modification, may result in unexecuted buy replaced with sell or vice versa; cascading loss if grid position becomes one-sided."
+  robustness_checks:
+    - "Test order ID sequencing with gaps (e.g., IDs [1, 3, 10]; verify all accepted)"
+    - "Test concurrent clients with same account; confirm order ID coordination"
+    - "Test order ID wraparound if implementation uses 32-bit counter"
+  rejection_criteria: "Hypothesis rejected if order ID sequencing is not enforced; i.e., IDs can be arbitrary and each submission is treated independently."
+  failure_modes:
+    - "Multiple grid strategies running on same account with separate ID counters will interfere with each other"
+    - "Order ID persistence across API disconnects/reconnects is unclear; may require manual sync"
+  freshness_concerns: "2015 manual may describe order ID rules that have changed; verify order ID behavior in current IB API"
+  unresolved_questions:
+    - "Is order ID counter per account, per API client, or global?"
+    - "Does IB gateway auto-assign order IDs if client omits them?"
+    - "What is the maximum order ID value?"
+
+- id: IBAPI-H002
+  title: "Available Funds metric is the binding constraint for new position sizing"
+  status: "proposed"
+  derived_from:
+    - IBAPI-C2-001
+    - IBAPI-C2-002
+  statement: "A live trading system should use Available Funds (not Buying Power or Equity with Loan) as the hard constraint for new position size calculations. Buying Power is a derived metric allowing 4x leverage that may be further constrained by broker risk limits."
+  proposed_mechanism: "IB's risk engine rejects new orders that would drive Available Funds below zero; Available Funds is calculated real-time from account equity and current margin requirements."
+  applicable_markets_and_regimes: "Margin accounts in US markets (Reg T); cash accounts; may differ for international/futures accounts."
+  assumptions:
+    - "4x leverage rule (Buying Power = 4 * Available Funds) has not changed since 2015"
+    - "Initial Margin requirement does not change between order submission and fill"
+    - "No account-level risk limits beyond margin are enforced by IB"
+  data_requirements:
+    - "Real-time account Available Funds, Equity with Loan, Initial Margin"
+    - "Historical Available Funds snapshots with positions to validate formula"
+  baseline_or_null_hypothesis: "Null hypothesis: Any derived account metric (Buying Power, Cushion) is equally valid for position sizing."
+  validation_approach: "Query account metrics; place order that consumes most of Available Funds; verify order accepted. Attempt second order that would exceed Available Funds; verify rejection with specific error code."
+  transaction_cost_and_fill_considerations: "If Available Funds estimate is wrong, may place oversized orders leading to forced liquidation or margin call."
+  robustness_checks:
+    - "Test across asset classes (stocks, futures, options, FX) to confirm Available Funds formula consistency"
+    - "Test intraday margin requirement changes (e.g., stock split, corporate action) and impact on Available Funds"
+    - "Test account with multiple currencies and cross-currency margin loans"
+  rejection_criteria: "Hypothesis rejected if orders are accepted/rejected based on Buying Power rather than Available Funds, or if broker has additional undocumented risk limits."
+  failure_modes:
+    - "Rapid liquidations if available funds drops below expected due to adverse fills or market gaps"
+    - "Margin call if intraday margin requirements increase faster than system expects"
+  freshness_concerns: "2015 margin model may differ from current post-MiFID II model for EU accounts or post-Dodd-Frank for US institutional accounts."
+  unresolved_questions:
+    - "Does IB enforce additional risk limits beyond margin (e.g., notional exposure caps, sector limits, short-sale circuit breakers)?"
+    - "How quickly are margin requirements updated when positions change?"
+    - "Do look-ahead fields (Look Ahead Initial Margin, Look Ahead Excess Liquidity) provide predictive margin requirements for next market change?"
+
+- id: IBAPI-H003
+  title: "Day trade counter is real-time but may have lag in updating"
+  status: "proposed"
+  derived_from:
+    - IBAPI-C2-003
+  statement: "The Day Trades Remaining field reflects pattern-day-trader regulatory limits; system should check this field before placing any intraday round-trip trade to avoid execution rejection or forced liquidation."
+  proposed_mechanism: "IB tracks day trades in real-time; counter decrements on execution of sell leg of buy/sell pair within same day. Counter resets on rolling 4-day basis."
+  applicable_markets_and_regimes: "US equity markets; accounts with < $25k equity; accounts flagged as PDT."
+  assumptions:
+    - "PDT definition and counting logic match SEC/FINRA rules as of 2015"
+    - "Day trade counter is accurate and updated in real-time"
+    - "T+1/T+2/T+3/T+4 fields correspond to rolling windows, not calendar days"
+  data_requirements:
+    - "Daily Day Trades Remaining snapshots"
+    - "Log of day trades executed; correlation with counter changes"
+  baseline_or_null_hypothesis: "Null hypothesis: Day trade counter is advisory only; enforcement happens post-execution."
+  validation_approach: "Check Day Trades Remaining before executing day trade; if count is 0, attempt order and verify rejection or liquidation warning. Execute allowed day trades and verify counter decrements."
+  transaction_cost_and_fill_considerations: "If counter is underestimated, may be unable to execute planned trades; if overestimated, may execute trade and face account restriction or forced liquidation."
+  robustness_checks:
+    - "Test at end-of-day when counter is about to reset"
+    - "Test with multiple accounts (some PDT-flagged, some not)"
+    - "Test with extended hours trading; confirm day trade counting rules apply"
+  rejection_criteria: "Hypothesis rejected if PDT rules are not enforced by IB or if counter is consistently inaccurate."
+  failure_modes:
+    - "Grid strategy executing daily round-trips will hit PDT limit unexpectedly, halting trading"
+    - "Liquidation of positions if account violates PDT rule"
+  freshness_concerns: "PDT rules are regulatory and stable; 2015 manual should be accurate. However, IB's implementation may have evolved."
+  unresolved_questions:
+    - "What is the exact definition of a 'day trade' in IB's system (e.g., buy and sell same security same day, or any round-trip execution within 24h)?"
+    - "How does IB handle complex orders (spreads, collars) in PDT counting?"
+    - "Can day trade counter be reset or managed manually?"
+
+- id: IBAPI-H004
+  title: "whatIf orders provide accurate pre-trade margin and commission estimates"
+  status: "proposed"
+  derived_from:
+    - IBAPI-C3-001
+    - IBAPI-C3-002
+  statement: "Setting whatIf=true on an order returns accurate commission and margin impact estimates without executing; live system should use this to validate order feasibility before submission."
+  proposed_mechanism: "IB API gate simulates order against current account state and market data; returns OrderState with commission and margin fields; order is never sent to market."
+  applicable_markets_and_regimes: "All markets, all asset classes."
+  assumptions:
+    - "whatIf simulation uses current market prices, not historical prices"
+    - "Commission estimate includes all fees and rebates applicable to the order"
+    - "Margin calculation matches real execution margin (no rounding or slippage)"
+    - "whatIf does not consume order ID or affect account history"
+  data_requirements:
+    - "whatIf order responses with commission/margin fields"
+    - "Actual execution of same order to compare real vs. estimated commission/margin"
+  baseline_or_null_hypothesis: "Null hypothesis: whatIf estimates are unreliable or unavailable; order commission must be estimated separately."
+  validation_approach: "Send whatIf order and capture commission/margin estimates. Then submit real order without whatIf flag; compare actual commission/margin to estimates. Check for variance > tolerance."
+  transaction_cost_and_fill_considerations: "If whatIf estimates are stale or inaccurate, system may submit orders that exhaust available funds or incur unexpected costs."
+  robustness_checks:
+    - "Test whatIf across different order types (market, limit, stop, algo orders)"
+    - "Test whatIf with extreme order sizes to verify margin scaling"
+    - "Test whatIf near margin limit; verify accurate margin impact"
+    - "Test whatIf for orders that would exceed account limits; verify rejection or error"
+  rejection_criteria: "Hypothesis rejected if whatIf responses are stale, inaccurate, or not returned at all."
+  failure_modes:
+    - "Margin call if real commission exceeds whatIf estimate"
+    - "Forced liquidation if real margin requirement exceeds estimate"
+  freshness_concerns: "whatIf API may have been deprecated or changed in modern IB API; verify current availability and behavior."
+  unresolved_questions:
+    - "Does whatIf response include all commission components (exchange fees, clearing fees, IB markup)?"
+    - "Does whatIf account for potential partial fills and their margin/commission impact?"
+    - "Can whatIf be used for pre-trade risk analysis multiple times per second without performance penalty?"
+
+- id: IBAPI-H005
+  title: "IB API order modification is idempotent and can be used for price management"
+  status: "proposed"
+  derived_from:
+    - IBAPI-C1-005
+  statement: "Submitting the same order ID with modified price/quantity can be used to implement dynamic price management in grid strategies (e.g., moving stop-loss or take-profit levels without canceling and re-placing)."
+  proposed_mechanism: "Order ID serves as primary key; resubmission with same ID and different price/quantity updates order in-place without generating a new execution."
+  applicable_markets_and_regimes: "All markets, all asset classes, assuming order has not yet partially or fully filled."
+  assumptions:
+    - "Order modification is idempotent; multiple identical resubmissions are safe"
+    - "Only price and quantity can be modified; other fields cannot be changed"
+    - "Order modification does not generate margin recalculation or trigger liquidation"
+    - "Modification request is atomic (entire order is updated, or entire order is rejected)"
+  data_requirements:
+    - "Order modification logs with timestamps and price/qty changes"
+    - "Verification that modifications did not generate duplicate executions"
+  baseline_or_null_hypothesis: "Null hypothesis: Order modification is not supported; all price changes require cancel + replace."
+  validation_approach: "Place order ID 1 with price P1/qty Q1. Immediately resubmit order ID 1 with price P2/qty Q1. Verify order shows single execution at price between P1 and P2 (if partially filled) or is updated to P2 (if not yet filled)."
+  transaction_cost_and_fill_considerations: "If order modification fails silently or behaves unexpectedly, grid strategy may miss target fills or double-execute positions."
+  robustness_checks:
+    - "Test rapid-fire modifications (e.g., every 100ms) to verify no race conditions"
+    - "Test modification of partially filled order; verify new qty and price apply correctly"
+    - "Test modification of order about to fill; verify no double-execution"
+  rejection_criteria: "Hypothesis rejected if order modification is not supported, fails frequently, or generates unintended executions."
+  failure_modes:
+    - "Grid price levels drift if modifications fail silently"
+    - "Double-execution if modification races with fill"
+  freshness_concerns: "Order modification behavior likely stable, but edge cases (partially filled orders, rapid modifications) may have changed."
+  unresolved_questions:
+    - "Can order be modified after partial fill? If so, does new qty override old qty or is it incremental?"
+    - "Does modification reset time-in-force (e.g., extend a day order)?"
+    - "What is the latency from modification submission to order update?"

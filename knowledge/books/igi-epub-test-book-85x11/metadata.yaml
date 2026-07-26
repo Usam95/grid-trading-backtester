@@ -1,0 +1,69 @@
+schema_version: '1.0'
+prompt_version: '1.0'
+book_id: igi-epub-test-book-85x11
+title: 'Machine Learning and Modeling Techniques in Financial Data Science'
+authors:
+  - 'Edwin Haojun Chen (Editor)'
+  - 'IGI Global Contributors'
+edition: First Edition
+publication_year: 2024
+publisher_or_identifier: IGI Global
+format: EPUB
+language: English
+page_count: 921
+chapter_count: 33
+extraction_quality: high
+ocr_quality: native_digital
+processing_status: audited
+limitations_and_warnings:
+  - 'EPUB metadata placeholder title is "IGI EPUB Test Book 85x11"; actual title recorded above.'
+  - 'Multi-author edited collection; chapter quality and rigor varies.'
+  - 'Regulatory/broker API claims require primary-source verification due to rapid market evolution.'
+  - 'Code examples not executed; availability of reproducible implementations not verified.'
+  - 'First-iteration extraction focuses on high-priority chapters; secondary chapters marked for follow-up.'
+timestamps:
+  extraction_started: '2026-07-24T20:48:40Z'
+  extraction_completed: 2026-07-24T22:09:32Z
+duplicate_relationships: []
+sources:
+  - absolute_path: 'C:\Users\W4TV5V8\.copilot\session-state\a55e8123-c79b-4d55-ace8-c7dd582db539\files\tooling\books\igi-epub-test-book-85x11.epub'
+    relative_path: 'books/igi-epub-test-book-85x11.epub'
+    sha256: unknown
+scores:
+  source_credibility:
+    score: 4
+    justification: 'IGI Global publisher, peer-reviewed edited collection; strong institutional backing for academic rigor.'
+  citation_quality:
+    score: 3
+    justification: 'Multi-author with individual chapter references; practices vary; no unified bibliography verified.'
+  reproducibility:
+    score: 3
+    justification: 'Methodology and empirical studies present; code availability not assessed; data sources mostly unspecified.'
+  likely_freshness:
+    score: 3
+    justification: '2024 publication on ML/fintech; regulatory/market structure claims risk obsolescence; broker APIs/fees time-sensitive.'
+  system_engineering_relevance:
+    score: 3
+    justification: 'HFT infrastructure, data pipelines, monitoring chapters present; not all directly applicable to backtester/live systems.'
+  grid_relevance:
+    score: 3
+    justification: 'Limited grid-specific content; volatility, risk, optimization may inform grid strategy research.'
+  stock_strategy_relevance:
+    score: 4
+    justification: 'Price prediction, portfolio optimization, ML classifiers applicable to stock signals; NLP, anomaly detection relevant.'
+  backtesting_relevance:
+    score: 4
+    justification: 'Strong methodological chapters on validation, risk, data quality; multiple case studies with performance metrics.'
+  live_execution_relevance:
+    score: 3
+    justification: 'HFT infrastructure, real-time risk management, audit/compliance present; execution tactics and latency handling included.'
+  risk_relevance:
+    score: 4
+    justification: 'Risk management, fairness/bias, DeFi compliance, regulatory challenges, portfolio risk optimization; strong risk focus.'
+  data_quality_relevance:
+    score: 4
+    justification: 'Multiple chapters address data issues, anomaly detection, quality in automated systems; crucial for backtester/live trading.'
+  machine_learning_relevance:
+    score: 5
+    justification: 'Core title on ML/modeling; 18+ chapters with LSTM, XGBoost, NLP, quantum ML; directly applicable.'
+

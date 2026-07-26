@@ -1,0 +1,135 @@
+- id: hyp-01-no-divergence-pullback
+  title: No-divergence pullback continuation
+  status: proposed
+  derived_from:
+  - AGSOTA-C3-002
+  - AGSOTA-C3-004
+  - AGSOTA-C3-006
+  - AGSOTA-C6-003
+  applicable_markets_and_regimes: Liquid equities, index futures, and major FX pairs in established trends.
+  baseline_hypothesis: A qualified pullback with no momentum divergence and reduced activity reaches +1R before -1R more often than comparable pullbacks with divergence or sharp countertrend momentum.
+  baseline_or_null_hypothesis: A qualified pullback with no momentum divergence and reduced activity reaches +1R before -1R more often than comparable pullbacks with divergence or sharp countertrend momentum.
+  statement: A qualified pullback with no momentum divergence and reduced activity reaches +1R before -1R more often than comparable pullbacks with divergence or sharp countertrend momentum.
+  validation_approach: Define trend with swing structure plus sloped intermediate average; use MACD or equivalent for divergence; trigger on pullback reversal or lower-timeframe breakout; compare conditioned vs unconditioned samples across at least 200 trades.
+  rejection_criteria: Reject if +1R-before-stop improves by less than 5 percentage points or median MAE is not at least 0.10R smaller.
+  transaction_cost_and_fill_considerations: Include spread, slippage, and gap-through-stop events.
+- id: hyp-02-failure-test-reversal
+  title: Failure test reversal after level probe
+  status: proposed
+  derived_from:
+  - AGSOTA-C5-003
+  - AGSOTA-C6-001
+  - AGSOTA-C6-002
+  applicable_markets_and_regimes: Extended trends or extended consolidations near clear levels.
+  baseline_hypothesis: A failure test that pierces a level and closes back through it should produce faster follow-through than a generic countertrend reversal at the same location.
+  baseline_or_null_hypothesis: A failure test that pierces a level and closes back through it should produce faster follow-through than a generic countertrend reversal at the same location.
+  statement: A failure test that pierces a level and closes back through it should produce faster follow-through than a generic countertrend reversal at the same location.
+  validation_approach: Enter on reversal close, stop beyond the excursion, and record whether price reaches +1R or +1.5R before stop and whether trade turns positive within three bars.
+  rejection_criteria: Reject if fewer than 55 percent of trades show positive excursion within three bars or if +1R-before-stop is less than 5 percentage points better than baseline.
+  transaction_cost_and_fill_considerations: Model spread crossing, overnight gaps, and smaller size in gap-prone markets.
+- id: hyp-03-multiple-tests-weaken-levels
+  title: Third-plus tests break more often than early tests
+  status: proposed
+  derived_from:
+  - AGSOTA-C4-002
+  - AGSOTA-C4-003
+  - AGSOTA-C4-004
+  applicable_markets_and_regimes: Trading ranges and pullbacks with repeated tests of the same zone.
+  baseline_hypothesis: First- and second-test range-edge trades with rejection hold more often than third-or-later tests of the same zone.
+  baseline_or_null_hypothesis: First- and second-test range-edge trades with rejection hold more often than third-or-later tests of the same zone.
+  statement: First- and second-test range-edge trades with rejection hold more often than third-or-later tests of the same zone.
+  validation_approach: Cluster nearby swing highs/lows into zones, count tests, classify rejection, and compare hold/break and +1R-before-stop by test number.
+  rejection_criteria: Reject if third-plus tests are not at least 1.2x as likely to break within five bars or if early tests do not outperform later ones by at least 5 percentage points on hold rate.
+  transaction_cost_and_fill_considerations: Use realistic spread assumptions on spikes into the zone and zone-based, not tick-based, stop logic.
+- id: hyp-04-prebreak-compression
+  title: Pre-break compression improves breakout quality
+  status: proposed
+  derived_from:
+  - AGSOTA-C5-001
+  - AGSOTA-C5-002
+  applicable_markets_and_regimes: Range breakouts with clear support or resistance.
+  baseline_hypothesis: Breakouts preceded by higher lows into resistance, lower highs into support, or tight edge compression have lower immediate failure rates than unfiltered breakouts.
+  baseline_or_null_hypothesis: Breakouts preceded by higher lows into resistance, lower highs into support, or tight edge compression have lower immediate failure rates than unfiltered breakouts.
+  statement: Breakouts preceded by higher lows into resistance, lower highs into support, or tight edge compression have lower immediate failure rates than unfiltered breakouts.
+  validation_approach: Detect triangle pressure or terminal micro-range near the range edge; compare immediate failure, breakout pullback stability, and +1R-before-stop versus all other breakouts.
+  rejection_criteria: Reject if immediate failure rate is not at least 5 percentage points lower and +1R-before-stop is not at least 5 percentage points higher than baseline.
+  transaction_cost_and_fill_considerations: Account for stop-entry slippage, queue position, and wider spreads at breakout levels.
+- id: hyp-05-failed-breakout-pullback
+  title: First pullback after breakout failure continues against the break
+  status: proposed
+  derived_from:
+  - AGSOTA-C5-003
+  - AGSOTA-C5-005
+  applicable_markets_and_regimes: Confirmed failed upside and downside breakouts.
+  baseline_hypothesis: After a breakout fails back through the level, the first pullback in the opposite direction continues more often than an ordinary pullback lacking trapped breakout traders.
+  baseline_or_null_hypothesis: After a breakout fails back through the level, the first pullback in the opposite direction continues more often than an ordinary pullback lacking trapped breakout traders.
+  statement: After a breakout fails back through the level, the first pullback in the opposite direction continues more often than an ordinary pullback lacking trapped breakout traders.
+  validation_approach: Require reversal back through the level within two to three bars, then enter on the first pullback against the original breakout direction; compare against ordinary pullbacks.
+  rejection_criteria: Reject if +1R-before-stop is 50 percent or lower or if continuation rate is less than 5 percentage points better than ordinary pullbacks.
+  transaction_cost_and_fill_considerations: Include fast-market slippage and borrow/short-sale constraints where relevant.
+- id: hyp-06-htf-exhaustion-filter
+  title: Higher-timeframe exhaustion filter reduces lower-timeframe continuation failures
+  status: proposed
+  derived_from:
+  - AGSOTA-C3-003
+  - AGSOTA-C7-003
+  - AGSOTA-C7-004
+  applicable_markets_and_regimes: Lower-timeframe continuation signals that occur against higher-timeframe overextension or divergence.
+  baseline_hypothesis: Skipping lower-timeframe continuation entries during higher-timeframe exhaustion reduces immediate failure and adverse excursion.
+  baseline_or_null_hypothesis: Skipping lower-timeframe continuation entries during higher-timeframe exhaustion reduces immediate failure and adverse excursion.
+  statement: Skipping lower-timeframe continuation entries during higher-timeframe exhaustion reduces immediate failure and adverse excursion.
+  validation_approach: Define higher-timeframe exhaustion with channel overextension plus divergence or climax-like expansion; compare accepted versus filtered-out continuation trades.
+  rejection_criteria: Reject if the filter does not reduce immediate failure by at least 5 percentage points or median MAE by at least 0.10R.
+  transaction_cost_and_fill_considerations: Track opportunity cost separately from spread, slippage, and gap risk.
+- id: hyp-07-band-fade-extreme-only
+  title: Band fades work only from genuine extension
+  status: proposed
+  derived_from:
+  - AGSOTA-C7-002
+  - AGSOTA-C7-003
+  applicable_markets_and_regimes: Mean-reversion attempts using calibrated channels or bands.
+  baseline_hypothesis: A fade entered only after a close outside the band, and excluded during equilibrium chop or band slides, reverts to the channel midpoint more often than a fade on any touch.
+  baseline_or_null_hypothesis: A fade entered only after a close outside the band, and excluded during equilibrium chop or band slides, reverts to the channel midpoint more often than a fade on any touch.
+  statement: A fade entered only after a close outside the band, and excluded during equilibrium chop or band slides, reverts to the channel midpoint more often than a fade on any touch.
+  validation_approach: Compare close-outside-band versus any-touch rules; tag band-slide conditions separately; measure midpoint-touch-before-stop, MAE, and time to reversion.
+  rejection_criteria: Reject if midpoint-touch-before-stop is 55 percent or lower for the conditioned set or if it fails to beat the any-touch baseline by at least 5 percentage points.
+  transaction_cost_and_fill_considerations: Ensure mean-reversion distance is large enough relative to spread and slippage.
+- id: hyp-08-stop-design
+  title: Volatility or structure stops outperform fixed-percent stops
+  status: proposed
+  derived_from:
+  - AGSOTA-C8-002
+  - AGSOTA-C9-001
+  applicable_markets_and_regimes: Cross-market portfolios with differing volatility profiles.
+  baseline_hypothesis: ATR-based or structure-based initial stops, combined with fixed-fraction sizing, produce fewer noise stop-outs than generic fixed-percentage stops.
+  baseline_or_null_hypothesis: ATR-based or structure-based initial stops, combined with fixed-fraction sizing, produce fewer noise stop-outs than generic fixed-percentage stops.
+  statement: ATR-based or structure-based initial stops, combined with fixed-fraction sizing, produce fewer noise stop-outs than generic fixed-percentage stops.
+  validation_approach: Run matched-entry tests with fixed-percent, ATR, and swing-structure stops while normalizing account risk per trade.
+  rejection_criteria: Reject if ATR/structure stops do not reduce noise stop-outs by at least 5 percentage points or if realized loss per failed trade is worse by more than 0.10R.
+  transaction_cost_and_fill_considerations: Measure spread, slippage, and gap-through-stop separately because farther stops imply smaller size.
+- id: hyp-09-fixed-fraction-drawdown
+  title: Lower fixed-fraction risk materially reduces drawdown severity
+  status: proposed
+  derived_from:
+  - AGSOTA-C9-002
+  - AGSOTA-C9-003
+  applicable_markets_and_regimes: Any strategy with enough historical trades for Monte Carlo resampling.
+  baseline_hypothesis: Risking 0.5 to 1.0 percent of equity per trade yields materially smaller severe-drawdown outcomes than risking 3 percent on the same trade sequence.
+  baseline_or_null_hypothesis: Risking 0.5 to 1.0 percent of equity per trade yields materially smaller severe-drawdown outcomes than risking 3 percent on the same trade sequence.
+  statement: Risking 0.5 to 1.0 percent of equity per trade yields materially smaller severe-drawdown outcomes than risking 3 percent on the same trade sequence.
+  validation_approach: Bootstrap or shuffle realized net R-multiples and compare maximum drawdown, drawdown duration, and probability of 25 percent and 50 percent drawdowns.
+  rejection_criteria: Reject if 95th-percentile maximum drawdown is not at least 30 percent smaller at 0.5 to 1.0 percent risk.
+  transaction_cost_and_fill_considerations: Use net R after commissions, spread, and slippage.
+- id: hyp-10-setup-tagging
+  title: Categorized records reveal material setup dispersion
+  status: proposed
+  derived_from:
+  - AGSOTA-C11-002
+  - AGSOTA-C12-002
+  applicable_markets_and_regimes: Discretionary or hybrid programs that mix multiple setup families and regimes.
+  baseline_hypothesis: Outcome distributions differ materially by setup tag, initial R, and regime tag, so pooled results hide which setups help or hurt.
+  baseline_or_null_hypothesis: Outcome distributions differ materially by setup tag, initial R, and regime tag, so pooled results hide which setups help or hurt.
+  statement: Outcome distributions differ materially by setup tag, initial R, and regime tag, so pooled results hide which setups help or hurt.
+  validation_approach: Record every trade with setup family, regime/context, entry type, and initial R; compare category distributions using nonparametric tests and practical effect sizes.
+  rejection_criteria: Reject if between-category differences are not detectable at p < 0.10 and no category differs from the pooled median by at least 0.15R per trade.
+  transaction_cost_and_fill_considerations: Use broker-confirmed net results because high-turnover categories can look better gross than net.

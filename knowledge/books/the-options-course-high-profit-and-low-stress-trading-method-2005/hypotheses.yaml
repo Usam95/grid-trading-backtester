@@ -1,0 +1,117 @@
+- id: OPTCOURSE-HYP-001
+  title: Vertical spreads outperform naked positions
+  status: proposed
+  derived_from:
+    - OPTCOURSE-ch5-008
+    - OPTCOURSE-ch5-009
+  statement: Vertical spreads produce risk-adjusted returns superior to naked calls/puts due to premium reduction and defined risk capital.
+  proposed_mechanism: Defined risk limits drawdowns; reduced premium outlay improves win rate
+  applicable_markets_and_regimes:
+    - ranging
+    - trending
+  assumptions: []
+  data_requirements:
+    - price
+    - volume
+    - implied_volatility
+  baseline_or_null_hypothesis: Returns match random walk expectations
+  validation_approach: backtest_with_regime_detection
+  transaction_cost_and_fill_considerations: requires_broker_spread_data
+  robustness_checks:
+    - out_of_sample
+    - regime_change
+    - volatility_spike
+  rejection_criteria: below_market_returns_after_costs
+  failure_modes: []
+  freshness_concerns: broker_fees_and_market_structure_changes
+  unresolved_questions: []
+
+- id: OPTCOURSE-HYP-002
+  title: Volatility mean reversion exploitable
+  status: proposed
+  derived_from:
+    - OPTCOURSE-ch7-015
+  statement: Implied volatility spikes create short-selling opportunities; IV contractions create buying opportunities.
+  proposed_mechanism: Mean-reverting IV attracts contrarian traders
+  applicable_markets_and_regimes:
+    - high_volatility
+    - low_volatility
+  assumptions: []
+  data_requirements:
+    - implied_volatility_history
+    - volatility_percentile
+  baseline_or_null_hypothesis: IV random walk; no reversion
+  validation_approach: statistical_mean_reversion_test
+  transaction_cost_and_fill_considerations: requires_broker_spread_data
+  robustness_checks:
+    - regime_filtering
+    - vol_percentile_thresholds
+  rejection_criteria: IV shows random walk characteristics
+  failure_modes:
+    - regime_change_persists_high_vol
+  freshness_concerns: null
+  unresolved_questions: []
+
+- id: OPTCOURSE-HYP-003
+  title: Theta-positive short strategies outperform
+  status: proposed
+  derived_from:
+    - OPTCOURSE-ch7-014
+  statement: Short straddles and spreads produce superior risk-adjusted returns in range-bound markets due to theta collection.
+  proposed_mechanism: Theta decay provides consistent tailwind; range detection enables tactical deployment
+  applicable_markets_and_regimes:
+    - ranging
+    - low_volatility
+  assumptions:
+    - market_stays_in_range
+    - IV_does_not_spike
+  data_requirements:
+    - price
+    - implied_volatility
+    - range_metrics
+  baseline_or_null_hypothesis: Short strategies return match buy-and-hold
+  validation_approach: backtest_with_gamma_and_theta_attribution
+  transaction_cost_and_fill_considerations: requires_execution_cost_modeling
+  robustness_checks:
+    - extreme_move_stress
+    - earnings_blackout
+    - vol_spike_scenarios
+  rejection_criteria: sharpe_ratio_below_benchmark
+  failure_modes:
+    - gamma_loss_on_spike
+    - margin_call_cascade
+  freshness_concerns: null
+  unresolved_questions: []
+
+- id: OPTCOURSE-HYP-004
+  title: Range detection improves trade success
+  status: proposed
+  derived_from:
+    - OPTCOURSE-ch10-020
+    - OPTCOURSE-ch10-021
+  statement: Pre-filtering trades by market regime increases win rate and enables context-aware strategy selection.
+  proposed_mechanism: Regime-specific strategy outperformance empirically validated
+  applicable_markets_and_regimes:
+    - all
+  assumptions:
+    - regime_filters_accurate
+    - adaptive_to_market_changes
+  data_requirements:
+    - price_history
+    - volatility
+    - support_resistance_levels
+  baseline_or_null_hypothesis: Regime-agnostic strategy selection
+  validation_approach: backtest_with_regime_filter_ablation
+  transaction_cost_and_fill_considerations: null
+  robustness_checks:
+    - regime_detection_lag
+    - false_signals
+    - regime_boundary_behavior
+  rejection_criteria: regime_filter_reduces_sharpe
+  failure_modes:
+    - regime_misidentification
+    - false_breakout
+  freshness_concerns: null
+  unresolved_questions:
+    - optimal_regime_detection_algorithm
+    - regime_transition_treatment

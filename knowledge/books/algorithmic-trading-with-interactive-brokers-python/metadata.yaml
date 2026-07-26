@@ -1,0 +1,70 @@
+schema_version: "1.0"
+prompt_version: "1.0"
+book_id: "algorithmic-trading-with-interactive-brokers-python"
+sources:
+  - absolute_path: "C:\\Users\\W4TV5V8\\PROJECTS\\Codex\\Research\\Books_03_07_26\\Algorithmical Trading\\_KNOWLEDGE_EXTRACTION\\books\\algorithmic-trading-with-interactive-brokers-python"
+    relative_path: "algorithmic-trading-with-interactive-brokers-python"
+    sha256: "unknown"
+title: "Algorithmic Trading with Interactive Brokers (Python)"
+authors:
+  - "Matthew Scarpino"
+edition: "1st"
+publication_year: 2019
+publisher_or_identifier: "Independent"
+format: "pdf"
+language: "English"
+page_count: 558
+chapter_count: 14
+extraction_quality: "high"
+ocr_quality: "good"
+processing_status: "audited"
+extraction_timestamp: "2026-07-24T19:18:29Z"
+extraction_by: "copilot-worker"
+
+scores:
+  source_credibility:
+    score: 4
+    justification: "Scarpino is the author; covers IB platform with direct API/TWS integration; practical working knowledge evident."
+  citation_quality:
+    score: 2
+    justification: "Limited citations; mostly author experience and code examples; no academic or primary-source references provided."
+  reproducibility:
+    score: 4
+    justification: "Code examples and API calls are traceable; Python/C++ examples provided; IB API is versioned but book may drift."
+  likely_freshness:
+    score: 1
+    justification: "Published 2019; IB API, market rules, fees, commission structures evolve; order types and regulations change; major freshness risk."
+  system_engineering_relevance:
+    score: 4
+    justification: "Connection handling, order lifecycle, error recovery, TWS/IB Gateway deployment, execution control all covered."
+  grid_relevance:
+    score: 3
+    justification: "Parent-child orders, algo submission, order sequencing relevant; grid entry/exit not explicitly discussed."
+  stock_strategy_relevance:
+    score: 4
+    justification: "Stock trading, technical indicators, breakout strategy, scanner, fundamental/technical data covered."
+  backtesting_relevance:
+    score: 2
+    justification: "Limited backtesting theory; Turtle and Bollinger-MFI systems presented but no formal backtest methodology."
+  live_execution_relevance:
+    score: 5
+    justification: "Core focus: TWS API, order types, order lifecycle, fills, commissions, live order submission, error handling."
+  risk_relevance:
+    score: 3
+    justification: "Kelly Criterion appendix, Greeks for options, position/margin concepts; risk controls not deeply covered."
+  data_quality_relevance:
+    score: 3
+    justification: "Technical data, fundamental data, news access via IB; data validation not addressed; quality assumptions implicit."
+  machine_learning_relevance:
+    score: 1
+    justification: "No ML; chapter 11 covers technical indicators only (classical); ML not mentioned."
+
+limitations_and_warnings:
+  - "Book does not cover market microstructure, latency optimization, or high-frequency execution patterns."
+  - "IB API specifics (TWS connection, order message protocol) are subject to change; validate all API calls against current IB documentation."
+  - "Fees, commissions, and margin rules cited are from 2019 and may be obsolete; must cross-check against current IB fee schedule."
+  - "Order types and execution algorithms mentioned (TWAP, VWAP, AcceptVolume) depend on IB platform version and may differ."
+  - "No treatment of regulatory changes, circuit breakers, trading halts, or compliance reporting."
+  - "Kelly Criterion discussion is theoretical; practical position sizing under margin and slippage not addressed."
+
+duplicate_relationships: []

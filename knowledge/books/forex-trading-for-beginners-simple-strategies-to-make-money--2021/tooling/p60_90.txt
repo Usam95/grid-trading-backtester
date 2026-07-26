@@ -1,0 +1,928 @@
+===== PAGE 60 START =====
+5. Carry Trade Strategy
+Carry trade strategy involves borrowing a low-interest currency to buy a
+currency that has a high rate; the goal is to make a profit with the interest rate
+difference. For example, one can buy currency pairs like the Japanese yen
+(low interest) and the Australian dollar (high interest) because the interest
+rate spreads are very high. Initially, carry trade was used as a one-way trade
+that moved upwards without reversals, but carry traders soon discovered that
+everything went downhill once the trade collapsed.
+With the carry trade strategy:
+1. You need to first identify which currencies offer high rates and
+which ones have low rates. 
+2. Then match two currencies with a high-interest differential
+3. Check whether the pair has been in an upward tendency favoring
+the higher-interest rate currency
+Pros
+The strategy works in a low volatility environment.
+Suitable for a long-term strategy
+Cons
+Currency rates can change anytime
+Ricky because they are highly leveraged 
+Used by many traders therefore overcrowded
+===== PAGE 60 END =====
+
+===== PAGE 61 START =====
+6. Momentum Trading  
+This strategy involves buying and selling assets according to the strength of
+recent price trends. The basis for this strategy is that an asset price that is
+moving strongly in a given direction will continue to move in the same
+direction until the trend loses strength. When assets reach a higher price, they
+tend to attract many investors and traders who push the market price even
+higher. This continues until large pools of sellers enter the market and force
+the asset price down.Momentum traders identify how strong trends are in a
+given direction. They open positions to take advantage of the expected price
+change and close positions when the prices go down. 
+There are two kinds of momentum:
+Relative momentum - different securities within the same class
+are compared against each other, and then traders and investors
+buy strong performing ones and sell the weak ones.
+Absolute momentum - an asset's price is compared against its
+previous performance.
+Pros
+Traders can capitalize on volatile market trends
+Traders can gain high profit over a short period
+This strategy can take advantage of changes in stock prices caused
+by emotional investors.
+Cons
+A momentum investor is always at a risk of timing a buy
+incorrectly.
+This strategy works best in a bull market; therefore, it is market
+sensitive
+This strategy is time-intensive; investors need to keep monitoring
+the market daily.
+Prices can shift in a different direction anytime
+7. Pivot Points
+===== PAGE 61 END =====
+
+===== PAGE 62 START =====
+This strategy determines resistance and support levels using the average of
+the previous trading sessions, which predict the next prices. They take the
+average of the high, low, and closing prices. A pivot point is a price level
+used to indicate market movements. Bullish sentiment occurs when one
+trades above the pivot point while bearish sentiment occurs when one trades
+below the pivot point.
+Pros
+Traders can use the levels to plan out their trading in advance
+because prices remain the same throughout the day
+Works well with other strategies
+Cons
+Some traders do not find pivot points useful
+There is no guarantee that price will stop or reverse at the levels
+created on the chart
+8. Fundamental Analysis
+This strategy involves analyzing the economic, social, and political forces
+that may affect the supply and demand of an asset. Usually, people use supply
+and demand to gauge which direction the price is headed to. The
+Fundamental analysis strategy then analyzes any factors that may affect
+supply and demand. By assessing these factors, traders can determine
+markets with a good economy and those with a bad one. 
+Forex Strategies for Beginners
+When starting on Forex Trading, it important to keep things simple. As a
+beginner, avoid thinking about money too much and focus on one or two
+strategies at a time. The following three strategies are easy to understand and
+perfect for beginners.
+1. Inside Bar Trading Strategy
+This highly effective strategy is a two-bar price action strategy with an inside
+bar and a prior/mother bar. The inside bar is usually smaller and within the
+===== PAGE 62 END =====
+
+===== PAGE 63 START =====
+high and low range of the prior bar. There are many variations of the inside
+bar, but what remains constant is that the prior bar always fully engulfs the
+inside bar. Although very profitable, the inside bar setup does not occur
+often.
+There are two main ways you can trade using inside bars:
+As a continuation move - This is the easiest way to trade inside
+bars. The inside bars are traded in trending markets following the
+direction of the trend. 
+As a reversal pattern - the inside bars are traded counter-trend 
+When using this strategy, it is important to look for these characteristics when
+evaluating the pattern:
+Time frame matters - avoid any time frame less than the daily.
+Focus on the breakout - best inside bar trades happen after a
+break of consolidation where the preceding trend is set to resume.
+The trend Is your friend - trading with the trend is the only way to
+trade an inside bar
+A favorable risk to reward ratio is needed when trading an inside
+bar
+The size of the inside bar in comparison to the prior bar is
+extremely important
+2. Pin Bar Trading Strategy
+This strategy is highly recommended for beginners because it is easy to learn
+due to a better visual representation of price action on a chart. It is one of the
+easiest strategies to trade. Pin bars show a reversal in the market and,
+therefore, can be useful in predicting the direction of the price. Pin bars
+consist of one price bar, known as a candlestick price bar, which represents
+a sharp reversal and rejection of price. Candlestick charts are the clearest at
+showing price action.
+There are various ways traders trading with pin bars can enter the market:
+At the current market price
+Using an on-stop entry
+At limit entry, which is at the 50% retrace of the pin bar
+===== PAGE 63 END =====
+
+===== PAGE 64 START =====
+To improve your odds when using the pin bar strategy:
+Trade with the trend
+Wait for a break of structure
+Trade from an area of value
+Some of the mistakes pin bar traders should avoid include the following:
+Assuming the market will reverse because of a pin bar
+Focus too much on the pin bars and miss out on other trading
+opportunities
+All pin bars are not the same and should not be treated as such
+===== PAGE 64 END =====
+
+===== PAGE 65 START =====
+3. Forex Breakout Strategy
+A breakout strategy is where investors find stocks that have built strong
+support or resistance level, wait for a breakout, and enter the market when
+momentum is in their favor. This strategy is important because it can offer
+expansions in volatility, major price moves, and limited risk. A breakout
+occurs when the price moves beyond the support or resistance level. The
+breakout strategy is good for beginners because they can catch every trend in
+the market. Breakouts occur in all types of market environments. 
+Traders establish a bullish position when prices are set to close above a
+resistance level and a bearish position when prices close below a support
+level. Sometimes traders can be caught on a false breakout, and the only way
+to determine if it is a false breakout is to wait for confirmation. False
+breakout prices usually go beyond the support and resistance level; however,
+they return to a prior trading range by the end of the day.
+Good investors plan how they will exit the markets before establishing a
+position. With breakouts, there are two exit plans:
+Where to exit with profit-traders can assess the stock recent
+behaviors to determine reasonable objectives. When traders meet
+their goals, they can exit the position. They can either raise a stop-
+loss to lock in profits or exit a portion of the position to let the
+rest run 
+Where to exit with a loss - breakout trading show traders clearly
+when a trade has failed, and therefore they can determine where
+to set stop-loss order. Traders can use the old support or
+resistance level to close a losing trade
+Pros
+You can catch every trend in the market
+·Prices can quickly move in your favor
+Cons
+Traders can get caught in a false breakout
+It can be difficult to enter a trade
+===== PAGE 65 END =====
+
+===== PAGE 66 START =====
+Tips for trading breakouts:
+Never sell on breakdown or buy on breakout both carry extreme
+risks
+Trade with the trend
+Wait for higher volume to confirm a breakout
+Take advantage of volatility cycles
+Enter on the retest of support or resistance
+Have a predetermined exit plan
+Note
+Beginners are more likely to be successful in trade than their experienced
+counterparts are because they have not yet cultivated any bad
+habits. Experienced traders have to break bad habits and put aside any
+emotions built over the years.
+===== PAGE 66 END =====
+
+===== PAGE 67 START =====
+Chapter 7: Forex Trading Signals
+How can a forex trader find out which Forex pair and time frame is best to
+buy or sell? For starters, the forex trader can move from one chart to another
+to identify the forex market trend. However, in view of the fact that markets
+change from time to time, switching through charts can be a tedious exercise.
+Additionally, some patterns may be erratic and unpredictable, and therefore
+fail to make a profit.
+Nevertheless, if a forex trader could find a way to examine all the currency
+pairs swiftly and time frames to find the best trend, he or she can expect a
+dramatic increase in profitability in any method he or she trades. Forex
+Trading signals can help forex traders make such critical decisions about
+profiting from their investments.
+What Are Forex Trading Signals?
+Put simply, Forex Trading signals are guidelines and recommendations that
+help inexperienced forex traders to open Forex Trading positions. The
+signals are a type of system that forex traders use to make crucial decisions
+===== PAGE 67 END =====
+
+===== PAGE 68 START =====
+about their trade. In that regard, Forex Trading signals provide details about
+how to open a new Forex Trade.
+Examples of such details include details about which currency pair to trade,
+when to open the trade (open date), whether to buy or sell (position), and
+information on the opening price. In addition, they provide details on the
+stop-loss level to set if the forex market starts to experience loses, and the
+target profit level, that is, the point at which the trade should close so that
+forex traders can secure their profits.
+Accurate and timely signals help forex traders to have success in their trade,
+whereas wrong signals reduce the opportunity for forex traders to earn and to
+make profits from their investments.
+Forex Trading signals send email alerts that show trading arrangements for
+the next 24-hours. Various Forex Trading signals providers give free trial
+services that allow currency traders to become familiar with signal
+illustrations to calculate the values of the currencies. In that way, currency
+traders are able to evaluate the quality and the reliability of the Forex
+Trading signals before traders can pay subscription money.
+When looking through Forex signals services, the forex trader must ensure
+that the Forex Trading signal provider offers the type of signals the forex
+trader needs.
+Types of Forex Trading Signals and How They
+Work
+Each signal is different from the other, and every forex trader needs to have a
+basic idea of the operation of the two types of Forex Trading signals. A forex
+trader can choose the type of signal to use, depending on his or her needs and
+depending on the signal’s function.
+Manual Forex Trading Signals
+Manual forex signals require human traders to analyze the market before
+Forex signal providers distribute the signals. The human traders comprise of
+a team of financial analysts and experienced forex traders who carry out
+Forex market analysis and open the trading signals.
+===== PAGE 68 END =====
+
+===== PAGE 69 START =====
+When the traders receive signals, they log into their Forex account and key in
+the trades. That means that the trader will need to be available at all times to
+key in the trades.
+What are the benefits of Manual Forex Trading Signals?
+Higher Profit Targets : The profit targets in manual trading signals are
+typically more significant than in the automated trading signals unless the
+signal provider uses a scalping tactic. Profit targets help forex traders to
+reduce risk by establishing a target price when the forex trader wants to take
+profits on a trade.
+Consequently, manual signals that large financial institutions offer their
+clients target hundreds of pips when the high-frequency signals target
+fractions of a pip. A pip is short for 'point in percentage,' and it is a
+significantly small measure of variation in a currency pair in the Forex
+market.
+For example, if a currency sells at 3.6997, and buys at 3.6999, then the pip is
+2.
+Useful Trading Tools : Manual trading signals are indicators that highlight
+excellent trading prospects. A forex trader can conduct his or her own forex
+market analysis, come up with his or her own plan and strategy, and use the
+manual signals to crosscheck his or her evaluation.
+The use of manual signals also enables the forex trader to sort out risk levels
+depending on the conditions of the forex market. A forex trader is in charge
+of all the trading functions. Therefore, when the forex market is volatile, the
+forex trader can reduce the number of currency units that he or she will buy,
+and increase the size once the market stabilizes.
+Profitable Risk-Reward Ratios : Risk – reward ratios measure how much a
+forex trader’s potential reward is, for every amount of money that he or she
+risks. For example, if a forex trader has a risk-reward ratio of 1:5, it means
+that the forex trader is risking $1 to make $5 theoretically. It is, however, not
+definite that the trader will earn $5.
+Consequently, manual signals often provide risk-reward ratios of 1:1 or
+better, compared to the automated signals, which give a minimum of 1:2 risk-
+reward ratio. Even with a risk-reward ratio of 1:0.5, a forex trader stands to
+gain $0.5 for every dollar he or she trades over the long term.
+===== PAGE 69 END =====
+
+===== PAGE 70 START =====
+Trading News Releases : Trading news is an approach to buy or sell
+equities, currencies, and other financial instruments in the forex markets.
+Manual forex traders issue out outcomes of the news releases in ways that
+offer significant winning potential.
+Manual forex traders or financial analysts examine news reports and identify
+the causes that will cause the forex market to move in a specific direction.
+Therefore, the forex signal providers issue out manual signals from the
+financial analysts, which predict what numbers, will be released.
+With such expectation, forex investors start trading before the release of the
+actual numbers. That is unlike using trading robots, which are not always
+able to trade the outcomes of the news releases.
+Flexibility : Manual Forex Trading signals have the capacity to adjust to
+market changes and fluctuations. Forex investors make profits by buying or
+selling as many currencies as they can.
+Consequently, when a forex investor receives a manual trading signal for a
+trade, which appears to be heading in a profitable direction, the forex signal
+provider may extend that take profit level and increase the profit
+productively. Thus, manual Forex Trading signals provide forex investors
+with suck kind of flexibility in the forex market.
+Human Experience : One of the most positive aspects of manual Forex
+Trading signals is human intelligence and expertise, which cannot compare to
+that of computers. Many skilled forex traders have a good feel of the forex
+market and can, therefore, tell the best time for buying or selling to gain
+profitable trades. Robots do not often perceive such upward or downward
+trends.
+Because crowd psychology drives the forex market, human reasoning
+ingrains manual trading signals. As a result, the manual signals can
+manipulate the market trends for maximum profitability.
+What are the shortcomings of Manual Forex Trading Signals?
+Manual trading signals are suitable for extending profit targets, but the
+process of issuing out signals can be time-consuming. Even though manual
+signal providers may not need to conduct all the forex market analysis, they
+still have to open the Forex Trading platform and carry on with the trading
+business.
+===== PAGE 70 END =====
+
+===== PAGE 71 START =====
+Additionally, manual signal providers are not able to follow the manual
+signals distributed during nighttime or work hours. In addition, manual
+trading signal providers do not have extensive coverage of a variety of other
+currency pairs. That is because many signal providers focus their attention on
+significant currency pairs, thus leaving out other financial instruments that
+include cryptocurrencies, stock indices, and commodities.
+Automated Forex Trading Signals
+Automated Forex signals have robotic programs, which analyze the market
+before the forex signal providers issue out the signals.
+Due to the impracticality of trading forex on a part-time basis, many forex
+investors, brokers, and independent financial institutions have created trading
+systems that distribute forex signals that tell the user when to trade.
+With automated Forex Trading, buying or selling can be as simple as pushing
+a button or making a telephone call to the signal provider.
+What are the benefits of Automated Forex Trading Signals?
+It Does Not Involve Any Paperwork : Signal providers do not go through
+any complex processes involving paperwork, in order for them to get started
+on distribution signals.
+It Saves Time : A person does not have to remain transfixed on their
+computer monitors or screens all day long to buy or sell. The automated
+trading robot takes care of all the tasks 24-hours a day.
+Similarly, one does not have to spend time coming up with his or her own
+trading plan. Instead, a person can choose to follow a forex trader who has a
+similar Forex Trading strategy and risk profile as his or her own. In that way,
+the person will have more time to set trades and to keep an eye on different
+forex markets.
+In addition, forex traders and signal providers do not have to worry about
+missing trades because automated trading performs trades much faster than
+any human being.
+Passive Trading : Automated Forex Trading signals are not subject to any
+human emotions, and therefore, are a clear-cut set of rules to follow.
+Easily Accessible to Beginners : Precise automated forex signals help
+beginner forex traders to learn how experienced traders buy or sell.
+===== PAGE 71 END =====
+
+===== PAGE 72 START =====
+Beginners can achieve this by replicating the trades of the more experienced
+traders who have shared their successful strategies.
+Similarly, beginners do not need to have minimum balances in their Forex
+Trading accounts to begin trading. Furthermore, automated signals can boost
+the confidence of beginner traders concerning the forex market. Beginner
+traders can relate their analysis to that of their signal’s provider and thereby
+learn more about Forex Trading while accumulating profits.
+Independent Control of Trading Account : Only the forex traders and
+signal providers can access their accounts. What's more, traders sign in the
+account in their name, and they do not have to give a power of attorney to any
+other person.
+Back-Testing Trading Strategies : Trading robots have the ability to use
+historical data to evaluate the viability of a trading strategy and thus finding
+out how the plan will play out in the forex market.
+Forex traders can fine-tune such strategies to yield outcomes that are more
+positive. When the trading robot performs the back-testing, signal providers
+can confidently open their trade because the providers will have a better idea
+of how the trading robots will perform in the future.
+What are the disadvantages of Automated Forex Trading Signals?
+Automated Forex Trading signals are not flexible. There are times when a
+forex investor may need to manipulate a trade or to forego a deal when the
+market goes in the opposite direction.
+For example, when news breaks out about a hurricane hitting the investor's
+country, the investor will know that the trading platform will not remain
+stable. As a result, the investor may end up making losses following the
+effects the hurricane will have on assets sold on the trading platform.
+Additionally, an automated Forex Trading account can breakdown potentially
+creating significant issues. A computerized trading account can stop
+endorsing trades, thus leaving trades to linger or cause the system to crash
+entirely. Alternatively, the automated account can have a technical error or a
+virus in the software where forex traders can lose all the money in their
+accounts at once.
+How to Choose the Best Trading Signals
+===== PAGE 72 END =====
+
+===== PAGE 73 START =====
+How can one know how to choose the best trading signals? Below are the
+factors a person should consider in making that decision.
+The Regularity of Trading Signals : In the search for the best trading
+signals in the forex market, a trader should look for signal providers who
+issue favorable trading signals and alerts recurrently. That is because signals
+will not take too long to appear even if a person misses one or two signals.
+In that way, a trader can become consistent with his or her trading.
+Variety of Financial Instruments : Signal providers who offer signals on
+diverse financial tools make it possible for a forex trader to choose
+investments from a wide range of options. Outstanding trading signals on
+commodities, currency pairs, stock indices, and cryptocurrencies give forex
+traders access to various financial instruments across different asset
+classifications.
+Negligible Drawdowns : Choose signal providers who have minimal and
+negligible consecutive losing trades, but have solid equity growth curves.
+That will help in producing excellent performance in terms of investment
+profitability.
+Constant Profits : It is essential to identify trading signals with excellent
+and consistent trading outcomes. A forex trader can accomplish this by
+choosing signal providers who are experts at analyzing the forex market and
+are therefore able to adapt to the continually changing market conditions.
+Experienced signal providers demonstrate a focused effort in providing
+regular forex signals of the highest quality.
+Therefore, how can a person know how to choose the best Forex Trading
+signal providers?
+Credible Profitability History : Is there evidence of unrealistic profits? A
+forex trader should smell a rat when a signal provider issues out signals with
+five or more pips profit from a trade. That level of profit would be
+unrealistic and not trustworthy.
+Consequently, a forex trader should search for signal providers who have
+authenticated track records. The best option would be to verify the track
+records through third-party online verification facilities.
+The Timing of the Signal : It is wise for a forex trader to outline the
+schedule of the signals. That is because the trader may not have a lot of time
+===== PAGE 73 END =====
+
+===== PAGE 74 START =====
+to spend in front of his or her computer waiting for the signal provider to
+issue out a signal.
+In order not to miss out on signals, a forex trader should check the signal
+provider’s time zone and master the times during which the signal provider
+sends out signals. That is an important consideration to think about before
+signing up for a Forex Trading signal service.
+Trial periods can help a forex trader to know the times the signal providers
+distribute signals.
+Free Trial Period : It would be wise for a person to choose a signal
+provider who gives a free trial period. That will prevent the person from
+getting into the market without knowing how the signals work and possibly
+risking all of his or her investment.
+Knowing whether a signal provider is right or not helps a person to develop
+trust with the provider. Trial periods provide opportunities for a person to
+test the signals and to confirm whether the set-up of the signals conforms to
+his or her trading style.
+Random Signals : Some Forex Trading signal providers distribute random
+signals that seem to have no apparent strategy. Robots could generate such
+signals, which may lack thorough analysis.
+Consequently, a forex trader should evaluate the trading positions of the
+signals – are they long-term or short-term? In addition, the trader should
+check to see whether the signals are founded on technical analysis, or
+fundamental analysis, or a mix of both. Therefore, a person should evaluate
+signals to know whether they will be suitable for his or her trading style.
+Details About the Signal Performance : Are the details short and simple?
+Aspects such as entry point, stop loss, and take profits should be easily
+understandable so that a forex trader can visualize all the factors to decide
+whether a signal is lucrative and appropriate.
+The best Forex Trading signals, therefore, take into account definitions and
+forex market assessments that associate with the Forex Trading signals.
+Forex traders may not feel confident to use signals that do not explain why a
+forex trader should open a particular trade.
+Are the Signals Easy to Follow? Forex Trading signals that are easy to
+follow are those that are in a well-organized format. The structure will,
+therefore, have definite entry and exit prices and stop loss figures. These will
+===== PAGE 74 END =====
+
+===== PAGE 75 START =====
+help in financial management and the steady growth of a forex trader's trading
+account.
+Additionally, the signal provider should post Forex Trading videos,
+webinars, and watch lists for additional customer support. Similarly, Forex
+Trading signal providers should be willing to answer all questions that
+pertain to trade formats and signals.
+Should Forex Traders Use Free Forex Signals or
+Paid Forex Signals
+Free forex signals and paid forex signals differ in terms of quality.
+Individuals who sell other products tend to issue out free forex signals.
+Therefore, although the individuals’ free forex signals may work in getting a
+person interested in investing in Forex Trading training, the individuals have
+absolutely no interest in the quality of the signals themselves.
+Additionally, free forex signal providers offer free trials that give beginners
+limited information that leaves the beginners wanting to learn more. Learning
+Forex Trading requires a lot of effort, which can yield positive outcomes.
+Consequently, even the best free Forex Trading signals do not teach
+beginners how to trade, because they cause the beginners to depend on other
+forex traders.
+With paid forex signals, a person gets the experience he or she paid for. Paid
+forex signals give beginner traders access to support. For instance, when
+paid forex signals act unreliably, signal providers will provide the beginners
+with direction unlike using free forex signals where beginner traders will
+have no forthcoming support.
+Therefore, a forex trader should not trust providers that guarantee results
+without proof. Genuine signal providers should be willing to share their
+performance history. Paid services provide helpful information for beginners
+to help them to become knowledgeable in forex money matters and the
+management of risks. Such data can be valuable to beginner traders who
+would like to control their investment directly in the future.
+Forex Trading signals are instrumental in helping forex traders conduct
+market analysis within a short period. Similarly, forex signals mean that a
+trader will not have to sit down for extended hours waiting to get his or her
+===== PAGE 75 END =====
+
+===== PAGE 76 START =====
+outcomes. Moreover, forex traders can build their career within the first few
+months of their trading experience.
+===== PAGE 76 END =====
+
+===== PAGE 77 START =====
+Chapter 8: Tips to Winning in Forex
+Trading
+To the uninitiated, navigating the forex market successfully can seem like a
+difficult task. However, success is possible if one takes the right steps and
+trains properly. Just like training for a marathon, training is essential to
+winning in Forex Trading. Success requires targeted effort, practice,
+patience, and time.
+Forex traders need to have specific goals in mind. With the right direction,
+training, and guidance, mastering the foreign exchange market is within
+anyone's reach. Winning at Forex Trading has little to do with hot picks,
+which are often fallacies created by people masquerading as experts in this
+field.
+On the contrary, success stems from the ability to learn from both right and
+wrong trading choices to determine the patterns and strategies that work best
+for one's personality and goals. People are different; therefore, no single
+trading strategy will work for everyone.
+===== PAGE 77 END =====
+
+===== PAGE 78 START =====
+Fortunately, there are several tips for winning in Forex Trading that can help
+beginners master the complexities of the largest market in the world.
+Actually, in terms of the value of average daily trading volume, the FX
+market dwarfs the bond and stock markets. Forex traders, therefore, have
+several inherent advantages over traders who engage in other forms of
+financial trading.
+Small investors with modest capital can find success and trade their way to a
+fortune. The forex market is one of the few markets that can make this a
+reality. Trading the forex market is relatively easy. Doing it well and
+generating a consistent income, however, is not so easy. Therefore, it is
+important to learn the secrets and tips for success.
+Tips and Secrets for Success in Forex Trading
+1. Pay Attention to Daily Pivot Points
+Forex traders should watch daily pivot points closely. This is especially
+important for day traders. However, it is also important for swing traders,
+position traders, and even traders who focus on long-term positions. It is
+important to do so because tons of other forex traders do the same.
+In a certain way, pivot trading is like a self-fulfilling prophecy. Essentially,
+markets often find resistance or support at pivot points since thousands of
+pivot traders place orders at those points. Consequently, when a large
+volume of trading moves happens at these points or levels, there is no other
+reason for the move except that many traders placed orders expecting such a
+move.
+However, pivot points should not be the only basis of a Forex Trading
+strategy. Rather, regardless of one's strategy, one should watch these points
+for signs of either potential market or continuation of a trend. Forex traders
+should look at pivot levels and the trading activities that take place around
+them as a confirming indicator to use in conjunction with their chosen
+strategy.
+2. Define Trading Style and Goals
+===== PAGE 78 END =====
+
+===== PAGE 79 START =====
+Before setting out on any journey, travelers need to have a clear idea of
+where they are going and how to get to their destination. In the same way,
+forex traders need to have clear goals, in addition to ensuring that their
+trading strategies will help them achieve those goals.
+Each Forex Trading style or strategy comes with a different risk profile.
+Therefore, traders who want to win in Forex Trading need to find and adopt
+the right approach and attitude to trade profitably. Those who cannot imagine
+going to sleep with an open market position, for example, should consider
+focusing on day trading.
+Forex traders with funds they believe will benefit from a trade appreciation
+over several months; on the other hand, they should think about position
+trading. Essentially, it is important for a forex trader to determine whether
+his/her personality will fit any particular trading strategy. Any mismatch will
+probably lead to certain losses and stress.
+3. Trade with an Edge
+Successful forex traders only risk their hard-earned money when a market
+opportunity provides them with an edge. In other words, they do so when the
+opportunity presents them with something that will boost the chances of their
+trades being successful. This edge can be various things, even a simple thing,
+such as selling at a price level that one identifies as strong resistance.
+Forex traders can also increase their probability of success and their edge by
+having several technical factors in their favor. If the 100-period, 50-period,
+and 10-period moving averages all meet at the same price level, for example,
+it will likely offer significant resistance or support for a market because
+many traders will be acting together by trading off any of those averages.
+Converging technical indicators also provide a similar edge. This happens
+when different indicators on many periods converge to provide resistance or
+support. Having the price hit an identified resistance or support level, in
+addition to having price movement at that level, is an indication of a potential
+market reversal.
+4. The Trading Platform and Broker
+Forex traders should spend adequate time researching a suitable trading
+platform and a reputable broker. It is important to identify and understand the
+difference between brokers and determine how each of them goes about
+===== PAGE 79 END =====
+
+===== PAGE 80 START =====
+making a market, as well as their policies. Trading the exchange-driven
+market, for example, is different from trading in the spot market or OTC
+market.
+Traders should also choose the trading platform that fits the analysis they
+want to do. Traders who want to use Fibonacci numbers to trade, for
+example, should ensure the trading platform they choose has the ability to
+draw Fibonacci lives. A good platform with a bad broker is just as bad as a
+poor trading platform with a good broker. Therefore, forex traders need to
+find the best of both.
+5. Preserve Capital
+It is more important for traders to avoid huge losses than to make huge
+profits. For people who are new to Forex Trading, this concept may not
+sound quite right. However, it is important to understand that winning in
+Forex Trading means knowing how to preserve or protect one's capital.
+According to the founder of Tudor Corporation, Paul Tudor Jones, playing
+great defense is the most important rule of trading. Actually, he is a great
+trader to learn from and study. In addition to building a hugely successful
+hedge fund, Tudor Jones has an excellent record of profitable trading.
+He also played an important role in creating the ethics-training program
+needed to gain membership in all futures exchanges in the United States.
+Protecting the trading capital, or playing great defense, is very important in
+Forex Trading because many people who venture into Forex Trading are
+unable to continue trading as a result of running out of money.
+Many forex traders drain their accounts soon after they make a few trades.
+Having strict risk management practices is important for people who want to
+win in Forex Trading. Traders who manage to preserve their trading capital
+are able to continue trading for as long as they want to, and might eventually
+become huge winners.
+One great trade can fall into a trader's lap and significantly increase his/her
+profits and account size. One does not need to be the smartest trader in the
+world to make money in the forex market. If nothing else, the luck of the draw
+can have traders who manage to protect their capital stumble into trades that
+generate enough profits to make their trading careers a huge success.
+6. Small Losses and Focus
+===== PAGE 80 END =====
+
+===== PAGE 81 START =====
+After forex traders fund their trading accounts, they need to understand that
+their capital is at risk. Therefore, they should not depend on that money for
+their daily living expenses. Actually, it is better to think of those funds as
+vacation funds. Once their vacation is over, their money is gone.
+Having this trading attitude will help prepare them to accept and learn from
+small losses, which will also help them manage their risk better. Forex
+traders should focus on their trades and accept small losses, which are
+normal in any type of business, rather than constantly and obsessively
+focusing on their equity.
+7. Simple Technical Analysis
+Consider this example of two forex traders in extremely different situations.
+The first trader has a specially designed trading computer with several
+monitors, a large office, swanky furnishings, trading charts, and market news
+feeds. He also has several moving averages, technical indicators, momentum
+indicators, and much more.
+The other trader, on the other hand, works from a relatively simple office
+space and uses a regular desktop or laptop computer. His charts reveal just
+one or two technical indicators on the price action of the market.
+Most people would consider the first trader to be more professional and
+extremely successful, and they would probably be wrong in their assumption.
+Actually, the second trader is closer to the image of a forex trader who wins
+consistently. Traders can apply numerous forms of technical analysis to a
+chart. Having more, however, does not necessarily mean having better.
+Using a huge number of indicators might actually make things more
+complicated and confusing for a forex trader. They amplify indecision and
+doubt, causing him/her to miss many potentially profitable trades. Therefore,
+it is better to have a simple trading strategy with just a few rules, as well as a
+minimum of indicators to consider.
+A few very successful forex traders make money from the forex market
+almost every day without using any technical indicators overlaid on their
+charts. They achieve this impressive feat without taking advantage of a
+relative strength indicator, trend lines, trading robots, moving averages, or
+expert advisors. Their market analysis involves a simple candlestick chart.
+8. Weekend Analysis
+===== PAGE 81 END =====
+
+===== PAGE 82 START =====
+The forex market ceases operation on the weekend. Therefore, forex traders
+should use this time to study their weekly charts to identify news or patterns
+that could affect their trades in either a positive or a negative way. This will
+give the objectivity, which will help them make smarter trading plans.
+9. Placing Stop-Loss Orders at the Right Price Levels
+In addition to protecting one's capital in case of a losing trade, this strategy is
+also an important aspect of smart Forex Trading. Many newcomers to the
+forex market assume that risk management simply means placing stop-loss
+orders close to the entry point of their trades. This is partly accurate;
+however, habitually placing stop-loss orders too close to their trade entry
+points is something that might contribute to their lack of success.
+Sometimes, stop-loss orders can stop a trade, only to see the market make a
+reversal in favor of the trade. It is common for novice traders to endure
+watching this happen. Sometimes, this reversal proceeds to a level that
+would have seen them gain a sizable profit if the stop-loss order had not
+terminated the trade.
+Obviously, traders should enter trades that allow them to place stop-loss
+orders close enough to their trade entry points to avoid making huge losses.
+However, they should place them at a reasonable price level, based on their
+analysis of the market. When it comes to reasonable placement of stop-loss
+orders, the general rule of thumb is to place them a bit further than the price
+the market should not trade at, based on market analysis.
+10. 
+Use a Consistent Methodology
+Before a prospective trader enters the forex market, he/she needs to have a
+good idea of how he/she will make trading decisions. Essentially, forex
+traders should know the information they will need to make smart decisions
+on entering a trade or exiting one. Some traders choose to analyze a chart and
+the fundamental of the economy to decide the best time to trade.
+Others, however, prefer to perform technical analysis to determine the ideal
+time to execute a trade. Whichever methodology or strategy a trader chooses
+to employ, he/she needs to be consistent and ensure the chosen methodology
+is adequately adaptive. In other words, it should be flexible enough to handle
+the forex market's changing dynamics.
+===== PAGE 82 END =====
+
+===== PAGE 83 START =====
+11. 
+Choosing the Right Entry and Exit Points
+Most inexperienced forex traders do not know how to judge conflicting
+information that often presents when analyzing charts in various timeframes.
+Certain information, for example, might indicate a sell signal on a weekly
+chart, but show up as a purchasing opportunity in an intraday chart.
+Therefore, if a trader is using a weekly chart to determine his/her basic
+trading direction and a daily chart to tie his/her entry, then he/she should try
+to synchronize the two charts. If the weekly chart is providing a buy signal,
+for example, he/she should wait for the daily chart to confirm this signal. In
+other words, keeping signal timing in sync is a good tip for winning in Forex
+Trading.
+12. 
+Calculating Expectancy
+The formula to use to determine the reliability of a trading system is
+expectancy. Forex traders should analyze and compare past winning trades
+against losing trades, which will help them determine the profitability of
+their winning trades versus how much money they lost in their losing trades.
+A simple way to do this is by looking at their last 10 trades. New forex
+traders who have not yet made any trades should study their chart to identify
+points where their trading system suggests an entry and/or exit point. In other
+words, new forex traders need to determine whether their system is
+profitable.
+Having done this, they should write down their observations, total their
+winning trades, and divide the amount by the number of successful trades
+they made. For example, if a trader made 10 trades, four of which flopped,
+and six of which were successful, his/her win ratio would be 60% or 6/10. If
+the six winning trades made $4,800, then his/her average win would be
+$4,800/6 = $800.
+If the trader’s losses amounted to $2,400, then his/her average loss would be
+$2,400/4 = $600. By applying these results to the formula for calculating the
+reliability of a system, the trader will get E = [1 + (800/600) x 0.6 – 1 = 0.4,
+which is equivalent to 40%. A positive expectancy of 40% means that the
+===== PAGE 83 END =====
+
+===== PAGE 84 START =====
+trader's trading system will likely generate 40 cents to the dollar over the
+long term.
+13. 
+Positive Feedback Loops
+Forex traders create a positive feedback loop following a well-planned and
+executed trade. When they plan a trade and execute it as expected, traders
+tend to create a pattern of positive feedback. In other words, success tends to
+breed success, which, in turn, builds confidence. This is especially true if the
+trade generates significant profits.
+Even if a trader suffers a small loss following a well-planned trade, he/she
+will still build a positive feedback loop.
+14. 
+Keeping Printed Records
+Printed records serve as a good learning tool for forex traders. Therefore,
+traders, especially new ones, should print their charts create a list of reasons
+for any particular trade, including the things that sway their trading decisions.
+They should mark the entry and exit points on the chart and make any relevant
+comments, such as emotional reasons for taking specific actions.
+Forex traders need to objectify their trades to develop the discipline and
+mental control needed to execute trades according to their systems, instead of
+their emotions, greed, or habits.
+15. 
+Stress Less
+This is an obvious Forex Trading tip. Trading the forex market under stress
+tends to lead to irrational decisions, which can end up costing a trader a lot
+of money. Therefore, forex traders should identify the source of their stress
+and try to get rid of it, or at least limit its influence on their actions.
+When stress threatens to take control, a trader should take deep breaths and
+try to focus on other things for a few minutes. People have different ways of
+overcoming stress. Some exercise, while others listen to classical music.
+Traders should learn what works best for them.
+===== PAGE 84 END =====
+
+===== PAGE 85 START =====
+Risk Management in Forex Trading
+One of the most debated topics in financial trading is forex risk management.
+On one hand, forex traders want to get the most out of every trade, but on the
+other hand, they want to limit the size of a potential loss. Sometimes, traders
+need to take greater risks to gain the best returns. This is where the issue of
+risk management in Forex Trading arises.
+Forex traders are in the business of making money. To do this, however, they
+need to learn how to limit potential losses. Unfortunately, many novice
+traders are just anxious to start trading without giving much thought to their
+total account size. They do not think of ways to minimize their potential
+losses before hitting the 'trade' button.
+This type of investing is more akin to gambling. When forex traders make
+trades without following the rules of risk management, they are, in fact,
+gambling. They are hoping to land that jackpot, instead of focusing on the
+long-term returns on their investment. Risk management rules do not offer
+100% protection; however, they can make traders very profitable in the end.
+Consider this; people go to Las Vegas every day to gamble in hopes of
+winning a jackpot. Some do win; however, casinos still make tons of money.
+If people are winning big jackpots, how are casinos making so much money
+in the end? The answer is that they are still profitable because they earn more
+money from losing gamblers.
+Casinos are excellent statisticians. They know that numerous gamblers will
+lose, and their money will be more than enough to pay for the jackpots won
+by the few successful gamblers. This is a good example of how casinos know
+how to control their losses. In the same way, forex traders need to know how
+to control their losses to improve their chances of being profitable.
+Forex Trading, in the end, is a numbers game, which means that traders have
+to tilt every factor in their favor. Essentially, they need to be the statistician
+and not the gambler. Everyone knows that it takes money to make money. The
+money one needs to start trading largely depends on one's approach to a new
+trading business.
+Losses are a reality of business, and traders will suffer some losses at some
+point in their career. This is the reason why it is important to have some risk
+management rules. Forex traders should only risk a small percentage of their
+===== PAGE 85 END =====
+
+===== PAGE 86 START =====
+accounts on each trade so that they can survive losses and avoid large
+drawdowns in their accounts.
+New forex traders tend to assume that making money through Forex Trading
+is easy and fast. To find success in this business, however, traders need
+patience, commitment, dedication, and time. Traders should not just open
+trading positions without considering the currency risk, trading conditions,
+and risks that can affect their invested capital.
+They need to use techniques and tools to manage their investments and risks.
+Those who fail to do this will be gambling instead of trading. Some of the
+best ways to manage risks in Forex Trading include:
+1. Only Investing Money, one Does not Need
+The first rule in any form of trading, including Forex Trading, is to invest the
+money one can afford to lose. Most beginners tend to skip or ignore this rule
+since they assume that it will not happen to them. Even gamblers do not take
+all their money to the casino to bet on black. Forex traders should not take
+unnecessary risks by investing the money they need.
+Trading with money they need for their daily living expenses will only add
+emotional stress and extra pressure on their trading, which will affect their
+decision-making abilities and increase the likelihood of making costly
+mistakes. In addition, there is a chance they could lose all their trading
+capital.
+The FX market is an unpredictable and volatile market; therefore, it is safer
+to trade conservative amounts from one's disposable income.
+2. Think About Risk Tolerance
+Before traders start trading, they need to identify and understand their risk
+tolerance, which will depend on the following:
+1. Investment goals
+2. Their age
+3. How much they are willing to lose
+4. Their experience
+5. Their knowledge of the foreign exchange market
+===== PAGE 86 END =====
+
+===== PAGE 87 START =====
+By determining their risk tolerance, forex traders will know they are in
+control of any situation because they are risking the right amount of money in
+terms of their financial objectives in relation to their personal financial
+situation.
+3. Set Risk to Reward Ratio (RRR) to a Minimum of
+1:3
+Having a good understanding of the RR ratio will improve a trader's chances
+of being profitable, in addition to setting limit orders to protect his/her
+trading capital. The RR ratio compares and measures the distance between a
+trader's entry point and his/her take-profit and stop-loss orders.
+For example, suppose that a trader is investing in the EUR/USD currency
+pair. If 50 pips is the distance between his/her entry point and stop-loss
+point, and 150 pips between the entry point and take-profit point, then he/she
+would be using a risk/reward ratio of 50:150, which is 1:3 because he/she is
+risking 50 pips to gain 150 pips.
+The risk to reward ratio is an important tool to help traders set their take-
+profit and stop-loss orders, depending on their risk tolerance. Smart forex
+traders should control their downside risk. Although the RRR depends on a
+trader's risk tolerance, most traders use a ratio of 1:3, which means that they
+hope to earn 3 times what they are willing to lose.
+4. Control the Risk per Trade
+When thinking about their trading risks, forex traders should consider their
+trading capital. A smart risk management strategy would be to invest a small
+percentage of their trading capital in each trade. For example, 1% to 2% of
+their available capital per trade is a good starting point.
+If a forex trader has $10,000 in his/her trading account, for example, the
+maximum loss allowable would be 2% of the available capital, which will
+amount to $200 per trade. Controlling the risk per trade is very helpful,
+especially if a trader goes through a losing streak. It helps forex traders to
+avoid huge drawdowns in their trading accounts and protect their trading
+capital.
+5. Keep the Risk Consistent
+===== PAGE 87 END =====
+
+===== PAGE 88 START =====
+As soon as they make their first profits, some forex traders, especially
+beginners, increase the size of their positions, which is a good way to wipe
+out their trading accounts. Forex traders should understand the importance of
+keeping their trading risk consistent. Just because a trader is on a winning
+streak does not mean that the next trade will make a profit.
+Traders should avoid becoming risk-averse and over-confident since it can
+lead to them to change their risk and money management rules without good
+reasons. When they were working on their trading strategies, they probably
+set up rules to guide their trading positions. This is a necessary step towards
+setting up a winning trading strategy; however, they also need to stick to their
+rules to achieve long-term success.
+6. Understand and Control Leverage
+Due to its high volatility, the FX market is a leveraged market. In this case,
+leverage refers to the ability to invest more than the initial deposit through
+margin trading. Forex brokers will only ash traders to set aside a small
+amount of the total value of their positions as collateral.
+By using leverage, traders can increase their profits quickly; however, they
+need to understand that this also applies to their losses. Therefore, they need
+to understand how margin trading and leverage work, in addition to how they
+affect their overall trading and performance.
+However, using high leverage to generate huge profits, as some
+inexperienced traders do, is not a good idea. This is because a small change
+in the market can easily wipe out their trading accounts. In fact, the European
+Securities and Market Authority set limitations on the leverage brokers offer
+in August 2018.
+7. Consider Currency Correlations
+Since forex traders trade currency pairs, such as EUR/USD, it is important to
+understand the correlation between currencies linked to each other. Having a
+good understanding of currency correlations will help them control their
+trading portfolios more effectively by reducing the overall risk.
+Correlation describes how one currency behaves in relation to another
+currency. When two currencies have a positive correlation, it means that they
+usually move in the same direction. Those with a negative correlation, on the
+other hand, will move in opposite directions.
+===== PAGE 88 END =====
+
+===== PAGE 89 START =====
+To use currency correlations to their advantage, traders need to understand a
+few important things:
+a)   They should avoid opening several trading positions that conflict or
+cancel out each other
+b)   They should have a good understanding of commodity currencies
+c)   They should avoid opening trading positions with the same quote
+currency or base currency
+No matter how unrealistic it may sound, many people going into Forex
+Trading expect to get rich overnight. The world of FX trading can be
+complicated and overwhelming, especially for beginners who do not know
+the rules. Before people go any deeper, they need to dip their toes into the
+forex pool.
+===== PAGE 89 END =====

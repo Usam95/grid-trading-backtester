@@ -1,0 +1,218 @@
+- id: REQ-001
+  title: "Fair-value regression model shall accept monthly economic and financial time series as inputs"
+  status: proposed
+  derived_from: ["FXA-ch4-001"]
+  derivation_type: direct_book_recommendation
+  rationale: "Book specifies regression inputs (CPI inflation ratio, bond yields, equity indices) applied to EUR/USD and other pairs over multiple time horizons. Backtesting system must ingest these data sources and compute rolling regressions with configurable lookback windows (monthly 15+ years, weekly 52 weeks, daily 60 days)."
+  applies_to:
+    strategy: [shared]
+    lifecycle: [backtest]
+    asset_class: [shared]
+    concern: [data]
+  requirement: "The backtesting system shall load monthly CPI data (source: FRED, Eurostat, etc.), 10-year government bond yields, and equity index prices; compute fair-value regression models with 1) 15+ year monthly lookback, 2) 52-week weekly lookback, 3) 60-day daily lookback; and output model coefficients, R-squared, and confidence intervals (±1σ, ±2σ) for each horizon."
+  acceptance_tests:
+    - "Given EUR/USD historical data 1993-2009, system produces monthly regression model with F-stat > 10 and explainable R² > 0.2"
+    - "Weekly and daily regressions recompute each period; coefficients and R² are logged and can be audited"
+    - "Confidence bands widen from daily (tightest) to monthly (broadest) as specified in book"
+  failure_prevented: "Incorrect regression implementation leads to wrong fair-value thresholds and entry signals; poor data ingestion leads to data misalignment."
+  capability_enabled: "Enables hypothesis HYP-001 backtest and fair-value-based entry/exit logic."
+  assumptions:
+    - "Economic data (CPI, yields) are available from public sources (FRED, ECB, national treasuries) with acceptable latency"
+    - "Historical data for 1993-2009 are continuous and reliable"
+  open_questions:
+    - "How to handle data revisions (e.g., CPI restatements) in backtests?"
+    - "How to adapt regression for post-2008 era when yields fell to zero and QE distorted relationships?"
+  dependencies: "Time-series data pipeline; statistical library (Python statsmodels or similar)"
+  verification_needed: "Out-of-sample backtest on 2008-2009 period; compare model fair-value bands to actual price action and documented deviations in book (Iraq invasion dummy variable, 2008 bubble top)."
+  priority_hint: correctness
+
+- id: REQ-002
+  title: "System shall track CFTC non-commercial positioning with proper open-interest normalization"
+  status: proposed
+  derived_from: ["FXA-ch5-001"]
+  derivation_type: direct_book_recommendation
+  rationale: "Book acknowledges that absolute CFTC positioning values are not directly comparable across time due to open-interest growth (24K avg 2000 vs. 109K avg 2008). System must normalize positions as percentile or z-score relative to rolling historical median/std-dev so that extremes are comparable across eras."
+  applies_to:
+    strategy: [shared]
+    lifecycle: [backtest]
+    asset_class: [crypto_futures]
+    concern: [data]
+  requirement: "The system shall ingest CFTC non-commercial positioning data (net longs/shorts) weekly; compute rolling 52-week percentile ranks and z-scores; flag positioning as extreme when percentile > 90th or < 10th (or |z-score| > 1.5); output normalized positioning metric alongside raw positions for audit."
+  acceptance_tests:
+    - "Given CFTC data 2000-2008, percentile normalization yields consistent thresholds (90th/10th) that do not drift as open-interest grows"
+    - "Extreme positioning flags align with peaks/troughs in EUR/USD price deviations from trend (Figure 5.3 in book)"
+  failure_prevented: "Using raw position counts as entry signals leads to false signals after 2004 when open-interest doubled; market structure change is not accommodated."
+  capability_enabled: "Enables hypothesis HYP-002 backtest (CFTC positioning extremes predict reversals)."
+  assumptions:
+    - "CFTC data are published as specified (weekly, non-commercial segregated)"
+    - "Rolling 52-week window is sufficient for normalization"
+  open_questions:
+    - "Is 52-week or 36-month rolling window better for normalization?"
+    - "Post-Dodd-Frank position limits changed extreme thresholds; should model retrain on newer baselines?"
+  dependencies: "CFTC COT data feed (USDA WASDE or Bloomberg); statistical library for percentile/z-score computation"
+  verification_needed: "Audit: compare percentile-normalized positioning to book's Figure 5.2/5.3 illustrations; confirm peaks align with EUR/USD reversals."
+  priority_hint: correctness
+
+- id: REQ-003
+  title: "System shall detect market regime (trending vs. range-bound) to filter oscillator signals"
+  status: proposed
+  derived_from: ["FXA-ch8-001", "FXA-ch8-005", "FXA-risk-001"]
+  derivation_type: agent_inference
+  rationale: "Book demonstrates that oscillators (RSI, stochastic) succeed in range-bound markets (>55% win rate) but fail in trending markets (<40% win rate, 20-30% drawdowns). Live trading and backtesting systems must distinguish regimes in real-time to avoid deploying oscillator signals in trending markets where they cause losses."
+  applies_to:
+    strategy: [shared]
+    lifecycle: [backtest]
+    asset_class: [shared]
+    concern: [risk]
+  requirement: "The system shall compute a real-time market regime indicator: trending (ATR > 1.5% of price or price outside 20-day Bollinger Bands for 2+ weeks) vs. range-bound (ATR < 1%, price within bands). When regime is detected as trending, suppress or reduce weight of oscillator-based signals. When regime is range-bound, enable oscillator signals at normal weight."
+  acceptance_tests:
+    - "Regime detection aligns with visual inspection of weekly charts (e.g., EUR/USD 2006-2008 is tagged as trending; 2002-2004 is mixed)"
+    - "Oscillator signal win rate is significantly higher in detected range-bound regimes than in trending regimes (difference > 15 percentage points)"
+  failure_prevented: "Oscillator signals applied to trending markets produce large drawdowns and erode account; risk-management discipline is broken."
+  capability_enabled: "Enables hypothesis HYP-003 validation and risk-managed deployment of oscillator-based strategies."
+  assumptions:
+    - "ATR and Bollinger Bands are standard technical indicators"
+    - "Regime transitions are not so frequent as to disable strategies entirely"
+  open_questions:
+    - "What if a market is transitioning (e.g., breakout from range)? Should signals be gradually suppressed or switched instantly?"
+    - "Should regime detection use multiple timeframes (daily, weekly) or just one?"
+  dependencies: "TA-Lib or similar library for ATR and Bollinger Band computation"
+  verification_needed: "Backtest EUR/USD 2006-2008 with regime filter: measure win rate with filter on vs. off; confirm filter removes most of the 20%+ drawdown periods."
+  priority_hint: correctness
+
+- id: REQ-004
+  title: "System shall implement combined fundamental-positioning-technical filter with configurable AND/OR logic"
+  status: proposed
+  derived_from: ["FXA-intro-001", "FXA-case-001"]
+  derivation_type: agent_inference
+  rationale: "Book case studies show that combining all three pillars (fundamental fair-value deviation, positioning extremes, technical signals) improves signal quality. System must allow configuration of how filters combine: AND (all three must be true), OR (any), or probabilistic (weighted). Enables testing of hypothesis HYP-004."
+  applies_to:
+    strategy: [shared]
+    lifecycle: [backtest]
+    asset_class: [shared]
+    concern: [alpha]
+  requirement: "The system shall accept a filter-combination specification: AND (all three pillars), OR (any one), or WEIGHTED (e.g., 0.5*fundamental + 0.3*positioning + 0.2*technical). For each trade signal, the system shall compute a combined score, log component scores for audit, and generate entry/exit signals based on combined score threshold."
+  acceptance_tests:
+    - "Given three independent signals (fundamental, positioning, technical), AND combination produces fewer but higher-quality signals"
+    - "System logs all component scores so that signal quality can be audited (e.g., fundamental was true, positioning was false, technical was false)"
+  failure_prevented: "Monolithic signal logic cannot be tested in isolation; component failures are not debuggable."
+  capability_enabled: "Enables flexible strategy research and hypothesis HYP-004 testing (combined filter vs. single pillars)."
+  assumptions:
+    - "Components scores can be combined into a unified signal (e.g., 0-1 scale)"
+  open_questions:
+    - "What weights should each pillar receive? Should they be learned from data or set by rules?"
+    - "How to handle component failure (e.g., regression model diverges; do we zero out fundamental signal or flag as error)?"
+  dependencies: "Component implementations (REQ-001, REQ-002, oscillator signals)"
+  verification_needed: "Backtest combined filter 2003-2008; measure Sharpe ratio and win rate improvement vs. single-pillar signals; confirm no overfitting."
+  priority_hint: research_quality
+
+- id: REQ-005
+  title: "System shall log and alert on model divergence and parameter instability"
+  status: proposed
+  derived_from: ["FXA-ch4-001"]
+  derivation_type: direct_book_recommendation
+  rationale: "Book documents that regression coefficients and correlations with EUR/USD change substantially over time (e.g., 10-year bond spread correlation flipped sign 2001-2003 and 2004-2007). Live trading must detect these changes to avoid applying stale models. System shall monitor rolling correlations and R-squared; alert when parameters shift significantly."
+  applies_to:
+    strategy: [shared]
+    lifecycle: [live]
+    asset_class: [shared]
+    concern: [risk]
+  requirement: "The system shall compute rolling 36-month correlations of each regression explanatory variable (CPI ratio, bond spread, equity index) with EUR/USD. When rolling correlation changes sign or drops below 0.1 in magnitude (indicating weak relationship), log alert and freeze trading with that model until retrained. When regression R-squared drops below 0.15 for two consecutive periods, flag model as unreliable."
+  acceptance_tests:
+    - "System detects bond-spread sign flip in 2001-2003 period (illustrated in book) and alerts trader"
+    - "Model R-squared tracked and logged weekly; freezing logic is transparent and auditable"
+  failure_prevented: "Stale models with invalid coefficients produce false signals and losses; no early warning of model breakdown."
+  capability_enabled: "Enables robust, adaptive deployment of regression-based strategies with real-time risk monitoring."
+  assumptions:
+    - "Parameter shifts are detectable within 2-4 week windows"
+  open_questions:
+    - "What is an acceptable drift before model re-training? 0.1 correlation change? 0.05 R² drop?"
+    - "Should model be automatically re-trained or require manual review?"
+  dependencies: "Regression model implementation; alert logging system"
+  verification_needed: "Backtesting: confirm alert logic catches documented structural breaks (Iraq invasion, 9/11, 2008 bubble) in near-real-time."
+  priority_hint: correctness
+
+- id: REQ-006
+  title: "System shall measure and report backtest metrics aligned with book case studies"
+  status: proposed
+  derived_from: ["FXA-ch8-001", "FXA-ch8-005"]
+  derivation_type: direct_book_recommendation
+  rationale: "Book provides specific case-study metrics: win rate (%), average gain/loss (%), cumulative return (%), maximum drawdown (%). Backtesting system must compute identical metrics to enable reproducible validation against book-era results and ensure no implementation gaps."
+  applies_to:
+    strategy: [shared]
+    lifecycle: [backtest]
+    asset_class: [shared]
+    concern: [simulation]
+  requirement: "The backtesting system shall compute and output, for each strategy: (1) win rate (% of closed trades that are profitable), (2) average winning trade size (%), (3) average losing trade size (%), (4) cumulative return (%), (5) maximum drawdown (%), (6) win:loss ratio. System shall report metrics separately for each currency pair and each time period (e.g., annual or quarterly)."
+  acceptance_tests:
+    - "EUR/USD RSI backtest 1998-2008 produces 48.9% win rate, 3.8% avg gain, 2.6% avg loss, 28.9% cumulative return (matches book Figure 8.x)"
+    - "GBP/USD stochastic backtest produces 39% win rate, 1.3% avg gain, 1.01% avg loss, -16.2% cumulative return (matches book)"
+  failure_prevented: "Incorrect backtest metrics hide implementation errors or data misalignment; results cannot be compared to book baseline."
+  capability_enabled: "Enables validation and reproducibility of book case studies; ensures backtest credibility."
+  assumptions:
+    - "Metrics are computed on closed trades only (no open P&L)"
+    - "Trade entry/exit prices are specified in strategy rules"
+  open_questions:
+    - "Should drawdown be computed as maximum peak-to-trough in dollars, %, or number of std devs?"
+    - "How to handle ties (break-even trades)?"
+  dependencies: "Core backtest engine; P&L calculation"
+  verification_needed: "Reproduce book case studies (EUR/USD RSI, GBP/USD stochastic, AUD/USD stochastic) with exact metrics matching."
+  priority_hint: correctness
+
+- id: REQ-007
+  title: "System shall handle FX transaction costs and slippage in backtest execution"
+  status: proposed
+  derived_from: ["FXA-ch4-001", "FXA-ch5-001"]
+  derivation_type: agent_inference
+  rationale: "Book case studies do not explicitly deduct transaction costs. Real trading incurs bid/ask spreads (2-3 pips spot FX, 0.5 pips futures), slippage (1 pip avg), and potential commissions. Backtest must include these costs to match real-world P&L and avoid optimistic bias."
+  applies_to:
+    strategy: [shared]
+    lifecycle: [backtest]
+    asset_class: [shared]
+    concern: [simulation]
+  requirement: "The backtesting system shall apply configurable transaction costs on each trade entry and exit: (1) bid/ask spread (default 2 pips EUR/USD, 0.5 pips futures), (2) slippage (default 1 pip), (3) commission/broker fee (default 0 for spot, $2 per futures contract). System shall report backtest metrics net of costs and separately gross of costs for transparency."
+  acceptance_tests:
+    - "Given a strategy with 50 round-trip trades (100 fills) on EUR/USD, 2-pip spread applied at entry and exit: 4 pips × 50 = 200 pips total cost = ~0.5-1% of notional on 100K notional"
+    - "System reports gross P&L (before costs) and net P&L (after costs) side-by-side"
+  failure_prevented: "Backtest results overstate profitability; live trading encounters worse-than-expected returns due to unaccounted costs."
+  capability_enabled: "Enables realistic backtest results and better trading decisions based on net profitability."
+  assumptions:
+    - "Bid/ask spreads are consistent (actual spreads vary with liquidity; average is reasonable baseline)"
+    - "Slippage is 1 pip on average (varies by order size, time of day, market vol)"
+  open_questions:
+    - "How to model slippage for large position sizes? Should slippage scale with volume?"
+    - "Should overnight holding be charged an overnight financing cost (forex carry rates)?"
+  dependencies: "Backtester; P&L calculator"
+  verification_needed: "Backtest a high-turnover strategy; measure impact of costs on annual return (should reduce by 1-3% for typical strategies)."
+  priority_hint: correctness
+
+- id: REQ-008
+  title: "System shall validate strategy parameter sensitivity and out-of-sample robustness"
+  status: proposed
+  derived_from: ["FXA-ch8-006"]
+  derivation_type: agent_inference
+  rationale: "Book demonstrates that technical indicators (RSI, stochastic) produce dramatically different results across currency pairs (EUR/USD 28.9%, GBP/USD -16.2%, AUD/USD +26.6% on same logic). System must compute parameter sensitivity (e.g., RSI over different periods) and measure out-of-sample performance to detect over-fitting and improve generalization."
+  applies_to:
+    strategy: [shared]
+    lifecycle: [research]
+    asset_class: [shared]
+    concern: [reproducibility]
+  requirement: "The system shall support parameter sweeps: test strategies with multiple parameter values (e.g., RSI period 10, 12, 14, 16, 20) and measure performance on in-sample and out-of-sample periods. System shall report correlation of in-sample vs. out-of-sample performance to quantify over-fitting. When out-of-sample performance degrades >20%, flag parameter set as over-fit."
+  acceptance_tests:
+    - "Given RSI strategy on EUR/USD 1998-2008: test RSI periods 10-20; measure win rate on 1998-2005 (in-sample) and 2006-2008 (out-of-sample); report correlation and over-fit risk"
+    - "Strategy parameters that optimize for one currency pair (EUR/USD) are tested on another pair (GBP/USD) to measure transfer generalization"
+  failure_prevented: "Over-fitted parameters work well in backtest but fail in live trading; hidden over-fitting is not detected."
+  capability_enabled: "Enables robust strategy development and reduces risk of parameter curve-fitting."
+  assumptions:
+    - "Out-of-sample periods are truly held-out (not used for optimization)"
+  open_questions:
+    - "How many out-of-sample periods are needed for robust evaluation (1 year? 3 years?)?"
+    - "Should random seeds be fixed to ensure reproducibility?"
+  dependencies: "Backtester; parameter sweep tools; statistical analysis"
+  verification_needed: "Test book EUR/USD RSI on different RSI periods; verify that optimal period on 1998-2005 has different performance on 2006-2008."
+  priority_hint: research_quality
+
+
+
+
+

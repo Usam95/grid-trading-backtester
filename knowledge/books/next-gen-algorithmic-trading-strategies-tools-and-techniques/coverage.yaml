@@ -1,0 +1,90 @@
+book_id: "next-gen-algorithmic-trading-strategies-tools-and-techniques"
+sections:
+  - ref: "ch0-frontmatter"
+    title: "Front Matter (Title Page, Contents, Preface)"
+    epub_chapter_index: 0
+    status: "processed"
+    reason: "Preface establishes target audience (advanced professionals), scope, and expectations. Foundation for understanding book context."
+
+  - ref: "ch1-birth-algo"
+    title: "Chapter 1: The Birth of Algo Trading"
+    epub_chapter_index: 1
+    status: "processed"
+    reason: "Historical foundations (1970s NASDAQ, 1980s ATS, 1990s internet era, 2000s HFT emergence). Flash Crash 2010 as pivot point. Critical for understanding market structure evolution and algo trading adoption."
+
+  - ref: "ch2-key-concepts"
+    title: "Chapter 2: Key Concepts and Terminology in Algorithmic Trading"
+    epub_chapter_index: 2
+    status: "processed"
+    reason: "Defines core terminology (HFT, scalping, arbitrage, market making, etc.). Establishes shared vocabulary for subsequent chapters. Moderate priority for terminology baseline."
+
+  - ref: "ch3-python-algo"
+    title: "Chapter 3: Python for Algorithmic Trading"
+    epub_chapter_index: 3
+    status: "processed"
+    reason: "Python ecosystem for algo trading (libraries, frameworks, data handling). Implementation foundation. High priority for engineering relevance."
+
+  - ref: "ch4-market-analysis"
+    title: "Chapter 4: Market Analysis Techniques"
+    epub_chapter_index: 4
+    status: "processed"
+    reason: "Technical analysis, indicator strategies, regime detection. Data-driven research methodology. Relevant to backtesting and signal research."
+
+  - ref: "ch5-strategy-dev"
+    title: "Chapter 5: Strategy Development Process"
+    epub_chapter_index: 5
+    status: "processed"
+    reason: "Research methodology, hypothesis formation, backtest workflow, optimization pitfalls. Critical for reproducibility and research quality."
+
+  - ref: "ch6-advanced-strat"
+    title: "Chapter 6: Advanced Strategies and Techniques"
+    epub_chapter_index: 6
+    status: "processed"
+    reason: "Specific strategy patterns (momentum, mean reversion, ML-based, ensemble methods). High value for stock and grid strategy generation."
+
+  - ref: "ch7-platforms"
+    title: "Chapter 7: Algorithmic Trading Platforms"
+    epub_chapter_index: 7
+    status: "processed"
+    reason: "Platform architecture, broker APIs, execution venues. System engineering and integration concerns. Freshness risk high (APIs, fees, connections)."
+
+  - ref: "ch8-execution-order"
+    title: "Chapter 8: Execution and Order Management"
+    epub_chapter_index: 8
+    status: "processed"
+    reason: "Order routing, slippage, latency, fill strategies, risk controls. Critical for live execution and backtesting realism."
+
+  - ref: "ch9-portfolio"
+    title: "Chapter 9: Asset Allocation and Diversification: Crafting a Resilient Portfolio"
+    epub_chapter_index: 9
+    status: "processed"
+    reason: "Portfolio construction, correlation, drawdown control, multi-asset frameworks. Applicable to shared risk and portfolio monitoring."
+
+  - ref: "ch10-additional-resources"
+    title: "Chapter 10: Additional Resources"
+    epub_chapter_index: 10
+    status: "processed"
+    reason: "References, external tools, further reading. Low direct extraction value; captured for completeness."
+
+  - ref: "ch11-unidentified"
+    title: "Chapter 11 (Content TBD)"
+    epub_chapter_index: 11
+    status: "processed"
+    reason: "Extraction incomplete; minimal content recovered. Possible appendix or supplementary material."
+
+  - ref: "ch12-unidentified"
+    title: "Chapter 12 (Content TBD)"
+    epub_chapter_index: 12
+    status: "processed"
+    reason: "Extraction incomplete; minimal content recovered. Possible appendix or supplementary material."
+
+  - ref: "ch13-unidentified"
+    title: "Chapter 13 (Content TBD)"
+    epub_chapter_index: 13
+    status: "processed"
+    reason: "Extraction error encountered; content not recovered. Likely appendix or metadata."
+
+chapter_count: 14
+sections_processed: 14
+sections_with_content: 10
+summary: "14 chapters processed. Preface and Chapters 1–9 contain substantive content. Chapters 11–13 sparse or extraction-limited. All sections assigned coverage status and rationale."

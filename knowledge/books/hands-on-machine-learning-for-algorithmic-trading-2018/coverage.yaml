@@ -1,0 +1,97 @@
+book_id: hands-on-machine-learning-for-algorithmic-trading-2018
+sections:
+  - ref: "intro"
+    title: "Preface & Chapter 1: Machine Learning for Trading"
+    pdf_page_start: 20
+    status: "processed"
+    reason: "Foundational context on ML in trading, strategy framework overview"
+  
+  - ref: "ch2_market_data"
+    title: "Chapter 2: Market and Fundamental Data"
+    pdf_page_start: 52
+    status: "processed"
+    reason: "Critical for data quality, tick data, order book handling, regularization"
+  
+  - ref: "ch3_alt_data"
+    title: "Chapter 3: Alternative Data for Finance"
+    pdf_page_start: 84
+    status: "processed"
+    reason: "Alt data sources, quality evaluation criteria, freshness risks"
+  
+  - ref: "ch4_alpha_factors"
+    title: "Chapter 4: Alpha Factor Research"
+    pdf_page_start: 107
+    status: "processed"
+    reason: "Critical: factor engineering, signal extraction, Zipline, alphalens methodology"
+  
+  - ref: "ch5_strategy_eval"
+    title: "Chapter 5: Strategy Evaluation"
+    pdf_page_start: 138
+    status: "processed"
+    reason: "Backtest pitfalls, bias avoidance, performance metrics, portfolio optimization"
+  
+  - ref: "ch6_ml_process"
+    title: "Chapter 6: The Machine Learning Process"
+    pdf_page_start: 166
+    status: "processed"
+    reason: "ML workflow, cross-validation for time series, model evaluation framework"
+  
+  - ref: "ch7_linear_models"
+    title: "Chapter 7: Linear Models"
+    pdf_page_start: 194
+    status: "processed"
+    reason: "Regression fundamentals, factor models, Fama-French, inference diagnostics"
+  
+  - ref: "ch8_time_series"
+    title: "Chapter 8: Time Series Models"
+    pdf_page_start: 243
+    status: "processed"
+    reason: "Stationarity, AR/GARCH, volatility forecasting, cointegration pairs trading"
+  
+  - ref: "ch9_bayesian"
+    title: "Chapter 9: Bayesian Machine Learning"
+    pdf_page_start: 279
+    status: "processed"
+    reason: "Prior selection, inference, probabilistic modeling for trading"
+  
+  - ref: "ch10_trees_rf"
+    title: "Chapter 10: Decision Trees and Random Forests"
+    pdf_page_start: 332
+    status: "processed"
+    reason: "Tree-based ensemble methods, feature importance, regularization, overfitting"
+  
+  - ref: "ch11_gbm"
+    title: "Chapter 11: Gradient Boosting Machines"
+    pdf_page_start: 370
+    status: "processed"
+    reason: "GBM fundamentals, XGBoost/LightGBM/CatBoost, hyperparameter tuning, SHAP"
+  
+  - ref: "ch12_unsupervised"
+    title: "Chapter 12: Unsupervised Learning"
+    pdf_page_start: 408
+    status: "processed"
+    reason: "PCA for risk factors, clustering, portfolio construction, dimensionality reduction"
+  
+  - ref: "ch13_text"
+    title: "Chapter 13: Working with Text Data"
+    pdf_page_start: 437
+    status: "processed"
+    reason: "NLP pipeline, sentiment analysis, text classification for alpha"
+  
+  - ref: "ch14_topic_model"
+    title: "Chapter 14: Topic Modeling"
+    pdf_page_start: 477
+    status: "processed"
+    reason: "LDA, topic coherence, applications to earnings calls"
+  
+  - ref: "ch15_embeddings"
+    title: "Chapter 15: Word Embeddings"
+    pdf_page_start: 520
+    status: "processed"
+    reason: "Word2vec, Doc2vec, semantic feature extraction for sentiment"
+  
+  - ref: "ch16_next_steps"
+    title: "Chapter 16: Next Steps"
+    pdf_page_start: 576
+    status: "processed"
+    reason: "Synthesis of lessons: data quality, backtesting risks, tools landscape"

@@ -1,0 +1,85 @@
+book_id: the-new-trading-for-a-living-study-guide-2014
+sections:
+  - ref: intro
+    title: "About This Study Guide & Introduction"
+    pdf_page_start: 8
+    status: processed
+    reason: "Foundational study guide context; pedagogical framing"
+
+  - ref: ch0_intro
+    title: "Part 1 Introduction - Unconventional Thinking & Trading Basics"
+    pdf_page_start: 14
+    status: processed
+    reason: "Introduces minus-sum-game, cost structure (commissions/slippage), three pillars framework"
+
+  - ref: ch1_psych
+    title: "ONE - Individual Psychology"
+    pdf_page_start: 18
+    status: processed
+    reason: "Core psychology: risk attitude, discipline, emotional control, loss psychology, record-keeping"
+
+  - ref: ch2_mass
+    title: "TWO - Mass Psychology"
+    pdf_page_start: 24
+    status: processed
+    reason: "Crowd behavior, euphoria/panic patterns, contrarian insights"
+
+  - ref: ch3_chart
+    title: "THREE - Classical Chart Analysis"
+    pdf_page_start: 30
+    status: processed
+    reason: "Chart patterns and technical signals; pedagogical Q&A format"
+
+  - ref: ch4_computer
+    title: "FOUR - Computerized Technical Analysis"
+    pdf_page_start: 38
+    status: processed
+    reason: "Indicators, optimization, curve-fitting risk, forward-testing concerns"
+
+  - ref: ch5_volume
+    title: "FIVE - Volume and Time"
+    pdf_page_start: 48
+    status: processed
+    reason: "Volume analysis, market structure, timing insights"
+
+  - ref: ch6_indicators
+    title: "SIX - General Market Indicators"
+    pdf_page_start: 60
+    status: processed
+    reason: "Macro/breadth indicators, market regime signals"
+
+  - ref: ch7_systems
+    title: "SEVEN - Trading Systems"
+    pdf_page_start: 68
+    status: processed
+    reason: "System design principles, robustness, curve-fitting, parameter optimization"
+
+  - ref: ch8_vehicles
+    title: "EIGHT - Trading Vehicles"
+    pdf_page_start: 76
+    status: processed
+    reason: "Instrument selection, market selection, leverage considerations"
+
+  - ref: ch9_risk
+    title: "NINE - Risk Management"
+    pdf_page_start: 82
+    status: processed
+    reason: "Position sizing, Kelly criterion, drawdown management, stop-loss discipline"
+
+  - ref: ch10_details
+    title: "TEN - Practical Details"
+    pdf_page_start: 90
+    status: processed
+    reason: "Broker selection, order types, execution costs, API/platform considerations"
+
+  - ref: ch11_records
+    title: "ELEVEN - Good Record-Keeping"
+    pdf_page_start: 96
+    status: processed
+    reason: "Trade journaling, performance tracking, feedback loops"
+
+  - ref: afterword
+    title: "Afterword & Sources"
+    pdf_page_start: 156
+    status: processed
+    reason: "Author reflection, recommended reading list"

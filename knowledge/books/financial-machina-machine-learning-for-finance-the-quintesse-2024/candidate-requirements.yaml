@@ -1,0 +1,212 @@
+- id: FINMAC-REQ-001
+  title: Backtest harness shall validate transaction costs and slippage
+  status: proposed
+  derived_from:
+  - FINMAC-C37-002
+  - FINMAC-C42-001
+  derivation_type: direct_book_recommendation
+  rationale: Backtests without realistic costs overstate live returns; slippage and
+    market impact are primary sources of strategy decay
+  applies_to:
+    strategy:
+    - stock_signal
+    - shared
+    lifecycle:
+    - backtest
+    asset_class:
+    - equities
+    concern:
+    - simulation
+    - execution
+  requirement: The backtest engine shall accept commission (% or fixed), market impact
+    (linear or square-root of volume fraction), and slippage (bid-ask spread + execution
+    price variance) as configurable parameters. The engine shall report realized transaction
+    costs as separate line item in P&L.
+  acceptance_tests:
+  - Realistic cost model (0.1% round-trip) reduces Sharpe by X%; verify against paper
+    trading data
+  failure_prevented: Prevents overly-optimistic backtest results inflating expected
+    live performance
+  capability_enabled: Accurate simulation of execution reality
+  assumptions:
+  - Commission structure stable
+  - Market impact model is reasonable
+  open_questions: Market impact function form (linear vs. nonlinear)? Regime-dependent?
+  dependencies: Market data quality; broker API latency modeling
+  verification_needed: Compare backtest cost model to real paper trading costs
+  priority_hint: correctness
+- id: FINMAC-REQ-002
+  title: ML models shall be validated via walk-forward backtesting
+  status: proposed
+  derived_from:
+  - FINMAC-C27-002
+  derivation_type: direct_book_recommendation
+  rationale: Walk-forward validation simulates live retraining and prevents look-ahead
+    bias; critical for reproducible, trustworthy backtests
+  applies_to:
+    strategy:
+    - stock_signal
+    lifecycle:
+    - backtest
+    asset_class:
+    - equities
+    concern:
+    - simulation
+    - reproducibility
+  requirement: 'The backtest framework shall support walk-forward mode: (1) Initialize
+    train window (e.g., 2 years); (2) Train model; (3) Test on subsequent non-overlapping
+    period (e.g., 6 months); (4) Expand train window, repeat. Hyperparameter tuning
+    shall occur only on training data; no future data leakage.'
+  acceptance_tests:
+  - OOS Sharpe within 80% of training Sharpe; max DD not anomalous vs. rolling windows;
+    code audit confirms no look-ahead
+  failure_prevented: Prevents false confidence in strategies that only work in-sample
+  capability_enabled: Realistic performance estimates; reproducibility
+  assumptions:
+  - Market regimes are locally stationary
+  - Retraining captures drift
+  open_questions: Optimal train/test window lengths? Auto-retraining frequency?
+  dependencies: Reliable market data; stable signal construction
+  verification_needed: Compare walk-forward OOS Sharpe to live paper trading Sharpe
+  priority_hint: correctness
+- id: FINMAC-REQ-003
+  title: Production models shall have automated retraining trigger and performance
+    monitoring
+  status: proposed
+  derived_from:
+  - FINMAC-C07-001
+  derivation_type: direct_book_recommendation
+  rationale: Models degrade as market regimes shift; automated monitoring and retraining
+    catch deterioration and prevent cumulative losses
+  applies_to:
+    strategy:
+    - shared
+    lifecycle:
+    - live
+    asset_class:
+    - shared
+    concern:
+    - monitoring
+    - reproducibility
+  requirement: The live trading system shall (1) Log model predictions and realized
+    outcomes daily; (2) Compute rolling Sharpe ratio (30-day window) of live predictions
+    vs. strategy performance; (3) Alert if rolling Sharpe falls 30% below baseline;
+    (4) Trigger automatic retraining on alert (or hourly/daily schedule if specified);
+    (5) Retain model version history and enable one-step rollback.
+  acceptance_tests:
+  - Model degradation detected within 5 trading days; rollback completes within 1
+    minute; version history accurate
+  failure_prevented: Prevents "zombie model" running silently while market regime
+    changes
+  capability_enabled: Adaptive strategy; reduced max drawdown in regime transitions
+  assumptions:
+  - Market drift is detectable within 5-30 days
+  - Retraining pipeline is fast enough
+  open_questions: Optimal degradation threshold? Retraining cost vs. model rot?
+  dependencies: 'Infrastructure: job scheduler, model versioning, logging'
+  verification_needed: Test on historical regime changes (2008 crisis, COVID, etc.)
+  priority_hint: safety
+- id: FINMAC-REQ-004
+  title: Feature engineering shall not introduce look-ahead bias
+  status: proposed
+  derived_from:
+  - FINMAC-C06-002
+  derivation_type: agent_inference
+  rationale: Features derived from future data cause severe backtest over-optimism
+  applies_to:
+    strategy:
+    - shared
+    lifecycle:
+    - research
+    - backtest
+    asset_class:
+    - shared
+    concern:
+    - data
+    - reproducibility
+  requirement: All features used to train models at timestamp t shall depend only
+    on data available at t or earlier. Code review and automated linting (e.g., temporal-ordering
+    checks) shall verify this invariant. No exceptions without documented justification.
+  acceptance_tests:
+  - Feature derivation code audit passes; temporal linting passes; backtest results
+    stable under date-shifted rerun
+  failure_prevented: Prevents inflated backtest metrics and live disappointment
+  capability_enabled: Honest performance estimates; reproducible results
+  assumptions:
+  - Look-ahead bias is a primary failure mode
+  open_questions: Automated detection sensitivity?
+  dependencies: Code linting/static analysis tools
+  verification_needed: Manual code review of feature definitions
+  priority_hint: correctness
+- id: FINMAC-REQ-005
+  title: Risk model shall include tail risk metrics (VaR, Expected Shortfall)
+  status: proposed
+  derived_from:
+  - FINMAC-C30-001
+  - FINMAC-C31-002
+  derivation_type: direct_book_recommendation
+  rationale: Sharpe ratio does not capture tail risk; VaR and ES provide regulatory
+    and practitioner-relevant risk metrics
+  applies_to:
+    strategy:
+    - shared
+    lifecycle:
+    - backtest
+    - live
+    asset_class:
+    - shared
+    concern:
+    - risk
+  requirement: 'The backtester and live system shall compute daily: 95% Value-at-Risk
+    (percentile loss), 95% Expected Shortfall (mean of tail losses), maximum drawdown,
+    recovery time from max DD. Reports shall display all metrics alongside Sharpe
+    ratio.'
+  acceptance_tests:
+  - VaR computed correctly on known distributions; ES = mean(losses > VaR); max DD
+    accurate
+  failure_prevented: Prevents selection of strategies with large hidden tail risks
+  capability_enabled: Risk-aware strategy evaluation; regulatory compliance
+  assumptions:
+  - Historical tail distribution predicts future (with regime caveats)
+  open_questions: Tail detection sensitivity in low-frequency data? Regime-specific
+    thresholds?
+  dependencies: Sufficient historical data for tail estimation
+  verification_needed: Validate VaR/ES against realized losses
+  priority_hint: safety
+- id: FINMAC-REQ-006
+  title: Data pipeline shall detect and handle non-stationarity via ADF testing
+  status: proposed
+  derived_from:
+  - FINMAC-C24-001
+  derivation_type: direct_book_recommendation
+  rationale: Non-stationary price series break many statistical model assumptions;
+    automated detection prevents silent model failures
+  applies_to:
+    strategy:
+    - shared
+    lifecycle:
+    - research
+    - backtest
+    asset_class:
+    - shared
+    concern:
+    - data
+    - simulation
+  requirement: The preprocessing stage shall apply Augmented Dickey-Fuller (ADF) test
+    to all price features before model training. If p-value > 0.05 (non-stationary),
+    automatically difference the series (first-order or seasonal as appropriate) and
+    re-test. Log non-stationarity cases and feature transformations applied. Model
+    shall operate on stationarity-validated data.
+  acceptance_tests:
+  - ADF test p-values reported; differencing applied where needed; model input is
+    stationary (ADF p < 0.05)
+  failure_prevented: Prevents models trained on non-stationary data from spurious
+    inferences
+  capability_enabled: Statistically sound feature inputs; reduced spurious correlations
+  assumptions:
+  - Stationarity is achievable via differencing
+  open_questions: Seasonal differencing vs. simple differencing? Lag selection for
+    ADF?
+  dependencies: Statistical testing library (statsmodels)
+  verification_needed: Validate ADF test on known stationary/non-stationary series
+  priority_hint: correctness

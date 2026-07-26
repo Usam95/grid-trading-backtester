@@ -1,0 +1,184 @@
+- id: HPTS-R-001
+  title: "Entry system shall accept both breakout and retracement entry types"
+  status: proposed
+  derived_from: [HPTS-C6-001, HPTS-C6-002]
+  derivation_type: direct_book_recommendation
+  rationale: "Book contrasts trailing-bar (breakout) and swing (retracement) entries; implementation requires both mechanisms"
+  applies_to:
+    strategy: [stock_signal, grid]
+    lifecycle: [backtest, live]
+    asset_class: [equities, shared]
+    concern: [alpha, execution]
+  requirement: "Entry module shall support parameterized breakout entry (price above/below N-period high/low) and retracement entry (price at Fibonacci level) with configurable trigger thresholds and order types (market, limit, stop-limit)"
+  acceptance_tests: "Verify breakout entry generates orders at exactly 1 tick above prior bar high; verify retracement entry generates orders at exactly 38.2%, 50%, 61.8% Fibonacci levels; verify order types are correctly set based on entry configuration"
+  failure_prevented: "Ambiguous entry logic; trader discretion in order placement"
+  capability_enabled: "Systematic entry with zero discretion; reproducible across backtest and live execution"
+  assumptions:
+    - "Price data precision is sufficient to identify 1-tick offsets"
+    - "Fibonacci levels are objectively calculable from prior swing"
+  open_questions: "Should entry prefer market order (immediate fill) or limit order (price certainty)? How to handle partial fills or rejected orders?"
+  dependencies: "Requires prior swing identification (HPTS-R-002); Requires Fibonacci calculation module"
+  verification_needed: "Integration test: generate orders on historical data; verify order prices match manual calculation"
+  priority_hint: correctness
+
+- id: HPTS-R-002
+  title: "Pattern recognition shall identify Elliott Wave swings with high precision"
+  status: proposed
+  derived_from: [HPTS-C3-001, HPTS-C4-002]
+  derivation_type: direct_book_recommendation
+  rationale: "Book relies on swing identification (wave 1, wave 2, etc.) for price targets and entries; pattern recognition is prerequisite"
+  applies_to:
+    strategy: [stock_signal]
+    lifecycle: [research, backtest]
+    asset_class: [equities, shared]
+    concern: [alpha, simulation]
+  requirement: "Pattern recognition module shall identify local swings (peaks and troughs) in price data with configurable sensitivity; flag overlaps (price retracing into prior wave-one range) per Elliott Wave overlap guideline"
+  acceptance_tests: "Verify swing high/low identification matches manual chart analysis on reference dataset; verify overlap detection correctly identifies when price retraces past prior swing into earlier range; verify pattern classification (trend vs. correction) based on overlap guideline"
+  failure_prevented: "Subjective wave identification; results not reproducible across analysts"
+  capability_enabled: "Systematic pattern classification; automation of Elliott Wave rules"
+  assumptions:
+    - "Elliott Wave concepts translate to algorithmic rules with >80% accuracy"
+    - "Swing precision is achievable with standard price data"
+  open_questions: "How to handle micro-swings and noise? What smoothing is acceptable? Can Elliott Wave classification be fully objective, or does subjectivity remain?"
+  dependencies: "Requires clean OHLC data"
+  verification_needed: "Blind test: compare algorithm results vs. manual Elliott Wave analysis by independent expert"
+  priority_hint: correctness
+
+- id: HPTS-R-003
+  title: "Position sizing module shall implement fixed-dollar-risk formula"
+  status: proposed
+  derived_from: [HPTS-C6-003]
+  derivation_type: direct_book_recommendation
+  rationale: "Book mandates position sizing inversely proportional to stop distance; ensures consistent dollar risk per trade"
+  applies_to:
+    strategy: [stock_signal, grid, portfolio, shared]
+    lifecycle: [backtest, live]
+    asset_class: [equities, shared]
+    concern: [risk, alpha, reproducibility]
+  requirement: "Position sizing module shall compute position size using formula: size = fixed_risk_amount / (entry_price - stop_price), where fixed_risk_amount is expressed as a percentage of account equity and updatable"
+  acceptance_tests: "Verify position size calculation matches formula with 0.1% precision; verify position size scales inversely with stop distance; verify position size is capped to not exceed max_position_size_pct of account"
+  failure_prevented: "Oversized positions when stops are loose; portfolio drawdown exceeds intended level"
+  capability_enabled: "Risk-normalized position sizing; consistent portfolio volatility"
+  assumptions:
+    - "Stop-loss is executed at specified price (no gap risk or slippage)"
+    - "Portfolio equity is up-to-date and accurate"
+    - "Account has sufficient margin/buying power for calculated size"
+  open_questions: "Should fixed_risk_amount be adaptive (e.g., increase if portfolio grows, decrease if drawdown)? How to handle multi-position correlation when sizing?"
+  dependencies: "Requires accurate entry and stop prices; Requires real-time portfolio equity tracking"
+  verification_needed: "Backtest: verify max single-trade loss = fixed_risk_amount for all trades"
+  priority_hint: safety
+
+- id: HPTS-R-004
+  title: "Risk/reward filter shall enforce minimum 1:2 risk-to-reward ratio before trade entry"
+  status: proposed
+  derived_from: [HPTS-C7-002]
+  derivation_type: direct_book_recommendation
+  rationale: "Book mandates minimum 1:2 ratio; ensures positive expectancy with 50% win rate; filter prevents low-quality trade entries"
+  applies_to:
+    strategy: [stock_signal, grid, shared]
+    lifecycle: [backtest, live]
+    asset_class: [equities, shared]
+    concern: [risk, alpha, reproducibility]
+  requirement: "Entry filter shall calculate risk (entry_price - stop_price) and reward (target_price - entry_price) for each setup; reject entry if (reward / risk) < min_risk_reward_ratio (default 2.0)"
+  acceptance_tests: "Verify entry is rejected when R/R < configured minimum; verify entry is accepted when R/R >= minimum; verify calculation is independent of order size"
+  failure_prevented: "Entry of low-probability negative-expectancy trades; capital bleeding on poor setups"
+  capability_enabled: "Selective trade entry; improved portfolio expectancy"
+  assumptions:
+    - "Target price is accurately estimated (not overly optimistic)"
+    - "Stop price is appropriate (not too tight)"
+  open_questions: "Should R/R ratio be adjusted for probability (e.g., lower ratio if win rate is high)? Should R/R be calculated before or after transaction costs?"
+  dependencies: "Requires entry, stop, and target prices"
+  verification_needed: "Backtest: verify only trades with R/R >= minimum are entered; measure realized R/R vs. filter threshold"
+  priority_hint: correctness
+
+- id: HPTS-R-005
+  title: "Stop-loss management shall support progressive trailing stop adjustment"
+  status: proposed
+  derived_from: [HPTS-C7-003]
+  derivation_type: direct_book_recommendation
+  rationale: "Book prescribes stepped stop-adjustment rules: move stop to breakeven at 50% profit, then to support at 50% of remaining profit; removes manual discretion from stop placement"
+  applies_to:
+    strategy: [stock_signal, grid]
+    lifecycle: [live]
+    asset_class: [equities, shared]
+    concern: [risk, execution, alpha]
+  requirement: "Trade management module shall automatically adjust stop-loss orders based on profit milestones: (1) move stop to breakeven when trade reaches 50% of target, (2) move stop to prior support when trade reaches 50% of remaining profit to target; allow disable/configure via parameter"
+  acceptance_tests: "Verify stop is moved to entry price when profit reaches 50% of target; verify stop is moved to prior support when profit reaches next milestone; verify stop moves are always in direction favorable to position (never reduce protection)"
+  failure_prevented: "Psychological pressure to exit winners prematurely; large losses on trades that work initially then reverse"
+  capability_enabled: "Systematic profit protection; reduced behavioral interference"
+  assumptions:
+    - "Prior support levels are correctly identified"
+    - "Stop-loss orders can be modified without slippage"
+  open_questions: "Should stop trail price dynamically (e.g., ATR-based), or only at fixed profit milestones? How to handle stops during gap events or limit moves?"
+  dependencies: "Requires swing/support identification (HPTS-R-002); Requires entry price and target price"
+  verification_needed: "Backtest: verify stop moves execute as specified; measure impact on final P&L"
+  priority_hint: operability
+
+- id: HPTS-R-006
+  title: "Trade logging and analysis shall record all entry/exit details with audit trail"
+  status: proposed
+  derived_from: [HPTS-C9-001]
+  derivation_type: direct_book_recommendation
+  rationale: "Book emphasizes the importance of detailed trade records for learning and improvement; system must capture entry reason, exit reason, prices, and outcome for analysis"
+  applies_to:
+    strategy: [stock_signal, grid, shared]
+    lifecycle: [live, paper]
+    asset_class: [equities, shared]
+    concern: [monitoring, reproducibility, operations]
+  requirement: "Trade logging module shall record for each trade: entry date/time/price, stop-loss price, target price, entry reason (e.g., trailing-bar, swing, confluence count), exit date/time/price, exit reason (stop, target, manual), profit/loss (absolute and %), risk/reward ratio realized, and setup quality score; logs shall be queryable and exportable to CSV/JSON"
+  acceptance_tests: "Verify all required fields are populated for 100% of closed trades; verify historical logs remain immutable (append-only); verify query/export functionality returns correct data subsets"
+  failure_prevented: "Loss of trade data; inability to identify patterns in wins vs. losses"
+  capability_enabled: "Post-trade analysis; identification of recurring mistakes; trader improvement feedback loop"
+  assumptions:
+    - "Trade entry/exit is automated or broker-provided API"
+    - "Logs can be stored and accessed reliably"
+  open_questions: "Should logs include intra-trade metrics (max favorable/adverse excursion)? How long should logs be retained?"
+  dependencies: "Requires entry and exit system (HPTS-R-001, HPTS-R-005)"
+  verification_needed: "Integration test: verify log completeness on 100 trades; audit for missing or incorrect fields"
+  priority_hint: operability
+
+- id: HPTS-R-007
+  title: "Signal confluence module shall classify setups by number of aligned signals"
+  status: proposed
+  derived_from: [HPTS-C7-004]
+  derivation_type: agent_inference
+  rationale: "Book emphasizes confluence of momentum, pattern, price, time signals; higher confluence should trigger more aggressive position sizing or indicate higher-probability setup; system must measure and classify confluence"
+  applies_to:
+    strategy: [stock_signal, grid]
+    lifecycle: [backtest, live]
+    asset_class: [equities, shared]
+    concern: [alpha, simulation]
+  requirement: "Signal confluence module shall measure alignment of four signal categories (momentum aligned, Elliott pattern confirmation, price at Fibonacci level, time target zone) and assign confluence score (0-4); entry shall be gated to allow only setups with confluence >= min_confluence_threshold (configurable, default 2); logging shall capture actual confluence count for analysis"
+  acceptance_tests: "Verify each signal type is independently evaluated (momentum yes/no, pattern yes/no, etc.); verify confluence score is sum of aligned signals (0-4 range); verify entry is rejected if confluence < threshold"
+  failure_prevented: "Entry of low-probability partial setups; excessive whipsaws and drawdowns"
+  capability_enabled: "Selective high-probability trade entry; improved win rate and risk-adjusted returns"
+  assumptions:
+    - "Each signal type is truly independent and predictive"
+    - "Confluence is measurable with reasonable precision"
+  open_questions: "Should signal weights be equal (all worth 1 point), or should some signals be weighted higher? What confluence threshold optimizes risk-adjusted returns? (1, 2, 3, or 4)"
+  dependencies: "Requires momentum indicator (HPTS-R-003); Requires pattern recognition (HPTS-R-002); Requires Fibonacci calculation; Requires time target calculation"
+  verification_needed: "Backtest: stratify trades by confluence score; measure win rate and Sharpe ratio for each level; determine optimal threshold"
+  priority_hint: alpha
+
+- id: HPTS-R-008
+  title: "Broker integration shall support specific order types (market, limit, stop-limit)"
+  status: proposed
+  derived_from: [HPTS-C1-001]
+  derivation_type: direct_book_recommendation
+  rationale: "Book emphasizes specific price orders (not vague 'around' price); system must support precise order placement with configurable order types and price precision"
+  applies_to:
+    strategy: [stock_signal, grid, shared]
+    lifecycle: [live]
+    asset_class: [equities, shared]
+    concern: [execution, operations, reproducibility]
+  requirement: "Broker integration module shall support order submission with: (1) order type selection (market, limit, stop-limit), (2) price specification to 0.01 precision (or tighter for micro-cap/crypto), (3) time-in-force options (day, GTC, IOC), (4) order status tracking (pending, filled, partial, rejected, cancelled), (5) error handling for insufficient buying power, invalid prices, or symbol halts"
+  acceptance_tests: "Verify market orders execute immediately with best available price; verify limit orders wait until price reaches limit or time-in-force expires; verify stop-limit orders are triggered only if price crosses stop, then filled only at limit price; verify order status transitions are logged correctly"
+  failure_prevented: "Vague order execution; slippage beyond acceptable range; orders rejected due to invalid parameters"
+  capability_enabled: "Deterministic order placement; reproducible fill prices; compliance with trading plan"
+  assumptions:
+    - "Broker API supports required order types and parameters"
+    - "Network connectivity is reliable; order rejection is rare"
+  open_questions: "Should system use market orders (faster, worse fill) or limit orders (slower, better fill)? How to handle orders rejected due to insufficient buying power?"
+  dependencies: "Requires broker API access; Requires account balance and margin tracking"
+  verification_needed: "Live pilot: 10-20 trades with real money; verify order prices match intended prices within 1 bp; no order rejections"
+  priority_hint: safety

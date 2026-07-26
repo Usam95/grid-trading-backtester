@@ -1,0 +1,122 @@
+- id: "MLPRO-H01"
+  title: "Deep in-the-money call options with high delta (70+) reduce theta decay and provide stock-like exposure with lower capital cost"
+  status: "proposed"
+  derived_from: ["MLPRO-C25-006", "MLPRO-C30-011"]
+  statement: "Buying 70-delta calls provides approximately 80% of a 1-dollar stock move at much lower cost than owning shares; theta decay is minimal for deep ITM calls."
+  proposed_mechanism: "High delta means option price moves nearly 1:1 with stock; intrinsic value dominates extrinsic value, reducing theta sensitivity."
+  applicable_markets_and_regimes: "Trending markets; high-liquidity equities with tight option spreads."
+  assumptions:
+    - "Option spreads remain narrow; liquidity is sufficient to enter/exit without significant slippage"
+    - "Deep ITM calls have delta >= 0.7 and theta decay < 5% of premium per day"
+    - "Comparison assumes equivalent directional conviction vs stock ownership"
+  data_requirements:
+    - "Historical option prices (bid/ask) by strike and expiration"
+    - "Stock price time series"
+    - "Implied volatility surface by date and strike"
+  baseline_or_null_hypothesis: "Deep ITM calls have no alpha advantage over stock; payoff differences are explained by execution costs and bid/ask spreads."
+  validation_approach: "Backtest: compare cumulative returns, Sharpe ratio, and max drawdown of deep ITM call strategy vs stock ownership on same underlying over 2+ year period. Measure execution costs (slippage, commissions) per trade."
+  transaction_cost_and_fill_considerations: "Option spreads wider than stock spreads; slippage on entry/exit may exceed stock; commission per contract must be accounted."
+  robustness_checks:
+    - "Vary delta threshold (60, 70, 80); measure alpha sensitivity"
+    - "Test across market caps (mega-cap vs mid-cap); liquidity impact"
+    - "Compare across volatility regimes (VIX > 30 vs < 15)"
+  rejection_criteria: "Deep ITM call strategy underperforms stock on Sharpe ratio after costs; theta decay exceeds predicted levels; max drawdown >= stock drawdown."
+  failure_modes:
+    - "Unexpected early assignment on dividend dates disrupts position"
+    - "Wide option spreads in volatile markets eliminate leverage advantage"
+    - "Call options expire worthless if stock gaps down overnight"
+  freshness_concerns: "Commission structures and market maker behavior have evolved since book publication (2020). Current option pricing and spreads should be measured."
+  unresolved_questions:
+    - "Does delta of 70 remain stable across volatility regimes?"
+    - "How does strategy perform during market crashes (VIX > 50)?"
+    - "Are deep ITM calls less liquid than ATM options, causing hidden slippage?"
+
+- id: "MLPRO-H02"
+  title: "Technical indicators (RSI, MACD, Bollinger Bands) with standard parameters can generate profitable trading signals"
+  status: "proposed"
+  derived_from: ["MLPRO-C37-016", "MLPRO-C38-017"]
+  statement: "RSI overbought/oversold (>70 / <30), MACD crossovers, and Bollinger Band mean-reversion signals identify profitable entry/exit points."
+  proposed_mechanism: "Indicators capture momentum and mean-reversion regimes; overbought conditions precede reversals; divergences between price and indicator identify exhaustion."
+  applicable_markets_and_regimes: "Trending markets; oscillating/choppy markets; all timeframes (day/swing)."
+  assumptions:
+    - "Standard indicator parameters (14-day RSI, 20-day BB, 12/26-day MACD) are optimal or near-optimal"
+    - "Overbought threshold of 70 and oversold of 30 have consistent predictive value"
+    - "Indicators are computed on closing prices; intraday data is not required"
+  data_requirements:
+    - "Daily or intraday OHLCV data"
+    - "Indicator time series (RSI, MACD, BB) computed from price history"
+  baseline_or_null_hypothesis: "Technical indicators have no predictive power; signals are statistically equivalent to random entry/exit."
+  validation_approach: "Backtest: systematically vary indicator parameters and thresholds; measure Sharpe, win rate, and max drawdown. Test signal timing: measure correlation between overbought/oversold and forward returns. Compare vs buy-and-hold."
+  transaction_cost_and_fill_considerations: "High-frequency indicator crossovers can generate excessive turnover; must include realistic commission and slippage per trade."
+  robustness_checks:
+    - "Vary lookback periods: RSI 10/14/20, BB 15/20/25, MACD 8/12/26"
+    - "Test on different asset classes: large-cap stocks, small-cap, ETFs"
+    - "Walk-forward validation: train parameters on past year, test on next quarter"
+  rejection_criteria: "Indicator signals have Sharpe < 1.0; win rate < 55%; max drawdown > buy-and-hold; parameters are not robust to out-of-sample data."
+  failure_modes:
+    - "Overbought/oversold thresholds fail during persistent trends (bull/bear markets)"
+    - "Indicator signals lag price; whipsaw trades incur losses on false signals"
+    - "Parameter overfitting on historical data; poor out-of-sample performance"
+  freshness_concerns: "Technical analysis patterns may have degraded due to algorithmic trading adoption and increased market efficiency (as of 2020+)."
+  unresolved_questions:
+    - "Are standard parameters (14-day RSI) empirically optimal or just convention?"
+    - "Do indicator signals work differently in crypto vs equities vs forex?"
+    - "How do indicator signals interact with fundamental factors?"
+
+- id: "MLPRO-H03"
+  title: "Modular ML pipeline decomposition allows independent validation of detection, classification, and tracking components"
+  status: "proposed"
+  derived_from: ["MLPRO-C11-003", "MLPRO-C11-004"]
+  statement: "Complex ML systems (e.g., CNN for signal detection) should decompose into isolated stages (feature extraction, detection, classification, aggregation); each stage's precision/recall can be measured independently, enabling diagnosis of end-to-end failures."
+  proposed_mechanism: "Component validation identifies which stage is the bottleneck; errors in early stages cascade to downstream outputs; measuring each stage isolates root causes."
+  applicable_markets_and_regimes: "Any ML-based signal generation (CNN price patterns, NLP sentiment, RL portfolio optimization)."
+  assumptions:
+    - "Stages can be independently measured without full-pipeline execution"
+    - "Error propagation through stages is conditional and not strongly correlated"
+  data_requirements:
+    - "Labeled data for each stage (e.g., true parking spaces, true vehicles, true occupancy)"
+    - "Intermediate outputs (features, detections) at each stage"
+  baseline_or_null_hypothesis: "Component validation adds no value; end-to-end backtest is sufficient."
+  validation_approach: "Build test suite that measures precision/recall at each stage of signal pipeline. Example: CNN signal generation pipeline has (1) feature extraction (test: are features correlated with signal?), (2) model prediction (test: accuracy on held-out data), (3) trade logic (test: does trade execute as intended?). Measure stage-level metrics independently."
+  transaction_cost_and_fill_considerations: "Test must include realistic market microstructure: order execution latency, partial fills, price slippage."
+  robustness_checks:
+    - "Test with degraded inputs: add noise, missing data, outliers"
+    - "Measure stage performance on different time periods (bull/bear/sideways markets)"
+    - "Compare vs single-stage monolithic approach"
+  rejection_criteria: "End-to-end backtest has poor Sharpe; cannot identify which component is responsible; component metrics are uncorrelated with final P&L."
+  failure_modes:
+    - "Early-stage errors (e.g., wrong feature engineering) propagate and cannot be easily corrected in later stages"
+    - "Component validation tools themselves are buggy, providing false confidence"
+  freshness_concerns: "None; modular design principle is timeless."
+  unresolved_questions:
+    - "What is the optimal number of stages for trading ML pipelines?"
+    - "How to measure uncertainty propagation across stages?"
+
+- id: "MLPRO-H04"
+  title: "Options assignment risk can be managed by avoiding short naked calls and using defined-risk strategies (spreads, collars)"
+  status: "proposed"
+  derived_from: ["MLPRO-C31-012", "MLPRO-C27-008"]
+  statement: "Unexpected assignment of short option positions disrupts portfolio reconciliation. Avoiding naked short calls and using spreads/collars keeps assignment risk bounded and predictable."
+  proposed_mechanism: "Defined-risk strategies (spreads, collars) limit max loss and max assignment quantity; simple position-keeping rules prevent surprise inventory changes."
+  applicable_markets_and_regimes: "Options strategies in U.S. equities with assignment rules defined by OCC."
+  assumptions:
+    - "Assignment happens on predictable dates (ex-dividend, near-expiration) or for deep-ITM options"
+    - "Assignment risk can be fully hedged or accepted within capital limits"
+  data_requirements:
+    - "Dividend calendar; ex-dividend dates for holdings"
+    - "Options contract specifications; assignment rules by broker"
+  baseline_or_null_hypothesis: "Assignment risk is immaterial; position management systems can absorb random assignment without operational impact."
+  validation_approach: "Live system test: simulate scenarios where short options are assigned overnight. Measure reconciliation time, hedging slippage, and capital utilization after assignment. Compare: naked short calls vs spreads on same underlying."
+  transaction_cost_and_fill_considerations: "Assignment may force unplanned hedges; measure cost of forced liquidation or hedge."
+  robustness_checks:
+    - "Test on high-dividend-yield stocks (frequent assignments)"
+    - "Test on volatile underlyings (high chance of assignment near expiration)"
+    - "Test during market gaps (overnight news causes morning assignment surprises)"
+  rejection_criteria: "Assignment risk exceeds acceptable levels (e.g., >5% of portfolio per day); reconciliation takes >1 hour; forced hedges exceed stop-loss limits."
+  failure_modes:
+    - "Multiple assignment events on same day overwhelm reconciliation system"
+    - "Early assignment happens unexpectedly on non-ex-dividend dates"
+  freshness_concerns: "OCC assignment rules and dividend calendar are current; broker-specific rules may differ."
+  unresolved_questions:
+    - "Can assignment risk be fully eliminated for options strategies?"
+    - "How to integrate assignment risk into VaR/stress testing?"

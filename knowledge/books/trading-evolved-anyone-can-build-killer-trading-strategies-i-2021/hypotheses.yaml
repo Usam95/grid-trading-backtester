@@ -1,0 +1,175 @@
+- id: TRADEVO-H01
+  title: Systematic testing validates trading ideas better than discretionary judgment
+  status: proposed
+  derived_from:
+    - TRADEVO-C2-001
+    - TRADEVO-C12-001
+  statement: Testing trading rules through backtesting on historical data reveals which patterns have predictive value; systematic testing outperforms relying on subjective market folklore or personal intuition.
+  proposed_mechanism: Backtesting provides objective performance measurement; comparing strategy results quantitatively prevents confirmation bias and emotional reasoning
+  applicable_markets_and_regimes: All equities and commodity markets; should hold across bull/bear regimes
+  assumptions:
+    - Historical relationships persist or regime changes are identifiable
+    - Backtest assumptions (slippage, commission, liquidity) are accurate
+    - Strategy rules are fully specified without lookahead bias
+  data_requirements:
+    - Daily or intraday price data with sufficient history (5+ years recommended)
+    - Corporate action adjustments (splits, dividends) applied correctly
+    - Commission and slippage data from execution venue
+  baseline_or_null_hypothesis: Discretionary trading or random strategy selection produces comparable Sharpe ratio and max drawdown
+  validation_approach: Compare systematic strategy backtest results to benchmark strategies (buy-and-hold, equal-weight, random); conduct forward walk-forward analysis; compare backtest to live execution results
+  transaction_cost_and_fill_considerations: Must include realistic commission costs, bid-ask spread, market impact for position size; verify that Sharpe ratio survives after all costs
+  robustness_checks:
+    - Parameter sensitivity analysis (momentum lookback, rebalancing frequency)
+    - Out-of-sample validation on periods not used for model development
+    - Stress testing on market regimes with high drawdowns or volatility
+    - Cross-asset validation (test ETF model on different ETF universes)
+  rejection_criteria:
+    - Out-of-sample Sharpe ratio significantly lower than in-sample
+    - Strategy breaks down in high-volatility or crisis periods
+    - Results cannot be reproduced with documented assumptions
+  failure_modes:
+    - Overfitting to historical data not repeating forward
+    - Look-ahead bias in signal generation
+    - Insufficient sample size producing false significance
+    - Regime changes invalidating historical patterns
+  freshness_concerns: None for hypothesis itself; validation depends on current data and market conditions
+  unresolved_questions: What sample size is sufficient to establish statistical significance? How long must out-of-sample period be?
+
+- id: TRADEVO-H02
+  title: Momentum signals on systematically-selected universes generate positive alpha
+  status: proposed
+  derived_from:
+    - TRADEVO-C10-001
+    - TRADEVO-C12-001
+    - TRADEVO-C19-001
+  statement: Selecting ETFs showing recent price momentum (e.g., highest 6-month returns) and holding until momentum weakens produces positive risk-adjusted returns after costs on diversified ETF portfolios.
+  proposed_mechanism: Trend continuation on intermediate timeframes; momentum strategies capture directional moves while avoiding mean reversion traps through disciplined exit rules
+  applicable_markets_and_regimes: Equity ETF universe; should work in trending bull/bear markets; may underperform in choppy/mean-reverting regimes
+  assumptions:
+    - Momentum lookback period (e.g., 6 months) is optimal for ETF trends
+    - Rebalancing frequency balances signal freshness vs. transaction costs
+    - ETF expense ratios and bid-ask spreads remain consistent
+    - Momentum strategies remain uncorrelated over time
+  data_requirements:
+    - Daily price data for equity ETFs (SPY, QQQ, IWM, EFA, AGG, etc.)
+    - 10+ years historical data for robust backtesting
+    - Monthly rebalancing data to validate assumptions
+  baseline_or_null_hypothesis: Equal-weight ETF portfolio or buy-and-hold SPY produces comparable Sharpe ratio
+  validation_approach: Backtest momentum selection on rolling 5-year windows; walk-forward validation; compare to market cap-weighted and equal-weight baselines
+  transaction_cost_and_fill_considerations: Include ETF bid-ask spread (typically 1-5 bps for major ETFs); monthly rebalancing costs; potential slippage on large rebalances
+  robustness_checks:
+    - Test different momentum lookback periods (3mo, 6mo, 12mo)
+    - Vary rebalancing frequency (monthly, quarterly)
+    - Test on subsets of ETF universe (US only, with bonds, with alternatives)
+    - Check drawdown distribution in crisis periods (2008, 2020)
+  rejection_criteria:
+    - Out-of-sample Sharpe ratio below 0.5 or comparable to buy-and-hold
+    - Max drawdown significantly worse than benchmark
+    - Strategy breaks down in any 3-year rolling period
+  failure_modes:
+    - Momentum reversion after selection causing immediate drawdown
+    - Regime change to mean-reversion causing frequent whipsaws
+    - Correlation breakdown in crisis causing portfolio concentration
+    - ETF closures or changes affecting data integrity
+  freshness_concerns: "ETF universe, expense ratios, and liquidity conditions have evolved since 2021 publication; must validate current assumptions"
+  unresolved_questions: Does momentum work on dynamic vs. static universe? How sensitive is performance to rebalancing frequency?
+
+- id: TRADEVO-H03
+  title: Volatility-adjusted position sizing equalizes risk across uncorrelated strategies
+  status: proposed
+  derived_from:
+    - TRADEVO-C4-001
+    - TRADEVO-C15-001
+    - TRADEVO-C19-001
+  statement: Adjusting position size inversely to volatility (e.g., position_size = target_risk / volatility) produces more stable and consistent returns across different assets and strategies.
+  proposed_mechanism: Assets and strategies with different volatility profiles require different position sizes to maintain equal risk contribution; volatility-adjusted sizing prevents high-volatility positions from dominating portfolio drawdowns
+  applicable_markets_and_regimes: Across equities, futures, and crypto; especially valuable in diversified portfolios mixing uncorrelated strategies
+  assumptions:
+    - Volatility is predictable or mean-reverting (e.g., can use trailing 20-day volatility)
+    - Adjusted sizing doesn't hit liquidity constraints
+    - Risk target is pre-defined (e.g., 2% per trade)
+  data_requirements:
+    - Daily returns and volatility for portfolio assets
+    - Position size and realized volatility comparison
+    - Historical volatility spikes to stress-test sizing assumptions
+  baseline_or_null_hypothesis: Equal position sizing or market-cap weighting produces comparable Sharpe ratio and smoother drawdown curve
+  validation_approach: Compare cumulative returns and max drawdown with equal vs. volatility-adjusted sizing; verify that high-volatility periods don't produce outsized drawdowns
+  transaction_cost_and_fill_considerations: Frequent rebalancing of position sizes increases costs; must evaluate trade-off between sizing precision and frictional costs
+  robustness_checks:
+    - Test different volatility windows (10-day, 20-day, 60-day)
+    - Verify sizing doesn't hit position limit constraints
+    - Stress test during volatility spikes (2008 financial crisis, COVID-19)
+  rejection_criteria:
+    - Volatility-adjusted sizing produces higher max drawdown than simple sizing
+    - Sizing precision isn't achievable within liquidity constraints
+    - Transaction costs from rebalancing exceed benefits
+  failure_modes:
+    - Volatility measure lags true volatility causing underestimated risk
+    - Size constraints prevent achieving target sizing
+    - Volatility spikes larger than historical range breaking model
+  freshness_concerns: None for hypothesis; validation requires current volatility data
+  unresolved_questions: What is optimal volatility estimation window? Should sizing adapt to market regime?
+
+- id: TRADEVO-H04
+  title: Data quality issues (survivorship bias, corporate actions) cause inflated backtest returns
+  status: proposed
+  derived_from:
+    - TRADEVO-C23-001
+    - TRADEVO-C21-001
+  statement: Backtests using flawed historical data (e.g., survivorship bias from missing delisted stocks, incorrect dividend adjustments) systematically overestimate strategy returns by 0.5-2% annually depending on universe.
+  proposed_mechanism: "Survivorship bias includes only successful stocks; excluding delisted/bankrupt stocks overstates historical returns. Incorrect corporate action adjustments distort entry/exit prices."
+  applicable_markets_and_regimes: Equity strategies; less relevant for futures/crypto
+  assumptions:
+    - Data bias is significant and measurable
+    - Correct data sources are available for comparison
+  data_requirements:
+    - Unadjusted historical price data
+    - Data with survivorship bias (e.g., current constituents only)
+    - Corporate action history (splits, dividends, distributions)
+  baseline_or_null_hypothesis: Data quality has no material impact on backtest results (Sharpe ratio difference <0.1)
+  validation_approach: Compare backtest results using biased data vs. clean data; measure Sharpe difference; quantify impact per source type
+  transaction_cost_and_fill_considerations: Not directly relevant; data quality is pre-processing step
+  robustness_checks:
+    - Test on multiple equity universes (large-cap, small-cap, sectors)
+    - Compare data from multiple vendors
+    - Measure delisting frequency and typical loss on delisted stock
+  rejection_criteria:
+    - Data bias impact is <0.2% annual return
+    - Clean data unavailable for comparison
+  failure_modes:
+    - Biased data sources are only available
+    - Delisted stocks are not available for analysis
+  freshness_concerns: "Data vendor quality and correction procedures may have improved since 2021; must validate current data quality"
+  unresolved_questions: What is acceptable data quality threshold? How to quantify total data quality impact?
+
+- id: TRADEVO-H05
+  title: Risk management through stop losses or volatility bands reduces tail drawdowns
+  status: proposed
+  derived_from:
+    - TRADEVO-C4-001
+    - TRADEVO-C15-001
+  statement: Implementing mechanical stop losses (e.g., exit if position down 5%) or volatility-based bands reduces maximum drawdown on individual positions by 30-50% at the cost of occasionally exiting winning trades early.
+  proposed_mechanism: Stops prevent single positions from incurring catastrophic losses; volatility bands adapt stop distance to market conditions
+  applicable_markets_and_regimes: All strategies; particularly valuable for tail-risk management during crises
+  assumptions:
+    - Stops are executable at specified prices (liquidity exists)
+    - Stop distances are optimal (not too tight or loose)
+  data_requirements:
+    - Intra-period price extremes (high/low, not just close) for accurate stop trigger modeling
+    - Stop execution assumptions (market order, limit order timing)
+  baseline_or_null_hypothesis: Strategies without stops produce comparable Sharpe ratios and drawdowns
+  validation_approach: Compare backtest with and without stops; measure tail loss reduction; calculate cost of early exits
+  transaction_cost_and_fill_considerations: Stop executions incur market impact; must include estimated slippage on stop orders
+  robustness_checks:
+    - Test different stop distances
+    - Verify stops work during liquidity crises
+    - Compare static vs. volatility-adjusted stops
+  rejection_criteria:
+    - Stops don't reduce tail drawdowns by at least 20%
+    - Stop costs exceed benefits from tail protection
+  failure_modes:
+    - Stop hunts by market makers or larger traders
+    - Gaps prevent stop execution at target price
+    - Stops set too tight causing excessive whipsaws
+  freshness_concerns: None for hypothesis; validation on current data
+  unresolved_questions: Optimal stop distance given market regime? How to prevent stop hunts?

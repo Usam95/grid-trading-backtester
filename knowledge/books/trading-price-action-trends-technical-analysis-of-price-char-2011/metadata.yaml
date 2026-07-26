@@ -1,0 +1,76 @@
+schema_version: "1.0"
+prompt_version: "1.0"
+title: "Trading Price Action TRENDS: Technical Analysis of Price Charts Bar by Bar for the Serious Trader"
+processing_status: "audited"
+book_id: "trading-price-action-trends-technical-analysis-of-price-char-2011"
+authors:
+  - "Al Brooks"
+edition: "1st"
+publication_year: 2011
+publisher_or_identifier: "John Wiley & Sons"
+format: "pdf"
+language: "English"
+page_count: 479
+chapter_count: 26
+extraction_quality: "high"
+ocr_quality: "excellent"
+
+sources:
+  - absolute_path: 'C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical Trading\Books\Trading Price Action Trends - Technical Analysis of Price Charts Bar by Bar.pdf'
+    relative_path: "Books/Trading Price Action Trends - Technical Analysis of Price Charts Bar by Bar.pdf"
+    sha256: "to-be-verified"
+
+timestamps:
+  extraction_start: "2026-07-25T01:26:57Z"
+  extraction_end: "2026-07-25T05:10:00Z"
+  synthesis_completed: "2026-07-25T05:10:00Z"
+
+duplicate_relationships: []
+
+limitations_and_warnings:
+  - "Book published 2011; significant market microstructure evolution since then"
+  - "All trading patterns are author assertions; no quantitative backtests in book"
+  - "Pattern definitions subjective; thresholds not precisely quantified"
+  - "Examples cherry-picked; no frequency data on pattern occurrence or success rates"
+  - "Position sizing, portfolio construction, and regime detection rules not provided"
+  - "Applicability limited to liquid equities/index futures"
+  - "All hypotheses are proposed and unvalidated; rigorous backtesting required"
+  - "HIGH freshness risk: stop-running, support/resistance, mean-reversion may be outdated"
+
+scores:
+  source_credibility:
+    score: 3
+    justification: "Reputable publisher (Wiley) and experienced author, but no published performance data or third-party validation"
+  citation_quality:
+    score: 2
+    justification: "Book uses anecdotal examples and visual evidence only; no quantitative citations"
+  reproducibility:
+    score: 2
+    justification: "Pattern definitions subjective and not algorithmically precise"
+  likely_freshness:
+    score: 2
+    justification: "Published 2011; market structure changed dramatically (algo trading, dark pools, decimalization)"
+  system_engineering_relevance:
+    score: 4
+    justification: "Clear pattern taxonomy and bar morphology framework enables systematic classification"
+  grid_relevance:
+    score: 3
+    justification: "Range detection and mean-reversion concepts apply; requires significant adaptation"
+  stock_strategy_relevance:
+    score: 4
+    justification: "Book focuses on equities/index futures; bar patterns directly applicable"
+  backtesting_relevance:
+    score: 4
+    justification: "Hypotheses are testable; enables walk-forward backtesting"
+  live_execution_relevance:
+    score: 3
+    justification: "Practical entry/exit rules applicable; slippage sensitivity reduces live trading suitability"
+  risk_relevance:
+    score: 4
+    justification: "Explicit risk/reward discipline and drawdown awareness"
+  data_quality_relevance:
+    score: 4
+    justification: "Bar morphology requires pristine OHLC data"
+  machine_learning_relevance:
+    score: 3
+    justification: "Pattern taxonomy enables feature engineering; subjective thresholds limit direct ML applicability"

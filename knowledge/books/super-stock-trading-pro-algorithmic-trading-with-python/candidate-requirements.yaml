@@ -1,0 +1,228 @@
+- id: SUPSTK-R1
+  title: "Backtester shall include configurable transaction costs (commissions, slippage, market impact)"
+  status: "proposed"
+  derived_from: ["SUPSTK-C3-004", "SUPSTK-C12-011"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Book explicitly states backtesting credibility depends on fidelity to real market dynamics including transaction costs. Ignoring costs leads to systematic overestimation of strategy performance"
+  applies_to:
+    strategy: ["stock_signal", "grid", "portfolio"]
+    lifecycle: ["backtest"]
+    asset_class: ["equities", "crypto_spot", "crypto_futures"]
+    concern: ["simulation", "reproducibility"]
+  requirement: "Backtester shall provide configurable parameters for commission (per trade or percentage), bid-ask spread model, and market impact model (temporary and permanent components)"
+  acceptance_tests:
+    - "User can set commission to $10/trade and backtest recalculates PnL accordingly"
+    - "User can enable/disable market impact model and compare results"
+    - "TCA calculator agrees with backtest cost calculations within 0.1%"
+  failure_prevented: "Overly optimistic backtest PnL leading to live trading losses"
+  capability_enabled: "Realistic backtest validation that matches live execution costs"
+  assumptions:
+    - "Transaction cost models can be parameterized and validated"
+    - "Historical cost data is available for calibration"
+  open_questions:
+    - "How should market impact scale with order size and market conditions?"
+    - "Should costs vary by asset class, regime, or time of day?"
+  dependencies: []
+  verification_needed: "Validate cost parameters against actual live execution fills"
+  priority_hint: "correctness"
+
+- id: SUPSTK-R2
+  title: "Backtester shall support out-of-sample validation and hold-out test set"
+  status: "proposed"
+  derived_from: ["SUPSTK-C6-005", "SUPSTK-C6-006"]
+  derivation_type: "agent_inference"
+  rationale: "In-sample overfitting is pervasive; without out-of-sample validation, inflated backtest returns will masquerade as robust strategies. Book recommends robustness testing across regimes and time periods"
+  applies_to:
+    strategy: ["stock_signal", "grid", "portfolio"]
+    lifecycle: ["backtest", "research"]
+    asset_class: ["equities", "shared"]
+    concern: ["reproducibility", "simulation"]
+  requirement: "Backtester shall support configurable train/test splits, walk-forward analysis, and hold-out test set evaluation. User shall be able to partition historical data and run strategy on disjoint test periods"
+  acceptance_tests:
+    - "User can specify 70% train / 30% test split; backtest reports in-sample and out-of-sample Sharpe separately"
+    - "Walk-forward backtest iterates over rolling windows (e.g., 1-year train + 3-month test)"
+    - "Warning issued if in-sample Sharpe is >2x out-of-sample (likely overfitting)"
+  failure_prevented: "Deployment of overfit strategies that fail in live trading"
+  capability_enabled: "Confidence in strategy robustness and generalization"
+  assumptions:
+    - "Future market regimes resemble historical regimes"
+    - "Out-of-sample period is representative of live conditions"
+  open_questions:
+    - "What is the minimum out-of-sample period for statistical significance?"
+    - "How to handle regime transitions in walk-forward analysis?"
+  dependencies: []
+  verification_needed: "Compare backtest vs live performance; measure correlation"
+  priority_hint: "correctness"
+
+- id: SUPSTK-R3
+  title: "Backtester shall provide detailed performance analysis metrics (Sharpe, max drawdown, win rate, recovery factor)"
+  status: "proposed"
+  derived_from: ["SUPSTK-C6-005"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Book section 6.3 Performance Analysis covers key metrics for strategy evaluation. Comprehensive metrics enable robust strategy selection"
+  applies_to:
+    strategy: ["stock_signal", "grid", "portfolio"]
+    lifecycle: ["backtest"]
+    asset_class: ["equities", "shared"]
+    concern: ["reproducibility"]
+  requirement: "Backtester shall calculate and report: total return, annualized return, Sharpe ratio, max drawdown, drawdown duration, win rate, profit factor, recovery factor, Calmar ratio. All metrics shall be configurable (e.g., risk-free rate for Sharpe)"
+  acceptance_tests:
+    - "Backtest output includes Sharpe ratio with configurable risk-free rate"
+    - "Max drawdown and recovery period calculated correctly"
+    - "Profit factor (gross profit / gross loss) computed and reported"
+  failure_prevented: "Inadequate strategy evaluation leading to poor selection"
+  capability_enabled: "Informed strategy selection and comparison"
+  assumptions:
+    - "Standard financial metrics are appropriate for all strategies"
+    - "Return distribution is stationary"
+  open_questions:
+    - "Should Sharpe ratio be calculated daily, monthly, or annually?"
+    - "How to handle zero/negative returns in profit factor?"
+  dependencies: ["SUPSTK-R1"]
+  verification_needed: "Validate metrics against external backtest tools (e.g., Backtrader, pyfolio)"
+  priority_hint: "operability"
+
+- id: SUPSTK-R4
+  title: "Execution system shall monitor and enforce pre-trade risk limits (position, leverage, concentration)"
+  status: "proposed"
+  derived_from: ["SUPSTK-C15-017"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Book emphasizes compliance controls including position limits and leverage limits to prevent market abuse and ensure trading within risk tolerance"
+  applies_to:
+    strategy: ["stock_signal", "grid", "portfolio"]
+    lifecycle: ["live"]
+    asset_class: ["equities", "shared"]
+    concern: ["risk", "operations"]
+  requirement: "Execution system shall enforce configurable pre-trade risk limits: (1) absolute position size limit per symbol, (2) maximum leverage limit, (3) maximum portfolio concentration (single position as % of portfolio)"
+  acceptance_tests:
+    - "Order rejected if execution would exceed position limit (e.g., no more than 10% of daily volume)"
+    - "Order rejected if execution would exceed leverage limit (e.g., max 2x leverage)"
+    - "Concentration limit enforced (e.g., no single position > 5% of portfolio)"
+    - "Limit enforcement logged and auditable"
+  failure_prevented: "Unintended over-leveraging, concentration risk, market impact, regulatory violation"
+  capability_enabled: "Safe execution with defined risk bounds"
+  assumptions:
+    - "Limits are appropriately calibrated"
+    - "Real-time position tracking is accurate"
+  open_questions:
+    - "How to set limits dynamically based on market conditions?"
+    - "Should limits scale with portfolio size?"
+  dependencies: []
+  verification_needed: "Stress test limit enforcement under rapid order flow"
+  priority_hint: "safety"
+
+- id: SUPSTK-R5
+  title: "Data pipeline shall validate market data quality (completeness, latency, corruption detection)"
+  status: "proposed"
+  derived_from: ["SUPSTK-C13-012"]
+  derivation_type: "agent_inference"
+  rationale: "Book discusses market data feeds as critical input; unreliable data leads to poor decisions. Data validation is essential for backtest and live execution credibility"
+  applies_to:
+    strategy: ["stock_signal", "grid", "portfolio"]
+    lifecycle: ["backtest", "live"]
+    asset_class: ["equities", "shared"]
+    concern: ["data", "simulation"]
+  requirement: "Data pipeline shall implement checks for data completeness (no missing ticks), latency anomalies (timestamps out of order), and corruption (invalid price/volume values). Alerts shall trigger on data quality degradation"
+  acceptance_tests:
+    - "Data quality report shows tick count and identifies gaps"
+    - "Alert triggered if feed latency exceeds threshold (e.g., >1s)"
+    - "Invalid data points (negative prices, zero volumes) rejected and logged"
+    - "Data recovery procedure documented"
+  failure_prevented: "Trading on corrupted or stale data; live trading losses due to data glitches"
+  capability_enabled: "Trustworthy data for decision-making"
+  assumptions:
+    - "Data quality issues are detectable and correctable"
+    - "Alternative data sources available if primary source fails"
+  open_questions:
+    - "What is acceptable data latency for different strategy types?"
+    - "How to handle data provider outages?"
+  dependencies: []
+  verification_needed: "Compare data quality metrics across live trading periods; identify correlation with trading losses"
+  priority_hint: "correctness"
+
+- id: SUPSTK-R6
+  title: "Compliance system shall maintain complete audit trail of orders, fills, and risk limit violations"
+  status: "proposed"
+  derived_from: ["SUPSTK-C15-017"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Book emphasizes regulatory requirement for audit logging to support compliance reporting and regulatory audits"
+  applies_to:
+    strategy: ["stock_signal", "grid", "portfolio"]
+    lifecycle: ["live"]
+    asset_class: ["equities"]
+    concern: ["operations", "risk"]
+  requirement: "Compliance system shall log all order submissions, executions, cancellations, and rejections with timestamps (to microsecond precision). Every risk limit check (pass/fail) and alert shall be logged. Audit trail shall be immutable and retention period configurable (minimum 6 years)"
+  acceptance_tests:
+    - "Audit trail includes order ID, symbol, size, price, timestamp, fill status"
+    - "Risk limit evaluations logged with pass/fail outcome and reason"
+    - "Audit trail queryable by date, symbol, risk metric"
+    - "Log integrity verified (checksums, no modifications)"
+  failure_prevented: "Regulatory non-compliance, fines, trading privileges revoked"
+  capability_enabled: "Regulatory reporting and audit support"
+  assumptions:
+    - "Audit trail storage is reliable and replicated"
+    - "Log retention period meets regulatory requirements"
+  open_questions:
+    - "Should audit trail be real-time or batch-uploaded?"
+    - "How to balance storage cost vs retention period?"
+  dependencies: ["SUPSTK-R4"]
+  verification_needed: "Audit trail completeness verified by compliance officer; regulatory audit"
+  priority_hint: "safety"
+
+- id: SUPSTK-R7
+  title: "OMS shall track order lifecycle from submission through settlement"
+  status: "proposed"
+  derived_from: ["SUPSTK-C12-010"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Book describes OMS as core execution infrastructure. Accurate order tracking is essential for risk management, compliance, and P&L reconciliation"
+  applies_to:
+    strategy: ["stock_signal", "grid", "portfolio"]
+    lifecycle: ["live"]
+    asset_class: ["equities", "shared"]
+    concern: ["execution", "risk"]
+  requirement: "OMS shall maintain state machine for each order: Pending → Submitted → PartiallyFilled → Filled → Settled. Each state transition logged with timestamp and corresponding fill information (execution price, size, exchange). OMS shall reconcile with broker confirms within SLA (e.g., <5 minutes)"
+  acceptance_tests:
+    - "Order state correctly tracks from submission to settlement"
+    - "Partial fill logged separately"
+    - "Reconciliation report shows any discrepancies with broker"
+    - "Alert triggered on reconciliation miss"
+  failure_prevented: "Order tracking errors, duplicate fills, missed fills leading to P&L errors"
+  capability_enabled: "Accurate position tracking and P&L reporting"
+  assumptions:
+    - "Broker provides timely fill confirmations"
+    - "Network latency is acceptable for real-time reconciliation"
+  open_questions:
+    - "How to handle rejected orders and resubmit logic?"
+    - "What reconciliation tolerances are acceptable?"
+  dependencies: []
+  verification_needed: "Compare OMS order count vs broker statement; test reconciliation procedure"
+  priority_hint: "correctness"
+
+- id: SUPSTK-R8
+  title: "Risk monitoring system shall provide real-time P&L, drawdown, and stress alerts"
+  status: "proposed"
+  derived_from: ["SUPSTK-C14-014"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Book emphasizes real-time monitoring and alerting as essential safeguard. Alerts enable rapid response to adverse market moves"
+  applies_to:
+    strategy: ["stock_signal", "grid", "portfolio"]
+    lifecycle: ["live"]
+    asset_class: ["equities", "shared"]
+    concern: ["risk", "monitoring"]
+  requirement: "Risk monitoring system shall calculate real-time P&L (mark-to-market), max intraday drawdown, current drawdown from peak, and value-at-risk. Alerts shall trigger on: (1) P&L loss exceeding daily limit, (2) drawdown exceeding threshold, (3) VaR breach, (4) extreme volatility spike. Alerts shall include recommended actions (e.g., reduce position, halt trading)"
+  acceptance_tests:
+    - "Real-time P&L updated on each fill with <1s latency"
+    - "Drawdown alert triggered when max intraday loss exceeds threshold (e.g., 5%)"
+    - "VaR breach alert triggered with 95% confidence"
+    - "Alert delivery confirmed within 10 seconds"
+  failure_prevented: "Uncontrolled losses due to delayed risk awareness"
+  capability_enabled: "Rapid response to adverse market conditions"
+  assumptions:
+    - "Market prices are continuously available"
+    - "Alert delivery is reliable"
+  open_questions:
+    - "How to set alert thresholds dynamically?"
+    - "Should alerts be routed to human traders or automated?"
+  dependencies: ["SUPSTK-R1", "SUPSTK-R3"]
+  verification_needed: "Test alert timing and accuracy under stress scenarios"
+  priority_hint: "safety"

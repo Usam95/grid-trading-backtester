@@ -1,0 +1,167 @@
+- id: STKTWIT-R1
+  title: "Data ingestion pipeline shall validate message-date alignment with price labels"
+  status: proposed
+  derived_from: [STKTWIT-C1-001, STKTWIT-C1-002]
+  derivation_type: agent_inference
+  rationale: "Labeling accuracy depends on precise timestamp alignment; misalignment introduces label noise."
+  applies_to:
+    strategy: [stock_signal]
+    lifecycle: [research]
+    asset_class: [equities]
+    concern: [data]
+  requirement: "The data ingestion system shall verify that 100% of StockTwits messages align to correct date's price label with time offset documented. Shall log and reject misaligned records."
+  acceptance_tests: ["Alignment check on 1M messages", "Compare label distribution before/after"]
+  failure_prevented: "Label noise from timestamp misalignment"
+  capability_enabled: "Reproducible labeled datasets"
+  assumptions: ["StockTwits timestamp reliable", "Yahoo Finance OHLCV is ground truth"]
+  open_questions: ["Market-hours only preferred?", "How to handle after-hours?"]
+  dependencies: ["StockTwits historical data", "Verified price data"]
+  verification_needed: "Audit sample of labeled messages"
+  priority_hint: correctness
+
+- id: STKTWIT-R2
+  title: "Classification evaluation shall report macro and weighted F1 separately"
+  status: proposed
+  derived_from: [STKTWIT-C1-009]
+  derivation_type: direct_book_recommendation
+  rationale: "Macro F1 reveals class imbalance; weighted F1 hides minority-class failure."
+  applies_to:
+    strategy: [stock_signal]
+    lifecycle: [research]
+    asset_class: [equities]
+    concern: [data]
+  requirement: "Model evaluation reports shall include macro F1, weighted F1, per-class precision/recall, and confusion matrix. Flag imbalance (minority <10%) as data-quality concern."
+  acceptance_tests: ["F1 metrics correct on multi-class", "Minority precision/recall non-zero"]
+  failure_prevented: "Silent minority-class failure"
+  capability_enabled: "Transparent diagnostics"
+  assumptions: ["Macro F1 is appropriate metric"]
+  open_questions: ["Minority performance triggers rebalancing?"]
+  dependencies: ["Test set with ground truth"]
+  verification_needed: "Spot-check F1 computation"
+  priority_hint: correctness
+
+- id: STKTWIT-R3
+  title: "Transformer config shall document pre-training data size and step count"
+  status: proposed
+  derived_from: [STKTWIT-C1-008, STKTWIT-C1-010]
+  derivation_type: agent_inference
+  rationale: "Fine-tuning stability depends on pre-training scale; under-trained models exhibit sensitivity."
+  applies_to:
+    strategy: [stock_signal]
+    lifecycle: [research]
+    asset_class: [equities]
+    concern: [simulation]
+  requirement: "Transformer models shall include: (a) pre-training corpus size (tokens), (b) pre-training steps/learning rate, (c) fine-tuning hyperparameters. Flag <10M tokens as high-risk."
+  acceptance_tests: ["Verify all configs include pre-training metadata", "Risk flag triggered for <10M tokens"]
+  failure_prevented: "Hyperparameter mismatch failure"
+  capability_enabled: "Reproducible transformer training"
+  assumptions: ["10M token threshold reasonable"]
+  open_questions: ["Should pre-training scale determine fine-tuning defaults?"]
+  dependencies: ["Pre-training configuration logs"]
+  verification_needed: "Audit past model failures"
+  priority_hint: correctness
+
+- id: STKTWIT-R4
+  title: "Label pipeline shall implement threshold sensitivity analysis"
+  status: proposed
+  derived_from: [STKTWIT-C1-003, STKTWIT-C1-004]
+  derivation_type: agent_inference
+  rationale: "Price-change threshold affects performance; arbitrary choice leads to suboptimal results."
+  applies_to:
+    strategy: [stock_signal]
+    lifecycle: [research]
+    asset_class: [equities]
+    concern: [data]
+  requirement: "Before deployment, evaluate F1 across threshold range (±0.25%, ±0.5%, ±1%, ±2%). Report F1 vs threshold curve. Select and document threshold maximizing F1 on development set."
+  acceptance_tests: ["Threshold sensitivity plot", "Held-out test independent"]
+  failure_prevented: "Arbitrary threshold, data snooping"
+  capability_enabled: "Justified selection"
+  assumptions: ["F1 macro is appropriate"]
+  open_questions: ["Stock-specific or global threshold?"]
+  dependencies: ["1+ year historical data"]
+  verification_needed: "Cross-validation on disjoint periods"
+  priority_hint: research_quality
+
+- id: STKTWIT-R5
+  title: "Model comparison shall include training time, latency, cost-benefit"
+  status: proposed
+  derived_from: [STKTWIT-C1-006]
+  derivation_type: direct_book_recommendation
+  rationale: "F1 alone insufficient; training time impacts operational feasibility."
+  applies_to:
+    strategy: [stock_signal]
+    lifecycle: [research]
+    asset_class: [equities]
+    concern: [execution]
+  requirement: "Reports include: (a) F1/accuracy, (b) training time (hours), (c) inference latency (ms), (d) memory (MB). Compute cost-benefit ratio per model."
+  acceptance_tests: ["Cost-benefit metrics consistent", "Training time on identical hardware"]
+  failure_prevented: "Expensive models with marginal gains"
+  capability_enabled: "Informed selection trade-offs"
+  assumptions: ["Same hardware training", "Production inference environment"]
+  open_questions: ["Favor simpler models by default?"]
+  dependencies: ["Benchmarking environment spec"]
+  verification_needed: "Compare to independent benchmarks"
+  priority_hint: operability
+
+- id: STKTWIT-R6
+  title: "Signal generation shall validate threshold on disjoint time period"
+  status: proposed
+  derived_from: [STKTWIT-C1-012]
+  derivation_type: agent_inference
+  rationale: "Validation prevents high false-positive rate in live trading."
+  applies_to:
+    strategy: [stock_signal]
+    lifecycle: [backtest]
+    asset_class: [equities]
+    concern: [risk]
+  requirement: "Before deployment: (1) train on period A, (2) evaluate precision at thresholds (0.5-0.8) on period B, (3) select threshold on period B, (4) report on held-out period C."
+  acceptance_tests: ["Three disjoint periods used", "Precision-recall curve reported"]
+  failure_prevented: "High false-positive rate, overfit threshold"
+  capability_enabled: "Justified signal threshold"
+  assumptions: ["Precision appropriate for signal quality"]
+  open_questions: ["Dynamic or fixed threshold?"]
+  dependencies: ["3+ years labeled data"]
+  verification_needed: "Compare validation vs deployment precision"
+  priority_hint: safety
+
+- id: STKTWIT-R7
+  title: "Research methodology shall document temporal train/test split"
+  status: proposed
+  derived_from: [STKTWIT-C1-003, STKTWIT-C1-004]
+  derivation_type: agent_inference
+  rationale: "Test-set leakage invalidates results; documentation enables reproducibility."
+  applies_to:
+    strategy: [stock_signal]
+    lifecycle: [research]
+    asset_class: [equities]
+    concern: [reproducibility]
+  requirement: "Document: (1) temporal split (e.g., train 2015-2016, test 2017), (2) no future data in training, (3) time-series k-fold not random, (4) leakage audit, (5) hyperparameter tuning on train/val only."
+  acceptance_tests: ["Audit for timestamp leakage", "Confirm time-series CV"]
+  failure_prevented: "Optimistic performance, unreproducible"
+  capability_enabled: "Reproducible research"
+  assumptions: ["Temporal split appropriate"]
+  open_questions: ["Multiple train/test splits?"]
+  dependencies: ["Raw data with timestamps"]
+  verification_needed: "Peer code review"
+  priority_hint: correctness
+
+- id: STKTWIT-R8
+  title: "Documentation shall include data period and market conditions"
+  status: proposed
+  derived_from: [STKTWIT-C1-001, STKTWIT-C1-013]
+  derivation_type: agent_inference
+  rationale: "Forward extrapolation requires understanding historical context."
+  applies_to:
+    strategy: [stock_signal]
+    lifecycle: [research]
+    asset_class: [equities]
+    concern: [reproducibility]
+  requirement: "Include: (1) data period (earliest/latest message and price), (2) market conditions (volatility, events), (3) freshness assessment, (4) recommended retraining/revalidation schedule."
+  acceptance_tests: ["Start/end dates and volatility metrics", "Freshness addresses API/platform changes"]
+  failure_prevented: "Blind application of outdated model"
+  capability_enabled: "Informed extrapolation, refresh justification"
+  assumptions: ["Historical conditions documented"]
+  open_questions: ["Mandate revalidation every 6 months?"]
+  dependencies: ["Market microstructure knowledge"]
+  verification_needed: "Compare to external references"
+  priority_hint: research_quality

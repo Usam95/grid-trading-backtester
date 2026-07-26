@@ -1,0 +1,200 @@
+- id: ADTDT-R001
+  status: proposed
+  title: "Level 2 data integration for real-time market microstructure"
+  derived_from: ["ADTDT-C4-001"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "L2 data is prerequisite for Fallen Angel and ORB patterns; shallow bid/ask indicates potential fakeout risk"
+  applies_to:
+    strategy: ["stock_signal"]
+    lifecycle: ["backtest", "paper", "live"]
+    asset_class: ["equities"]
+    concern: ["data", "execution"]
+  priority_hint: "correctness"
+  requirement: "Backtesting and live trading platform SHALL ingest L2 market data (bid/ask depth, ladder) via broker API to enable order book pattern recognition"
+  acceptance_tests: ["L2 data ingested within 100ms of market event", "Bid/ask ladder updates at 1Hz minimum"]
+  failure_prevented: "Missed order book reversal signals due to incomplete market view"
+  assumptions: ["Broker provides L2 data API", "Network latency adequate"]
+  open_questions: ["Does order book quality vary by broker?", "What update frequency is needed for pattern recognition?"]
+  dependencies: ["Network infrastructure", "Broker API contract"]
+  verification_needed: "L2 data freshness and completeness audit"
+
+- id: ADTDT-R002
+  status: proposed
+  title: "Pre-market and after-hours session coverage"
+  derived_from: ["ADTDT-C4-002"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Opening Range Breakout and Fallen Angel strategies require pre-market data; gap analysis is prerequisite for watchlist generation"
+  applies_to:
+    strategy: ["stock_signal"]
+    lifecycle: ["backtest", "paper", "live"]
+    asset_class: ["equities"]
+    concern: ["data", "execution"]
+  priority_hint: "correctness"
+  requirement: "Platform SHALL support pre-market (4:00 AM ET) and after-hours (8:00 PM ET) trading windows with full OHLCV data"
+  acceptance_tests: ["Pre-market data available 30 min before market open", "After-hours data collected until 8:00 PM ET"]
+  failure_prevented: "Unable to analyze overnight gaps; Fallen Angel and ORB strategies cannot execute"
+  assumptions: ["Broker offers pre/post market", "Data feed includes extended hours"]
+  open_questions: ["Should after-hours data feed continue past 8 PM?", "Which stocks have pre-market liquidity?"]
+  dependencies: ["Broker pre-market data feed", "Market data infrastructure"]
+  verification_needed: "Extended hours liquidity and data feed validation"
+
+- id: ADTDT-R003
+  status: proposed
+  title: "Sub-100ms order latency guarantee for intraday execution"
+  derived_from: ["ADTDT-C4-003"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Author emphasizes execution quality; short-term patterns (ORB, VWAP, flag breakout) lose edge with latency > 100ms"
+  applies_to:
+    strategy: ["stock_signal"]
+    lifecycle: ["paper", "live"]
+    asset_class: ["equities"]
+    concern: ["execution", "alpha"]
+  priority_hint: "safety"
+  requirement: "Live trading platform SHALL ensure order round-trip latency (entry to fill) is <= 100ms; 95th percentile target <= 75ms"
+  acceptance_tests: ["Measure latency from order submission to fill confirmation", "95th percentile latency <= 100ms in production"]
+  failure_prevented: "Excessive slippage on short-term entries; strategy edge eroded"
+  assumptions: ["Network connectivity is stable", "Broker API is responsive"]
+  open_questions: ["What latency is optimal (50ms vs 100ms)?", "How does latency vary by asset?"]
+  dependencies: ["Network infrastructure", "Broker API performance", "Order routing"]
+  verification_needed: "Latency benchmark and broker SLA validation"
+
+- id: ADTDT-R004
+  status: proposed
+  title: "Stock scanner with float and market cap filters"
+  derived_from: ["ADTDT-C3-001"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Low-float stocks exhibit stronger intraday moves; scanner enables systematic watchlist generation reducing manual bias"
+  applies_to:
+    strategy: ["stock_signal"]
+    lifecycle: ["backtest", "paper", "live"]
+    asset_class: ["equities"]
+    concern: ["data", "alpha"]
+  priority_hint: "research_quality"
+  requirement: "Platform SHALL implement watchlist scanner filtering stocks by float (< 50M shares), market cap, volume, RSI, MACD thresholds"
+  acceptance_tests: ["Scanner identifies all stocks meeting criteria", "Filters reduce universe by 90%+ from total market"]
+  failure_prevented: "Manual watchlist selection bias; missed high-probability candidates"
+  assumptions: ["Float data is available and updated daily", "Market cap data is current"]
+  open_questions: ["What is optimal float threshold?", "Should RSI/MACD filters be customizable?"]
+  dependencies: ["Float data source", "Market data feed", "Screening algorithm"]
+  verification_needed: "Scanner accuracy and float data freshness validation"
+
+- id: ADTDT-R005
+  status: proposed
+  title: "Deterministic pattern identification and level assignment"
+  derived_from: ["ADTDT-C6-002", "ADTDT-C6-003"]
+  derivation_type: "agent_inference"
+  rationale: "Technical analysis is subjective; deterministic pattern assignment ensures reproducibility across backtests and hypothesis validation"
+  applies_to:
+    strategy: ["stock_signal"]
+    lifecycle: ["backtest"]
+    asset_class: ["equities"]
+    concern: ["simulation", "reproducibility"]
+  priority_hint: "correctness"
+  requirement: "Backtesting platform SHALL assign unique, reproducible IDs to candlestick patterns, ABCD, bull flags such that same pattern is consistently identified"
+  acceptance_tests: ["Pattern ID is stable across multiple backtest runs", "Same chart always produces same pattern ID"]
+  failure_prevented: "Non-reproducible backtests; hypothesis validation fails"
+  assumptions: ["Pattern definition tolerances are pre-specified", "Detection order is deterministic"]
+  open_questions: ["What tolerance bands should be used?", "How to handle overlapping patterns?"]
+  dependencies: ["Pattern recognition algorithm", "Deterministic ID generation"]
+  verification_needed: "Pattern detection reproducibility testing"
+
+- id: ADTDT-R006
+  status: proposed
+  title: "Candlestick pattern recognition (bullish engulf, hammer, etc.)"
+  derived_from: ["ADTDT-C6-006"]
+  derivation_type: "agent_inference"
+  rationale: "VWAP bounce and reversal hypotheses depend on candlestick confirmation; detection is prerequisite for strategy validation"
+  applies_to:
+    strategy: ["stock_signal"]
+    lifecycle: ["backtest"]
+    asset_class: ["equities"]
+    concern: ["simulation", "alpha"]
+  priority_hint: "research_quality"
+  requirement: "Backtesting engine SHALL recognize and classify bullish candlestick patterns (engulfing, hammer, morning star) based on OHLC with configurable tolerance"
+  acceptance_tests: ["Pattern recognizer identifies >95% of manually-identified patterns", "False positive rate < 5%"]
+  failure_prevented: "VWAP bounce hypothesis cannot be tested with confirmation filters"
+  assumptions: ["OHLC data is accurate", "Candlestick definitions are standard"]
+  open_questions: ["Which candlestick patterns are most predictive?", "What tolerance bands optimize detection?"]
+  dependencies: ["Pattern recognition algorithm", "OHLC data quality"]
+  verification_needed: "Pattern detection accuracy validation"
+
+- id: ADTDT-R007
+  status: proposed
+  title: "Risk limit enforcement for consecutive losses and daily limits"
+  derived_from: ["ADTDT-C7-001", "ADTDT-C7-002"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Author emphasizes ruin protection; consecutive loss and daily limits prevent account destruction from cascading losses"
+  applies_to:
+    strategy: ["shared"]
+    lifecycle: ["paper", "live"]
+    asset_class: ["equities"]
+    concern: ["risk", "operations"]
+  priority_hint: "safety"
+  requirement: "Live platform SHALL enforce hard stops: consecutive loss limit (max 2-3) and daily loss limit (max 2% per day); halt SHALL be automatic and irreversible until next day"
+  acceptance_tests: ["Consecutive loss counter is accurate", "Trading halts when limit exceeded", "Reset at market open next day"]
+  failure_prevented: "Account ruin from cascading losses; emotional override trades"
+  assumptions: ["Stops cannot be overridden by trader", "Market hours are defined"]
+  open_questions: ["Should consecutive loss threshold be 2 or 3?", "Should daily limit be 2% or 3%?"]
+  dependencies: ["Risk management module", "Trading engine"]
+  verification_needed: "Stop enforcement audit in live environment"
+
+- id: ADTDT-R008
+  status: proposed
+  title: "Position sizing calculation and enforcement"
+  derived_from: ["ADTDT-C5-003", "ADTDT-C7-003"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Fixed-fractional sizing ties risk to stop distance; pre-calculated sizing removes emotion and prevents over-leverage"
+  applies_to:
+    strategy: ["shared"]
+    lifecycle: ["backtest", "paper", "live"]
+    asset_class: ["equities"]
+    concern: ["risk", "execution"]
+  priority_hint: "correctness"
+  requirement: "Platform SHALL calculate pre-trade position size as (Account * Risk%) / Stop_Distance; live system SHALL reject entries violating pre-calculated sizing"
+  acceptance_tests: ["Position size formula applied correctly", "Live order rejected if size exceeds limit"]
+  failure_prevented: "Over-leverage; inconsistent risk management; account drawdown"
+  assumptions: ["Stop distance can be estimated pre-entry", "Trader enforces sizing"]
+  open_questions: ["What is optimal risk per trade (1%, 2%, 5%)?", "Should sizing adjust for volatility?"]
+  dependencies: ["Position sizing algorithm", "Risk management module", "Order execution engine"]
+  verification_needed: "Sizing calculation accuracy and order rejection testing"
+
+- id: ADTDT-R009
+  status: proposed
+  title: "No overnight position holds rule"
+  derived_from: ["ADTDT-C7-004"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Author forbids overnight holds; gap risk and margin constraints make overnight holding unacceptable for intraday strategies"
+  applies_to:
+    strategy: ["stock_signal"]
+    lifecycle: ["paper", "live"]
+    asset_class: ["equities"]
+    concern: ["risk", "operations"]
+  priority_hint: "safety"
+  requirement: "Live trading system SHALL automatically close all open positions at end-of-day (3:30 PM ET); no positions held overnight"
+  acceptance_tests: ["All positions closed by 3:30 PM ET", "No overnight holdings in live account"]
+  failure_prevented: "Overnight gap against position; margin call; account loss"
+  assumptions: ["Market hours are EST", "Automatic close can execute"]
+  open_questions: ["Should close time be exact or with buffer?", "What about illiquid positions?"]
+  dependencies: ["Trading engine", "Market hours definition", "Order execution"]
+  verification_needed: "EOD position audit in live environment"
+
+- id: ADTDT-R010
+  status: proposed
+  title: "Transaction cost and slippage tracking for post-trade analysis"
+  derived_from: ["ADTDT-C8-001"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Small-edge strategies are only profitable if transaction costs are minimized; accurate tracking enables true PnL attribution"
+  applies_to:
+    strategy: ["shared"]
+    lifecycle: ["backtest", "paper", "live"]
+    asset_class: ["equities"]
+    concern: ["monitoring", "reproducibility"]
+  priority_hint: "research_quality"
+  requirement: "Platforms SHALL log commission, slippage, bid-ask spread, market impact for every fill; reportable per trade and aggregated per strategy"
+  acceptance_tests: ["Transaction costs logged for 100% of fills", "Gross vs net PnL report available", "Cost breakdown by fee type"]
+  failure_prevented: "Inflated backtest results; misattribution of strategy edge vs execution quality"
+  assumptions: ["Broker reports all costs accurately", "Fills are recorded"]
+  open_questions: ["How to estimate market impact accurately?", "Should slippage models be per-broker?"]
+  dependencies: ["Trade logging system", "Cost tracking module", "Reporting engine"]
+  verification_needed: "Cost tracking accuracy audit against broker statements"
+

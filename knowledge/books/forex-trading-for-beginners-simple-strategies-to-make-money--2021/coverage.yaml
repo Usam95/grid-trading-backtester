@@ -1,0 +1,67 @@
+book_id: forex-trading-for-beginners-simple-strategies-to-make-money--2021
+sections:
+- ref: intro
+  title: Introduction
+  pdf_page_start: 5
+  status: processed
+  reason: Frames the book for beginners and previews the chapter map.
+- ref: ch01
+  title: An Introduction to Forex Trading
+  pdf_page_start: 7
+  status: processed
+  reason: Defines forex, trader types, leverage, and basic trading principles.
+- ref: ch02
+  title: Basics of Forex Trading
+  pdf_page_start: 18
+  status: processed
+  reason: Covers pair conventions, pricing, liquidity, and market structure.
+- ref: ch03
+  title: How to Get Started in Forex Trading
+  pdf_page_start: 25
+  status: processed
+  reason: Explains brokers, accounts, platforms, and tools.
+- ref: ch04
+  title: Technical and Fundamental Analysis in Forex Trading
+  pdf_page_start: 34
+  status: processed
+  reason: Introduces RSI, MACD, moving averages, and macro indicators.
+- ref: ch05
+  title: Psychology and Mindset of A Forex Trader
+  pdf_page_start: 40
+  status: processed
+  reason: Discusses stress, discipline, journaling, and personality effects.
+- ref: ch06
+  title: Forex Strategies and Strategies for Beginners
+  pdf_page_start: 50
+  status: processed
+  reason: Provides the book’s main concrete beginner setups.
+- ref: ch07
+  title: Forex Trading Signals
+  pdf_page_start: 67
+  status: processed
+  reason: Describes signal payloads plus manual and automated usage.
+- ref: ch08
+  title: Tips to Winning in Forex Trading
+  pdf_page_start: 77
+  status: processed
+  reason: Adds pivots, expectancy, stop placement, and sizing guidance.
+- ref: ch09
+  title: Cryptocurrency in Forex Trading
+  pdf_page_start: 90
+  status: processed
+  reason: Offers crypto commentary with strong freshness risk.
+- ref: ch10
+  title: Examples of Trade
+  pdf_page_start: 97
+  status: processed
+  reason: Shows worked arithmetic examples for P&L and leverage.
+- ref: ch11
+  title: Mistake That Beginners Make in Forex Trading
+  pdf_page_start: 101
+  status: processed
+  reason: Catalogs failure modes in planning, execution, and broker choice.
+- ref: ch12
+  title: How to Make Money with Forex Trading to Create Passive Income
+  pdf_page_start: 107
+  status: processed
+  reason: Markets passive-income paths without robust evidence.

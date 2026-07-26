@@ -1,0 +1,65 @@
+schema_version: '1.0'
+prompt_version: '1.0'
+book_id: trading-price-action-reversals-2011
+title: Trading Price Action Reversals
+authors:
+  - Al Brooks
+edition: '1st'
+publication_year: 2011
+publisher_or_identifier: Wiley
+format: pdf
+language: en
+page_count: 578
+chapter_count: 25
+extraction_quality: high
+ocr_quality: high
+processing_status: audited
+extraction_timestamp: '2025-07-25T01:26:57Z'
+sources:
+  - absolute_path: 'C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical Trading\Trading Price Action Reversals.pdf'
+    relative_path: Trading Price Action Reversals.pdf
+    sha256: unknown
+limitations_and_warnings:
+  - Al Brooks discretionary price-action methodology is highly subjective and context-dependent
+  - Profitability claims are anecdotal; no formal backtests provided
+  - Book focuses on intraday/swing trading; limited daily/weekly analysis
+  - Institutional behavior assumptions unvalidated by academic research
+  - No statistical validation of edge claims
+  - Regulatory/venue-specific rules may have changed since 2011 publication
+scores:
+  source_credibility:
+    score: 3
+    justification: Respected trader/author but highly subjective methodology
+  citation_quality:
+    score: 2
+    justification: Mostly author assertion with limited external references
+  reproducibility:
+    score: 2
+    justification: Discretionary rules hard to codify; no formal backtests
+  likely_freshness:
+    score: 2
+    justification: 2011 publication; market structure/APIs likely changed
+  system_engineering_relevance:
+    score: 3
+    justification: Pattern detection, position sizing, risk rules applicable
+  grid_relevance:
+    score: 2
+    justification: Limited grid discussion; focus on directional reversals
+  stock_strategy_relevance:
+    score: 4
+    justification: Core reversal patterns applicable to stocks
+  backtesting_relevance:
+    score: 3
+    justification: Pattern definitions suitable for backtest rules
+  live_execution_relevance:
+    score: 3
+    justification: Entry/exit logic and risk management applicable
+  risk_relevance:
+    score: 4
+    justification: Strong emphasis on stop placement and position sizing
+  data_quality_relevance:
+    score: 2
+    justification: Limited discussion of data issues
+  machine_learning_relevance:
+    score: 1
+    justification: Not designed for ML; prescriptive pattern rules

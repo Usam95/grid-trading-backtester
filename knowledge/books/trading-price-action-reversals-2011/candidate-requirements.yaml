@@ -1,0 +1,218 @@
+- id: TPAR-R001
+  title: Backtester shall support trend line drawing and break detection
+  status: proposed
+  derived_from: [TPAR-C1-002, TPAR-C2-003]
+  derivation_type: agent_inference
+  rationale: Multiple reversal setups depend on identifying trend line breaks; backtester must calculate line slope/intercept and detect cross events
+  applies_to:
+    strategy: [stock_signal, shared]
+    lifecycle: [backtest]
+    asset_class: [equities]
+    concern: [simulation]
+  requirement: Backtester shall calculate best-fit trend line from swing highs/lows; detect bar that closes beyond line; flag break event with timestamp and price
+  acceptance_tests: 
+    - 'Trend line calculated for 10-bar uptrend shall match manual Excel calc +/-0.01 points'
+    - 'Break detection on next bar overshooting shall fire event'
+    - 'No false positives on wick-only touches'
+  failure_prevented: Without trend line detection, cannot backtest core reversal patterns from chapters 1-3
+  capability_enabled: Enables systematic backtest of trend-break-based entries
+  assumptions: [Trend line is correctly drawn, Linear regression reasonable, Break threshold meaningful (1-2 ticks above/below)]
+  open_questions: 
+    - 'How to draw line in range-bound markets?'
+    - 'Multi-leg trends; which highs/lows use?'
+    - 'Should line recalculate on each new high/low?'
+  dependencies: [Swing high/low detection, Bar-level OHLCV data]
+  verification_needed: 'Unit test: calculate line from known swing points; verify cross detection on sample bars'
+  priority_hint: correctness
+
+- id: TPAR-R002
+  title: Backtester shall support custom pattern detection with rolling average calculations
+  status: proposed
+  derived_from: [TPAR-C4-004, TPAR-C4-005]
+  derivation_type: agent_inference
+  rationale: 'To test hypotheses about reversal patterns (H002: climactic bars), backtester must support rolling average calculations (ATR) and configurable pattern detection logic with parametrized thresholds'
+  applies_to:
+    strategy: [stock_signal, shared]
+    lifecycle: [backtest]
+    asset_class: [equities]
+    concern: [simulation]
+  requirement: Backtester shall compute N-bar rolling average true range with configurable window; provide pattern detector supporting parametrized conditions (e.g., range_ratio, close_position_pct); expose results for validation
+  acceptance_tests:
+    - 'Rolling ATR calculation matches TA-Lib benchmark +/-0.1%'
+    - 'Custom pattern detector correctly identifies bars matching user-specified conditions'
+    - 'Detector produces consistent results across multiple runs'
+  failure_prevented: Without rolling-average and custom pattern support, cannot systematically test market pattern hypotheses
+  capability_enabled: Enables hypothesis testing with configurable pattern thresholds
+  assumptions: [True range calculation is standard, Pattern parameters are user-configured, backtester correctly implements user logic]
+  open_questions:
+    - 'Should ATR window be static or adaptive by regime?'
+    - 'How to validate pattern detector results externally?'
+  dependencies: [OHLCV data, ATR calculation, Pattern parameter interface]
+  verification_needed: Validate rolling ATR against TradingView; test pattern detector with known pattern examples
+  priority_hint: correctness
+  note: 'AUDIT CORRECTION: Reframed as infrastructure. The specific climactic bar thresholds (1.8x, 10%) are trading rules encoded in H002, not system requirements.'
+
+- id: TPAR-R003
+  title: Backtester shall support multi-timeframe analysis (daily + intraday)
+  status: proposed
+  derived_from: [TPAR-C22-016]
+  derivation_type: agent_inference
+  rationale: Ch22 emphasizes daily context for intraday entries; backtester must align daily trend with intraday entry bars for filtering and analysis
+  applies_to:
+    strategy: [stock_signal, shared]
+    lifecycle: [backtest]
+    asset_class: [equities]
+    concern: [simulation, alpha]
+  requirement: Backtester shall load both daily OHLCV and intraday OHLCV; compute daily trend direction (bull/bear/range) at time of intraday entry; filter/tag entries by multi-timeframe alignment
+  acceptance_tests:
+    - 'Intraday entry at 14:30 shall be tagged with daily trend as of 09:30 open'
+    - 'Win-rate comparison intraday-aligned vs anti-aligned entries shall show >= 3% difference'
+    - 'No timestamp misalignment'
+  failure_prevented: Without daily context, cannot test Ch22 insight about multi-timeframe filtering
+  capability_enabled: Enables higher-edge entry filtering based on multiple timeframes
+  assumptions: [Daily bars available with intraday bars, Daily trend definition is consistent, Timezone handling correct]
+  open_questions:
+    - 'How to align daily bar timing across markets?'
+    - 'Should daily trend computed on EOD or on-demand?'
+    - 'What if daily trend flips during day?'
+  dependencies: [Dual data loading, Trend definition algorithm, Timestamp alignment]
+  verification_needed: 'Manual check: daily trend at time of intraday entry matches expected direction'
+  priority_hint: research_quality
+
+- id: TPAR-R004
+  title: Live trading system shall implement position sizing formula; shares = max_risk_$ / stop_distance_ticks
+  status: proposed
+  derived_from: [TPAR-C25-013]
+  derivation_type: direct_book_recommendation
+  rationale: Ch25 emphasizes fixed risk positioning; traders need consistent dollar risk regardless of stop distance; formula must be applied at entry time
+  applies_to:
+    strategy: [stock_signal, shared]
+    lifecycle: [live]
+    asset_class: [equities]
+    concern: [risk, execution, alpha]
+  requirement: Live trading system shall calculate position size (shares) = max_risk_per_trade_usd / (stop_loss_distance_ticks * tick_value_usd) for each entry; validate size <= account_max_position
+  acceptance_tests:
+    - '100 trades with varying stops shall all have ~same dollar risk (+/-5%)'
+    - 'No position exceeds account max'
+    - 'Risk calculation correct for stock tick value'
+  failure_prevented: Without fixed-risk sizing, over-leverage in volatile regimes leads to blowups; under-deployment in calm regimes loses edge
+  capability_enabled: Consistent risk management across regimes
+  assumptions: [Tick value known, Stop distance accurately measured, Account liquidity sufficient]
+  open_questions:
+    - 'Should max risk adjust for intra-day vs swing trades?'
+    - 'How to handle fractional shares?'
+    - 'Correlated position sizing?'
+  dependencies: [Accurate stop distance calculation, Tick value mapping, Account balance check]
+  verification_needed: 'Paper trade: verify risk on 10 trades matches expectation'
+  priority_hint: safety
+
+- id: TPAR-R005
+  title: Live trading system shall support entry confirmation logic with multi-bar sequence validation
+  status: proposed
+  derived_from: [TPAR-C9-009]
+  derivation_type: agent_inference
+  rationale: 'To test hypotheses about entry patterns (H003: failed breakout reversals), live system must support multi-bar confirmation sequences where orders are held pending until subsequent bars meet conditions'
+  applies_to:
+    strategy: [stock_signal, shared]
+    lifecycle: [live]
+    asset_class: [equities]
+    concern: [risk, execution]
+  requirement: 'Live system shall support configurable multi-bar confirmation: create pending orders with conditions that require validation across N subsequent bars (e.g., "execute if next 3 bars close below level X"); cancel pending order if level breached before confirmation'
+  acceptance_tests:
+    - 'Pending order correctly held until confirmation conditions met or invalidated'
+    - 'Order cancels correctly if invalidated before confirmation completes'
+    - 'No spurious order executions on partial confirmations'
+  failure_prevented: Without multi-bar confirmation, premature/false entries execute and reduce edge
+  capability_enabled: Robust entry confirmation for pattern-based signals
+  assumptions: [Confirmation window is short (<5 bars typical), Multiple orders can be held pending, Cancellation logic is reliable]
+  open_questions:
+    - 'Optimal confirmation window length (1-3 bars)?'
+    - 'How to handle gaps between bars?'
+    - 'Should volume matter in confirmation?'
+  dependencies: [Order management system, Bar confirmation logic, Order cancellation]
+  verification_needed: 'Paper trade: verify pending orders execute only when confirmation criteria met'
+  priority_hint: safety
+  note: 'AUDIT CORRECTION: Reframed as infrastructure. The specific failed breakout pattern definition is a trading rule encoded in H003, not a system requirement.'
+
+- id: TPAR-R006
+  title: Backtester shall flag overnight gap risk and validate pre-market assumptions
+  status: proposed
+  derived_from: [TPAR-C20-018]
+  derivation_type: agent_inference
+  rationale: Chs18, 20 discuss overnight gaps and premarket activity; backtester must detect gaps and quantify impact on stop placement and reversals
+  applies_to:
+    strategy: [stock_signal, shared]
+    lifecycle: [backtest]
+    asset_class: [equities]
+    concern: [simulation, risk]
+  requirement: Backtester shall compute overnight gap = abs(next_open - prior_close) / prior_close; flag trades with stops beyond gap range; compute hit-rate of overnight gaps hitting stops; generate summary stats on gap impact to edge
+  acceptance_tests:
+    - 'Gap magnitude calculation shall match manual review'
+    - 'Identify trades stopped out by gap vs intraday'
+    - 'Report X% of reversals stopped by gaps'
+  failure_prevented: Without gap accounting, backtest results mislead (e.g., backtest shows 70% win but stops hit by gaps 40% of the time)
+  capability_enabled: Realistic gap accounting; better risk awareness
+  assumptions: [Premarket data available, Overnight hours are liquid for short covering, Stops do not move with gaps]
+  open_questions:
+    - 'Should stops adjust for gap size (trailing stop)?'
+    - 'How much premarket volume matters?'
+    - 'Cross market gaps (ES vs SPY)?'
+  dependencies: [Prior close data, Next open data, Gap statistics]
+  verification_needed: 'Manual review: count gaps hitting stops in 100 trades'
+  priority_hint: research_quality
+
+- id: TPAR-R007
+  title: Live system shall support position management policies with configurable discipline rules
+  status: proposed
+  derived_from: [TPAR-C15-011]
+  derivation_type: direct_book_recommendation
+  rationale: 'To test trading discipline hypotheses (e.g., always-in mode increases profit capture), live system must support policy management: enforce/relax exit constraints, control re-entry logic, track policy adherence'
+  applies_to:
+    strategy: [stock_signal, shared]
+    lifecycle: [live]
+    asset_class: [equities]
+    concern: [execution, alpha]
+  requirement: 'Live system shall support configurable position policies: (1) allow trader to set discipline mode (e.g., "always-in" vs "profit-taking"), (2) enforce selected policy by blocking disallowed actions (e.g., block profit exit if always-in active), (3) log policy breaches and deviations, (4) measure adherence stats'
+  acceptance_tests:
+    - 'Policy mode correctly prevents disallowed actions'
+    - 'Policy adherence logged and measurable'
+    - 'Trader can toggle between policies (with confirmation)'
+  failure_prevented: Without policy enforcement, traders revert to undisciplined behavior; measurement enables backtesting discipline impact
+  capability_enabled: Testable and enforceable trading discipline; measurable policy compliance
+  assumptions: [Trader confirms policy choice, Policy definitions are clear, Logging is reliable]
+  open_questions:
+    - 'How strict should enforcement be? Allow emergency overrides?'
+    - 'Should policies apply per-symbol or account-wide?'
+    - 'How to measure benefit of discipline vs other factors?'
+  dependencies: [Order management, Trade logging, Policy state tracking]
+  verification_needed: 'Paper trade: compare policy adherence metrics with actual P&L; measure impact'
+  priority_hint: operability
+  note: 'AUDIT CORRECTION: Reframed as infrastructure for policy management. The specific always-in discipline benefits are a trading rule/hypothesis that should be tested, not a system requirement.'
+
+- id: TPAR-R008
+  title: Backtester shall implement gap/premarket open range as Day 1 data input
+  status: proposed
+  derived_from: [TPAR-C19-017]
+  derivation_type: agent_inference
+  rationale: Chs17, 19 on opening range patterns; backtester must ingest premarket highs/lows and flag opening-range breakouts
+  applies_to:
+    strategy: [stock_signal, shared]
+    lifecycle: [backtest]
+    asset_class: [equities]
+    concern: [simulation]
+  requirement: Backtester shall accept optional premarket/Globex data; compute opening range high/low for first 30-60 min of session; flag breakouts of range; tag trades as opening-range-breakout or not; compute win-rate of breakout vs non-breakout entries
+  acceptance_tests:
+    - 'Premarket high/low loaded correctly'
+    - 'Opening range computed and matches manual check'
+    - 'Breakout flag correctly applied'
+    - 'Win-rate diff measured'
+  failure_prevented: Without opening range context, cannot test Ch19 opening patterns hypothesis
+  capability_enabled: Can backtest opening range strategies
+  assumptions: [Premarket data quality acceptable, 30-60min window is standard, Day direction tied to opening breakout]
+  open_questions:
+    - 'Which 60 minutes define opening range? Market open +/-30min?'
+    - 'Should range adjust for day-to-day vol?'
+    - 'Multi-day premarket data?'
+  dependencies: [Premarket OHLCV data, Time-based filtering, Breakout detection]
+  verification_needed: Compare backtester opening range vs TradingView
+  priority_hint: research_quality

@@ -1,0 +1,193 @@
+- id: "MLAT-R-001"
+  title: "Data pipeline shall validate point-in-time availability for all fundamental data"
+  status: "proposed"
+  derived_from: ["MLAT-C8-001"]
+  derivation_type: "agent_inference"
+  rationale: "Look-ahead bias from misaligned data availability invalidates backtests and live trading performance. Point-in-time validation is critical control."
+  applies_to:
+    strategy: ["stock_signal", "grid"]
+    lifecycle: ["research", "backtest", "live"]
+    asset_class: ["equities"]
+    concern: ["data", "simulation"]
+  requirement: "The data ingestion module shall enforce that all fundamental data (earnings, splits, dividends, guidance) are timestamped with their public release date and shall not be used in any analysis prior to that timestamp."
+  acceptance_tests:
+    - "Rerun backtest with lag adjustment: confirmed that returns decrease by expected amount"
+    - "Audit data timestamps against SEC filing dates for 100 random data points"
+    - "Verify that training data for any signal is collected only from dates prior to point-in-time release"
+  failure_prevented: "Look-ahead bias inflating backtest returns; live trading failure due to unavailable data at decision time"
+  capability_enabled: "Realistic, generalizable backtest results; confidence in model deployment"
+  assumptions:
+    - "Data providers supply release timestamps"
+    - "Point-in-time adjustment is feasible without removing essential features"
+  open_questions:
+    - "Should data restatements be modeled (e.g., EPS restatement after discovery of fraud)?"
+    - "How to handle data that is never officially released (e.g., private company info)?"
+  dependencies: ["MLAT-R-005"]
+  verification_needed: "Integration test comparing OOS backtest performance with/without lag adjustment"
+  priority_hint: "safety"
+
+- id: "MLAT-R-002"
+  title: "Backtesting engine shall use historical constituent lists to track asset universe over time"
+  status: "proposed"
+  derived_from: ["MLAT-C8-002"]
+  derivation_type: "agent_inference"
+  rationale: "Survivorship bias from omitting delisted securities overstates backtest returns by 2–5% annually. Accurate historical universe is essential for realistic performance measurement."
+  applies_to:
+    strategy: ["stock_signal", "grid"]
+    lifecycle: ["backtest"]
+    asset_class: ["equities"]
+    concern: ["data", "simulation"]
+  requirement: "The backtesting engine shall maintain a time-varying asset universe that includes all securities available at each historical date, including delisted, bankrupt, and acquired securities, with proper handling of survivorship events (exit dates, bankruptcy codes)."
+  acceptance_tests:
+    - "Backtest comparison: full universe (delisted-inclusive) vs. survivor universe shows 2–5% CAGR difference"
+    - "Verify 100 random delisting dates match exchange records"
+    - "Confirm that portfolio positions are closed at delisting date"
+  failure_prevented: "Overstated backtest performance leading to failed live strategies"
+  capability_enabled: "Realistic risk/return measurement; accurate drawdown estimates"
+  assumptions:
+    - "Historical constituent data is available (CRSP, SEC Edgar)"
+    - "Delisting events are timestamped accurately"
+  open_questions:
+    - "How to model bankruptcy recovery value (if any)?"
+    - "Should acquired companies be included/excluded based on acquisition price?"
+  dependencies: []
+  verification_needed: "Empirical validation on known delisting events (2000-2020)"
+  priority_hint: "correctness"
+
+- id: "MLAT-R-003"
+  title: "Cross-validation in ML signal pipeline shall use time-series splitting to avoid look-ahead bias"
+  status: "proposed"
+  derived_from: ["MLAT-C6-001"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Random-fold cross-validation on time-series data leaks future information into training. Time-series CV (walk-forward) respects temporal causality and provides unbiased estimates."
+  applies_to:
+    strategy: ["stock_signal"]
+    lifecycle: ["research", "backtest"]
+    asset_class: ["equities", "shared"]
+    concern: ["reproducibility", "simulation"]
+  requirement: "All supervised learning models trained on time-series data shall use expanding or rolling window cross-validation with train/test split respecting temporal order. Random-fold cross-validation is explicitly prohibited for time-series targets."
+  acceptance_tests:
+    - "Code review: no sklearn.cross_validation.cross_val_score or random KFold on time-series targets"
+    - "Walk-forward CV results compared to random CV show >= 10% discrepancy in signal quality"
+    - "Integration test confirms OOS backtest performance matches walk-forward CV estimate"
+  failure_prevented: "Optimistic bias in model selection; overfitted models deployed to live trading"
+  capability_enabled: "Reliable signal quality estimates; improved model selection"
+  assumptions:
+    - "Future information is not relevant to current decision (causality assumption)"
+    - "Window sizes are set appropriately (typically 252 days training, 21 days testing)"
+  open_questions:
+    - "Should seasonal repeating patterns be allowed in test set (e.g., January effect)?"
+    - "Optimal train/test ratio for different signal frequencies?"
+  dependencies: []
+  verification_needed: "Empirical comparison of random-fold vs. walk-forward CV on known test set"
+  priority_hint: "correctness"
+
+- id: "MLAT-R-004"
+  title: "Backtesting engine shall model realistic execution microstructure (slippage, partial fills, latency)"
+  status: "proposed"
+  derived_from: ["MLAT-C8-005"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Vectorized backtesting assumes unrealistic fills at bar-end prices, inflating returns by 5–30%. Event-driven simulation must model slippage, partial fills, and latency to match live execution."
+  applies_to:
+    strategy: ["stock_signal", "grid"]
+    lifecycle: ["backtest"]
+    asset_class: ["equities", "shared"]
+    concern: ["simulation", "execution"]
+  requirement: "Backtesting engine shall support event-driven simulation with configurable slippage model (fixed bps, volume-dependent, market-impact), partial fill logic (volume limits, time-in-force), and latency (order transmission, venue response)."
+  acceptance_tests:
+    - "Event-driven backtest produces lower returns than vectorized backtest (typical 5–15% spread)"
+    - "Measured slippage matches historical market microstructure studies"
+    - "Partial fill rate matches venue order fill distributions"
+  failure_prevented: "Backtest performance inflated; live strategy underperforms expectations"
+  capability_enabled: "Realistic performance measurement; execution-aware strategy tuning"
+  assumptions:
+    - "Market impact and slippage are measurable from historical data"
+    - "Microstructure patterns are stable over time"
+  open_questions:
+    - "How to model market impact for large orders (nonlinear)?"
+    - "Should latency vary by venue/asset?"
+  dependencies: ["MLAT-R-001", "MLAT-R-002"]
+  verification_needed: "Out-of-sample backtest vs. live execution comparison"
+  priority_hint: "correctness"
+
+- id: "MLAT-R-005"
+  title: "Data validation layer shall enforce schema, completeness, and stationarity checks"
+  status: "proposed"
+  derived_from: ["MLAT-C8-001", "MLAT-C8-003"]
+  derivation_type: "agent_inference"
+  rationale: "Data quality issues (missing values, outliers, non-stationary shifts) propagate into model training and backtest results. Automated validation prevents silent failures."
+  applies_to:
+    strategy: ["stock_signal", "grid"]
+    lifecycle: ["research", "backtest"]
+    asset_class: ["equities", "shared"]
+    concern: ["data"]
+  requirement: "Data pipeline shall validate: (a) schema compliance (correct types, ranges), (b) completeness (no gaps, minimum lookback), (c) outlier detection (automated flagging of extreme deviations from rolling distribution), (d) stationarity tests (ADF, KPSS on key features)."
+  acceptance_tests:
+    - "Data validation passes 100% of checks before training begins"
+    - "Outlier detection flags known market crashes (2008, 2020, etc.)"
+    - "Stationarity test identifies regime shifts in rolling windows"
+  failure_prevented: "Models trained on corrupted/shifted data; backtest results unreliable"
+  capability_enabled: "Data transparency; early detection of data issues before model training"
+  assumptions:
+    - "Outliers can be distinguished from regime shifts"
+    - "Stationarity is a meaningful criterion for financial data"
+  open_questions:
+    - "How aggressive should outlier detection be (avoid removing realistic extremes)?"
+    - "Should stationarity tests be per-asset or portfolio-level?"
+  dependencies: []
+  verification_needed: "Empirical test: data validation catches known data quality issues from public datasets"
+  priority_hint: "correctness"
+
+- id: "MLAT-R-006"
+  title: "Signal evaluation module shall compute IC and Alphalens metrics before deployment"
+  status: "proposed"
+  derived_from: ["MLAT-C4-002", "MLAT-C12-003"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Standardized metrics (IC, factor quantile returns, turnover) provide objective signal quality assessment and enable reproducible comparison across factors and time periods."
+  applies_to:
+    strategy: ["stock_signal"]
+    lifecycle: ["research", "backtest"]
+    asset_class: ["equities"]
+    concern: ["data", "reproducibility"]
+  requirement: "Before deploying any trading signal, an Alphalens analysis shall be executed computing: (a) Information Coefficient (IC), (b) factor quantile returns (1st to 5th decile), (c) mean reversion, (d) turnover, (e) autocorrelation. All metrics computed on hold-out test data."
+  acceptance_tests:
+    - "Alphalens analysis completes without errors on OOS test set"
+    - "IC is positive and significant (p < 0.05) on test data"
+    - "Factor quantile spread (5th decile - 1st decile return) is >= 100bps annually"
+  failure_prevented: "Deployment of low-quality signals with no predictive power"
+  capability_enabled: "Objective signal quality gate; comparison across factors"
+  assumptions:
+    - "IC is a valid proxy for trading profitability (may not hold with transaction costs)"
+    - "Alphalens computation is free of look-ahead bias"
+  open_questions:
+    - "What IC threshold should trigger signal rejection?"
+    - "How to adjust for multiple testing (many factors tested)?"
+  dependencies: ["MLAT-R-003", "MLAT-R-005"]
+  verification_needed: "Compare Alphalens metrics to out-of-sample backtest returns"
+  priority_hint: "research_quality"
+
+- id: "MLAT-R-007"
+  title: "Backtester shall support both vectorized (research-speed) and event-driven (realistic) modes"
+  status: "proposed"
+  derived_from: ["MLAT-C8-005"]
+  derivation_type: "agent_inference"
+  rationale: "Vectorized backtesting enables fast iteration during research; event-driven simulation provides realistic performance estimates for deployment decisions."
+  applies_to:
+    strategy: ["stock_signal", "grid"]
+    lifecycle: ["research", "backtest"]
+    asset_class: ["equities", "shared"]
+    concern: ["execution"]
+  requirement: "Backtesting infrastructure shall provide two execution modes selectable by user: (1) Vectorized (NumPy/Pandas), (2) Event-driven. Both modes shall use identical data and signal logic but differ in execution simulation fidelity."
+  acceptance_tests:
+    - "Both modes produce valid P&L and drawdown metrics"
+    - "Event-driven results <= vectorized results (realistic slippage)"
+    - "Mode selection correctly propagates through strategy configuration"
+  failure_prevented: "Research/deployment mismatch; overconfidence in vectorized results"
+  capability_enabled: "Fast research iteration + realistic final validation"
+  assumptions:
+    - "Execution model can be parameterized independently of signal logic"
+  open_questions:
+    - "Should intermediate hybrid modes (semi-realistic) be supported?"
+  dependencies: ["MLAT-R-004"]
+  verification_needed: "Integration test comparing modes on sample strategies"
+  priority_hint: "operability"

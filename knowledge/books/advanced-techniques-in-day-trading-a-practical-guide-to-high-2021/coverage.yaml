@@ -1,0 +1,217 @@
+book_id: advanced-techniques-in-day-trading-a-practical-guide-to-high-2021
+sections:
+  - ref: ch1-intro
+    title: "Chapter 1: Introduction"
+    pdf_page_start: 6
+    status: processed
+    reason: "Full extraction completed"
+  - ref: ch1.1-about
+    title: "1.1: About this Book"
+    pdf_page_start: 8
+    status: processed
+    reason: "Book scope and target audience"
+  - ref: ch1.2-style
+    title: "1.2: My Trading Style"
+    pdf_page_start: 10
+    status: processed
+    reason: "Author's trading methodology"
+  - ref: ch1.3-probability
+    title: "1.3: Day Trading as a Probability Business"
+    pdf_page_start: 14
+    status: processed
+    reason: "Key conceptual framework"
+  - ref: ch1.4-org
+    title: "1.4: How this Book is Organized"
+    pdf_page_start: 19
+    status: processed
+    reason: "Structure overview"
+  - ref: ch2-tools
+    title: "Chapter 2: The Trading Tools and Platform"
+    pdf_page_start: 27
+    status: processed
+    reason: "Platform and broker requirements"
+  - ref: ch2.1-broker
+    title: "2.1: Choosing a Broker"
+    pdf_page_start: 28
+    status: processed
+    reason: "Broker selection criteria; freshness-risk flagged"
+  - ref: ch2.2-platform
+    title: "2.2: Trading Platform Configuration"
+    pdf_page_start: 32
+    status: processed
+    reason: "Platform setup and UI organization"
+  - ref: ch2.3-montage
+    title: "2.3: Montage and Level 2 Display"
+    pdf_page_start: 36
+    status: processed
+    reason: "Market microstructure signals"
+  - ref: ch2.4-orders
+    title: "2.4: Order Types and Execution Methods"
+    pdf_page_start: 43
+    status: processed
+    reason: "Entry and exit order types"
+  - ref: ch2.5-hotkeys
+    title: "2.5: Hotkeys and Execution Mechanics"
+    pdf_page_start: 60
+    status: processed
+    reason: "Speed and automation in execution"
+  - ref: ch3-watchlist
+    title: "Chapter 3: Building Your Trading Watchlist"
+    pdf_page_start: 67
+    status: processed
+    reason: "Stock selection and screening"
+  - ref: ch3.1-stocks-in-play
+    title: "3.1: Stocks in Play and Catalysts"
+    pdf_page_start: 68
+    status: processed
+    reason: "Stock selection methodology"
+  - ref: ch3.2-float
+    title: "3.2: Float and Market Cap Analysis"
+    pdf_page_start: 76
+    status: processed
+    reason: "Fundamental filtering criteria"
+  - ref: ch3.3-gappers
+    title: "3.3: Pre-Market Gappers and Gap Strategy"
+    pdf_page_start: 81
+    status: processed
+    reason: "Gap-based setup identification"
+  - ref: ch3.4-realtime
+    title: "3.4: Real Time Intraday Scans"
+    pdf_page_start: 93
+    status: processed
+    reason: "Intraday scanning and filtering logic"
+  - ref: ch3.5-planning
+    title: "3.5: Planning the Trade Based on Scanners"
+    pdf_page_start: 113
+    status: processed
+    reason: "Pre-trade planning methodology"
+  - ref: ch4-support
+    title: "Chapter 4: Support and Resistance Levels"
+    pdf_page_start: 120
+    status: processed
+    reason: "Price level identification and use"
+  - ref: ch4.1-levels
+    title: "4.1: Support and Resistance Concepts"
+    pdf_page_start: 124
+    status: processed
+    reason: "Theoretical framework"
+  - ref: ch4.2-finding
+    title: "4.2: Finding Support and Resistance Levels"
+    pdf_page_start: 126
+    status: processed
+    reason: "Practical level identification techniques"
+  - ref: ch5-price
+    title: "Chapter 5: Price Action, Candlesticks and Trade Management"
+    pdf_page_start: 163
+    status: processed
+    reason: "Core technical analysis framework"
+  - ref: ch5.1-action
+    title: "5.1: Price Action and Mass Psychology"
+    pdf_page_start: 168
+    status: processed
+    reason: "Market behavior interpretation"
+  - ref: ch5.2-candlesticks
+    title: "5.2: Bullish and Bearish Candlesticks"
+    pdf_page_start: 170
+    status: processed
+    reason: "Candlestick pattern library"
+  - ref: ch5.3-indecision
+    title: "5.3: Indecision Candlesticks"
+    pdf_page_start: 171
+    status: processed
+    reason: "Neutral/uncertainty patterns"
+  - ref: ch5.4-patterns
+    title: "5.4: Candlestick Patterns"
+    pdf_page_start: 174
+    status: processed
+    reason: "Multi-candle pattern recognition"
+  - ref: ch5.5-management
+    title: "5.5: Trade Management Based on Price Action"
+    pdf_page_start: 183
+    status: processed
+    reason: "Position management and exit rules"
+  - ref: ch5.6-sizing
+    title: "5.6: Position Sizing"
+    pdf_page_start: 196
+    status: processed
+    reason: "Risk-per-trade framework"
+  - ref: ch5.7-level2
+    title: "5.7: Understanding Nasdaq Level 2 Signals"
+    pdf_page_start: 199
+    status: processed
+    reason: "Market depth interpretation"
+  - ref: ch6-strategies
+    title: "Chapter 6: Advanced Day Trading Strategies"
+    pdf_page_start: 210
+    status: processed
+    reason: "Core strategy toolkit"
+  - ref: ch6.1-angel
+    title: "6.1: Strategy 1 - Fallen Angel"
+    pdf_page_start: 213
+    status: processed
+    reason: "Momentum-reversal setup"
+  - ref: ch6.2-abcd
+    title: "6.2: Strategy 2 - ABCD Pattern / Reverse ABCD"
+    pdf_page_start: 231
+    status: processed
+    reason: "Harmonic pattern setup"
+  - ref: ch6.3-flag
+    title: "6.3: Strategy 3 - Bull Flag / Bear Flag"
+    pdf_page_start: 251
+    status: processed
+    reason: "Consolidation breakout setup"
+  - ref: ch6.4-orb
+    title: "6.4: Strategy 4 - Opening Range Breakout (ORB)"
+    pdf_page_start: 266
+    status: processed
+    reason: "Gap fill and breakout setup"
+  - ref: ch6.5-vwap
+    title: "6.5: Strategy 5 - VWAP Trading"
+    pdf_page_start: 272
+    status: processed
+    reason: "Volume-weighted average price strategy"
+  - ref: ch6.6-multi
+    title: "6.6: One Stock in Play, All Strategies"
+    pdf_page_start: 316
+    status: processed
+    reason: "Multi-strategy application example"
+  - ref: ch6.7-other
+    title: "6.7: Other Trading Strategies"
+    pdf_page_start: 321
+    status: processed
+    reason: "Supplementary strategy overview"
+  - ref: ch6.8-skills
+    title: "6.8: Develop Trading Skills, Not Strategy"
+    pdf_page_start: 323
+    status: processed
+    reason: "Meta-advice on learning and skill development"
+  - ref: ch7-risk
+    title: "Chapter 7: Risk and Account Management"
+    pdf_page_start: 331
+    status: processed
+    reason: "Risk framework and rules"
+  - ref: ch7.1-noswing
+    title: "7.1: Don't Change a Day Trade to a Swing Trade"
+    pdf_page_start: 337
+    status: processed
+    reason: "Trade discipline warning"
+  - ref: ch7.2-risk-mgmt
+    title: "7.2: Risk Management"
+    pdf_page_start: 346
+    status: processed
+    reason: "Risk control methodology"
+  - ref: ch7.3-sizing
+    title: "7.3: Position Sizing"
+    pdf_page_start: 359
+    status: processed
+    reason: "Position sizing rules and framework"
+  - ref: ch8-conclusion
+    title: "Chapter 8: Conclusion and Final Words"
+    pdf_page_start: 366
+    status: processed
+    reason: "Summary and meta-observations"
+  - ref: glossary
+    title: "Glossary"
+    pdf_page_start: 382
+    status: processed
+    reason: "Trading terminology reference"

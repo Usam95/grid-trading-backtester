@@ -1,0 +1,162 @@
+- id: "REGIME-H1"
+  title: "DC indicator R better captures high-frequency regime transitions than daily realized volatility"
+  status: "proposed"
+  derived_from: ["REGIME-C3-002", "REGIME-C2-002"]
+  statement: "When monitoring financial markets at intra-day frequencies, the Directional Change indicator R (log-transformed, combining price movement and duration) detects regime transitions faster and with fewer false negatives than daily realized volatility computed from fixed-interval returns."
+  proposed_mechanism: "DC sampling occurs at event-driven times (price thresholds), capturing intra-day regime shifts before they manifest in next-day volatility. RV requires full trading day of data before calculation. Thus DC is inherently faster."
+  applicable_markets_and_regimes: "High-frequency markets (FX, crypto spot, micro-cap equities); applicable in both normal and abnormal regimes; more relevant during regime transitions."
+  assumptions:
+    - "Threshold theta is chosen appropriately for target market volatility"
+    - "Log-transformation of R yields approximately normal distribution for HMM"
+    - "Two-state HMM captures market regime complexity for observation window"
+    - "Intra-day regime transitions are economically meaningful (not noise)"
+  data_requirements:
+    - "Second-by-second or tick-level price data"
+    - "At least 3-6 months of historical data for HMM calibration"
+    - "Known regime transition dates or events for validation (e.g., policy announcements, market shocks)"
+  baseline_or_null_hypothesis: "Daily realized volatility is as effective as DC indicator for regime detection; intra-day regime transitions are undetectable or economically insignificant."
+  validation_approach: "Compare detection lag by measuring time between regime onset (market event date) and detection via DC vs. RV; compare false-positive rate by counting erroneous regime transitions flagged by each method on stable periods; test on multiple currency pairs, equity indices, time periods to ensure generalization; use Receiver Operating Characteristic (ROC) curves to evaluate trade-off between sensitivity and specificity."
+  transaction_cost_and_fill_considerations: "Faster regime detection (DC) allows earlier trade entry/exit, potentially reducing slippage costs. More false alarms (especially if DC threshold too low) may incur unnecessary bid-ask spreads. Benefit of early detection must exceed transaction cost increase from higher trading frequency."
+  robustness_checks:
+    - "Validate threshold theta on out-of-sample periods (different market regimes, crises, quiet periods)"
+    - "Test sensitivity to HMM initialization and number of states"
+    - "Compare performance across asset classes (FX, equities, crypto)"
+    - "Assess stability of regime boundaries under different sampling frequencies"
+  rejection_criteria:
+    - "If DC detection lag is not statistically significantly faster than RV (p > 0.05)"
+    - "If DC false-positive rate exceeds RV false-positive rate by >20%"
+    - "If regime transitions detected via DC do not align with known market events or HMM posterior probabilities drop below 60%"
+  failure_modes:
+    - "DC threshold transfer between markets fails; theta=0.4% optimal for FX but not equities"
+    - "HMM overfitting to backtest period; regimes do not generalize"
+    - "Lag in Naive Bayes inference negates early-detection advantage"
+    - "High volatility regime exhibits power-law tail; Gaussian HMM assumption violated"
+  freshness_concerns: "Market microstructure changes (tick size regulation, trading hours, venue consolidation) may alter DC indicator properties. Regimes themselves may shift post-2020 (e.g., impact of algorithmic trading proliferation, central bank policies)."
+  unresolved_questions:
+    - "Is theta universal or market-specific? How to select theta for novel assets?"
+    - "Does DC provide edge in practice or only in backtest? What are realistic transaction costs?"
+    - "Can regime detection be made fully automatic, or does human judgment remain essential?"
+
+- id: "REGIME-H2"
+  title: "Normal-regime vs. abnormal-regime classification generalizes across independent markets"
+  status: "proposed"
+  derived_from: ["REGIME-C4-001", "REGIME-C4-002"]
+  statement: "Market regimes identified via DC+HMM can be reliably classified as Normal (lower volatility, stable pricing) or Abnormal (crisis, high volatility) using a threshold on DC indicator R; this classification generalizes across equity indices, currency pairs, and even asset classes without retraining."
+  proposed_mechanism: "Regime 1 (lower R mean/variance) corresponds to normal trading; Regime 2 (higher R mean/variance) corresponds to abnormal/stressed market conditions. If R distributions are invariant across markets, a global threshold can classify regimes universally."
+  applicable_markets_and_regimes: "All tested equity indices (DJIA, FTSE 100, S&P 500) and FX pairs (EUR-GBP, GBP-USD, EUR-USD); assumption: hypothesis extends to commodities, crypto."
+  assumptions:
+    - "Regime 1 and 2 have distinct and non-overlapping R distributions"
+    - "R distribution is stationary across time and does not depend on asset or market microstructure"
+    - "A single global R threshold (or bounded set of thresholds) is sufficient for 90%+ accuracy across markets"
+    - "Normal regime corresponds to lower risk/drawdown; abnormal to higher risk (testable assumption)"
+  data_requirements:
+    - "Historical DC indicator R values from multiple independent markets"
+    - "Known labels for regime transitions (financial crises, policy events, or ground-truth HMM labels from large training set)"
+    - "At least 1 year of data per market to capture both normal and abnormal periods"
+  baseline_or_null_hypothesis: "Regime classification must be tuned per market; R distributions are market-specific. No universal threshold exists."
+  validation_approach: "Train HMM on N markets and extract R quantiles for Regime 1 and 2; set global classification threshold at, e.g., 70th percentile of pooled Regime 2 R distribution; apply threshold to held-out market or asset class and measure classification accuracy; report precision, recall, F1 score for abnormal-regime detection."
+  transaction_cost_and_fill_considerations: "If classification is accurate, can reduce risk by tightening stops or reducing exposure in abnormal regimes. False abnormal-regime predictions trigger unnecessary hedging costs. False normal-regime predictions expose traders to unhedged stress events."
+  robustness_checks:
+    - "Test on different time periods (pre-2008, 2008-2009 crisis, 2010-2015 recovery, 2016-2020)"
+    - "Test on multiple asset classes (equities, bonds, FX, commodities, crypto)"
+    - "Vary theta and HMM parameters; assess sensitivity"
+    - "Compare to alternative regime definitions (e.g., volatility-based thresholds, Hamilton model)"
+  rejection_criteria:
+    - "If classification accuracy drops below 75% on held-out data"
+    - "If abnormal-regime detection precision < 70% (too many false alarms)"
+    - "If regimes fail to align with known crisis dates or market events"
+    - "If R distributions significantly overlap across Regime 1 and 2"
+  failure_modes:
+    - "Regimes are market-specific due to different market structures, trading hours, liquidity profiles"
+    - "Abnormal regime labels are contaminated (some 'abnormal' periods are not stressful)"
+    - "R indicator biased by asset-class-specific microstructure (e.g., crypto fragmentation vs. equity consolidation)"
+    - "Regime definitions collapse during truly unprecedented events (black swans)"
+  freshness_concerns: "Crisis definition may change; systemic risk may evolve (e.g., pandemic, geopolitical). Regulatory changes (circuit breakers, position limits) alter volatility dynamics. Technological advances (algorithmic trading, flash crashes) may create new regime types."
+  unresolved_questions:
+    - "Is there a universal R-threshold, or do effective thresholds form a distribution?"
+    - "Do asset classes have fundamentally different regime dynamics (commodities, crypto) or are differences superficial?"
+    - "Can machine learning (e.g., anomaly detection on R) improve classification accuracy over fixed thresholds?"
+
+- id: "REGIME-H3"
+  title: "Real-time regime tracking via Naive Bayes is predictive of 1-hour-ahead price moves"
+  status: "proposed"
+  derived_from: ["REGIME-C5-001", "REGIME-C5-002"]
+  statement: "When market regime (Normal vs. Abnormal) is tracked in real-time using Naive Bayes classifier on DC indicators, regime transitions are predictive of next-hour returns or volatility; specifically, transitions to Abnormal regime precede volatility spikes by 15-60 minutes on average."
+  proposed_mechanism: "Collective trader behavior (reflected in DC events) shifts before volatility formally manifests in returns. Naive Bayes detects probability shift; lag between detection and volatility spike creates arbitrage opportunity."
+  applicable_markets_and_regimes: "Equity indices, currency pairs, intra-day frequencies (1-hour horizon). Most relevant during regime transitions."
+  assumptions:
+    - "Regime transitions are causal precursors of volatility moves, not artifacts"
+    - "Naive Bayes conditional independence assumption holds for regime features (e.g., DC return, trend duration)"
+    - "Historical regime-label probabilities are predictive (stationarity assumption)"
+    - "Lag between detection and volatility spike is consistent and exploitable (15-60 min); not random"
+  data_requirements:
+    - "Intra-day price data (minute-level or better) for equity and FX instruments"
+    - "Trained Naive Bayes classifier with posterior probabilities for regime membership"
+    - "Aligned regime labels (HMM-derived) and realized volatility (RV) or returns for 1-hour forward window"
+    - "At least 1-2 years of continuous data to capture regime transitions"
+  baseline_or_null_hypothesis: "Regime transitions are not predictive of next-hour volatility; lag is random or regime labels have no information content."
+  validation_approach: "Compute Naive Bayes posterior probability of regime transition at each time step; group observations by regime transition type (Normal-Abnormal, Abnormal-Normal, no change); measure average realized volatility in next hour for each transition type; calculate information coefficient (IC) between transition probability and forward volatility; perform statistical significance test (e.g., t-test) on lag between probability shift and volatility realization."
+  transaction_cost_and_fill_considerations: "If predictive lag is only 5-10 minutes, transaction costs (bid-ask, commissions) may erase edge. If lag is 30-60 minutes, strategy has time to establish positions and benefit from volatility move. Optimal trade sizing depends on lag and signal strength (posterior probability)."
+  robustness_checks:
+    - "Cross-validate on different time periods and markets"
+    - "Vary Naive Bayes tuning (prior probabilities, feature selection, smoothing)"
+    - "Test different forward-looking windows (30 min, 1 hour, 2 hours, 1 day) to find optimal horizon"
+    - "Control for obvious volatility drivers (option expiry, economic data releases, news events)"
+  rejection_criteria:
+    - "If information coefficient < 0.1 (weak signal)"
+    - "If lag distribution has high variance (>50% of mean); too unpredictable for trading"
+    - "If realized volatility in Normal and Abnormal regimes not significantly different (p > 0.05)"
+    - "If out-of-sample performance degrades by >30% compared to in-sample"
+  failure_modes:
+    - "Regime transition precedes volatility, but leads are too short to trade profitably"
+    - "Abnormal regime definition includes benign, non-volatile periods (false positives)"
+    - "Transition detection itself introduces lag due to Naive Bayes inference; effective predictive power is zero"
+    - "Regime changes are simultaneous with volatility spikes, not predictive; no lag to exploit"
+  freshness_concerns: "Algorithm trading may have eliminated predictability; regimes may now be instantly priced. Market microstructure changes (e.g., faster order execution, tick-size changes) may compress lag. Regime definitions may drift post-crisis periods."
+  unresolved_questions:
+    - "Is the lag truly exploitable after costs, or is it a statistical artifact?"
+    - "Do different market conditions (quiet, trending, crisis) have different lag distributions?"
+    - "Can machine learning improve forecast vs. Naive Bayes baseline?"
+
+- id: "REGIME-H4"
+  title: "Regime-aware trading strategies reduce maximum drawdown by 15-30% without sacrificing returns"
+  status: "proposed"
+  derived_from: ["REGIME-C6-001", "REGIME-C6-002"]
+  statement: "Algorithmic trading strategies that incorporate regime-change signals (entry/exit on Normal↔Abnormal transitions) achieve 15-30% lower maximum drawdown than buy-and-hold or regime-agnostic strategies, with no significant reduction in total returns (annualized return within ±10% of baseline)."
+  proposed_mechanism: "When regime shifts to Abnormal (high volatility), regime-aware algorithm reduces exposure (exits longs or tightens stops); this avoids peak drawdowns. Transition back to Normal allows re-entry; total return captured by timing entry/exit around regime dips."
+  applicable_markets_and_regimes: "Equity indices, FX, and other trending/mean-reverting instruments; most benefit during market stress or regime-heavy periods (e.g., 2008 crisis, Brexit, COVID crash)."
+  assumptions:
+    - "Regime transitions are detectable before major drawdowns occur (detection lag < 1 day)"
+    - "Normal regime correlates with favorable trading conditions (low risk); Abnormal with high drawdown risk"
+    - "Money management (fixed lot sizing, stops) is appropriate; regime signal is incremental risk control"
+    - "Backtest assumptions (no slippage, instant fills, fixed costs) are not wildly unrealistic"
+  data_requirements:
+    - "Multi-year equity or FX data spanning at least one market crash or stress period"
+    - "Daily or intra-day OHLC prices; high-frequency data preferred for accuracy"
+    - "Trained HMM and Naive Bayes regime classifier"
+    - "Ground-truth drawdown periods (e.g., 2008-2009, 2016 Brexit, 2020 COVID) for validation"
+  baseline_or_null_hypothesis: "Regime signals provide no incremental drawdown reduction; any benefit is random or due to overfitting. Risk-adjusted returns are not improved."
+  validation_approach: "Backtest regime-aware algorithms (JC1, JC2) on historical data and compute maximum drawdown, Sharpe ratio, Calmar ratio; compare to buy-and-hold and regime-agnostic trading strategies; measure drawdown reduction as (Drawdown_Regime_Agnostic - Drawdown_Regime_Aware) / Drawdown_Regime_Agnostic; perform statistical significance test (e.g., bootstrap, permutation test) on drawdown differences; cross-validate on out-of-sample periods and independent datasets."
+  transaction_cost_and_fill_considerations: "Regime-aware strategies trigger additional trades on regime transitions; transaction costs (bid-ask, commissions) must be accounted. If trading frequency increases 5x, and transaction costs are 10 bps per round trip, cost drag could offset benefit. Assume realistic costs: 2 bps bid-ask spread, 2 bps commission, 1-2 bps market impact for non-flash-execution orders."
+  robustness_checks:
+    - "Backtest on multiple time periods (bull, bear, crisis, quiet)"
+    - "Vary entry/exit rules (immediate vs. lagged regime transitions)"
+    - "Test sensitivity to HMM parameters and regime threshold"
+    - "Compare to other drawdown-reduction techniques (e.g., volatility-scaled position sizing, volatility targeting)"
+    - "Walk-forward optimization to avoid overfitting"
+  rejection_criteria:
+    - "If maximum drawdown reduction < 10% (insufficient practical benefit)"
+    - "If annualized return drops >15% (too much alpha forfeited)"
+    - "If out-of-sample performance degrades >25% vs. in-sample (overfitting signal)"
+    - "If Calmar ratio (return / max drawdown) not significantly improved vs. baseline (p > 0.05)"
+  failure_modes:
+    - "Backtests ignore realistic transaction costs; actual benefit disappears in live trading"
+    - "Regime signals lag actual drawdown onset; exits occur too late"
+    - "Regime definition overfitted to specific crises; fails in novel market conditions"
+    - "Money management and regime signals are not independent; collinearity inflates perceived benefit"
+  freshness_concerns: "Regime definitions may be unstable post-2020; market conditions and participant behavior have changed. Increased algo trading and machine learning adoption may have eliminated regime-based edge. New asset classes (crypto, ESG, thematic ETFs) have different regime dynamics."
+  unresolved_questions:
+    - "Is the benefit real or an artifact of backtest assumptions?"
+    - "What is the optimal lag between regime transition detection and actual entry/exit?"
+    - "How does benefit scale with position size, leverage, or portfolio complexity?"
+

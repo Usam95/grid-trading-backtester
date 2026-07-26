@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Book coverage ledger",
+  "type": "object",
+  "required": ["book_id", "sections"],
+  "properties": {
+    "book_id": {"type": "string"},
+    "sections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["ref", "title", "status"],
+        "properties": {
+          "ref": {"type": ["string", "integer"]},
+          "title": {"type": "string"},
+          "pdf_page_start": {"type": ["integer", "null"]},
+          "epub_chapter_index": {"type": ["integer", "null"]},
+          "status": {"enum": ["planned_full_read", "planned_targeted_read", "low_priority",
+                              "irrelevant_to_mission", "unreadable", "processed", "audited"]},
+          "reason": {"type": ["string", "null"]}
+        }
+      }
+    }
+  }
+}

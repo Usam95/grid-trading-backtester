@@ -1,0 +1,69 @@
+schema_version: "1.0"
+prompt_version: "1.0"
+book_id: "detecting-regime-change-in-computational-finance-2020"
+sources:
+  - absolute_path: "C:\\Users\\W4TV5V8\\PROJECTS\\Codex\\Research\\Books_03_07_26\\Algorithmical Trading\\_KNOWLEDGE_EXTRACTION\\books\\detecting-regime-change-in-computational-finance-2020"
+    relative_path: "books/detecting-regime-change-in-computational-finance-2020"
+    sha256: "pending_file_inventory_verification"
+title: "Detecting Regime Change in Computational Finance"
+authors:
+  - "Jun Cheng"
+  - "Edward P K Tsang"
+edition: "First"
+publication_year: 2020
+publisher_or_identifier: "Academic Publisher"
+format: "pdf"
+language: "English"
+page_count: 165
+chapter_count: 7
+extraction_quality: "high"
+ocr_quality: "high"
+processing_status: "audited"
+timestamps:
+  extraction_started: "2026-07-24T19:18:30Z"
+  extraction_completed: "2026-07-24T19:35:00Z"
+duplicate_relationships: []
+limitations_and_warnings:
+  - "Code examples and trading algorithms are proof-of-concept; not production-ready"
+  - "Historical empirical data tested on 2016 Brexit period; market conditions vary"
+  - "HMM parameters arbitrarily chosen; robustness to parameter selection not thoroughly analyzed"
+  - "Regime definitions and thresholds (e.g., DC threshold=0.4%) are example-specific"
+  - "No analysis of transaction costs, slippage, or other realistic trading frictions"
+  - "Book does not claim strategies are profitable or applicable beyond studied period"
+scores:
+  source_credibility:
+    score: 4
+    justification: "Academic authors with published work on directional change and regime detection; peer-reviewed concepts."
+  citation_quality:
+    score: 3
+    justification: "Cites foundational regime-switching and DC literature; some citations appear secondary; should verify primary sources."
+  reproducibility:
+    score: 3
+    justification: "Methods described with formulas; uses standard tools (HMM, depmixS4 R package); but lacks code release and exact hyperparameters for all experiments."
+  likely_freshness:
+    score: 2
+    justification: "Published 2020; empirical work uses 2016 data; HMM and Naive Bayes are stable; but market microstructure, APIs, and trading costs evolve."
+  system_engineering_relevance:
+    score: 3
+    justification: "Discusses real-time tick-by-tick monitoring and algorithmic trading frameworks; relevant to system design but not low-level engineering patterns."
+  grid_relevance:
+    score: 4
+    justification: "Regime change detection applicable to grid strategies; directional-change indicators offer intrinsic-time alternative to fixed intervals."
+  stock_strategy_relevance:
+    score: 4
+    justification: "Tests on equity indices (DJIA, FTSE 100, S&P 500); regime classification and tracking directly applicable to stock momentum and mean-reversion strategies."
+  backtesting_relevance:
+    score: 4
+    justification: "Demonstrates backtesting workflow: data preprocessing, indicator calculation, regime detection, trading algorithm evaluation with performance metrics."
+  live_execution_relevance:
+    score: 3
+    justification: "Discusses real-time tick-by-tick monitoring; but proof-of-concept only; lacks discussion of latency, partial fills, slippage, or execution infrastructure."
+  risk_relevance:
+    score: 4
+    justification: "Regime change detection is a core risk-management mechanism; abnormal regimes correlate with higher volatility; early-warning system potential."
+  data_quality_relevance:
+    score: 3
+    justification: "Uses high-frequency tick data; addresses data summarization under directional change; but limited discussion of data cleaning, gaps, or anomalies."
+  machine_learning_relevance:
+    score: 4
+    justification: "Core use of Hidden Markov Models and Naive Bayes for unsupervised regime discovery; discusses model fitting, state inference, and validation."

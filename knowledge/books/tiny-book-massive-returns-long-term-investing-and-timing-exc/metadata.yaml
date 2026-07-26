@@ -1,0 +1,82 @@
+schema_version: '1.0'
+prompt_version: '1.0'
+book_id: tiny-book-massive-returns-long-term-investing-and-timing-exc
+sources:
+- absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\_KNOWLEDGE_EXTRACTION\inventory.yaml
+  relative_path: _KNOWLEDGE_EXTRACTION/inventory.yaml
+  sha256: TBD
+title: 'Tiny Book, Massive Returns: Long-Term Investing and Timing Excellence in the
+  Stock Market'
+authors:
+- Goldwyn, Benedict
+edition: 1st
+publication_year: 2024
+publisher_or_identifier: Self-published
+format: epub
+language: English
+page_count: 107
+chapter_count: 37
+extraction_quality: moderate
+ocr_quality: not_applicable
+processing_status: audited
+extraction_timestamp: '2026-07-25T01:46:10.460141'
+extraction_completed_timestamp: '2026-07-25T01:46:10.460141'
+duplicate_relationships: []
+limitations_and_warnings:
+- Self-published with marketing language ("Massive Returns", "Timing Excellence")
+- Backtested case studies do not guarantee forward performance
+- No independent verification of statistical claims
+- Strategy tested on historical data subject to look-ahead bias and overfitting
+- Market structure has changed significantly; venue rules and microstructure differ
+  from case study periods
+- RSI is a widely-known indicator; any edge may be arbitraged
+scores:
+  source_credibility:
+    score: 1
+    justification: Self-published work with promotional claims; author credentials
+      and track record unknown.
+  citation_quality:
+    score: 1
+    justification: No citations to academic research, regulatory filings, or primary
+      sources provided.
+  reproducibility:
+    score: 2
+    justification: Case studies show results but do not provide sufficient detail
+      for independent reproduction; no code or data.
+  likely_freshness:
+    score: 1
+    justification: Case studies spanning decades; no forward testing data; market
+      microstructure has changed.
+  system_engineering_relevance:
+    score: 3
+    justification: Provides conceptual ideas for backtest engine (RSI indicator, signal
+      generation) and research methodology.
+  grid_relevance:
+    score: 1
+    justification: Not applicable; book focuses on long-term buy-and-hold timing,
+      not grid trading.
+  stock_strategy_relevance:
+    score: 4
+    justification: 'Core content: RSI-based entry timing for equities; directly applicable
+      to stock strategy research.'
+  backtesting_relevance:
+    score: 4
+    justification: Case studies demonstrate backtesting concept; highlights overfitting
+      risks and cost modeling importance.
+  live_execution_relevance:
+    score: 2
+    justification: No discussion of live execution logistics, risk management, or
+      operational concerns.
+  risk_relevance:
+    score: 2
+    justification: Mentions drawdowns but lacks detailed risk analysis, position sizing,
+      or portfolio-level risk management.
+  data_quality_relevance:
+    score: 2
+    justification: Case studies assume good data; no discussion of survivorship bias,
+      delisting, corporate actions, or data quality.
+  machine_learning_relevance:
+    score: 0
+    justification: No machine learning content; purely rule-based technical indicator
+      approach.

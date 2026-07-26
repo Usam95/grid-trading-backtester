@@ -1,0 +1,47 @@
+book_id: guide-to-financial-markets
+sections:
+  - ref: ch1
+    title: Why markets matter
+    pdf_page_start: 6
+    status: processed
+    reason: "Foundational chapter on market structures and purposes"
+  - ref: ch2
+    title: Foreign-exchange markets
+    pdf_page_start: 22
+    status: processed
+    reason: "Core market structure relevant to live trading, execution, risk"
+  - ref: ch3
+    title: Money markets
+    pdf_page_start: 49
+    status: processed
+    reason: "Short-term debt instruments; relevant to cash and liquidity management"
+  - ref: ch4
+    title: Bond markets
+    pdf_page_start: 74
+    status: processed
+    reason: "Fixed-income instruments; asset class and valuation methodology"
+  - ref: ch5
+    title: Securitisation
+    pdf_page_start: 114
+    status: processed
+    reason: "Asset-backed securities; market structure and risk concepts"
+  - ref: ch6
+    title: International fixed-income markets
+    pdf_page_start: 139
+    status: processed
+    reason: "Global debt markets; regulatory and structural context"
+  - ref: ch7
+    title: Equity markets
+    pdf_page_start: 157
+    status: processed
+    reason: "Stock markets, indices, trading mechanisms; core to equity algo strategies"
+  - ref: ch8
+    title: Futures and options markets
+    pdf_page_start: 200
+    status: processed
+    reason: "Derivatives market structure, clearing, settlement; critical for grid/options trading"
+  - ref: ch9
+    title: Derivatives markets
+    pdf_page_start: 255
+    status: processed
+    reason: "Swaps, forwards, exotic derivatives; financial engineering concepts"

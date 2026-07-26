@@ -1,0 +1,79 @@
+book_id: "learn-algorithmic-trading-build-and-deploy-algorithmic-tradi-2019"
+sections:
+  - ref: "preface"
+    title: "Preface"
+    pdf_page_start: 14
+    status: "low_priority"
+    reason: "Marketing and book overview; low technical content"
+  
+  - ref: "ch1"
+    title: "Chapter 1: Algorithmic Trading Fundamentals"
+    pdf_page_start: 20
+    status: "processed"
+    reason: "Core foundational concepts: exchange microstructure, order book mechanics, matching algorithms (FIFO/pro-rata), system components"
+  
+  - ref: "ch2"
+    title: "Chapter 2: Deciphering the Markets with Technical Analysis"
+    pdf_page_start: 52
+    status: "processed"
+    reason: "Trading signal design: support/resistance, moving averages, oscillators (APO, MACD), Bollinger bands, RSI, momentum; high signal-generation relevance"
+  
+  - ref: "ch3"
+    title: "Chapter 3: Predicting the Markets with Basic Machine Learning"
+    pdf_page_start: 93
+    status: "processed"
+    reason: "Predictive modeling: linear/ridge/LASSO regression, decision trees, KNN, SVM, logistic regression; validation concerns noted"
+  
+  - ref: "ch4"
+    title: "Chapter 4: Classical Trading Strategies Driven by Human Intuition"
+    pdf_page_start: 115
+    status: "processed"
+    reason: "Momentum/trend-following strategies (dual moving average, naive, turtle); mean-reversion examples; correlations for portfolio construction"
+  
+  - ref: "ch5"
+    title: "Chapter 5: Sophisticated Algorithmic Strategies"
+    pdf_page_start: 144
+    status: "processed"
+    reason: "Volatility-adjusted indicators and strategies; economic-event trading; statistical arbitrage (lead-lag, portfolio composition, execution); high backtest/live relevance"
+  
+  - ref: "ch6"
+    title: "Chapter 6: Managing the Risk of Algorithmic Strategies"
+    pdf_page_start: 197
+    status: "processed"
+    reason: "Risk taxonomy (market, operational, regulatory), risk quantification (stop-loss, max drawdown, position limits, Sharpe ratio), real-time risk algorithms"
+  
+  - ref: "ch7"
+    title: "Chapter 7: Building a Trading System in Python"
+    pdf_page_start: 237
+    status: "processed"
+    reason: "System architecture: gateways, order book management, strategy interface, order manager, market simulator; critical engineering patterns"
+  
+  - ref: "ch8"
+    title: "Chapter 8: Connecting to Trading Exchanges"
+    pdf_page_start: 277
+    status: "processed"
+    reason: "Exchange connectivity: FIX protocol, market data feeds, order entry; requires freshness check for current APIs and protocol versions"
+  
+  - ref: "ch9"
+    title: "Chapter 9: Creating a Backtester in Python"
+    pdf_page_start: 301
+    status: "processed"
+    reason: "Backtesting methodology: in-sample vs out-of-sample, data storage (HDF5, databases), for-loop vs event-driven systems, backtester assumptions, dual-MA backtest case study"
+  
+  - ref: "ch10"
+    title: "Chapter 10: Adapting to Market Participants and Conditions"
+    pdf_page_start: 334
+    status: "processed"
+    reason: "Critical for live trading: backtest-to-live slippage (signal/strategy/risk validation), causes (latency, fees, market impact), profit decay mechanisms, adaptation strategies (signal optimization, portfolio rebalancing, regime detection)"
+  
+  - ref: "ch10_conclusion"
+    title: "Chapter 10: Final words and conclusions"
+    pdf_page_start: 368
+    status: "low_priority"
+    reason: "Motivational summary; low technical content"
+  
+  - ref: "index"
+    title: "Index"
+    pdf_page_start: 372
+    status: "irrelevant_to_mission"
+    reason: "Index; not extracted"

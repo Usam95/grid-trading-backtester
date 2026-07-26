@@ -1,0 +1,72 @@
+- id: chapter-1
+  title: Trader's Edge
+  pdf_page_start: 14
+  status: processed
+- id: chapter-2
+  title: Market Cycle
+  pdf_page_start: 39
+  status: processed
+- id: chapter-3
+  title: On Trends
+  pdf_page_start: 52
+  status: processed
+- id: chapter-4
+  title: Trading Ranges
+  pdf_page_start: 94
+  status: processed
+- id: chapter-5
+  title: Interfaces
+  pdf_page_start: 117
+  status: processed
+- id: chapter-6
+  title: Trading Templates
+  pdf_page_start: 141
+  status: processed
+- id: chapter-7
+  title: Tools for Confirmation
+  pdf_page_start: 179
+  status: processed
+- id: chapter-8
+  title: Trade Management
+  pdf_page_start: 215
+  status: processed
+- id: chapter-9
+  title: Risk Management
+  pdf_page_start: 238
+  status: processed
+- id: chapter-10
+  title: Trade Examples
+  pdf_page_start: 261
+  status: processed
+- id: chapter-11
+  title: Trader's Mind
+  pdf_page_start: 308
+  status: processed
+- id: chapter-12
+  title: Becoming a Trader
+  pdf_page_start: 328
+  status: processed
+- id: appendix-a
+  title: Appendix A - Trading Primer
+  pdf_page_start: 346
+  status: processed
+- id: appendix-b
+  title: Appendix B - A Deeper Look at Moving Averages and the MACD
+  pdf_page_start: null
+  status: processed
+  notes: Not recoverable from supplied extracts.
+- id: appendix-c
+  title: Appendix C - Sample Trade Data
+  pdf_page_start: null
+  status: processed
+  notes: Not recoverable from supplied extracts.
+- id: glossary
+  title: Glossary
+  pdf_page_start: null
+  status: processed
+  notes: Not recoverable from supplied extracts.
+- id: bibliography
+  title: Bibliography
+  pdf_page_start: null
+  status: processed
+  notes: Not recoverable from supplied extracts.

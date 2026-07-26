@@ -1,0 +1,284 @@
+- id: FOREX-REQ-001
+  title: "Position sizing calculator with configurable risk percentage"
+  status: proposed
+  derived_from: ["FOREX-C6-004"]
+  derivation_type: direct_book_recommendation
+  rationale: "Risk management requires precise position sizing based on stop-loss distance; manual calculations are error-prone."
+  applies_to:
+    strategy: [grid]
+    lifecycle: [live]
+    asset_class: [shared]
+    concern: [risk, execution]
+  requirement: "System shall compute position size given: account_balance, risk_percent_per_trade, stop_loss_pips, entry_price. Position_size = (account_balance * risk_percent) / (stop_loss_pips * pip_value)."
+  acceptance_tests:
+    - "Given $10k account, 2% risk, 50 pips SL, EURUSD: position_size = 40k units (2 mini-lots)"
+    - "Given $50k account, 1% risk, 100 pips SL, GBPUSD: position_size = 50k units (5 mini-lots)"
+  failure_prevented: "Oversized positions that exceed risk tolerance and cause account wipe-out"
+  capability_enabled: "Consistent risk-per-trade discipline"
+  assumptions:
+    - "Pip value is deterministic (e.g., 0.0001 for 4-digit pairs)"
+    - "Risk percent is pre-defined by trader"
+  open_questions:
+    - "Should leverage/margin be factored in?"
+    - "Should partial position sizing be supported?"
+  dependencies: []
+  verification_needed: "Unit test with multiple currency pairs; verify calculation accuracy"
+  priority_hint: safety
+
+- id: FOREX-REQ-002
+  title: "Stop-loss and take-profit validation before trade submission"
+  status: proposed
+  derived_from: ["FOREX-C6-001"]
+  derivation_type: direct_book_recommendation
+  rationale: "Stop-loss placement is critical for risk control; invalid or missing stop-losses cause catastrophic losses."
+  applies_to:
+    strategy: [grid, stock_signal]
+    lifecycle: [live]
+    asset_class: [shared]
+    concern: [risk, execution]
+  requirement: "System shall validate that every trade submission includes: (1) stop_loss_price, (2) take_profit_price, (3) stop_loss_distance >= min_stop_distance (e.g., 5 pips), (4) tp_distance >= stop_distance (2:1 minimum). Reject order if validation fails."
+  acceptance_tests:
+    - "Order with SL=1.0500 but TP=1.0505 (1:1 ratio) is rejected"
+    - "Order with SL missing is rejected"
+    - "Order with SL=1.0500, TP=1.0610, entry=1.0550 (2:1 ratio) is accepted"
+  failure_prevented: "Unprotected trades, take-profit orders without stops, trades with unfavorable risk/reward"
+  capability_enabled: "Automated enforcement of risk discipline"
+  assumptions:
+    - "Minimum risk/reward ratio is 2:1 or configurable"
+    - "Broker supports SL/TP on order creation"
+  open_questions:
+    - "Should risk/reward ratio be dynamic based on market regime?"
+    - "Should partial fills be handled?"
+  dependencies: [FOREX-REQ-001]
+  verification_needed: "Test with edge cases (gap through SL, partial fills, slippage)"
+  priority_hint: safety
+
+- id: FOREX-REQ-003
+  title: "Emotional override detection and trade journal logging"
+  status: proposed
+  derived_from: ["FOREX-C3-001", "FOREX-C6-003"]
+  derivation_type: agent_inference
+  rationale: "Emotional trading and poor logging prevent learning; automated journaling with anomaly detection flags risky behavior."
+  applies_to:
+    strategy: [shared]
+    lifecycle: [live]
+    asset_class: [shared]
+    concern: [execution, reproducibility]
+  requirement: "System shall log every trade: entry_time, entry_price, exit_time, exit_price, reason, pnl, win/loss. Flag as 'emotional_override' if: (1) exit_before_target with loss < threshold, (2) multiple re-entries same pair within 1 hour, (3) increase_position_after_loss. Trader review required for flagged trades."
+  acceptance_tests:
+    - "Trade exited 5 pips into 50-pip target with -2% loss is flagged"
+    - "Two entries on EURUSD within 30 minutes are flagged"
+    - "Position increased after 3 consecutive losses is flagged"
+  failure_prevented: "Repeated emotional trading losses; loss-chasing spirals"
+  capability_enabled: "Behavioral awareness and pattern detection"
+  assumptions:
+    - "Trading rules are pre-defined with targets"
+    - "Trader reviews flagged trades post-session"
+  open_questions:
+    - "What thresholds define emotional behavior?"
+    - "Should system suggest breaks after certain loss events?"
+  dependencies: []
+  verification_needed: "Backtest with historical trades; measure false positive rate of anomaly detection"
+  priority_hint: correctness
+
+- id: FOREX-REQ-004
+  title: "Broker API connection resilience and reconnection logic"
+  status: proposed
+  derived_from: ["FOREX-C4-003"]
+  derivation_type: agent_inference
+  rationale: "Automated systems depend on real-time connectivity; connection failures cause missed trades or orphaned positions."
+  applies_to:
+    strategy: [grid]
+    lifecycle: [live]
+    asset_class: [shared]
+    concern: [execution, operations]
+  requirement: "System shall implement: (1) heartbeat/ping to broker every 10s, (2) automatic reconnect with exponential backoff (1s, 2s, 4s, 8s up to 60s), (3) limit on reconnect attempts (e.g., 30), (4) alert if disconnected > 60s, (5) disable new order submission if disconnected > 120s, (6) log all connection events."
+  acceptance_tests:
+    - "Brief disconnection (<10s) triggers automatic reconnect without alert"
+    - "Disconnection >60s triggers alert to user"
+    - "Disconnection >120s blocks new orders but allows cancel/modify existing"
+    - "Log contains all connection state changes with timestamps"
+  failure_prevented: "Orphaned trades, missed risk management, silent failures"
+  capability_enabled: "Robust live trading with graceful degradation"
+  assumptions:
+    - "Broker API provides disconnect detection"
+    - "Network failures are transient (most resolve within seconds)"
+  open_questions:
+    - "Should orders be cached and replayed on reconnect?"
+    - "Should position-closing orders be prioritized on reconnect?"
+  dependencies: []
+  verification_needed: "Integration test with simulated broker disconnections; measure reconnect latency"
+  priority_hint: safety
+
+- id: FOREX-REQ-005
+  title: "Real-time data quality monitoring and staleness detection"
+  status: proposed
+  derived_from: ["FOREX-C4-002"]
+  derivation_type: direct_book_recommendation
+  rationale: "Real-time charting and analysis depend on fresh data; stale data causes incorrect signals and slippage."
+  applies_to:
+    strategy: [grid, stock_signal]
+    lifecycle: [live]
+    asset_class: [shared]
+    concern: [data, execution]
+  requirement: "System shall: (1) timestamp every price update, (2) detect and alert if data staleness > 5 seconds, (3) log last_update for each instrument, (4) reject new orders if any required data is stale, (5) report data lag to UI."
+  acceptance_tests:
+    - "Price update every 1-2 seconds triggers no staleness alert"
+    - "5+ seconds without update triggers alert"
+    - "Order rejection when EURUSD data is 10s old is logged"
+    - "UI displays 'data stale: 8s' message"
+  failure_prevented: "Execution on stale quotes, missed stop-loss updates, false signals"
+  capability_enabled: "Data integrity assurance"
+  assumptions:
+    - "Data source provides timestamps"
+    - "Network latency is <2 seconds typical"
+  open_questions:
+    - "Should staleness threshold vary by pair or regime?"
+    - "Should data be buffered for backpressure?"
+  dependencies: []
+  verification_needed: "Integration test with simulated data delays; measure detection latency"
+  priority_hint: correctness
+
+- id: FOREX-REQ-006
+  title: "Swap cost calculation and carry P&L tracking"
+  status: proposed
+  derived_from: ["FOREX-C4-004"]
+  derivation_type: direct_book_recommendation
+  rationale: "Overnight hold positions incur swap costs that materially affect P&L; tracking enables informed strategy design."
+  applies_to:
+    strategy: [grid]
+    lifecycle: [backtest, live]
+    asset_class: [shared]
+    concern: [simulation, execution, data]
+  requirement: "System shall: (1) fetch broker swap rates for each pair at strategy init, (2) accrue swap_cost daily for each position (long positions: negative swap, short: positive swap), (3) include swap_pnl in total_pnl, (4) log daily swap accrual by pair/direction, (5) flag pairs with negative carry >= 2 pips/day."
+  acceptance_tests:
+    - "Long USDJPY at 1M units with -3 pip swap: accrues -30 USD per night"
+    - "Short EURUSD at 1M units with +0.5 pip swap: accrues +5 USD per night"
+    - "Daily swap log shows all accrued swaps with timestamp"
+    - "High negative-carry pairs are flagged for review"
+  failure_prevented: "Unaccounted swap losses; mispricing of low-volatility strategies"
+  capability_enabled: "Accurate P&L attribution and carry-aware strategy selection"
+  assumptions:
+    - "Broker provides swap rates via API or static data"
+    - "Swap rates do not change intraday (typically true)"
+  open_questions:
+    - "Should swap rates be time-series tracked for regime detection?"
+    - "Should weekend swap (3x) be handled separately?"
+  dependencies: []
+  verification_needed: "Integration test with live/test broker; verify swap amounts against broker statement"
+  priority_hint: correctness
+
+- id: FOREX-REQ-007
+  title: "Maximum drawdown limit enforcement and position liquidation"
+  status: proposed
+  derived_from: ["FOREX-C6-004"]
+  derivation_type: agent_inference
+  rationale: "Uncontrolled drawdowns can wipe out account; hard limit prevents catastrophic losses."
+  applies_to:
+    strategy: [grid, stock_signal]
+    lifecycle: [live]
+    asset_class: [shared]
+    concern: [risk, monitoring]
+  requirement: "System shall: (1) track cumulative drawdown from equity peak, (2) alert if drawdown > 10%, (3) block new orders if drawdown > 15%, (4) force liquidate all positions if drawdown > 20%, (5) log all liquidation orders and reason."
+  acceptance_tests:
+    - "Equity drops 8%: alert sent, no order block"
+    - "Equity drops 12%: all new orders rejected"
+    - "Equity drops 22%: all positions force-closed at market"
+    - "Liquidation log includes timestamp, all orders, and average fill prices"
+  failure_prevented: "Account wipe-out, margin call, unlimited losses"
+  capability_enabled: "Account protection and emergency stop-loss"
+  assumptions:
+    - "Broker permits force-close of all positions"
+    - "Thresholds are configurable by user"
+  open_questions:
+    - "Should liquidation be done pair-by-pair or all-at-once?"
+    - "Should large positions be liquidated in tranches to avoid slippage?"
+  dependencies: []
+  verification_needed: "Backtest with historical worst-case draws; verify liquidation logic"
+  priority_hint: safety
+
+- id: FOREX-REQ-008
+  title: "Timezone-aware scheduling for market open/close times"
+  status: proposed
+  derived_from: ["FOREX-C6-004"]
+  derivation_type: agent_inference
+  rationale: "Forex market conditions vary by session (Asian, European, US); scheduling strategies to avoid low-liquidity times is important."
+  applies_to:
+    strategy: [grid]
+    lifecycle: [live]
+    asset_class: [shared]
+    concern: [execution, operations]
+  requirement: "System shall: (1) define trading session windows (Asian 22:00-08:00 UTC, European 07:00-17:00 UTC, US 13:00-21:00 UTC), (2) allow strategy enable/disable by session, (3) disable order submission outside permitted sessions, (4) log session transitions, (5) support configurable times per broker/venue."
+  acceptance_tests:
+    - "Grid strategy set to 'US session only' blocks entries outside 13:00-21:00 UTC"
+    - "Session transition from Asian to European logged with timestamp"
+    - "Custom session times (e.g., 'no US news time 13:30-14:00') enforced"
+  failure_prevented: "Trading in low-liquidity sessions, unexpected slippage, missed volatility"
+  capability_enabled: "Session-aware strategy optimization"
+  assumptions:
+    - "Trading sessions are well-defined and stable"
+    - "System time is synchronized to UTC"
+  open_questions:
+    - "Should news events be incorporated (e.g., disable during key NFP)"
+    - "Should session definitions be data-driven from volume analysis?"
+  dependencies: []
+  verification_needed: "Integration test with historical data; verify session logic"
+  priority_hint: operability
+
+- id: FOREX-REQ-009
+  title: "Multi-pair correlation and diversification checking"
+  status: proposed
+  derived_from: ["FOREX-C6-004"]
+  derivation_type: agent_inference
+  rationale: "Correlated positions concentrate risk; system should warn if portfolio correlation is high."
+  applies_to:
+    strategy: [grid]
+    lifecycle: [backtest, live]
+    asset_class: [shared]
+    concern: [risk, data]
+  requirement: "System shall: (1) compute rolling 30-day correlation between each open pair, (2) alert if any pair correlation > 0.8, (3) block new positions on highly correlated pair if total exposure > 50% of account, (4) log correlation matrix daily."
+  acceptance_tests:
+    - "EURUSD and GBPUSD correlation 0.92: alert and position block triggered"
+    - "EURUSD and USDJPY correlation 0.3: no alert"
+    - "Correlation matrix logged with all pair-pair correlations"
+  failure_prevented: "Unintended portfolio concentration, hidden drawdown risk"
+  capability_enabled: "Diversification awareness"
+  assumptions:
+    - "Correlation can be computed from recent price history"
+    - "Correlation thresholds are configurable"
+  open_questions:
+    - "Should correlation be adaptive to regime (trending vs. ranging)?"
+    - "Should hedges be identified and excluded from correlation checks?"
+  dependencies: []
+  verification_needed: "Backtest with correlated pairs; verify correlation calculation"
+  priority_hint: correctness
+
+- id: FOREX-REQ-010
+  title: "Integration test suite for broker API implementations"
+  status: proposed
+  derived_from: ["FOREX-C4-003"]
+  derivation_type: agent_inference
+  rationale: "Different brokers have different APIs; test suite ensures robustness across implementations."
+  applies_to:
+    strategy: [shared]
+    lifecycle: [live]
+    asset_class: [shared]
+    concern: [execution, operations, reproducibility]
+  requirement: "System shall provide test suite covering: (1) order placement (market, limit, stop), (2) order cancellation, (3) partial close, (4) position queries, (5) account balance queries, (6) feed latency measurement, (7) disconnection and reconnection, (8) error handling (insufficient margin, invalid orders, rejected orders). All tests shall pass before live deployment."
+  acceptance_tests:
+    - "Market order placement fills within 50ms"
+    - "Limit order placed and cancelled without error"
+    - "Partial close reduces position by exact amount"
+    - "Disconnection triggers reconnect within 1 second"
+    - "Error response (e.g., 'insufficient margin') is parsed and logged correctly"
+  failure_prevented: "Silent API failures, incorrect order routing, unexpected error states"
+  capability_enabled: "Reliable broker integration"
+  assumptions:
+    - "Test broker account is available (demo or live)"
+    - "API documentation is complete"
+  open_questions:
+    - "Should suite include load/stress tests?"
+    - "Should VCR-like mocking of API responses be used for deterministic testing?"
+  dependencies: []
+  verification_needed: "Manual execution against test broker account; pass all tests before each release"
+  priority_hint: correctness

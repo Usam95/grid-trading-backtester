@@ -1,0 +1,69 @@
+schema_version: "1.0"
+prompt_version: "1.0"
+book_id: "quantitative-finance-advanced-analysis-with-python-a-compreh-2024"
+sources:
+  - absolute_path: "C:/Users/W4TV5V8/PROJECTS/Codex/Research/Books_03_07_26/Algorithmical Trading/_KNOWLEDGE_EXTRACTION/books/quantitative-finance-advanced-analysis-with-python-a-compreh-2024"
+    relative_path: "books/quantitative-finance-advanced-analysis-with-python-a-compreh-2024"
+    sha256: "unknown"
+title: "Quantitative Finance: Advanced Analysis with Python - A Comprehensive Guide for 2024"
+authors:
+  - "Hayden Van Der Post"
+edition: "1st"
+publication_year: 2024
+publisher_or_identifier: "Reactive Publishing"
+format: epub
+language: en
+page_count: 668
+chapter_count: 61
+extraction_quality: medium
+ocr_quality: na
+processing_status: audited
+extraction_timestamp: "2024-07-24T18:24:03Z"
+completion_timestamp: "2024-07-24T19:30:00Z"
+duplicate_relationships: []
+limitations_and_warnings:
+  - "Z-library compilation: assess source credibility critically; publisher verification recommended"
+  - "Book published 2024: highly recent; frameworks and libraries discussed may change rapidly"
+  - "Code examples not executed; implementation details in book may differ from practice"
+  - "Regulatory environment evolving rapidly; regulations cited may be outdated"
+  - "Cryptocurrency regulations highly jurisdiction-specific; book covers general principles only"
+  - "No track record of strategies; book provides hypothesis only, not proven profitable approaches"
+  - "ML models discussed lack robustness guarantees; deployment requires extensive validation"
+
+scores:
+  source_credibility:
+    score: 2
+    justification: "Z-library publication with uncertain peer review; author credentials not verified; should cross-check with academic sources."
+  citation_quality:
+    score: 2
+    justification: "Book cites frameworks but provides limited academic citations; many claims lack explicit source attribution."
+  reproducibility:
+    score: 3
+    justification: "Python code structure described but not executable; examples incomplete; reproducible with significant effort."
+  likely_freshness:
+    score: 2
+    justification: "Published 2024 but covers mature topics; ML/blockchain sections may be outdated given rapid evolution."
+  system_engineering_relevance:
+    score: 4
+    justification: "Strong architecture discussions; execution risk, latency, microstructure well-covered; operational concerns articulated."
+  grid_relevance:
+    score: 4
+    justification: "Backtesting frameworks, risk assessment, robustness testing directly applicable; HFT concepts relevant."
+  stock_strategy_relevance:
+    score: 4
+    justification: "Signal generation, ML for prediction, sentiment analysis all applicable; diversification and multi-asset trading discussed."
+  backtesting_relevance:
+    score: 5
+    justification: "Extensive backtesting chapter with performance analysis, optimization, walk-forward concepts; directly actionable."
+  live_execution_relevance:
+    score: 4
+    justification: "Market microstructure, execution algorithms, latency, compliance discussed; real-world considerations included."
+  risk_relevance:
+    score: 4
+    justification: "VaR, drawdown limits, robustness testing, circuit breakers discussed; risk framework comprehensive."
+  data_quality_relevance:
+    score: 3
+    justification: "Data handling mentioned; limited discussion of data validation, freshness, source credibility."
+  machine_learning_relevance:
+    score: 3
+    justification: "Deep learning, NLP, reinforcement learning discussed at high level; practical implementation gaps evident."

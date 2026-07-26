@@ -1,0 +1,73 @@
+schema_version: "1.0"
+prompt_version: "1.0"
+book_id: "super-stock-trading-pro-algorithmic-trading-with-python"
+sources:
+  - absolute_path: "C:\\Users\\W4TV5V8\\PROJECTS\\Codex\\Research\\Books_03_07_26\\Algorithmical Trading\\_KNOWLEDGE_EXTRACTION\\books\\super-stock-trading-pro-algorithmic-trading-with-python"
+    relative_path: "books/super-stock-trading-pro-algorithmic-trading-with-python"
+    format: "EPUB"
+title: "Super Stock Trading Pro: Algorithmic Trading with Python"
+authors:
+  - "Van Der Post, Hayden"
+edition: "1st"
+publication_year: 2024
+publisher_or_identifier: "Z-Library Compilation"
+format: "epub"
+language: "en"
+page_count: 889
+chapter_count: 80
+extraction_quality: "medium"
+ocr_quality: "high"
+processing_status: "audited"
+extraction_timestamp: "2026-07-24T18:24:03Z"
+extractor_agent: "copilot-cli"
+timestamps:
+  extraction_started: "2026-07-24T18:24:03Z"
+  extraction_completed: "2026-07-24T18:30:00Z"
+duplicate_relationships: []
+limitations_and_warnings:
+  - "Recent z-library compilation; author and publisher credibility not independently verified"
+  - "Heavy reliance on author assertions without external citations in many chapters"
+  - "Cryptocurrency trading sections reflect volatile, rapidly-changing market; freshness risk"
+  - "Quantum computing sections (Ch 11) contain speculative/forward-looking content; not production-ready"
+  - "DMA, HFT, and broker API details require verification against primary broker/exchange documentation"
+  - "Regulatory landscape (Ch 15) is jurisdiction-specific; must verify for intended operating region"
+  - "No large-scale empirical studies or peer-reviewed backtests cited; examples are tutorial-grade"
+  - "Heavy emphasis on Python tutorials and library examples; limited original algorithmic research"
+
+scores:
+  source_credibility:
+    score: 2
+    justification: "Recent self-published/compiled EPUB with unverified author and publisher; appropriate as introductory resource but not authoritative primary source"
+  citation_quality:
+    score: 2
+    justification: "Limited external citations; relies heavily on author assertions, classical financial theory (Markowitz, CAPM), and generic examples without reference to empirical studies or industry standards"
+  reproducibility:
+    score: 3
+    justification: "Python code examples provided for many topics, but limited documentation of parameters, data sources, or runtime environments; examples are illustrative rather than production-grade"
+  likely_freshness:
+    score: 2
+    justification: "Published 2024 but addresses fast-moving areas (crypto trading, HFT latency, broker APIs); requires validation against current regulatory, market microstructure, and technology landscapes"
+  system_engineering_relevance:
+    score: 3
+    justification: "Covers execution systems, DMA, OMS concepts, real-time data processing architecture, and risk controls; moderate relevance to live trading infrastructure"
+  grid_relevance:
+    score: 2
+    justification: "Not specifically focused on grid or algorithmic grid trading; general algorithmic trading and portfolio concepts have limited direct applicability to grid strategies"
+  stock_strategy_relevance:
+    score: 4
+    justification: "Significant coverage of backtesting, strategy hypothesis, technical/fundamental analysis, portfolio theory, and execution for equities; high relevance to stock signal and stock backtest systems"
+  backtesting_relevance:
+    score: 4
+    justification: "Dedicated chapter on backtesting frameworks, performance analysis, optimization, and robustness; directly addresses backtester design, simulation fidelity, and pitfalls"
+  live_execution_relevance:
+    score: 3
+    justification: "Covers DMA, OMS, execution algorithms, market impact, transaction cost analysis, and real-time data pipelines; moderate-to-high relevance for live trading systems"
+  risk_relevance:
+    score: 3
+    justification: "Discusses VaR, position sizing, stop-losses, compliance, monitoring, and business continuity; relevant but not deeply technical on advanced risk metrics or regime-detection"
+  data_quality_relevance:
+    score: 3
+    justification: "Covers market data APIs, data handling with pandas, market data feeds, and parsing; adequate for foundational data pipeline design but lacks detailed data validation and quality-assurance patterns"
+  machine_learning_relevance:
+    score: 3
+    justification: "Chapter 9 on ML/AI includes deep learning, reinforcement learning, NLP; introductory treatment; mentions overfitting risk but lacks validation methodologies, feature engineering rigor, or production deployment considerations"

@@ -1,0 +1,317 @@
+schema_version: '1.0'
+prompt_version: '1.0'
+run_started: '2026-07-24T17:50:01'
+last_updated: '2026-07-25T06:04:01'
+books:
+  account-management-users-guide-2015:
+    status: audited
+    phase: phase_4_audited
+    insights: 14
+    hypotheses: 5
+    candidate_requirements: 8
+    audit_grade: B
+    updated: '2026-07-25T06:04:01'
+  advanced-techniques-in-day-trading-a-practical-guide-to-high-2021:
+    status: audited
+    phase: phase_4_audited
+    insights: 18
+    hypotheses: 6
+    candidate_requirements: 10
+    audit_grade: B
+    updated: '2026-07-25T06:04:01'
+  algorithmic-trading-with-interactive-brokers-python:
+    status: audited
+    phase: phase_4_audited
+    insights: 20
+    hypotheses: 6
+    candidate_requirements: 10
+    audit_grade: A
+    updated: '2026-07-25T06:04:01'
+  beginners-guide-to-trading-this-book-includes-day-forex-opti-2020:
+    status: audited
+    phase: phase_4_audited
+    insights: 22
+    hypotheses: 5
+    candidate_requirements: 5
+    audit_grade: B
+    updated: '2026-07-25T06:04:01'
+  bloomberg-professional-forex-analysis-and-trading-effective--2010:
+    status: audited
+    phase: phase_4_audited
+    insights: 14
+    hypotheses: 6
+    candidate_requirements: 8
+    audit_grade: B
+    updated: '2026-07-25T06:04:01'
+  coding-capital-the-art-of-algorithmic-trading-a-comprehensiv-2024:
+    status: audited
+    phase: phase_4_audited
+    insights: 17
+    hypotheses: 5
+    candidate_requirements: 8
+    audit_grade: B
+    updated: '2026-07-25T06:04:01'
+  detecting-regime-change-in-computational-finance-2020:
+    status: audited
+    phase: phase_4_audited
+    insights: 16
+    hypotheses: 4
+    candidate_requirements: 6
+    audit_grade: B
+    updated: '2026-07-25T06:04:01'
+  financial-machina-machine-learning-for-finance-the-quintesse-2024:
+    status: audited
+    phase: phase_4_audited
+    insights: 21
+    hypotheses: 5
+    candidate_requirements: 6
+    audit_grade: C
+    updated: '2026-07-25T06:04:01'
+  forex-on-five-hours-a-week-2010:
+    status: audited
+    phase: phase_4_audited
+    insights: 22
+    hypotheses: 5
+    candidate_requirements: 5
+    audit_grade: B
+    updated: '2026-07-25T06:04:01'
+  forex-trading-2020-2020:
+    status: audited
+    phase: phase_4_audited
+    insights: 25
+    hypotheses: 5
+    candidate_requirements: 10
+    audit_grade: B
+    updated: '2026-07-25T06:04:01'
+  forex-trading-for-beginners-simple-strategies-to-make-money--2021:
+    status: audited
+    phase: phase_4_audited
+    insights: 26
+    hypotheses: 7
+    candidate_requirements: 4
+    audit_grade: C
+    updated: '2026-07-25T06:04:01'
+  guide-to-financial-markets:
+    status: audited
+    phase: phase_4_audited
+    insights: 36
+    hypotheses: 1
+    candidate_requirements: 1
+    audit_grade: B
+    updated: '2026-07-25T06:04:01'
+  hands-on-machine-learning-for-algorithmic-trading-2018:
+    status: audited
+    phase: phase_4_audited
+    insights: 40
+    hypotheses: 10
+    candidate_requirements: 12
+    audit_grade: A
+    updated: '2026-07-25T06:04:01'
+  high-probability-trading-strategies-2008:
+    status: audited
+    phase: phase_4_audited
+    insights: 20
+    hypotheses: 10
+    candidate_requirements: 8
+    audit_grade: B
+    updated: '2026-07-25T06:04:01'
+  how-to-day-trade-for-a-living-tools-tactics-money-management-2018:
+    status: audited
+    phase: phase_4_audited
+    insights: 29
+    hypotheses: 8
+    candidate_requirements: 7
+    audit_grade: B
+    updated: '2026-07-25T06:04:01'
+  igi-epub-test-book-85x11:
+    status: audited
+    phase: phase_4_audited
+    insights: 15
+    hypotheses: 5
+    candidate_requirements: 8
+    audit_grade: A
+    updated: '2026-07-25T06:04:01'
+  learn-algorithmic-trading-build-and-deploy-algorithmic-tradi-2019:
+    status: audited
+    phase: phase_4_audited
+    insights: 28
+    hypotheses: 13
+    candidate_requirements: 13
+    audit_grade: A
+    updated: '2026-07-25T06:04:01'
+  machine-learning-for-algorithm-trading-master-as-a-pro-appli:
+    status: audited
+    phase: phase_4_audited
+    insights: 18
+    hypotheses: 4
+    candidate_requirements: 8
+    audit_grade: C
+    updated: '2026-07-25T06:04:01'
+  machine-learning-for-algorithmic-trading-predictive-models-t-2020:
+    status: audited
+    phase: phase_4_audited
+    insights: 18
+    hypotheses: 5
+    candidate_requirements: 7
+    audit_grade: A
+    updated: '2026-07-25T06:04:01'
+  next-gen-algorithmic-trading-strategies-tools-and-techniques:
+    status: audited
+    phase: phase_4_audited
+    insights: 17
+    hypotheses: 6
+    candidate_requirements: 10
+    audit_grade: B
+    updated: '2026-07-25T06:04:01'
+  option-volatility-and-pricing-advanced-trading-strategies-an-2014:
+    status: audited
+    phase: phase_4_audited
+    insights: 22
+    hypotheses: 6
+    candidate_requirements: 10
+    audit_grade: A
+    updated: '2026-07-25T06:04:01'
+  options-trading-for-beginners-a-crash-course-on-how-to-build-2021:
+    status: audited
+    phase: phase_4_audited
+    insights: 17
+    hypotheses: 4
+    candidate_requirements: 5
+    audit_grade: C
+    updated: '2026-07-25T06:04:01'
+  python-for-algorithmic-trading-2020:
+    status: audited
+    phase: phase_4_audited
+    insights: 15
+    hypotheses: 4
+    candidate_requirements: 8
+    audit_grade: A
+    updated: '2026-07-25T06:04:01'
+  quantitative-finance-advanced-analysis-with-python-a-compreh-2024:
+    status: audited
+    phase: phase_4_audited
+    insights: 22
+    hypotheses: 4
+    candidate_requirements: 6
+    audit_grade: B
+    updated: '2026-07-25T06:04:01'
+  stock-market-investing-for-beginners-2020:
+    status: audited
+    phase: phase_4_audited
+    insights: 17
+    hypotheses: 5
+    candidate_requirements: 6
+    audit_grade: B
+    updated: '2026-07-25T06:04:01'
+  super-stock-trading-pro-algorithmic-trading-with-python:
+    status: audited
+    phase: phase_4_audited
+    insights: 17
+    hypotheses: 5
+    candidate_requirements: 8
+    audit_grade: B
+    updated: '2026-07-25T06:04:01'
+  technical-analysis-explained-2015:
+    status: audited
+    phase: phase_4_audited
+    insights: 30
+    hypotheses: 18
+    candidate_requirements: 12
+    audit_grade: B
+    updated: '2026-07-25T06:04:01'
+  text-mining-of-stocktwits-data-for-predicting-stock-prices-2021:
+    status: audited
+    phase: phase_4_audited
+    insights: 15
+    hypotheses: 5
+    candidate_requirements: 8
+    audit_grade: B
+    updated: '2026-07-25T06:04:01'
+  the-art-science-of-technical-analysis-market-structure-price-2014:
+    status: audited
+    phase: phase_4_audited
+    insights: 42
+    hypotheses: 10
+    candidate_requirements: 8
+    audit_grade: A
+    updated: '2026-07-25T06:04:01'
+  the-new-trading-for-a-living-study-guide-2014:
+    status: audited
+    phase: phase_4_audited
+    insights: 18
+    hypotheses: 5
+    candidate_requirements: 7
+    audit_grade: A
+    updated: '2026-07-25T06:04:01'
+  the-options-course-high-profit-and-low-stress-trading-method-2005:
+    status: audited
+    phase: phase_4_audited
+    insights: 31
+    hypotheses: 4
+    candidate_requirements: 6
+    audit_grade: B
+    updated: '2026-07-25T06:04:01'
+  tiny-book-massive-returns-long-term-investing-and-timing-exc:
+    status: audited
+    phase: phase_4_audited
+    insights: 33
+    hypotheses: 3
+    candidate_requirements: 3
+    audit_grade: C
+    updated: '2026-07-25T06:04:01'
+  trading-evolved-anyone-can-build-killer-trading-strategies-i-2021:
+    status: audited
+    phase: phase_4_audited
+    insights: 19
+    hypotheses: 5
+    candidate_requirements: 10
+    audit_grade: A
+    updated: '2026-07-25T06:04:01'
+  trading-options-greeks-how-time-volatility-and-other-pricing-2013:
+    status: audited
+    phase: phase_4_audited
+    insights: 23
+    hypotheses: 12
+    candidate_requirements: 10
+    audit_grade: A
+    updated: '2026-07-25T06:04:01'
+  trading-price-action-reversals-2011:
+    status: audited
+    phase: phase_4_audited
+    insights: 18
+    hypotheses: 9
+    candidate_requirements: 8
+    audit_grade: B
+    updated: '2026-07-25T06:04:01'
+  trading-price-action-trends-technical-analysis-of-price-char-2011:
+    status: audited
+    phase: phase_4_audited
+    insights: 15
+    hypotheses: 5
+    candidate_requirements: 10
+    audit_grade: C
+    updated: '2026-07-25T06:04:01'
+  trading-technical-analysis-masterclass-master-the-financial--2021:
+    status: audited
+    phase: phase_4_audited
+    insights: 19
+    hypotheses: 6
+    candidate_requirements: 10
+    audit_grade: D
+    updated: '2026-07-25T06:04:01'
+  visual-guide-to-financial-markets-by-david-wilson-z-lib-org-2013:
+    status: audited
+    phase: phase_4_audited
+    insights: 16
+    hypotheses: 3
+    candidate_requirements: 4
+    audit_grade: B
+    updated: '2026-07-25T06:04:01'
+  wiley-trading-forex-trading-course-a-self-study-guide-to-bec-2015:
+    status: audited
+    phase: phase_4_audited
+    insights: 27
+    hypotheses: 5
+    candidate_requirements: 6
+    audit_grade: B
+    updated: '2026-07-25T06:04:01'

@@ -1,0 +1,325 @@
+- id: "REQ-CV-001"
+  title: "Backtest model selection SHALL use purged time-series cross-validation"
+  status: "proposed"
+  derived_from: ["HOML-C6-007", "HOML-C5-005", "HOML-C5-027"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Standard K-fold CV causes look-ahead bias in trading ML; purged CV enforces temporal integrity by excluding overlapping train/test periods"
+  applies_to:
+      strategy: ["stock_signal", "portfolio", "grid"]
+      lifecycle: ["research", "backtest"]
+      asset_class: ["equities", "crypto_spot"]
+      concern: ["simulation", "reproducibility"]
+  requirement: "System SHALL implement combinatorial purged K-fold cross-validation (CPV) for ML model selection with configurable embargo period (default 1 trading day)"
+  acceptance_tests:
+      - "Verify that training set excludes observations within embargo_period before and after test set"
+      - "Measure that OOS Sharpe degradation from CV estimate is <20%"
+      - "Confirm CPV implementation passes unit tests with known data"
+  failure_prevented: "Look-ahead bias inflating model selection metrics; backtest Sharpe overstated by 30-60%"
+  assumptions:
+      - "Decision lag can be estimated for each factor"
+      - "Sufficient data remains after purging for meaningful CV"
+      - "Model training and validation procedures enforce CV splits"
+  open_questions:
+      - "What is optimal embargo period for different factor latencies?"
+      - "Does CPV with multiple splits outperform single purged split significantly?"
+  dependencies: ["data pipeline must align factors to decision times"]
+  priority_hint: "correctness"
+
+- id: "REQ-DATA-002"
+  title: "Data pipeline SHALL normalize tick data into volume or dollar bars before feature engineering"
+  status: "proposed"
+  derived_from: ["HOML-C2-002", "HOML-C2-015"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "OHLC data with fixed time bars introduces look-ahead bias (midnight close) and misses intraday trading dynamics; volume/dollar bars are event-driven and prevent timing artifacts"
+  applies_to:
+      strategy: ["grid", "stock_signal"]
+      lifecycle: ["research", "backtest"]
+      asset_class: ["equities", "crypto_spot"]
+      concern: ["data", "simulation"]
+  requirement: "System SHALL offer option to reconstruct OHLC bars from tick data using volume-bars (N contracts per bar) or dollar-bars (notional amount per bar); default to dollar bars for equity data"
+  acceptance_tests:
+      - "Verify dollar-bar aggregation produces consistent OHLC with minimal price drift"
+      - "Compare features (e.g., volatility) computed from time-bars vs. dollar-bars; document gap"
+      - "Measure look-ahead bias reduction (timing artifact) using dollar bars"
+  failure_prevented: "Look-ahead bias from fixed-time aggregation; overstated strategy Sharpe"
+  assumptions:
+      - "Tick data is available with high-enough granularity"
+      - "Volume/dollar thresholds are configurable"
+      - "Reconstructed bars align with market conventions"
+  open_questions:
+      - "What dollar-bar size is optimal for different assets?"
+      - "How does bar size affect factor stability?"
+  dependencies: ["tick-level data infrastructure", "backtester must support variable-bar timing"]
+  priority_hint: "correctness"
+
+- id: "REQ-COST-003"
+  title: "Backtest engine SHALL model transaction costs realistically: commissions, spreads, market impact"
+  status: "proposed"
+  derived_from: ["HOML-C5-017"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Omitting costs or underestimating them inflates backtest Sharpe by 40-60%; realistic cost model is essential for live-to-backtest credibility"
+  applies_to:
+      strategy: ["grid", "stock_signal", "portfolio"]
+      lifecycle: ["backtest"]
+      asset_class: ["equities", "crypto_spot"]
+      concern: ["execution", "data"]
+  requirement: "System SHALL support configurable transaction cost model with (1) per-trade commission (bps or fixed), (2) bid-ask spread (bps or tick size), (3) market impact model (linear or quadratic in shares/AUM)"
+  acceptance_tests:
+      - "Verify cost model produces realistic costs for typical daily-rebalance strategy (should reduce Sharpe by 40-60%)"
+      - "Compare model cost estimates to historical broker data"
+      - "Confirm cost matrix is applied correctly to backtest trade log"
+  failure_prevented: "Overly optimistic backtest Sharpe; live-to-backtest degradation >80%"
+  assumptions:
+      - "Cost model parameters are market-calibrated"
+      - "Impact model is appropriate for asset class"
+      - "Costs do not vary with market conditions (simplification)"
+  open_questions:
+      - "How to model dynamic spreads during high-volatility regimes?"
+      - "Should impact model scale with universe liquidity?"
+  dependencies: ["market microstructure data", "broker fee schedules"]
+  priority_hint: "correctness"
+
+- id: "REQ-FACTOR-004"
+  title: "Factor evaluation SHALL include Information Coefficient (IC) and Rank IC via Alphalens-like tearsheet"
+  status: "proposed"
+  derived_from: ["HOML-C4-014", "HOML-C4-024"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "IC directly measures factor predictive power independent of portfolio construction; avoids backtest artifacts (bias, costs) and enables cross-factor comparison"
+  applies_to:
+      strategy: ["stock_signal", "portfolio"]
+      lifecycle: ["research"]
+      asset_class: ["equities"]
+      concern: ["alpha", "reproducibility"]
+  requirement: "System SHALL compute Information Coefficient (IC) and Rank IC with forward return windows (1d, 5d, 20d), aggregate by quantile, and produce tearsheet with IC over time, IC decay, and autocorrelation"
+  acceptance_tests:
+      - "Verify IC calculation matches Alphalens results on public dataset"
+      - "Confirm tearsheet includes all required metrics (IC mean/std, Sharpe of IC, pct positive periods, autocorr)"
+      - "Measure IC stability across 5-year windows (document decay)"
+  failure_prevented: "Overestimating factor alpha via backtest; missing crowding/decay effects"
+  assumptions:
+      - "IC is stable and repeatable"
+      - "Forward returns are available and reliable"
+      - "Universe is constant or adjustments documented"
+  open_questions:
+      - "How to IC-adjust for different cross-section sizes?"
+      - "Does IC decay correlate with factor ETF AUM?"
+  dependencies: ["factor database", "returns database", "Alphalens or equivalent library"]
+  priority_hint: "correctness"
+
+- id: "REQ-BIAS-005"
+  title: "Backtest diagnostics SHALL include survivorship bias detection and delisted security handling"
+  status: "proposed"
+  derived_from: ["HOML-C2-015", "HOML-C5-005"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Backtests on current-day universe miss delisted companies; survivorship bias inflates returns 1-3% annually; proper handling requires delisted-inclusive universe"
+  applies_to:
+      strategy: ["stock_signal", "portfolio"]
+      lifecycle: ["backtest"]
+      asset_class: ["equities"]
+      concern: ["simulation", "data"]
+  requirement: "System SHALL support backtest on historical universe (including delisted/merged securities); quantify survivorship bias as difference in strategy returns with vs. without delisted securities"
+  acceptance_tests:
+      - "Run backtest on two universes: (1) current constituents, (2) historical + delisted; measure return/Sharpe difference"
+      - "Verify delisted security handling does not introduce data gaps or forward-bias"
+      - "Report survivorship bias adjustment (e.g., 'x% annual Sharpe penalty')"
+  failure_prevented: "Overstated backtest returns; live performance significantly underperforms backtest"
+  assumptions:
+      - "Delisted security data is available"
+      - "Delisting dates are accurate"
+      - "Delisted returns are realistic"
+  open_questions:
+      - "How to handle M&A and partial delistings?"
+      - "Should delisted securities be treated as zero return or excluded?"
+  dependencies: ["historical universe and delisting database"]
+  priority_hint: "correctness"
+
+- id: "REQ-HYPERPAR-006"
+  title: "Model hyperparameter tuning SHALL use nested cross-validation to prevent data snooping"
+  status: "proposed"
+  derived_from: ["HOML-C6-023", "HOML-C6-038"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Single-level CV tunes hyperparameters on test data (data snooping); nested CV (inner: tune, outer: test) provides unbiased generalization estimate"
+  applies_to:
+      strategy: ["stock_signal", "portfolio"]
+      lifecycle: ["research", "backtest"]
+      asset_class: ["equities", "shared"]
+      concern: ["simulation", "reproducibility"]
+  requirement: "System SHALL implement nested cross-validation: outer fold (5-10 folds) tests final model; inner fold (on outer train set) tunes hyperparameters; report outer-fold generalization error as unbiased estimate"
+  acceptance_tests:
+      - "Verify nested CV produces lower generalization error estimate than single-level CV"
+      - "Measure hyperparameter stability across outer folds (document variance)"
+      - "Confirm computation time is reasonable (document runtime)"
+  failure_prevented: "Optimistic performance estimates from hyperparameter snooping; live underperformance"
+  assumptions:
+      - "Computational cost is acceptable (nested CV is expensive)"
+      - "Data is sufficient for nested splits"
+      - "Inner CV hyperparameters generalize to outer test sets"
+  open_questions:
+      - "How many outer/inner folds optimal for trading models?"
+      - "Should nested CV use random or time-series splits?"
+  dependencies: ["cross-validation infrastructure", "hyperparameter search framework"]
+  priority_hint: "research_quality"
+
+- id: "REQ-REGULARIZATION-007"
+  title: "Linear and tree-based factor models SHALL include L1/L2 regularization with cross-validated hyperparameter"
+  status: "proposed"
+  derived_from: ["HOML-C7-008", "HOML-C6-018"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Unregularized OLS and tree models overfit to training data; regularization (Lasso/Ridge for linear, tree depth + min_samples for trees) balances bias-variance tradeoff"
+  applies_to:
+      strategy: ["stock_signal", "portfolio"]
+      lifecycle: ["research", "backtest"]
+      asset_class: ["equities", "shared"]
+      concern: ["simulation"]
+  requirement: "System SHALL support: (1) Ridge/Lasso for linear models with cross-validated alpha (L2/L1 strength), (2) tree max-depth, min_samples_split tuned via CV"
+  acceptance_tests:
+      - "Measure OOS Sharpe improvement from regularization (target: 5-15% vs. unregularized baseline)"
+      - "Verify regularization hyperparameters are stable across time windows"
+      - "Confirm feature importance is more stable with regularized vs. unregularized model"
+  failure_prevented: "Overfitting to training data; inflated backtest Sharpe and poor live performance"
+  assumptions:
+      - "Regularization strength can be tuned"
+      - "Regularized models generalize better (may not hold in all regimes)"
+  open_questions:
+      - "What regularization strength is optimal for different factor universes?"
+      - "Does regularization hurt live performance in stationary regimes?"
+  dependencies: ["model library with built-in regularization", "CV infrastructure"]
+  priority_hint: "research_quality"
+
+- id: "REQ-MONITORING-008"
+  title: "Live trading system SHALL monitor model IC and factor weights for regime drift and trigger retraining"
+  status: "proposed"
+  derived_from: ["HOML-C6-018", "HOML-C13-036"]
+  derivation_type: "agent_inference"
+  rationale: "Market regimes change; models trained on historical data degrade in new environments; monitoring IC and factor weights enables timely retraining"
+  applies_to:
+      strategy: ["grid", "stock_signal", "portfolio", "shared"]
+      lifecycle: ["live"]
+      asset_class: ["equities", "shared"]
+      concern: ["monitoring", "risk"]
+  requirement: "System SHALL: (1) compute rolling IC (e.g., 20-trading-day windows) of active strategy factors, (2) detect drop >20% from baseline, (3) flag for manual review or trigger automated retraining; log drift events for audit"
+  acceptance_tests:
+      - "Verify IC monitoring correctly detects simulated factor degradation"
+      - "Confirm alerts are timely (same day or next day)"
+      - "Measure retraining latency; target <24 hours from alert to new model deployment"
+  failure_prevented: "Strategy continues on stale model during regime shift; unnecessary drawdowns and alpha decay"
+  assumptions:
+      - "IC can be computed reliably in live setting"
+      - "Baseline IC is established and stable"
+      - "Retraining is feasible within SLA"
+  open_questions:
+      - "What IC drop threshold triggers retraining?"
+      - "How to distinguish temporary IC dips from true regime change?"
+  dependencies: ["live trading infrastructure", "model retraining automation"]
+  priority_hint: "correctness"
+
+- id: "REQ-SENTIMENT-009"
+  title: "Alternative data integration (sentiment, satellite, etc.) SHALL include cost-adjusted alpha measurement"
+  status: "proposed"
+  derived_from: ["HOML-C3-016", "HOML-C13-020"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Alternative data costs $1K-100K+/month; IC and Sharpe contribution must exceed cost; requires systematic evaluation before integration"
+  applies_to:
+      strategy: ["stock_signal", "portfolio", "shared"]
+      lifecycle: ["research", "backtest"]
+      asset_class: ["equities"]
+      concern: ["data", "operations"]
+  requirement: "System SHALL: (1) measure IC of alternative data factor independently, (2) estimate Sharpe contribution (IC -> expected Sharpe), (3) compare to data cost ($/month), (4) compute cost per IC basis point; flag if cost/basis-point > threshold"
+  acceptance_tests:
+      - "Verify IC measurement is accurate (e.g., via Alphalens)"
+      - "Confirm Sharpe-to-IC conversion is reasonable (target: Sharpe = 0.5 * sqrt(252) * IC for stock-level)"
+      - "Document cost-per-IC-bps for each alternative data source"
+  failure_prevented: "Integrating low-alpha alternative data at high cost; negative impact on net returns"
+  assumptions:
+      - "IC translates predictably to portfolio Sharpe"
+      - "Alternative data cost is stable"
+      - "Cost threshold can be set (e.g., $500/bps/month)"
+  open_questions:
+      - "How to account for crowding effect and data decay?"
+      - "Should cost include infrastructure and licensing complexity?"
+  dependencies: ["alternative data vendors", "IC measurement framework"]
+  priority_hint: "research_quality"
+
+- id: "REQ-WALK-FORWARD-010"
+  title: "Strategy backtests SHALL employ walk-forward analysis with parameter retuning each period"
+  status: "proposed"
+  derived_from: ["HOML-C5-027"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Standard backtest with single parameter set optimized on full history is forward-looking; walk-forward prevents this by retuning parameters on each expanding training window"
+  applies_to:
+      strategy: ["grid", "stock_signal", "portfolio"]
+      lifecycle: ["backtest"]
+      asset_class: ["equities", "crypto_spot"]
+      concern: ["simulation", "reproducibility"]
+  requirement: "System SHALL support walk-forward backtester with configurable training window (e.g., 5Y), retuning period (e.g., quarterly), and holdout test period; report retune log showing parameter changes"
+  acceptance_tests:
+      - "Compare walk-forward Sharpe to standard backtest; confirm walk-forward is lower (unbiased)"
+      - "Verify parameter retuning occurs at scheduled intervals"
+      - "Document parameter stability (variance/drift) across retuning periods"
+  failure_prevented: "Forward-looking optimization bias; backtest Sharpe overstated by 50%+"
+  assumptions:
+      - "Market regimes change and parameters must adapt"
+      - "Retuning on expanding window is computationally feasible"
+      - "Test period is representative of OOS performance"
+  open_questions:
+      - "What training/test/retuning period split is optimal?"
+      - "How to handle parameter instability across retunings?"
+  dependencies: ["backtester framework", "optimization infrastructure"]
+  priority_hint: "correctness"
+
+- id: "REQ-ENSEMBLING-011"
+  title: "Factor model ensemble methods (stacking, blending) SHALL validate meta-learner on held-out set"
+  status: "proposed"
+  derived_from: ["HOML-C11-037"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Stacking can overfit meta-learner to base model predictions; validation holdout prevents overfitting and ensures generalization"
+  applies_to:
+      strategy: ["stock_signal", "portfolio"]
+      lifecycle: ["research", "backtest"]
+      asset_class: ["equities", "shared"]
+      concern: ["simulation"]
+  requirement: "System SHALL support stacking/blending with strict holdout: (1) train base models on training set, (2) generate base predictions on validation set (held-out), (3) train meta-learner on validation predictions, (4) evaluate on test set"
+  acceptance_tests:
+      - "Verify base models and meta-learner are trained/validated on separate data"
+      - "Measure meta-learner performance on test set; confirm no overfitting signs"
+      - "Compare ensemble OOS Sharpe to individual base models"
+  failure_prevented: "Meta-learner overfitting to validation base predictions; poor generalization to OOS"
+  assumptions:
+      - "Base models are sufficiently decorrelated"
+      - "Meta-learner is simple enough to generalize"
+  open_questions:
+      - "What meta-learner complexity is optimal (linear vs. non-linear)?"
+      - "How to ensure base model diversity?"
+  dependencies: ["ensemble framework", "base model library"]
+  priority_hint: "research_quality"
+
+- id: "REQ-FACTOR-STABILITY-012"
+  title: "Factor definitions SHALL be version-controlled with documented changelog; backtest SHALL link to factor version"
+  status: "proposed"
+  derived_from: ["HOML-C4-003", "HOML-C4-014"]
+  derivation_type: "agent_inference"
+  rationale: "Factors evolve over time (definition changes, data sources change); reproducibility requires exact factor version specification in backtest artifact"
+  applies_to:
+      strategy: ["stock_signal", "portfolio"]
+      lifecycle: ["research", "backtest", "live"]
+      asset_class: ["equities", "shared"]
+      concern: ["reproducibility", "data"]
+  requirement: "System SHALL: (1) maintain factor library with version tags (e.g., momentum_v1, momentum_v2), (2) document definition changes in changelog, (3) backtest artifact SHALL include factor version/hash, (4) enable reproducible backtests by re-running with archived factor version"
+  acceptance_tests:
+      - "Verify factor version is recorded in backtest output"
+      - "Confirm backtest can be re-run with archived factor version"
+      - "Changelog documents all factor definition changes"
+  failure_prevented: "Inability to reproduce backtest results; factor definition drift hidden"
+  assumptions:
+      - "Factor definitions are formalized (code/config, not manual)"
+      - "Version history is maintained"
+  open_questions:
+      - "How granular should factor versioning be?"
+      - "How long should historical factor versions be retained?"
+  dependencies: ["factor database", "version control system"]
+  priority_hint: "correctness"
+
+
+
+
+

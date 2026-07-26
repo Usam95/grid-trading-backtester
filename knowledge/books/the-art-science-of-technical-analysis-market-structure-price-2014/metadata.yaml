@@ -1,0 +1,72 @@
+schema_version: "1.0"
+prompt_version: "1.0"
+book_id: the-art-science-of-technical-analysis-market-structure-price-2014
+title: "The Art & Science of Technical Analysis: Market Structure, Price Action & Trading Strategies"
+authors:
+  - Adam Grimes
+edition: "1st"
+publication_year: 2014
+publisher_or_identifier: "Wiley Trading"
+format: pdf
+language: en
+page_count: 424
+chapter_count: 12
+
+sources:
+  - absolute_path: "C:\\Users\\W4TV5V8\\PROJECTS\\Codex\\Research\\Books_03_07_26\\Algorithmical Trading\\The Art and Science of Technical Analysis.pdf"
+    relative_path: "The Art and Science of Technical Analysis.pdf"
+    sha256: "38d134feacb925e6562e813aff728ff18fb235ce2f8208835384dc8d2233d8db"
+
+extraction_quality: good
+ocr_quality: good
+processing_status: "audited"
+
+extraction_date: "2026-07-24T22:22:52Z"
+extraction_completed_date: "2026-07-24T22:22:52Z"
+
+duplicate_relationships: []
+
+limitations_and_warnings:
+  - "Book emphasis: evidence-oriented, probability-based TA; not a rigid system or guaranteed profitable method"
+  - "Author explicitly states: most price movements are random; markets are highly competitive; difficult to derive superior risk-adjusted returns"
+  - "Appendix page numbers (A-C, Glossary, Bibliography) not precisely recovered from extraction; marked as null in coverage"
+  - "Freshness: Publication 2014; broker APIs, market microstructure, crypto exchanges not in scope; regulatory/venue specifics must be verified"
+  - "Grimes emphasizes adaptive application to individual trader context; patterns are conditional, not mechanical"
+
+scores:
+  source_credibility:
+    score: 4
+    justification: "Reputable author (professional trader ~20 years experience), Wiley publisher, framework-based approach grounded in Wyckoff and supply/demand analysis."
+  citation_quality:
+    score: 3
+    justification: "Includes bibliography and references; many concepts traced to established TA literature (Wyckoff, etc.), but limited empirical studies cited."
+  reproducibility:
+    score: 3
+    justification: "Clear pattern definitions and templates provided; however, chart reading and subjectivity in confluence limit exact reproducibility without extensive context."
+  likely_freshness:
+    score: 2
+    justification: "2014 publication; broker APIs, market structure (HFT, circuit breakers), and asset classes have evolved; specific risk metrics may be outdated."
+  system_engineering_relevance:
+    score: 3
+    justification: "Discusses order placement, position sizing, trade management; relevant to execution risk and operational considerations, less so to data pipelines."
+  grid_relevance:
+    score: 4
+    justification: "Support/resistance, trading ranges, and breakouts directly applicable to grid strategies; Wyckoff cycle provides regime classification."
+  stock_strategy_relevance:
+    score: 4
+    justification: "Written primarily for directional stock/equity trading; trend structure and range-based setups align with stock algo strategies."
+  backtesting_relevance:
+    score: 4
+    justification: "Discusses simulation, statistical analysis of trading results, record keeping; emphasis on edge verification and rejection thresholds."
+  live_execution_relevance:
+    score: 4
+    justification: "Extensive coverage of trade management, stops, targets, active position management, and risk; directly applicable to live execution."
+  risk_relevance:
+    score: 5
+    justification: "Entire chapters (8, 9) dedicated to trade management and risk management; position sizing, drawdown control, and practical trading risks central."
+  data_quality_relevance:
+    score: 2
+    justification: "Assumes clean chart data; does not address data quality, gaps, or corrections; minimal discussion of data sourcing."
+  machine_learning_relevance:
+    score: 1
+    justification: "No ML discussion; focuses on pattern recognition and heuristic chart reading; not applicable to model-training pipelines."

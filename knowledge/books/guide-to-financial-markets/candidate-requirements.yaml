@@ -1,0 +1,34 @@
+- id: GFIN-R001
+  title: Handle dividend and corporate action adjustments in equity backtests
+  status: proposed
+  derived_from:
+  - GFIN-C7-025
+  derivation_type: agent_inference
+  rationale: Corporate actions alter share count and prices; ignoring causes backtest
+    errors
+  applies_to:
+    strategy:
+    - stock_signal
+    lifecycle:
+    - backtest
+    asset_class:
+    - equities
+    concern:
+    - data
+    - simulation
+  requirement: The backtester shall adjust prices and share counts for all corporate
+    actions
+  acceptance_tests:
+  - Verify splits are adjusted
+  - Verify dividends on ex-date
+  - Verify P&L consistency
+  failure_prevented: Incorrect P&L
+  capability_enabled: Accurate historical backtests
+  assumptions:
+  - Corporate action data is accurate
+  open_questions:
+  - Should dividends be reinvested?
+  dependencies:
+  - Data provider gives accurate adjustment factors
+  verification_needed: Compare results with published index returns
+  priority_hint: correctness

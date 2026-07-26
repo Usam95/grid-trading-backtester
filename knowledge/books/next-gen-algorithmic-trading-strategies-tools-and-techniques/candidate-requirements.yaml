@@ -1,0 +1,307 @@
+- id: NEXTGEN-REQ-001
+  title: "Slippage model must include market impact and adverse selection"
+  status: "proposed"
+  derived_from:
+    - NEXTGEN-C8-002
+  derivation_type: "direct_book_recommendation"
+  rationale: "Flat-rate slippage inflates backtest returns by 20-50%."
+  applies_to:
+    strategy:
+      - grid
+      - stock_signal
+    lifecycle:
+      - backtest
+      - live
+    asset_class:
+      - equities
+      - crypto_spot
+    concern:
+      - simulation
+      - execution
+      - reproducibility
+  requirement: "Backtester shall model slippage as floor_spread + market_impact(order_size, depth) + adverse_selection(volatility, imbalance)."
+  acceptance_tests: "Backtest slippage predictions match live fills within ±10bps 80% of time"
+  failure_prevented: "Overstating strategy profitability"
+  capability_enabled: "Accurate backtest vs. live comparison"
+  assumptions:
+    - "Historical order-book data available"
+  open_questions: "Per-stock vs. sector model?"
+  dependencies: null
+  verification_needed: "Compare backtest vs. paper fills"
+  priority_hint: "correctness"
+
+- id: NEXTGEN-REQ-002
+  title: "Strategy development shall enforce walk-forward validation"
+  status: "proposed"
+  derived_from:
+    - NEXTGEN-C5-001
+  derivation_type: "direct_book_recommendation"
+  rationale: "Single train/test splits overestimate edge 40-60%."
+  applies_to:
+    strategy:
+      - grid
+      - stock_signal
+      - shared
+    lifecycle:
+      - research
+      - backtest
+    asset_class:
+      - shared
+    concern:
+      - simulation
+      - reproducibility
+      - alpha
+  requirement: "All optimization pipelines shall use rolling walk-forward (1-year train, 3-month test) and report in-sample/out-of-sample Sharpe."
+  acceptance_tests: "Reports include in-sample, out-of-sample, degradation %; degradation <35%"
+  failure_prevented: "Deploying overfit strategies"
+  capability_enabled: "Realistic performance estimates"
+  assumptions:
+    - "Market regimes stationary within 1-year windows"
+  open_questions: "Optimal train/test ratio?"
+  dependencies: null
+  verification_needed: "Test on known overfit strategies"
+  priority_hint: "correctness"
+
+- id: NEXTGEN-REQ-003
+  title: "Broker API integration shall monitor latency and failover"
+  status: "proposed"
+  derived_from:
+    - NEXTGEN-C7-001
+  derivation_type: "direct_book_recommendation"
+  rationale: "Broker API reliability critical. Degradation inflates slippage."
+  applies_to:
+    strategy:
+      - grid
+      - stock_signal
+    lifecycle:
+      - live
+    asset_class:
+      - equities
+      - crypto_spot
+    concern:
+      - execution
+      - operations
+      - monitoring
+  requirement: "Live system shall monitor broker API p99 latency; auto-failover if p99 >100ms or success <99%."
+  acceptance_tests: "Latency telemetry emitted every 60s; failover within 10s; no trade loss"
+  failure_prevented: "Missed executions due to broker failures"
+  capability_enabled: "Continuous order availability"
+  assumptions:
+    - "Backup broker pre-configured"
+  open_questions: "How to sync state during failover?"
+  dependencies: null
+  verification_needed: "Simulate broker delays"
+  priority_hint: "operability"
+
+- id: NEXTGEN-REQ-004
+  title: "Risk monitor shall detect correlation breakdown and halt"
+  status: "proposed"
+  derived_from:
+    - NEXTGEN-C9-002
+  derivation_type: "agent_inference"
+  rationale: "Diversification benefits evaporate during crises."
+  applies_to:
+    strategy:
+      - portfolio
+      - shared
+    lifecycle:
+      - live
+    asset_class:
+      - equities
+      - shared
+    concern:
+      - risk
+      - monitoring
+      - operations
+  requirement: "Portfolio monitor shall compute rolling 20-day correlations; if pairwise >0.7 or 10-day drawdown >15%, halt new entries and liquidate."
+  acceptance_tests: "Correlation alert at >0.7; drawdown halt within 1min"
+  failure_prevented: "Catastrophic losses during crisis"
+  capability_enabled: "Early portfolio stress detection"
+  assumptions:
+    - "Correlation computation accurate"
+  open_questions: "Market-regime adaptive thresholds?"
+  dependencies: null
+  verification_needed: "Backtest on 2008/2020/2022 crises"
+  priority_hint: "safety"
+
+- id: NEXTGEN-REQ-005
+  title: "Data quality validation shall flag stale/missing data"
+  status: "proposed"
+  derived_from:
+    - NEXTGEN-C4-002
+  derivation_type: "agent_inference"
+  rationale: "Missing/stale data invalidates signals."
+  applies_to:
+    strategy:
+      - shared
+    lifecycle:
+      - backtest
+      - live
+    asset_class:
+      - shared
+    concern:
+      - data
+      - reproducibility
+      - monitoring
+  requirement: "Data pipeline shall validate: (1) no missing sequences, (2) no duplicates, (3) values in range, (4) staleness <5min outside hours. Halt on any violation."
+  acceptance_tests: "Missing tick detected within 10s; strategy halts"
+  failure_prevented: "Trading on stale/invalid data"
+  capability_enabled: "Confidence in data integrity"
+  assumptions:
+    - "Expected ranges documented"
+  open_questions: "Continue with last-known or halt?"
+  dependencies: null
+  verification_needed: "Inject missing ticks"
+  priority_hint: "correctness"
+
+- id: NEXTGEN-REQ-006
+  title: "Order execution shall model multiple methods realistically"
+  status: "proposed"
+  derived_from:
+    - NEXTGEN-C8-001
+  derivation_type: "direct_book_recommendation"
+  rationale: "Market vs. limit vs. VWAP vs. TWAP have different fill profiles."
+  applies_to:
+    strategy:
+      - grid
+      - stock_signal
+    lifecycle:
+      - backtest
+      - live
+    asset_class:
+      - equities
+      - crypto_spot
+    concern:
+      - execution
+      - simulation
+  requirement: "Backtester shall support market (with slippage), limit (with fill-prob model), VWAP (intraday volume), TWAP (time-weighted fills) with realistic failures."
+  acceptance_tests: "Market fills immediately; limit fills at limit price; VWAP within ±0.5%"
+  failure_prevented: "Unrealistic execution assumptions"
+  capability_enabled: "Accurate per-method performance"
+  assumptions:
+    - "Order book data available"
+  open_questions: "Strategy-specific vs. global methods?"
+  dependencies: null
+  verification_needed: "Compare backtest vs. live VWAP/TWAP"
+  priority_hint: "correctness"
+
+- id: NEXTGEN-REQ-007
+  title: "Backtest validation shall include hold-out out-of-sample"
+  status: "proposed"
+  derived_from:
+    - NEXTGEN-C5-001
+  derivation_type: "direct_book_recommendation"
+  rationale: "Out-of-sample testing reduces overfitting."
+  applies_to:
+    strategy:
+      - grid
+      - stock_signal
+      - shared
+    lifecycle:
+      - backtest
+    asset_class:
+      - shared
+    concern:
+      - reproducibility
+      - alpha
+  requirement: "All backtests shall designate final 10% as hold-out (no optimization). Report in-sample/out-of-sample metrics with degradation %."
+  acceptance_tests: "Hold-out labeled; no optimization on hold-out; degradation <35%"
+  failure_prevented: "False positives from overfitting"
+  capability_enabled: "Confidence in edge validity"
+  assumptions:
+    - "Hold-out representative of future"
+  open_questions: "Most recent or random hold-out?"
+  dependencies: null
+  verification_needed: "Compare metrics"
+  priority_hint: "correctness"
+
+- id: NEXTGEN-REQ-008
+  title: "Strategy hypothesis shall document assumptions and failure modes"
+  status: "proposed"
+  derived_from:
+    - NEXTGEN-C5-001
+  derivation_type: "agent_inference"
+  rationale: "Explicit assumptions allow early retirement of broken strategies."
+  applies_to:
+    strategy:
+      - shared
+    lifecycle:
+      - research
+      - backtest
+      - paper
+      - live
+    asset_class:
+      - shared
+    concern:
+      - reproducibility
+      - alpha
+  requirement: "Every strategy hypothesis shall document: (1) underlying assumption, (2) failure mode if broken, (3) real-time monitoring metric."
+  acceptance_tests: "Documentation includes assumptions/failure modes; monitoring alerts configured"
+  failure_prevented: "Continuing to trade broken strategies"
+  capability_enabled: "Early strategy retirement"
+  assumptions:
+    - "Assumptions remain valid"
+  open_questions: "All failures halt or gradual reduction?"
+  dependencies: null
+  verification_needed: "Deploy monitoring; verify alerts trigger"
+  priority_hint: "operability"
+
+- id: NEXTGEN-REQ-009
+  title: "Verify book source credibility and verify broker/regulatory claims"
+  status: "proposed"
+  derived_from:
+    - NEXTGEN-GEN-001
+  derivation_type: "agent_inference"
+  rationale: "Z-library sourcing requires independent verification of operational claims."
+  applies_to:
+    strategy:
+      - shared
+    lifecycle:
+      - research
+    asset_class:
+      - shared
+    concern:
+      - reproducibility
+      - data
+  requirement: "Before implementing broker-specific features or regulatory claims, verify against official sources (SEC, FINRA, exchange, broker). Document verification timestamp."
+  acceptance_tests: "Broker API docs retrieved; fee structure verified; regulatory claims sourced"
+  failure_prevented: "Implementing incorrect logic from outdated sources"
+  capability_enabled: "Implementation correctness"
+  assumptions:
+    - "Official sources authoritative"
+  open_questions: "Verification frequency?"
+  dependencies: null
+  verification_needed: "Sample verification: market hours, position limits"
+  priority_hint: "correctness"
+
+- id: NEXTGEN-REQ-010
+  title: "Ensemble strategy shall monitor component correlation"
+  status: "proposed"
+  derived_from:
+    - NEXTGEN-C6-001
+  derivation_type: "direct_book_recommendation"
+  rationale: "Correlated components provide no diversification."
+  applies_to:
+    strategy:
+      - stock_signal
+      - shared
+    lifecycle:
+      - backtest
+      - live
+    asset_class:
+      - equities
+      - shared
+    concern:
+      - alpha
+      - risk
+      - monitoring
+  requirement: "Ensemble signals shall include 3+ base learners with target correlation <0.4 (rolling 252-day). If pairwise >0.6, replace correlated learner."
+  acceptance_tests: "Base learner correlations reported; weekly monitoring in live; auto-rebalance if >0.6"
+  failure_prevented: "Ensemble providing no diversification"
+  capability_enabled: "Robust multi-model strategies"
+  assumptions:
+    - "Learners trained on different data/features"
+  open_questions: "Pre-selected vs. emergent uncorrelated learners?"
+  dependencies: null
+  verification_needed: "Compare ensemble vs. individual learner Sharpe"
+  priority_hint: "correctness"

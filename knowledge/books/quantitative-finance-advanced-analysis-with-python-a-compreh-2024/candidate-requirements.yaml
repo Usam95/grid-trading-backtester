@@ -1,0 +1,314 @@
+- id: QFADV-REQ-001
+  title: "Backtester shall implement realistic order execution model"
+  status: proposed
+  derived_from:
+    - QFADV-C6-001
+    - QFADV-C8-001
+  derivation_type: agent_inference
+  rationale: |
+    Backtesting with simplified assumptions (constant slippage, instant fills) 
+    systematically overestimates profitability. Faithful implementation of 
+    microstructure dynamics is necessary for realistic performance estimation.
+  applies_to:
+    strategy:
+      - grid
+      - stock_signal
+    lifecycle:
+      - backtest
+    asset_class:
+      - equities
+      - crypto_spot
+    concern:
+      - simulation
+      - execution
+  requirement: |
+    The backtester SHALL implement an order execution model that includes:
+    (a) latency delay between signal generation and order submission,
+    (b) order fill probability as function of order size and market conditions,
+    (c) slippage calculation using order book depth or empirical model,
+    (d) realistic transaction fees and commissions per broker.
+  acceptance_tests:
+    - "Compare paper trading Sharpe ratio to live trading Sharpe ratio; difference < 15%"
+    - "Measure realized slippage within 5% of backtested assumption"
+    - "Verify latency model matches broker API documentation"
+  failure_prevented: |
+    Prevents deployment of unprofitable algorithms due to overestimated 
+    profitability from unrealistic assumptions.
+  capability_enabled: |
+    Enables high-confidence strategy evaluation and cross-venue comparison.
+  assumptions:
+    - "Order execution behavior can be modeled from historical data"
+    - "Microstructure stable across test periods"
+  open_questions:
+    - "What slippage model (constant vs order-book-dependent) most accurate?"
+    - "How to model partial fills and order rejection?"
+  dependencies:
+    - "Tick-level order book data"
+    - "Actual execution latency measurements from live trading"
+  verification_needed: |
+    Paper trading validation over 90+ day period. Cross-check realized metrics 
+    against backtested metrics.
+  priority_hint: correctness
+
+- id: QFADV-REQ-002
+  title: "Backtester shall implement multi-regime stress testing"
+  status: proposed
+  derived_from:
+    - QFADV-C8-002
+  derivation_type: agent_inference
+  rationale: |
+    Algorithms optimized for normal market regimes often fail catastrophically 
+    during stress periods. Systematic stress testing across historical regime 
+    changes is necessary to identify fragile strategies.
+  applies_to:
+    strategy:
+      - grid
+      - stock_signal
+      - portfolio
+    lifecycle:
+      - research
+      - backtest
+    asset_class:
+      - shared
+    concern:
+      - risk
+      - simulation
+  requirement: |
+    The backtester SHALL support multi-regime stress testing. Specifically:
+    (a) identify historical stress periods (2008 crisis, COVID crash, etc.),
+    (b) extract subsets of historical data from each regime,
+    (c) run strategy across multiple regimes with same parameters,
+    (d) report performance metrics (Sharpe, max drawdown, win rate) per regime,
+    (e) flag strategies that show > 50% drawdown degradation in worst regime.
+  acceptance_tests:
+    - "Strategy evaluated across minimum 4 regime types (calm, trending, volatile, crash)"
+    - "Maximum drawdown reported per regime"
+    - "Regime transitions tested (filter for calendar proximity to regime boundary)"
+  failure_prevented: |
+    Prevents deployment of regime-dependent strategies that fail in stress scenarios.
+  capability_enabled: |
+    Enables confident deployment decisions based on stress-tested robustness.
+  assumptions:
+    - "Historical regimes representative of future regimes"
+    - "Parameters can be adjusted per regime if needed"
+  open_questions:
+    - "What regime definition optimal? (volatility, correlation, drawdown-based?)"
+    - "Should strategies adapt parameters per regime or use single set?"
+  dependencies:
+    - "Historical market data spanning multiple regimes"
+    - "Regime classification system"
+  verification_needed: |
+    Forward validation during next market stress event.
+  priority_hint: safety
+
+- id: QFADV-REQ-003
+  title: "Live execution system shall include circuit breaker and graceful degradation"
+  status: proposed
+  derived_from:
+    - QFADV-C1-002
+    - QFADV-C8-002
+  derivation_type: agent_inference
+  rationale: |
+    Execution algorithms can encounter predatory market participants and 
+    slippage exceeding expectations. System must include failsafes to prevent 
+    catastrophic losses from execution failures.
+  applies_to:
+    strategy:
+      - grid
+      - stock_signal
+    lifecycle:
+      - live
+    asset_class:
+      - shared
+    concern:
+      - risk
+      - execution
+  requirement: |
+    The live execution system SHALL implement:
+    (a) circuit breaker that halts trading when realized slippage exceeds 
+        backtested assumption by > 50% for 3 consecutive orders,
+    (b) position size reduction if execution latency exceeds expected by > 2x,
+    (c) immediate order cancellation if partial fill ratio drops below 75%,
+    (d) automatic rollback to last known good parameters if drawdown exceeds 
+        backtested maximum by > 30% in single day.
+  acceptance_tests:
+    - "Circuit breaker triggered under slippage stress test"
+    - "Position sizing reduces gracefully with latency increase"
+    - "Automatic rollback occurs without manual intervention"
+  failure_prevented: |
+    Prevents catastrophic losses from execution environment degradation.
+  capability_enabled: |
+    Enables safe live trading with automated risk controls.
+  assumptions:
+    - "Fallback parameters exist and are known to be safe"
+    - "Order cancellation latency acceptable"
+  open_questions:
+    - "What thresholds optimal for different strategy types?"
+    - "Should circuit breaker halt permanently or time-based reset?"
+  dependencies:
+    - "Execution latency monitoring system"
+    - "Real-time slippage measurement"
+  verification_needed: |
+    Stress testing during market open with simulated execution failures.
+  priority_hint: safety
+
+- id: QFADV-REQ-004
+  title: "Backtester shall implement overfitting detection via walk-forward analysis"
+  status: proposed
+  derived_from:
+    - QFADV-C4-004
+  derivation_type: agent_inference
+  rationale: |
+    Complex models tend to fit historical noise rather than true signal, 
+    leading to overestimated performance. Systematic walk-forward validation 
+    is necessary to quantify overfitting.
+  applies_to:
+    strategy:
+      - stock_signal
+      - portfolio
+    lifecycle:
+      - research
+      - backtest
+    asset_class:
+      - shared
+    concern:
+      - simulation
+      - reproducibility
+  requirement: |
+    The backtester SHALL implement walk-forward analysis:
+    (a) divide historical data into overlapping windows (e.g., 3-year training, 
+        6-month test),
+    (b) optimize strategy parameters on training window,
+    (c) evaluate on held-out test window,
+    (d) repeat across entire historical period,
+    (e) report average in-sample Sharpe ratio and average out-of-sample Sharpe ratio,
+    (f) flag strategies where out-of-sample Sharpe < 50% of in-sample Sharpe 
+        as overfit.
+  acceptance_tests:
+    - "Walk-forward analysis runs without error"
+    - "Out-of-sample performance metrics reported"
+    - "Overfitting warning triggered when criterion met"
+  failure_prevented: |
+    Prevents deployment of overfit strategies with unrealistic performance 
+    expectations.
+  capability_enabled: |
+    Enables confident estimation of forward performance expectations.
+  assumptions:
+    - "Historical regimes representative of future"
+    - "Parameter optimization converges"
+  open_questions:
+    - "What window sizes optimal?"
+    - "How to handle strategies with regime adaptivity?"
+  dependencies:
+    - "Historical market data"
+    - "Parameter optimization engine"
+  verification_needed: |
+    Validation against known overfit and non-overfit strategies.
+  priority_hint: correctness
+
+- id: QFADV-REQ-005
+  title: "Data platform shall validate data freshness and source credibility"
+  status: proposed
+  derived_from:
+    - QFADV-C2-002
+    - QFADV-C2-002
+  derivation_type: direct_book_recommendation
+  rationale: |
+    Trading algorithms depend on accurate, fresh market data. Stale data or 
+    incorrect data sources compromise strategy performance and risk controls. 
+    Data validation is critical to execution safety.
+  applies_to:
+    strategy:
+      - grid
+      - stock_signal
+    lifecycle:
+      - backtest
+      - live
+    asset_class:
+      - shared
+    concern:
+      - data
+      - risk
+      - monitoring
+  requirement: |
+    The data platform SHALL:
+    (a) verify data recency (all price feeds < 1 second old for live trading),
+    (b) cross-check against multiple data sources when available,
+    (c) detect and flag suspicious spikes (e.g., price moves > 3 standard deviations 
+        in single tick),
+    (d) maintain audit trail of data source for each price tick,
+    (e) alert operations if data freshness SLA breached.
+  acceptance_tests:
+    - "Data freshness verified every second for live feeds"
+    - "Cross-source consistency checks pass > 99% of time"
+    - "Spike detection alert triggered for test anomalies"
+  failure_prevented: |
+    Prevents trading on stale or incorrect data.
+  capability_enabled: |
+    Enables high-confidence real-time decision-making.
+  assumptions:
+    - "Multiple data sources available for cross-validation"
+    - "Data infrastructure capable of < 1 second latency"
+  open_questions:
+    - "What freshness SLA appropriate per asset class?"
+    - "How to detect permanent data corruption vs transient glitch?"
+  dependencies:
+    - "Broker APIs and market data feeds"
+    - "Data validation infrastructure"
+  verification_needed: |
+    Test with intentional data delays and corruption; verify alerts trigger.
+  priority_hint: safety
+
+- id: QFADV-REQ-006
+  title: "Portfolio system shall implement position-level risk limits and monitoring"
+  status: proposed
+  derived_from:
+    - QFADV-C1-001
+    - QFADV-C4-001
+  derivation_type: agent_inference
+  rationale: |
+    Algorithmic trading systems must ensure that even in pursuit of profit, 
+    capital preservation principles are maintained. Position-level risk limits 
+    and real-time monitoring are essential control mechanisms.
+  applies_to:
+    strategy:
+      - grid
+      - stock_signal
+      - portfolio
+    lifecycle:
+      - live
+    asset_class:
+      - shared
+    concern:
+      - risk
+      - monitoring
+  requirement: |
+    The portfolio monitoring system SHALL:
+    (a) enforce position size limits per symbol (e.g., max 10% of daily volume),
+    (b) enforce portfolio-level VaR limit (e.g., max 2% daily loss probability),
+    (c) enforce sector concentration limits (e.g., no single sector > 30% of portfolio),
+    (d) monitor correlation of holdings and alert if correlation > threshold,
+    (e) enforce intraday drawdown stops (stop all trading if current drawdown > X%),
+    (f) produce real-time dashboard of all position risk metrics.
+  acceptance_tests:
+    - "Position size enforcement prevents oversized trades"
+    - "VaR limit enforced across all holdings"
+    - "Intraday stop triggered at specified drawdown"
+    - "Dashboard updates every 10 seconds"
+  failure_prevented: |
+    Prevents uncontrolled risk concentration and catastrophic portfolio losses.
+  capability_enabled: |
+    Enables confident scaling of successful strategies.
+  assumptions:
+    - "Risk limits can be dynamically adjusted per regime"
+    - "Correlation estimates reliable"
+  open_questions:
+    - "What limits optimal per strategy type?"
+    - "Should limits adapt dynamically based on market conditions?"
+  dependencies:
+    - "Real-time position tracking system"
+    - "Risk calculation engine"
+  verification_needed: |
+    Backtest compliance during stress periods; verify limits honored.
+  priority_hint: safety
+

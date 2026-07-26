@@ -1,0 +1,139 @@
+book_id: "wiley-trading-forex-trading-course-a-self-study-guide-to-bec-2015"
+sections:
+  - ref: "part1"
+    title: "Part I: What Drives the Forex Market?"
+    pdf_page_start: 13
+    status: "processed"
+    reason: "Foundational macroeconomic drivers; all subchapters extracted and analyzed."
+  
+  - ref: "ch1"
+    title: "Chapter 1: The Fundamentals of Forex"
+    pdf_page_start: 15
+    status: "processed"
+    reason: "Interest rates, carry trades, information asymmetry; core to hypothesis generation."
+  
+  - ref: "ch2"
+    title: "Chapter 2: The Role of Inflation, Reflation, and Deflation"
+    pdf_page_start: 29
+    status: "processed"
+    reason: "Inflation measures (CPI, PPI), deflation watch for EUR/JPY; key macro regime indicators."
+  
+  - ref: "ch3"
+    title: "Chapter 3: Exploiting Information about Economic Growth"
+    pdf_page_start: 35
+    status: "processed"
+    reason: "Employment data, crude oil, petrodollars, recession prediction; leading indicators."
+  
+  - ref: "ch4"
+    title: "Chapter 4: The China Factor"
+    pdf_page_start: 47
+    status: "processed"
+    reason: "Yuan revaluation, Chinese reserves, PMI index; strategic currency insights."
+  
+  - ref: "ch5"
+    title: "Chapter 5: The Commodities Connection: Gold, Copper, Commodity Index, Equities, and Forex"
+    pdf_page_start: 55
+    status: "processed"
+    reason: "Commodity correlations with forex, currency ETFs, gold-dollar inverse relationship."
+  
+  - ref: "ch6"
+    title: "Chapter 6: How Business Confidence and Consumer Sentiment Affect the Market"
+    pdf_page_start: 63
+    status: "processed"
+    reason: "Sentiment indicators, confidence indices; qualitative macro drivers."
+  
+  - ref: "ch7"
+    title: "Chapter 7: Fundamental Personalities of Currencies"
+    pdf_page_start: 65
+    status: "processed"
+    reason: "Currency characteristics (safe havens, commodity-linked, carry), trading partnerships."
+  
+  - ref: "ch8"
+    title: "Chapter 8: The Personality and Performance of the US Dollar"
+    pdf_page_start: 83
+    status: "processed"
+    reason: "USDX structure, foreign debt, US asset demand; core reserve currency dynamics."
+  
+  - ref: "ch9"
+    title: "Chapter 9: Conducting Your Own Fundamental Analysis"
+    pdf_page_start: 89
+    status: "processed"
+    reason: "Sentiment analysis, emotional search terms, balance of fears; methodology for DIY macro outlook."
+  
+  - ref: "part2"
+    title: "Part II: Timing the Trade with Technical Analysis"
+    pdf_page_start: 97
+    status: "processed"
+    reason: "Technical tools for entry/exit timing; all 7 chapters extracted."
+  
+  - ref: "ch10"
+    title: "Chapter 10: Mapping Price Action"
+    pdf_page_start: 99
+    status: "processed"
+    reason: "Support/resistance, trend lines, Three-Line Break, Renko; price structure foundation."
+  
+  - ref: "ch11"
+    title: "Chapter 11: Finding Significant Support and Resistance"
+    pdf_page_start: 109
+    status: "processed"
+    reason: "Fibonacci levels, pivot points, psychological levels, price-time analysis."
+  
+  - ref: "ch12"
+    title: "Chapter 12: Volatility in Forex and Its Dimensions"
+    pdf_page_start: 125
+    status: "processed"
+    reason: "14 key indicators (RSI, Stochastic, MA), oscillators; technical toolbox for risk-adjusted signals."
+  
+  - ref: "ch13"
+    title: "Chapter 13: Chart Formations and Price Patterns You Should Know"
+    pdf_page_start: 151
+    status: "processed"
+    reason: "Emotional contagion, channel patterns, multi-timeframe analysis; pattern-based entry logic."
+  
+  - ref: "ch14"
+    title: "Chapter 14: Trading Styles and Strategies"
+    pdf_page_start: 161
+    status: "processed"
+    reason: "Bounce, intraday, trend, scalp, carry, news traders; categorized trading archetypes."
+  
+  - ref: "ch15"
+    title: "Chapter 15: Stops, Limits, and Tactics for Risk Control"
+    pdf_page_start: 179
+    status: "processed"
+    reason: "Stop strategies, trailing stops, sentiment-based stops, multilot; risk management linchpin."
+  
+  - ref: "part3"
+    title: "Part III: Putting It Together"
+    pdf_page_start: 189
+    status: "processed"
+    reason: "Sim-to-live transition, account sizing, trader psychology; practical integration."
+  
+  - ref: "ch16"
+    title: "Chapter 16: Transitioning to Real Trading"
+    pdf_page_start: 191
+    status: "processed"
+    reason: "Simulation validity, demo limitations, preparation rituals, 10 key principles."
+  
+  - ref: "ch17"
+    title: "Chapter 17: Strategies and Challenges for Different Account Sizes"
+    pdf_page_start: 195
+    status: "processed"
+    reason: "Five account tiers ($5K–$100K) with specific leverage, lot sizing, pip targets, and real trader example."
+  
+  - ref: "ch18"
+    title: "Chapter 18: Paths to Success in Forex Trading"
+    pdf_page_start: 211
+    status: "processed"
+    reason: "Firm selection, performance gauging, emotional intelligence, competition as learning."
+  
+  - ref: "ch19"
+    title: "Chapter 19: Test Your Forex IQ"
+    pdf_page_start: 219
+    status: "processed"
+    reason: "Quiz chapter; low direct value for extraction but indicates knowledge summary."
+  
+  - ref: "ch20"
+    title: "Chapter 20: Trading Bitcoin"
+    pdf_page_start: 225
+    status: "processed"
+    reason: "Bitcoin fundamentals, acquisition, trading challenges; nascent crypto market analysis (2015 perspective)."

@@ -1,0 +1,107 @@
+- id: "OVAP-H001"
+  title: "Term structure slope predicts implied vol direction"
+  status: "proposed"
+  derived_from: ["OVAP-C20-I021"]
+  statement: "When implied vol term curve is steep (long-dated > short-dated vol), realized vol increases over next period"
+  proposed_mechanism: "Market expects increasing realized volatility when pricing long-dated options at higher vols than short-dated"
+  applicable_markets_and_regimes: "Equities, index options; most reliable in liquid markets"
+  assumptions: ["Implied vol surface is accurately priced", "Term structure reflects forward expectations"]
+  data_requirements: ["implied_vol_term_structure", "realized_vol_forward", "market_dates"]
+  baseline_or_null_hypothesis: "Term structure is uninformative; realized vol moves randomly independent of curve slope"
+  validation_approach: "Backtest: compute term structure slope at trade entry; measure realized vol over forward window; correlate"
+  transaction_cost_and_fill_considerations: "Vol strategies have tight spreads but require precise timing; entry costs ~1-2 vol points"
+  robustness_checks: ["Subsample by vol regime", "Subsample by asset class", "Subsample by vol level", "Vary forward window (5/10/20 days)"]
+  rejection_criteria: "Null hypothesis cannot be rejected if p-value > 0.10 or correlation < 0.3"
+  failure_modes: ["Regime change breaks correlation", "Supply/demand overwhelms forward expectations", "Model misspecification"]
+  freshness_concerns: "Implied vol surface calibration methods have evolved; broker APIs changed since 2014"
+  unresolved_questions: ["Why does market misprice term structure?", "Is there alpha after transaction costs?", "Regime-dependent validity?"]
+
+- id: "OVAP-H002"
+  title: "Realized vol mean-reverts within regimes"
+  status: "proposed"
+  derived_from: ["OVAP-C19-I019", "OVAP-C9-I008"]
+  statement: "High realized vol today is followed by high realized vol tomorrow within same regime; regime changes cause vol jumps"
+  proposed_mechanism: "Volatility clustering implies positive autocorrelation within regime; regime changes are discontinuous"
+  applicable_markets_and_regimes: "All equities; varies by market regime (calm vs crisis)"
+  assumptions: ["Realized vol can be accurately computed", "Regimes can be identified/detected"]
+  data_requirements: ["realized_volatility_daily", "regime_markers", "market_dates"]
+  baseline_or_null_hypothesis: "Realized vol is iid random; no persistence across time"
+  validation_approach: "Compute rolling realized vol; measure autocorrelation at lag 1; test within regime vs across regimes"
+  transaction_cost_and_fill_considerations: "Vol trading costs are implicit in bid-ask spreads; no direct transaction cost"
+  robustness_checks: ["Subsample by regime type", "Vary lookback window for vol", "Test multiple lags (1-5)", "Cross-validate with GARCH"]
+  rejection_criteria: "Reject if lag-1 autocorrelation < 0.3 (insufficient persistence) or > 0.95 (too strong, model issues)"
+  failure_modes: ["Regime detection fails during transition periods", "Autocorrelation overstated by survivor bias"]
+  freshness_concerns: "Market structure and information flow have changed; regime detection methods need updating"
+  unresolved_questions: ["Optimal regime detection method?", "Alpha from this signal alone?", "Subpopulation-specific?"]
+
+- id: "OVAP-H003"
+  title: "Calendar spreads profit from near-term theta decay"
+  status: "proposed"
+  derived_from: ["OVAP-C12-I012", "OVAP-C9-I007"]
+  statement: "Near-term options decay faster than long-dated options; calendar spreads (sell near, buy far) capture this theta edge"
+  proposed_mechanism: "Theta decay accelerates as expiration approaches; non-linear schedule allows consistent capture via rolling calendar spreads"
+  applicable_markets_and_regimes: "Index options, equity options, most liquid underlyings"
+  assumptions: ["Vol surface remains stable", "Execution costs can be absorbed into spread width", "Liquidity permits entry/exit"]
+  data_requirements: ["option_prices_multiple_expirations", "bid_ask_spreads", "execution_fills"]
+  baseline_or_null_hypothesis: "Near-term theta advantage is offset by bid-ask and execution costs; zero edge"
+  validation_approach: "Backtest rolling calendar spreads; measure profit per spread vs cost; calculate max drawdown"
+  transaction_cost_and_fill_considerations: "Calendar spreads require two legs; minimum cost ~2-4 vol points for entry+exit+slippage"
+  robustness_checks: ["Subsample by underlying moneyness", "Subsample by vol regime", "Vary rebalance frequency", "Test different strike spacing"]
+  rejection_criteria: "Reject if Sharpe ratio < 0.5 or if edge disappears after including realistic transaction costs"
+  failure_modes: ["Vol spike eliminates theta edge", "Slippage on entry/exit overwhelms profit", "Liquidity evaporates near expiration"]
+  freshness_concerns: "Options market structure (competition, APIs, execution technology) has changed significantly since 2014"
+  unresolved_questions: ["Optimal roll frequency?", "Best moneyness selection?", "Scalable position size?"]
+
+- id: "OVAP-H004"
+  title: "Long straddles profit from vol expansion"
+  status: "proposed"
+  derived_from: ["OVAP-C9-I007", "OVAP-C13-I030"]
+  statement: "When implied vol is low, buying straddles (call+put) captures vol expansion; profit when realized vol > implied vol"
+  proposed_mechanism: "Long gamma position benefits from realized vol exceeding implied vol; straddle is convex in spot movements"
+  applicable_markets_and_regimes: "Equities, indices; best in low-vol environments (before regime change)"
+  assumptions: ["Implied vol is underpriced relative to future realized vol", "Rehedging can be executed at reasonable cost"]
+  data_requirements: ["realized_vol_forecast", "implied_vol_surface", "hedging_costs"]
+  baseline_or_null_hypothesis: "Implied vol correctly prices expected realized vol; no edge from long straddle"
+  validation_approach: "Backtest: buy straddles when implied vol < target threshold; measure P&L when realized vol high"
+  transaction_cost_and_fill_considerations: "Straddle costs are high on entry (bid-ask); rehedging costs accumulate daily"
+  robustness_checks: ["Subsample by vol level", "Subsample by strike moneyness", "Vary holding period", "Test stop-loss levels"]
+  rejection_criteria: "Reject if Sharpe ratio < 0.4 or edge disappears after including gamma hedging costs"
+  failure_modes: ["Vol contracts instead of expanding", "Rehedging losses exceed convexity gains", "Liquidity deteriorates"]
+  freshness_concerns: "Options execution and hedging infrastructure have evolved; costs differ significantly from 2014"
+  unresolved_questions: ["How to forecast vol reliably?", "Optimal hedge frequency?", "Position sizing given tail risk?"]
+
+- id: "OVAP-H005"
+  title: "American put early exercise signal responds to ex-dividend dates"
+  status: "proposed"
+  derived_from: ["OVAP-C16-I015", "OVAP-C16-I016"]
+  statement: "American puts exercise early spike near ex-dividend dates; exercisers rationally compare intrinsic vs continuation value"
+  proposed_mechanism: "Dividends reduce stock price on ex-date; American put holders exercise before ex-date to avoid value destruction"
+  applicable_markets_and_regimes: "Dividend-paying equities; most pronounced for high-yielding names"
+  assumptions: ["Exercisers are rational", "Dividend calendars are predictable", "Continuation values can be modeled"]
+  data_requirements: ["american_put_prices", "exercise_notifications", "dividend_dates", "stock_prices"]
+  baseline_or_null_hypothesis: "Early exercise happens randomly; no correlation with ex-dividend timing"
+  validation_approach: "Measure correlation between early exercise frequency and ex-dividend calendar; test time-series pattern"
+  transaction_cost_and_fill_considerations: "Exercise is internal; replicate costs for hedging are material"
+  robustness_checks: ["Subsample by dividend yield", "Subsample by days-to-expiration", "Subsample by put moneyness"]
+  rejection_criteria: "Reject if correlation < 0.6 or no significant spike within 5 days of ex-date"
+  failure_modes: ["Dividend policy changes annually", "Traders unaware of optimal exercise", "Broker systems prevent early exercise"]
+  freshness_concerns: "Dividend dates and policies change; ex-date rules depend on market jurisdiction"
+  unresolved_questions: ["Trader awareness of rational exercise strategy?", "Impact on portfolio Greeks?", "Predictability?"]
+
+- id: "OVAP-H006"
+  title: "Gamma-hedged position P&L scales with realized-minus-implied vol gap"
+  status: "proposed"
+  derived_from: ["OVAP-C8-I006", "OVAP-C5-I026"]
+  statement: "Long option hedged to zero gamma (rehedged frequently) P&L = 0.5 * gamma * (realized_vol - implied_vol)^2 * time"
+  proposed_mechanism: "Gamma scalping captures the realized vol if market realizes higher vol than implied; loss if vol contracts"
+  applicable_markets_and_regimes: "All options; works in trending and ranging markets if vol assumption holds"
+  assumptions: ["Hedging executed at theoretical prices", "Continuous or frequent rebalancing possible", "Vol surface stable"]
+  data_requirements: ["option_greeks", "rehedging_fills", "realized_vol", "implied_vol"]
+  baseline_or_null_hypothesis: "Hedged option P&L is zero (ignoring bid-ask and costs)"
+  validation_approach: "Backtest long option + rehedge; measure actual P&L vs predicted by formula; compute Sharpe ratio"
+  transaction_cost_and_fill_considerations: "Rehedging costs are the primary P&L drag; costs increase with rehedge frequency"
+  robustness_checks: ["Vary hedge frequency (daily/hourly)", "Subsample by option type", "Subsample by regime", "Test edge case (gap events)"]
+  rejection_criteria: "Reject if realized P&L correlation to (RV - IV)^2 < 0.6"
+  failure_modes: ["Gap moves break hedging assumptions", "Slippage on hedge fills overwhelms edge", "Bid-ask too wide to trade profitably"]
+  freshness_concerns: "Options execution technology and algorithms have advanced; commission/spread environment changed"
+  unresolved_questions: ["Optimal hedge frequency for profitability?", "How to handle gaps?", "Scalable in live trading?"]

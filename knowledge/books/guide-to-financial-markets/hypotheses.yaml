@@ -1,0 +1,29 @@
+- id: GFIN-H001
+  title: Interest-rate parity holds in developed FX markets
+  status: proposed
+  derived_from:
+  - GFIN-C2-006
+  statement: Covered interest-rate arbitrage enforces parity between spot, forward,
+    and interest rates
+  proposed_mechanism: Arbitrage prevents profitable deviation; transaction costs permit
+    small deviations
+  applicable_markets_and_regimes: Developed FX markets with low transaction costs
+  assumptions:
+  - Transaction costs are low
+  - Capital is mobile
+  data_requirements:
+  - Spot FX rates
+  - Forward FX rates
+  - Interest rates
+  baseline_or_null_hypothesis: IRP does not hold
+  validation_approach: Test for persistent violations; measure vs transaction costs
+  transaction_cost_and_fill_considerations: Bid-ask spreads, funding costs
+  robustness_checks:
+  - Test across currency pairs
+  - Test during crises
+  - Test in emerging markets
+  rejection_criteria: Persistent violations not explained by transaction costs
+  failure_modes: Capital controls, liquidity crises
+  freshness_concerns: Regulatory framework may change
+  unresolved_questions:
+  - How do central banks affect IRP?

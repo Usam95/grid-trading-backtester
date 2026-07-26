@@ -1,0 +1,175 @@
+book_id: "detecting-regime-change-in-computational-finance-2020"
+sections:
+  - ref: "ch1"
+    title: "Chapter 1: Introduction"
+    pdf_page_start: 27
+    status: "processed"
+    reason: "Sets research objectives: regime detection via DC, normal/abnormal classification, real-time tracking, algorithmic trading applications."
+  
+  - ref: "ch2"
+    title: "Chapter 2: Background and Literature Survey"
+    pdf_page_start: 31
+    status: "processed"
+    reason: "Essential background: regime switching models, directional change concept, HMM fundamentals. Foundational for understanding methodology."
+  
+  - ref: "ch2.1"
+    title: "Section 2.1: Regime Change"
+    pdf_page_start: 32
+    status: "processed"
+    reason: "Defines regime change as collective trader behavior shifts; reviews Hamilton regime-switching and financial crisis examples."
+  
+  - ref: "ch2.1.1"
+    title: "Subsection 2.1.1: Regime Change Detection Methods"
+    pdf_page_start: 33
+    status: "processed"
+    reason: "Reviews existing regime detection approaches; establishes need for alternative data-driven methods."
+  
+  - ref: "ch2.2"
+    title: "Section 2.2: Directional Change"
+    pdf_page_start: 34
+    status: "processed"
+    reason: "Core concept: event-driven (tick-by-tick) sampling vs. fixed-interval time series; DC indicators for volatility measurement."
+  
+  - ref: "ch2.2.1-2.2.3"
+    title: "Subsections 2.2.1-2.2.3: DC Concept, Research, and Indicators"
+    pdf_page_start: 36
+    status: "processed"
+    reason: "Defines DC precisely; reviews prior DC research; introduces key indicators (total price movement, trend duration, time-adjusted return)."
+  
+  - ref: "ch2.3"
+    title: "Section 2.3: Machine Learning Techniques"
+    pdf_page_start: 40
+    status: "processed"
+    reason: "Reviews HMM and Naive Bayes; essential for understanding regime discovery methodology."
+  
+  - ref: "ch2.3.1"
+    title: "Subsection 2.3.1: Hidden Markov Model"
+    pdf_page_start: 40
+    status: "processed"
+    reason: "HMM definition, parameters, and EM algorithm; used for regime inference from indicators."
+  
+  - ref: "ch2.3.2"
+    title: "Subsection 2.3.2: Naive Bayes Classifier"
+    pdf_page_start: 44
+    status: "processed"
+    reason: "Naive Bayes theory; applied to regime classification in Chapter 5."
+  
+  - ref: "ch3"
+    title: "Chapter 3: Regime Change Detection Using Directional Change Indicators"
+    pdf_page_start: 47
+    status: "processed"
+    reason: "Primary methodology chapter: DC-based regime detection vs. time series; empirical study on EUR-GBP, GBP-USD, EUR-USD during Brexit 2016."
+  
+  - ref: "ch3.2"
+    title: "Section 3.2: Methodology"
+    pdf_page_start: 51
+    status: "processed"
+    reason: "Defines DC indicator R (log return per trend), realised volatility for time series, HMM setup with 2 states, threshold θ=0.4%."
+  
+  - ref: "ch3.2.1"
+    title: "Subsection 3.2.1: DC Indicator"
+    pdf_page_start: 52
+    status: "processed"
+    reason: "Introduces indicator R: combines total price movement and trend duration; formula LR[t] = log(R[t])."
+  
+  - ref: "ch3.2.2"
+    title: "Subsection 3.2.2: Time Series Indicator"
+    pdf_page_start: 53
+    status: "processed"
+    reason: "Realised volatility formula RV(t) = sqrt(sum of squared 5-min returns); comparison baseline to DC."
+  
+  - ref: "ch3.3-3.4"
+    title: "Sections 3.3-3.4: Experiments and Empirical Results"
+    pdf_page_start: 54
+    status: "processed"
+    reason: "Second-by-second FX data May-July 2016; HMM fitting; regime comparisons across currency pairs; key finding: DC detects regimes missed by time series."
+  
+  - ref: "ch3.4.1-3.4.3"
+    title: "Subsections 3.4.1-3.4.3: EUR-GBP, GBP-USD, EUR-USD Results"
+    pdf_page_start: 56
+    status: "processed"
+    reason: "Detailed regime transitions during Brexit; higher volatility in Regime 2; temporal alignment of regimes across pairs."
+  
+  - ref: "ch3.4.4-3.4.5"
+    title: "Subsections 3.4.4-3.4.5: Distribution and Discussion"
+    pdf_page_start: 62
+    status: "processed"
+    reason: "Statistical properties of indicator R; discussion of complementarity between DC and time series; validation concerns."
+  
+  - ref: "ch4"
+    title: "Chapter 4: Classification of Normal and Abnormal Regimes in Financial Markets"
+    pdf_page_start: 66
+    status: "processed"
+    reason: "Extends regime detection to classification: normal (lower volatility) vs. abnormal (crisis) regimes; tests on 10 markets; indicator-space clustering."
+  
+  - ref: "ch4.2"
+    title: "Section 4.2: Methodology"
+    pdf_page_start: 68
+    status: "processed"
+    reason: "Three-step process: DC summarization, HMM regime detection, indicator-space visualization for classification."
+  
+  - ref: "ch4.3-4.4"
+    title: "Sections 4.3-4.4: Empirical Study and Results"
+    pdf_page_start: 72
+    status: "processed"
+    reason: "Multi-market analysis; regime characterization under different thresholds; links abnormal regimes to market volatility events."
+  
+  - ref: "ch5"
+    title: "Chapter 5: Tracking Regime Changes Using Directional Change Indicators"
+    pdf_page_start: 86
+    status: "processed"
+    reason: "Real-time regime tracking with Naive Bayes; applied to equity indices (DJIA, FTSE 100, S&P 500); probability-based classification."
+  
+  - ref: "ch5.2"
+    title: "Section 5.2: Methodology"
+    pdf_page_start: 88
+    status: "processed"
+    reason: "Tracks DC trends; Naive Bayes classifier for regime prediction; two variants (B-Simple, B-Strict) for sensitivity tuning."
+  
+  - ref: "ch5.3-5.4"
+    title: "Sections 5.3-5.4: Experiment Setup and Empirical Results"
+    pdf_page_start: 92
+    status: "processed"
+    reason: "Tracked regime changes on equity indices; probability thresholds for classification; temporal lag analysis."
+  
+  - ref: "ch6"
+    title: "Chapter 6: Algorithmic Trading Based on Regime Change Tracking"
+    pdf_page_start: 106
+    status: "processed"
+    reason: "Proof-of-concept trading algorithms JC1 and JC2 using regime tracking; control algorithm CT1; performance metrics (trades, wealth, drawdown)."
+  
+  - ref: "ch6.2"
+    title: "Section 6.2: Methodology"
+    pdf_page_start: 107
+    status: "processed"
+    reason: "Trading rules: entry/exit on regime transitions; algorithms JC1 (immediate), JC2 (lagged); money management fixed lot size."
+  
+  - ref: "ch6.3-6.4"
+    title: "Sections 6.3-6.4: Experimental Setup and Results"
+    pdf_page_start: 111
+    status: "processed"
+    reason: "Backtests on equity data; number of trades, final wealth, maximum drawdown comparison; demonstrates regime info reduces drawdown."
+  
+  - ref: "ch6.5-6.6"
+    title: "Sections 6.5-6.6: Discussions and Conclusions"
+    pdf_page_start: 116
+    status: "processed"
+    reason: "Claims objectives achieved; discusses limitations; identifies future work on regime-tracking for improved algorithms."
+  
+  - ref: "ch7"
+    title: "Chapter 7: Conclusions"
+    pdf_page_start: 120
+    status: "processed"
+    reason: "Summary of methodology; key messages: DC-based regime detection is feasible, complementary to time series, applicable to trading."
+  
+  - ref: "appendices"
+    title: "Appendices A-D"
+    pdf_page_start: 128
+    status: "processed"
+    reason: "Formal DC definition, extended results from Ch3, experiment summaries, detected regime transitions (reference tables)."
+  
+  - ref: "bibliography"
+    title: "Bibliography"
+    pdf_page_start: 150
+    status: "processed"
+    reason: "References to regime-switching models, DC research, HMM literature, financial econometrics."

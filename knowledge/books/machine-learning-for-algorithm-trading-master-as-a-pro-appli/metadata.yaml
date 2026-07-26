@@ -1,0 +1,74 @@
+schema_version: "1.0"
+prompt_version: "1.0"
+book_id: "machine-learning-for-algorithm-trading-master-as-a-pro-appli"
+title: "Machine Learning for Algorithm Trading: Master as a PRO applied artificial intelligence and Python for predict systematic strategies for options and stocks. Learn data-driven finance using keras"
+authors:
+  - "Broker, Mark"
+  - "test, jason"
+edition: "1.0"
+publication_year: 2020
+publisher_or_identifier: "Self-published (z-library compilation)"
+format: "epub"
+language: "English"
+page_count: 304
+chapter_count: 44
+extraction_quality: "medium"
+ocr_quality: "n/a"
+processing_status: "audited"
+timestamps:
+  extraction_start: "2026-07-24T20:48:40Z"
+  extraction_end: "2026-07-24T23:00:00Z"
+  last_validated: "2026-07-24T22:23:53Z"
+duplicate_relationships: []
+limitations_and_warnings:
+  - "Self-published compilation likely sourced from z-library or similar repository"
+  - "Multi-book compilation combining unrelated topics (Python basics, data science, trading)"
+  - "No clear author attribution or credentials visible"
+  - "Limited evidence of original research or empirical validation"
+  - "Broker APIs, exchanges, and fee structures described may be outdated (2020)"
+  - "No backtesting results or live trading performance data provided"
+  - "Trading advice presented without risk disclaimers in many sections"
+  - "ML chapters focus on tool usage rather than algorithmic trading specifics"
+
+sources:
+  - absolute_path: "C:\\Users\\W4TV5V8\\PROJECTS\\IDC-Repos\\app-adas-src\\...\\books_inventory.yaml"
+    relative_path: "machine-learning-for-algorithm-trading-master-as-a-pro-appli.epub"
+    sha256: "unknown"
+
+scores:
+  source_credibility:
+    score: 1
+    justification: "Self-published z-library compilation with no verifiable author credentials or institutional affiliation; multiple unattributed sections."
+  citation_quality:
+    score: 1
+    justification: "No citations, references, or bibliography; anecdotal evidence and unsupported claims throughout."
+  reproducibility:
+    score: 1
+    justification: "No datasets, code repositories, or backtesting results provided; no means to replicate any claims."
+  likely_freshness:
+    score: 1
+    justification: "Published 2020; broker APIs, market structure, and regulatory environment have evolved significantly; fees and commission rates likely obsolete."
+  system_engineering_relevance:
+    score: 1
+    justification: "Content focuses on Python basics and trading UI; minimal coverage of production systems, error handling, or operational concerns."
+  grid_relevance:
+    score: 0
+    justification: "No grid-trading strategies, grid order types, or dynamic range management discussed."
+  stock_strategy_relevance:
+    score: 2
+    justification: "Discusses stock options and swing trading but lacks depth; no signal generation, regime detection, or portfolio construction."
+  backtesting_relevance:
+    score: 1
+    justification: "No backtesting methodology, walk-forward validation, or regime-aware testing; no simulation fidelity discussion."
+  live_execution_relevance:
+    score: 1
+    justification: "No order routing, slippage modeling, liquidity analysis, or execution risk; trading examples are hypothetical."
+  risk_relevance:
+    score: 1
+    justification: "Risk concepts mentioned in isolation (stop-loss, position sizing) but no risk framework, VaR, or recovery modeling."
+  data_quality_relevance:
+    score: 1
+    justification: "Python data manipulation chapters lack production-grade data validation, cleaning methodology, or venue-specific pitfalls."
+  machine_learning_relevance:
+    score: 2
+    justification: "Keras usage for parking detection and basic neural nets shown; no model validation, overfitting guards, or trading-specific ML challenges."

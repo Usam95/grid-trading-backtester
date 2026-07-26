@@ -1,0 +1,191 @@
+- applicable_markets_and_regimes: Developed-market carry pairs (AUD/JPY, NZD/JPY,
+    USD/JPY, EUR/GBP); most pronounced during transition from low-rate to hiking cycle
+  assumptions:
+  - Interest rate expectations are priced into forex markets efficiently
+  - Carry trade positioning is significant enough to trigger contagion
+  baseline_or_null_hypothesis: Interest rate differentials are already fully priced
+    in; no predictive power beyond efficient-market expectations
+  data_requirements:
+  - Real-time central bank guidance and inflation data
+  - Carry trade positioning data
+  derived_from:
+  - WTFTC-C1-001
+  - WTFTC-C5-001
+  failure_modes:
+  - Carry unwind without rate shock (e.g., risk-off event)
+  - Rate hikes priced in gradually without sharp deleveraging
+  freshness_concerns: 2015 rate environment near-zero; current 3.5%+ and QT may alter
+    carry dynamics substantially
+  id: HYP-001
+  proposed_mechanism: Central bank hawkish pivot or inflation surge triggers expectation
+    of interest rate hikes, narrowing carry trade appeal; investors systematically
+    exit, triggering forced deleveraging and correlated currency sell-offs in high-yield
+    pairs (JPY, CHF strength).
+  rejection_criteria: Correlation <0.3 or signal lead <1 week
+  robustness_checks:
+  - Cross-validate against 2015 taper tantrum, 2019 repo crisis, 2022 rate shock
+  - Check if inflation forecast surprises matter more than levels
+  statement: Interest rate differentials and changes in forward guidance predict carry
+    trade unwind cycles. Rising inflation pressure signals impending carry deleveraging
+    and currency mean reversion.
+  status: proposed
+  title: Interest rate regime shifts trigger carry unwinds
+  transaction_cost_and_fill_considerations: Macro carry unwind signals are low-frequency;
+    entry/exit execution costs low but slippage during contagion high
+  unresolved_questions:
+  - How much of Feb 2007 yen carry crash driven by rate expectations vs. credit crisis?
+  - Do hedge fund leverage limits reduce unwind severity today?
+  validation_approach: 'Backtest: correlate changes in OIS/rate-forward guidance with
+    next-week carry-pair currency moves; measure hit rate and average return per carry
+    unwind signal'
+- applicable_markets_and_regimes: UK, Australia, Canada; especially post-crisis recovery
+    periods when housing rebounds
+  assumptions:
+  - Housing wealth effect magnitude is stable
+  - MEWs data available with <3 month lag
+  - Central banks respond predictably to inflation signals
+  baseline_or_null_hypothesis: Housing prices coincident with consumption; currency
+    markets price MEW effects instantly
+  data_requirements:
+  - Quarterly housing price indices and MEW flows
+  - Consumer spending and CPI lagged against housing data
+  derived_from:
+  - WTFTC-C1-002
+  - WTFTC-C5-002
+  failure_modes:
+  - Housing wealth effect weaker post-2008
+  - MEWs replaced by other savings drawdowns
+  freshness_concerns: Post-2008 lending standards changed; recent US housing collapse
+    not covered
+  id: HYP-002
+  proposed_mechanism: Rising house prices increase household net worth, encouraging
+    MEWs via refinancing; MEWs boost consumer spending, driving inflation and central
+    bank rate expectations; higher rates attract capital inflows and currency appreciation.
+  rejection_criteria: MEW-to-inflation lag >3 months or inconsistent across countries
+  robustness_checks:
+  - Control for house-price cycles independent of MEWs
+  - Cross-country validation
+  - Check if relationship broke post-2008
+  statement: Housing MEWs (Mortgage Equity Withdrawals) lead consumer spending and
+    inflation by 1-3 months; elevated housing wealth predicts currency appreciation
+    in economies with strong housing asset correlation.
+  status: proposed
+  title: Housing MEWs lead consumption and currency appreciation
+  transaction_cost_and_fill_considerations: MEWs released quarterly with lag; decision
+    window 6-8 weeks; high signal-to-noise if surprises used
+  unresolved_questions:
+  - How did MEW elasticity change post-Dodd-Frank?
+  - Is 0.20 elasticity empirically sourced or asserted?
+  validation_approach: 'Regression: MEW growth (t) vs consumer spending, inflation,
+    currency returns (t+1, t+2, t+3); Granger causality test'
+- applicable_markets_and_regimes: Safe-haven pairs (JPY, CHF, USD) during high-volatility
+    regimes; pronounced in 5-8% equity drawdowns
+  assumptions:
+  - Web search volume is reliable sentiment proxy
+  - Risk sentiment shifts uncorrelated with macro surprises
+  - Sentiment-driven moves are mean-reverting over 1-5 days
+  baseline_or_null_hypothesis: Web search volume is noise; currency markets driven
+    by fundamentals
+  data_requirements:
+  - Google Trends data for fear/greed terms
+  - VIX or MOVE index
+  - Hourly forex data
+  derived_from:
+  - WTFTC-C1-006
+  - WTFTC-C5-003
+  failure_modes:
+  - Sentiment spikes coincide with fundamental news
+  - Mean reversion too fast to capitalize
+  freshness_concerns: Google Trends API and crypto/social-media sentiment evolved;
+    2015 baseline may not generalize
+  id: HYP-003
+  proposed_mechanism: Investor fear spikes (high Google search volume for fear terms,
+    VIX >20) trigger capital flight to safety; JPY, CHF, USD appreciate; inversely,
+    risk-on drives carry-pair strength.
+  rejection_criteria: Win rate <52% or reversal size <3 pips after costs
+  robustness_checks:
+  - Separate sentiment spikes from macro news
+  - Validate on 2008, 2011, 2015 crises
+  - Measure alpha after transaction costs
+  statement: Risk-on/risk-off sentiment shifts, measured via web search volume or
+    VIX, predict 1-5 day currency reversals in safe-haven vs. risk pairs.
+  status: proposed
+  title: Risk-on/off sentiment predicts 1-5 day safe-haven reversals
+  transaction_cost_and_fill_considerations: Sentiment moves highest in RTH; execution
+    costs low but move amplitude small (2-5 pips average)
+  unresolved_questions:
+  - Which search terms best correlate with forex moves?
+  - Is sentiment validation empirical or qualitative?
+  validation_approach: 'Event study: identify anomalous search volume spikes; measure
+    average forex move direction and reversal rate over next 1-5 days'
+- applicable_markets_and_regimes: Major pairs (EUR/USD, GBP/USD, USD/JPY) during sideways
+    or near resistance; breakout-regime filters reduce noise
+  assumptions:
+  - Technical levels reflect non-random order clustering
+  - Indicators have predictive power independent of momentum
+  baseline_or_null_hypothesis: Technical levels are reflections of history, not predictive;
+    indicators lag price
+  data_requirements:
+  - Multi-timeframe analysis (daily, 1H, 15m); RSI, Stochastic, MAs, Fibonacci levels
+  derived_from:
+  - WTFTC-C2-002
+  - WTFTC-C6-001
+  failure_modes:
+  - Breakout extensions penetrate Fibonacci without reversing
+  - Indicators lag rather than lead
+  freshness_concerns: Pre-crypto, pre-HFT; market microstructure evolved
+  id: HYP-004
+  proposed_mechanism: Technical overshooting signals potential reversal; confluence
+    on multiple timeframes increases probability; reversals mean-revert to support/resistance
+    zones.
+  rejection_criteria: Hit rate <55% or Sharpe <0.5 after costs
+  robustness_checks:
+  - Walk-forward validation
+  - Separate by regime (trending vs. sideways)
+  - Validate on all four archetypes
+  statement: Technical indicators (RSI >70, Stochastic overbought, price at Fibonacci
+    61.8%) predict 3-5 day mean reversions when confirmed by multi-timeframe alignment
+    (daily downtrend, 1H overbought).
+  status: proposed
+  title: Multi-timeframe technical confluence predicts reversals
+  transaction_cost_and_fill_considerations: Reversal signals high-frequency in choppy
+    markets; costs non-trivial; need tight stops (3-5 pips)
+  unresolved_questions:
+  - Which 14 indicators have highest predictive power?
+  - Does book provide backtesting or validation?
+  validation_approach: 'Backtest: RSI>70 + price>Fibonacci 61.8% + daily MA slope
+    <0; measure hit rate and 3-5 day returns; separate by regime'
+- applicable_markets_and_regimes: Risk-on regimes; commodity boom/bust cycles; China-dependent
+    economies
+  assumptions:
+  - China PMI predictive for commodity demand
+  - Commodity-currency correlation >0.6
+  baseline_or_null_hypothesis: Jointly determined; no exploitable lead-lag signal
+  data_requirements:
+  - WTI, copper, iron-ore prices; China PMI; AUD/USD, CAD/USD, NZD/USD
+  derived_from:
+  - WTFTC-C1-004
+  - WTFTC-C1-005
+  failure_modes:
+  - Safe-haven episodes dominate commodity flows
+  - Correlation breaks
+  freshness_concerns: China reserve management and PMI weighting evolved
+  id: HYP-005
+  proposed_mechanism: China growth (PMI) drives commodity demand; higher commodity
+    prices lift capital inflows; correlated long commodity-currency/short safe-haven
+    reduces single-factor risk.
+  rejection_criteria: Granger lead >2 weeks or correlation <0.5
+  robustness_checks:
+  - Validate across 2008-2015 and 2015-2026
+  - Check correlation breaks during safe-haven flights
+  statement: Commodity prices (WTI crude oil) and China manufacturing PMI lead commodity-currency
+    strength (AUD, CAD, NZD) by 1-2 weeks; correlation pairs reduce regime dependence.
+  status: proposed
+  title: Commodity prices and China PMI lead commodity currencies
+  transaction_cost_and_fill_considerations: Pair trades lower volatility; larger position
+    size needed for same notional risk
+  unresolved_questions:
+  - Quantitative PMI-to-commodity correlation provided?
+  - Is 1-2 week lag empirical or qualitative?
+  validation_approach: 'Granger causality: PMI -> commodity prices -> commodity currencies;
+    measure lead times and correlation stability'

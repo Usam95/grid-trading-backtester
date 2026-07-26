@@ -1,0 +1,186 @@
+- id: ADTDT-H001
+  status: proposed
+  title: "Fallen Angel strategy has positive expectancy"
+  derived_from: ["ADTDT-C6-001"]
+  statement: "Stocks that gap up significantly then sell off heavily but reverse during morning session will have higher win rate than random entries on gap-up stocks"
+  proposed_mechanism: "Gap-up spike attracts profit-taking and short-sellers; stock consolidates at support; covering and retail demand create reversal"
+  applicable_markets_and_regimes: "US equities, low-float stocks, intraday only"
+  assumptions:
+    - "Gap up is catalyst-driven, not earnings disaster"
+    - "Stock has sufficient float (>5M shares)"
+  data_requirements:
+    - "Pre-market and intraday 1-min OHLCV"
+  baseline_or_null_hypothesis: "Random entry on gap-up stocks has zero expectancy"
+  validation_approach: "Backtest on 2 years of gap-up stocks; measure win% and profit factor on reversal entries at consolidation"
+  transaction_cost_and_fill_considerations: |
+    Estimate 0.05-0.1% slippage and 1-2 tick spread in pre-market and early morning.
+    Commission impact negligible at typical sizes.
+  robustness_checks:
+    - "Test different stop-distance thresholds (0.5%, 1%, 2%)"
+    - "Test across market cap buckets"
+    - "Test in different VIX regimes"
+  rejection_criteria: "Win rate < 45% OR Profit factor < 1.5 OR Sharpe ratio < 0.5"
+  failure_modes:
+    - "Stock continues lower; support breaks completely"
+    - "Reversal is false; quick retest downward"
+    - "Pre-market reversal doesn't hold into market open"
+  freshness_concerns: "Market structure evolution; algo trading impact; pre-market liquidity"
+  unresolved_questions:
+    - "What is optimal stop distance as % of gap?"
+    - "Does strategy work in high-VIX vs low-VIX?"
+
+- id: ADTDT-H002
+  status: proposed
+  title: "ABCD pattern has higher reversal probability at D"
+  derived_from: ["ADTDT-C6-002"]
+  statement: "ABCD patterns with Fibonacci ratios (0.618 AB=CD tolerance ±5%) will have reversal frequency > 50% on entry at D"
+  proposed_mechanism: "Fibonacci ratios align with supply/demand cycles; D is equilibrium point"
+  applicable_markets_and_regimes: "Intraday 1-5 min charts; trending markets with volatility"
+  assumptions:
+    - "ABCD extrema can be reliably identified within 1% of true extreme"
+    - "Fibonacci tolerance is ±5% of calculated levels"
+  data_requirements:
+    - "1-5 min OHLCV bars with high precision"
+  baseline_or_null_hypothesis: "Random entry at D has zero expectancy"
+  validation_approach: "Identify patterns via algorithm; measure reversal frequency at D; test Fibonacci tolerance bands"
+  transaction_cost_and_fill_considerations: |
+    Account for 1-2 tick slippage on entry/exit.
+    Bid-ask spread in liquid stocks typically 1-2 ticks; less liquid may be 3-5 ticks.
+  robustness_checks:
+    - "Test different chart timeframes (1, 3, 5 min)"
+    - "Test across stock categories (tech, finance, healthcare)"
+    - "Test with different Fibonacci ratios (0.618, 0.786, 1.0, 1.27)"
+  rejection_criteria: "Reversal rate < 50% OR Profit factor < 1.3 OR Sharpe < 0.3"
+  failure_modes:
+    - "Pattern identified too late for profitable entry"
+    - "Fibonacci levels not respected; pattern breaks down"
+    - "D level is not true reversal point"
+  freshness_concerns: "Technical analysis interpretation may drift; market structure changes"
+  unresolved_questions:
+    - "Which Fibonacci ratios are most predictive?"
+    - "How sensitive is pattern to tolerance bands?"
+
+- id: ADTDT-H003
+  status: proposed
+  title: "Bull Flag consolidation breakout has positive expectancy"
+  derived_from: ["ADTDT-C6-003"]
+  statement: "Bull flag patterns with volume confirmation (volume ≥ 150% of average) will have win rate > 50%"
+  proposed_mechanism: "Consolidation equilibrium; breakout resumes trend; volume confirms breakout"
+  applicable_markets_and_regimes: "Intraday 5-15 min; strong uptrends with volume"
+  assumptions:
+    - "Flag structure is clearly identifiable within 1% of levels"
+    - "Breakout volume is at least 150% of 20-bar average"
+  data_requirements:
+    - "5-15 min OHLCV with volume; at least 20 bars of history"
+  baseline_or_null_hypothesis: "Generic consolidation breakouts without volume confirmation have lower win rate"
+  validation_approach: "Identify flags; measure breakout win rate vs random consolidations; test volume thresholds"
+  transaction_cost_and_fill_considerations: |
+    Expect 2-5 tick slippage on high-volume breakouts due to impact.
+    Commission at typical retail rates: .05 per share (negligible on 100-1000 share entries).
+  robustness_checks:
+    - "Test different pole heights (5%, 10%, 20%)"
+    - "Test different consolidation widths (3-5 bars)"
+    - "Test volume thresholds (120%, 150%, 200%)"
+  rejection_criteria: "Win rate < 50% OR Profit factor < 1.4 OR Sharpe < 0.3"
+  failure_modes:
+    - "False breakout above flag; quick reversal within 2 bars"
+    - "Entry too late; half of pole already moved"
+    - "Volume spike is temporary; volume reverts below threshold"
+  freshness_concerns: "Algo trading may change flag reliability; volume detection may be spoofed"
+  unresolved_questions:
+    - "What volume threshold is optimal for different market caps?"
+    - "Does flag work on 1-min vs 5-min differently?"
+
+- id: ADTDT-H004
+  status: proposed
+  title: "Opening Range Breakout (ORB) has edge over late-day breakouts"
+  derived_from: ["ADTDT-C6-004"]
+  statement: "Early breakouts (first 2 hours of market open) will have higher win rate than late-day breakouts"
+  proposed_mechanism: "Gap indicates catalyst; early breakout shows momentum; late-day breakouts often fail into close"
+  applicable_markets_and_regimes: "US equities, pre-market gaps, morning sessions"
+  assumptions:
+    - "Opening range (first 30-60 min) is stable within 1% of extremes"
+    - "Breakout is not fakeout (must breach with 1+ min of separation)"
+  data_requirements:
+    - "Pre-market and first 2-hour 1-min OHLCV; opening range bounds"
+  baseline_or_null_hypothesis: "Random breakouts have zero expectancy"
+  validation_approach: "Measure ORB win rate (first 2 hours) vs later-day breakouts (2 PM - 3:30 PM)"
+  transaction_cost_and_fill_considerations: |
+    Early morning liquidity thin; expect 5-10 tick slippage.
+    Pre-market spreads wider (2-5 ticks typical vs 1 tick in main session).
+  robustness_checks:
+    - "Test across different gap sizes (0.5%, 1%, 2%, 5%)"
+    - "Test different entry windows (first 60 min, 90 min, 2 hours)"
+    - "Test across market cap categories"
+  rejection_criteria: "Win rate < 50% OR Profit factor < 1.5 OR vs late-day difference insignificant"
+  failure_modes:
+    - "Opening range extends; no early breakout"
+    - "Fakeout then reversal within 20 minutes"
+    - "Gap closes instead of extending"
+  freshness_concerns: "Market structure and pre-market hours may change; trader activity patterns shift"
+  unresolved_questions:
+    - "Does ORB work in all market regimes (trending, mean-reverting, choppy)?"
+    - "Optimal profit target vs holding to next resistance?"
+
+- id: ADTDT-H005
+  status: proposed
+  title: "VWAP bounce with candlestick confirmation has positive expectancy"
+  derived_from: ["ADTDT-C6-005", "ADTDT-C6-006"]
+  statement: "VWAP bounces in uptrends with bullish candlestick confirmation will have win rate > 55%"
+  proposed_mechanism: "VWAP is institutional cost basis; mean reversion common in uptrends; candlestick reduces noise"
+  applicable_markets_and_regimes: "Intraday, uptrends, high-volume stocks (>1M share volume/day)"
+  assumptions:
+    - "VWAP calculation is correct (cumsum price*vol / cumsum vol)"
+    - "Stock is in clear uptrend (close above 20-EMA)"
+  data_requirements:
+    - "1-5 min OHLCV with VWAP; volume bar data"
+  baseline_or_null_hypothesis: "VWAP bounces without candlestick confirmation have lower win rate"
+  validation_approach: "Identify VWAP approaches in uptrends; measure win rate with/without candlestick confirmation (hammer, engulfing, morning star)"
+  transaction_cost_and_fill_considerations: |
+    Fills at VWAP may be limited in low-liquidity; expect 2-5 tick slippage.
+    Most fills will occur at or near VWAP due to high trading volume at VWAP.
+  robustness_checks:
+    - "Test different candlestick patterns (hammer, engulfing, morning star, piercing)"
+    - "Test different stop-distance thresholds (0.5%, 1%, 2%)"
+    - "Test different VWAP lookback periods (20-bar, 50-bar)"
+  rejection_criteria: "Win rate < 55% OR Profit factor < 1.5 OR candlestick benefit < 5%"
+  failure_modes:
+    - "VWAP breaches; continued downtrend (trend ended)"
+    - "Candlestick reversal is false; price continues lower post-candle"
+    - "Reversal weak; stops taken out before reversal extends"
+  freshness_concerns: "VWAP calculation methods vary by broker; interpretation drift"
+  unresolved_questions:
+    - "Which candlestick patterns are most predictive?"
+    - "Optimal stop distance from VWAP?"
+
+- id: ADTDT-H006
+  status: proposed
+  title: "Position sizing rule prevents account ruin and improves consistency"
+  derived_from: ["ADTDT-C5-003", "ADTDT-C7-001", "ADTDT-C7-003"]
+  statement: "Pre-calculated position sizing will have lower max drawdown and higher Sharpe ratio than fixed-share or post-entry sizing"
+  proposed_mechanism: "Fixed-fractional sizing ties risk to actual stop distance; prevents over-leverage; enforced sizing removes emotion"
+  applicable_markets_and_regimes: "All intraday strategies; all market regimes"
+  assumptions:
+    - "Trader can estimate stop-distance accurately within ±1%"
+    - "Trader enforces sizing rule without exception"
+    - "Account equity is updated daily"
+  data_requirements:
+    - "Account size, risk percentage, stop-distance estimates"
+  baseline_or_null_hypothesis: "Fixed-share or post-entry sizing leads to higher drawdown and lower Sharpe"
+  validation_approach: "Backtest with pre-calculated sizing vs fixed-share vs post-entry; measure Sharpe and max drawdown distribution"
+  transaction_cost_and_fill_considerations: |
+    Smaller positions reduce commissions per trade; scales linearly.
+    Larger positions may incur market impact; test with slippage model.
+  robustness_checks:
+    - "Test different risk levels (1%, 2%, 5% per trade)"
+    - "Test account size variations ( to +)"
+    - "Test with different stop-distance estimates (±1%, ±2%)"
+  rejection_criteria: "Sharpe ratio < 1.0 OR Max drawdown > 20% OR worse than fixed-share baseline"
+  failure_modes:
+    - "Stop-distance estimate is wrong; actual loss exceeds target risk"
+    - "Trader overrides sizing rule emotionally on losing trades"
+    - "Position too small; trader adds to position mid-trade"
+  freshness_concerns: "Low; classical money management principle independent of markets"
+  unresolved_questions:
+    - "What is optimal risk per trade for this strategy set (1%, 2%, 5%)?"
+    - "Should sizing adjust for consecutive losses?"

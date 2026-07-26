@@ -1,0 +1,68 @@
+schema_version: "1.0"
+prompt_version: "1.0"
+book_id: forex-trading-2020-2020
+title: "Forex Trading 2020: Beginner's Guide. Secrets, Strategies & Tactics"
+authors: []
+edition: null
+publication_year: 2020
+publisher_or_identifier: "Self-published"
+format: pdf
+language: en
+page_count: 146
+chapter_count: 7
+extraction_quality: medium
+ocr_quality: medium
+processing_status: audited
+sources:
+  - absolute_path: 'C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical Trading\_KNOWLEDGE_EXTRACTION\inventory.yaml'
+    relative_path: inventory.yaml
+    sha256: null
+timestamps:
+  extraction_started: "2026-07-25T01:31:10Z"
+  extraction_completed: "2026-07-25T01:40:00Z"
+duplicate_relationships: []
+limitations_and_warnings:
+  - "Self-published book without author attribution in metadata"
+  - "No cited sources or bibliography; claims are asserted without primary references"
+  - "34 MB PDF with scanned pages; OCR quality is variable"
+  - "No publication venue or peer review; content credibility cannot be independently verified"
+  - "Book is from 2020; regulatory changes in forex/crypto markets since then are not addressed"
+  - "Broker names, fees, and platform features may be outdated"
+  - "PDF metadata shows creation with Adobe Acrobat; no structural markup"
+scores:
+  source_credibility:
+    score: 1
+    justification: "Self-published, no author attribution, no verifiable credentials or affiliations stated."
+  citation_quality:
+    score: 1
+    justification: "No citations, references, or bibliography present; claims presented as assertions."
+  reproducibility:
+    score: 2
+    justification: "Some trading concepts and rules are described but without empirical data or code samples."
+  likely_freshness:
+    score: 1
+    justification: "Published 2020; forex/crypto regulations and broker platforms have materially changed."
+  system_engineering_relevance:
+    score: 2
+    justification: "Mentions MetaTrader and automated trading but no API details or integration guidance."
+  grid_relevance:
+    score: 2
+    justification: "Grid and breakout strategies are mentioned but not rigorously detailed for backtesting."
+  stock_strategy_relevance:
+    score: 1
+    justification: "Focused exclusively on forex and cryptocurrencies; no stock market application."
+  backtesting_relevance:
+    score: 2
+    justification: "No backtest data, walk-forward validation, or synthetic performance metrics provided."
+  live_execution_relevance:
+    score: 2
+    justification: "Mentions stop-loss, position sizing, and money management; but no real execution edge cases."
+  risk_relevance:
+    score: 3
+    justification: "Risk management, stop-loss, and position sizing are discussed; some practical guidance on sizing."
+  data_quality_relevance:
+    score: 1
+    justification: "No discussion of data sources, quality checks, or vendor evaluation."
+  machine_learning_relevance:
+    score: 1
+    justification: "No machine learning, feature engineering, or model validation content present."

@@ -1,0 +1,157 @@
+book_id: trading-price-action-trends-technical-analysis-of-price-char-2011
+sections:
+  - ref: intro
+    title: "Acknowledgments, Terminology, Introduction"
+    pdf_page_start: 3
+    status: processed
+    reason: "Foundational orientation on price action methodology and institutional trading dynamics"
+  - ref: ch1
+    title: "The Spectrum of Price Action: Extreme Trends to Extreme Trading Ranges"
+    pdf_page_start: 87
+    status: processed
+    reason: "Conceptual foundation on market regime classification along spectrum from pure trend to pure range"
+  - ref: ch2
+    title: "Trend Bars, Doji Bars, and Climaxes"
+    pdf_page_start: 91
+    status: processed
+    reason: "Bar type classification rules and identification criteria for price action analysis"
+  - ref: ch3
+    title: "Breakouts, Trading Ranges, Tests, and Reversals"
+    pdf_page_start: 109
+    status: processed
+    reason: "Structural pattern recognition and key reversal/breakout concepts"
+  - ref: ch4
+    title: "Bar Basics: Signal Bars, Entry Bars, Setups, and Candle Patterns"
+    pdf_page_start: 115
+    status: processed
+    reason: "Entry signal taxonomy framework and setup component definitions"
+  - ref: ch5
+    title: "Signal Bars: Reversal Bars"
+    pdf_page_start: 121
+    status: processed
+    reason: "Reversal signal bar rules with risk/reward assessment methodology"
+  - ref: ch6
+    title: "Signal Bars: Other Types"
+    pdf_page_start: 133
+    status: processed
+    reason: "Alternative signal bar patterns and entry mechanics variations"
+  - ref: ch7
+    title: "Outside Bars"
+    pdf_page_start: 187
+    status: processed
+    reason: "Outside bar pattern analysis with trading rules and reliability assessment"
+  - ref: ch8
+    title: "The Importance of the Close of the Bar"
+    pdf_page_start: 201
+    status: processed
+    reason: "Bar close as critical price action element for real-time decision-making"
+  - ref: ch9
+    title: "Exchange-Traded Funds and Inverse Charts"
+    pdf_page_start: 205
+    status: processed
+    reason: "Asset class applicability and inverse relationship chart analysis"
+  - ref: ch10
+    title: "Second Entries"
+    pdf_page_start: 209
+    status: processed
+    reason: "Trade management methodology and re-entry signal timing"
+  - ref: ch11
+    title: "Late and Missed Entries"
+    pdf_page_start: 213
+    status: processed
+    reason: "Risk/reward degradation analysis as setup evolves; timing sensitivity"
+  - ref: ch12
+    title: "Pattern Evolution"
+    pdf_page_start: 217
+    status: processed
+    reason: "Pattern transformation mechanics and market regime shift identification"
+  - ref: part2_intro
+    title: "PART II: Trend Lines and Channels (Introduction)"
+    pdf_page_start: 223
+    status: processed
+    reason: "Technical framework for trend identification and support/resistance construction"
+  - ref: ch13
+    title: "Trend Lines"
+    pdf_page_start: 227
+    status: processed
+    reason: "Trend line construction rules, slope significance, and reliability assessment"
+  - ref: ch14
+    title: "Trend Channel Lines"
+    pdf_page_start: 241
+    status: processed
+    reason: "Parallel channel construction and predictive bounce mechanics"
+  - ref: ch15
+    title: "Channels"
+    pdf_page_start: 251
+    status: processed
+    reason: "Channel type taxonomy and trading range boundary identification"
+  - ref: ch16
+    title: "Micro Channels"
+    pdf_page_start: 281
+    status: processed
+    reason: "Short-term channel patterns in intraday timeframe context"
+  - ref: ch17
+    title: "Horizontal Lines: Swing Points and Other Key Price Levels"
+    pdf_page_start: 301
+    status: processed
+    reason: "Support/resistance identification and swing level geometry principles"
+  - ref: part3_intro
+    title: "PART III: Trends (Introduction)"
+    pdf_page_start: 307
+    status: processed
+    reason: "Foundational trend concept definitions and identification methodology"
+  - ref: ch18
+    title: "Example of How to Trade a Trend"
+    pdf_page_start: 321
+    status: processed
+    reason: "End-to-end trade execution example with entry, management, risk/reward"
+  - ref: ch19
+    title: "Signs of Strength in a Trend"
+    pdf_page_start: 339
+    status: processed
+    reason: "Trend continuation confirmation signals and strength validation"
+  - ref: ch20
+    title: "Two Legs"
+    pdf_page_start: 351
+    status: processed
+    reason: "Two-leg pullback pattern structure and scalable entry rules"
+  - ref: part4_intro
+    title: "PART IV: Common Trend Patterns (Introduction)"
+    pdf_page_start: 355
+    status: processed
+    reason: "Pattern taxonomy organization and classification framework"
+  - ref: ch21
+    title: "Spike and Channel Trend"
+    pdf_page_start: 357
+    status: processed
+    reason: "Gap-and-channel (spike) pattern characteristics and trade mechanics"
+  - ref: ch22
+    title: "Trending Trading Range Days"
+    pdf_page_start: 391
+    status: processed
+    reason: "Hybrid patterns combining trading range with directional trend"
+  - ref: ch23
+    title: "Trend from the Open and Small Pullback Trends"
+    pdf_page_start: 415
+    status: processed
+    reason: "Opening pattern formations and scalable intraday entry timing"
+  - ref: ch24
+    title: "Reversal Day"
+    pdf_page_start: 447
+    status: processed
+    reason: "Pattern reversal signals indicating market structure change"
+  - ref: ch25
+    title: "Trend Resumption Day"
+    pdf_page_start: 455
+    status: processed
+    reason: "Pullback termination signals in trend continuation context"
+  - ref: ch26
+    title: "Stairs: Broad Channel Trend"
+    pdf_page_start: 463
+    status: processed
+    reason: "Step-like accumulation pattern in strongly trending markets"
+  - ref: backmatter
+    title: "About the Author, Website, Index"
+    pdf_page_start: 469
+    status: processed
+    reason: "Biographical and reference material; low priority for extraction"

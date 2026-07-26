@@ -1,0 +1,342 @@
+- id: "TRADEGR-R001"
+  title: "Greeks calculation engine for Black-Scholes pricing"
+  status: "proposed"
+  derived_from:
+    - "TRADEGR-C2-001"
+    - "TRADEGR-C2-002"
+    - "TRADEGR-C2-003"
+    - "TRADEGR-C2-004"
+    - "TRADEGR-C2-005"
+    - "TRADEGR-C4-001"
+  derivation_type: "direct_book_recommendation"
+  rationale: "All Greeks-based strategies require accurate Greeks calculations."
+  applies_to:
+    strategy:
+      - "grid"
+      - "stock_signal"
+    lifecycle:
+      - "research"
+      - "backtest"
+      - "live"
+    asset_class:
+      - "equities"
+    concern:
+      - "simulation"
+      - "risk"
+  requirement: "The system shall compute delta, gamma, vega, theta, rho with at least 4-decimal accuracy."
+  acceptance_tests:
+    - "Compare Greeks to Bloomberg terminal; tolerance ±0.5%"
+    - "Validate Greeks sensitivities (delta 0-1, gamma ATM-peaked)"
+  failure_prevented: "Incorrect Greeks cause unhedged gamma/vega exposure and losses."
+  capability_enabled: "Enables all Greeks-based strategies."
+  assumptions:
+    - "Market data is clean and current"
+  open_questions:
+    - "Support for local-vol or stochastic vol?"
+  dependencies:
+    - "Option pricing engine"
+  verification_needed: "Backtest Greeks accuracy against known libraries."
+  priority_hint: "correctness"
+
+- id: "TRADEGR-R002"
+  title: "Delta-neutral position management and rebalancing automation"
+  status: "proposed"
+  derived_from:
+    - "TRADEGR-C2-001"
+    - "TRADEGR-C5-001"
+    - "TRADEGR-C10-001"
+  derivation_type: "direct_book_recommendation"
+  rationale: "Delta hedging requires systematic, frequent rebalancing to maintain hedge ratio."
+  applies_to:
+    strategy:
+      - "grid"
+    lifecycle:
+      - "backtest"
+      - "live"
+    asset_class:
+      - "equities"
+    concern:
+      - "execution"
+      - "risk"
+  requirement: "The system shall automatically rebalance when delta drift exceeds threshold. Live rebalancing within 2 seconds."
+  acceptance_tests:
+    - "Delta stays within tolerance until rebalance"
+    - "Rebalance latency < 2 seconds"
+  failure_prevented: "Unhedged gamma accumulates; large losses in volatile markets."
+  capability_enabled: "Enables gamma scalping and delta hedging."
+  assumptions:
+    - "Broker API is available"
+  open_questions:
+    - "Optimal threshold and frequency?"
+  dependencies:
+    - "Greeks calculation"
+    - "Order execution"
+  verification_needed: "Validate rebalancing cost vs theoretical."
+  priority_hint: "correctness"
+
+- id: "TRADEGR-R003"
+  title: "Dividend-adjusted option pricing and early-exercise detection"
+  status: "proposed"
+  derived_from:
+    - "TRADEGR-C3-002"
+    - "TRADEGR-C9-001"
+  derivation_type: "direct_book_recommendation"
+  rationale: "Failure to account for dividends causes systematic mispricing and unhedged exposure."
+  applies_to:
+    strategy:
+      - "grid"
+      - "stock_signal"
+    lifecycle:
+      - "backtest"
+      - "live"
+    asset_class:
+      - "equities"
+    concern:
+      - "simulation"
+      - "data"
+  requirement: "System shall adjust pricing for known dividend yields. Estimate early-exercise boundaries for American calls."
+  acceptance_tests:
+    - "Dividend-adjusted prices match market data (±1%)"
+    - "Exercise boundary matches numerical methods"
+  failure_prevented: "Ignoring dividends causes systematic call underpricing."
+  capability_enabled: "Correct hedging on dividend payers."
+  assumptions:
+    - "Dividend schedule is known"
+  open_questions:
+    - "Handle special dividends?"
+  dependencies:
+    - "Corporate action data feed"
+  verification_needed: "Reconcile to assignment data."
+  priority_hint: "correctness"
+
+- id: "TRADEGR-R004"
+  title: "Implied volatility surface construction and smoothing"
+  status: "proposed"
+  derived_from:
+    - "TRADEGR-C4-002"
+  derivation_type: "direct_book_recommendation"
+  rationale: "Greeks depend on smooth IV surface; raw quotes are sparse and noisy."
+  applies_to:
+    strategy:
+      - "grid"
+      - "stock_signal"
+    lifecycle:
+      - "backtest"
+      - "live"
+    asset_class:
+      - "equities"
+    concern:
+      - "data"
+      - "simulation"
+  requirement: "Construct IV surface using smoothing (SABR, SVI, local-vol). Recalibrate at each tick (live) or daily (backtest)."
+  acceptance_tests:
+    - "IV fit error < 1%"
+    - "Surface exhibits correct properties (skew, term structure)"
+  failure_prevented: "Unsmoothed IV causes Greeks discontinuities."
+  capability_enabled: "Accurate vega and vol trading."
+  assumptions:
+    - "Quotes reasonably representative"
+  open_questions:
+    - "Best smoothing model for equities?"
+  dependencies:
+    - "Options data feed"
+  verification_needed: "Compare smoothed Greeks to market Greeks."
+  priority_hint: "correctness"
+
+- id: "TRADEGR-R005"
+  title: "Portfolio Greeks aggregation and correlation tracking"
+  status: "proposed"
+  derived_from:
+    - "TRADEGR-C10-001"
+  derivation_type: "direct_book_recommendation"
+  rationale: "Individual Greeks do not add linearly; correlations must be tracked."
+  applies_to:
+    strategy:
+      - "grid"
+    lifecycle:
+      - "backtest"
+      - "live"
+    asset_class:
+      - "equities"
+    concern:
+      - "risk"
+      - "simulation"
+  requirement: "Compute aggregate portfolio Greeks. Estimate Greeks correlations. Display with confidence intervals."
+  acceptance_tests:
+    - "Aggregated Greeks match full revaluation (±0.5%)"
+    - "Stress scenarios confirm predictions"
+  failure_prevented: "Naive aggregation misses correlations and concentrates risk."
+  capability_enabled: "Portfolio-level risk management."
+  assumptions:
+    - "Greeks linear within stress ranges"
+  open_questions:
+    - "Estimate Greek-to-Greek correlations?"
+  dependencies:
+    - "Greeks calculations"
+  verification_needed: "Validate portfolio Greeks predictions."
+  priority_hint: "correctness"
+
+- id: "TRADEGR-R006"
+  title: "Scenario analysis and Greeks under extreme moves"
+  status: "proposed"
+  derived_from:
+    - "TRADEGR-C12-001"
+  derivation_type: "direct_book_recommendation"
+  rationale: "Greeks linear approximations break down in extreme scenarios."
+  applies_to:
+    strategy:
+      - "grid"
+    lifecycle:
+      - "live"
+    asset_class:
+      - "equities"
+    concern:
+      - "risk"
+      - "simulation"
+  requirement: "Support scenario analysis with full revaluation under user-defined stress scenarios."
+  acceptance_tests:
+    - "Scenario P&L > Greeks linear approximation (convexity)"
+    - "Historical scenarios validated"
+  failure_prevented: "Linear Greeks underestimate tail losses."
+  capability_enabled: "Robust tail risk management."
+  assumptions:
+    - "Scenarios representative"
+  open_questions:
+    - "Which scenarios are most relevant?"
+  dependencies:
+    - "Full revaluation engine"
+  verification_needed: "Validate against historical crises."
+  priority_hint: "safety"
+
+- id: "TRADEGR-R007"
+  title: "Execution slippage modeling and transaction cost accounting"
+  status: "proposed"
+  derived_from:
+    - "TRADEGR-C5-002"
+    - "TRADEGR-C13-001"
+  derivation_type: "direct_book_recommendation"
+  rationale: "Backtests must model realistic execution costs to predict live performance."
+  applies_to:
+    strategy:
+      - "grid"
+    lifecycle:
+      - "backtest"
+      - "live"
+    asset_class:
+      - "equities"
+    concern:
+      - "execution"
+      - "alpha"
+  requirement: "Model bid-ask spread, market impact, commissions. Live system tracks actual fills vs models."
+  acceptance_tests:
+    - "Zero slippage vs realistic; measure alpha degradation (50-200 bps)"
+    - "Compare backtest slippage to historical data (±20%)"
+  failure_prevented: "Ignoring costs overstates backtested alpha by 50-300 bps."
+  capability_enabled: "Realistic strategy prediction."
+  assumptions:
+    - "Slippage model calibrated to data"
+  open_questions:
+    - "Slippage variation with market regime?"
+  dependencies:
+    - "Market microstructure data"
+  verification_needed: "Reconcile to live execution."
+  priority_hint: "alpha"
+
+- id: "TRADEGR-R008"
+  title: "Greeks sensitivities to model parameters (vanna, volga)"
+  status: "proposed"
+  derived_from:
+    - "TRADEGR-C4-002"
+    - "TRADEGR-C8-001"
+  derivation_type: "direct_book_recommendation"
+  rationale: "Large portfolios need second-order Greeks to capture cross-sensitivities."
+  applies_to:
+    strategy:
+      - "grid"
+    lifecycle:
+      - "backtest"
+      - "live"
+    asset_class:
+      - "equities"
+    concern:
+      - "risk"
+      - "simulation"
+  requirement: "For portfolios with significant vega/gamma, compute second-order Greeks (vanna, volga)."
+  acceptance_tests:
+    - "Vanna, volga match analytic formulas (±1%)"
+    - "Backtest: second-order Greeks reduce hedge errors"
+  failure_prevented: "Ignoring second-order Greeks causes hedge ratio errors."
+  capability_enabled: "Accurate hedging for complex portfolios."
+  assumptions:
+    - "Second-order model accurate near ATM"
+  open_questions:
+    - "When does second-order Greeks become material?"
+  dependencies:
+    - "Greeks calculation"
+  verification_needed: "Validate against benchmarks."
+  priority_hint: "research_quality"
+
+- id: "TRADEGR-R009"
+  title: "Options data quality validation and bid-ask spread modeling"
+  status: "proposed"
+  derived_from:
+    - "TRADEGR-C13-001"
+  derivation_type: "direct_book_recommendation"
+  rationale: "Bad data leads to spurious strategy signals and overestimated alpha."
+  applies_to:
+    strategy:
+      - "grid"
+    lifecycle:
+      - "backtest"
+    asset_class:
+      - "equities"
+    concern:
+      - "data"
+      - "simulation"
+  requirement: "Validate call-put parity, extreme spreads, missing quotes. Flag and fill gaps."
+  acceptance_tests:
+    - "Parity violations flagged"
+    - "Filled data reconciles to market"
+  failure_prevented: "Bad data corrupts backtests and strategy signals."
+  capability_enabled: "Robust backtesting on realistic data."
+  assumptions:
+    - "Data quality issues identifiable"
+  open_questions:
+    - "Best imputation method?"
+  dependencies:
+    - "Data feed"
+  verification_needed: "Audit against exchange sources."
+  priority_hint: "correctness"
+
+- id: "TRADEGR-R010"
+  title: "Greeks-based alerts and position limits monitoring"
+  status: "proposed"
+  derived_from:
+    - "TRADEGR-C12-001"
+  derivation_type: "direct_book_recommendation"
+  rationale: "Risk managers need real-time Greeks monitoring to prevent limit breaches."
+  applies_to:
+    strategy:
+      - "grid"
+    lifecycle:
+      - "live"
+    asset_class:
+      - "equities"
+    concern:
+      - "risk"
+      - "operations"
+  requirement: "Continuously monitor Greeks vs limits. Alert within 30 seconds of breach. Trigger mitigation if configured."
+  acceptance_tests:
+    - "Limits checked >= once per minute"
+    - "Alert latency < 30 seconds"
+  failure_prevented: "Undetected limit breaches lead to excessive risk."
+  capability_enabled: "Active risk management and regulatory compliance."
+  assumptions:
+    - "Limits set appropriately"
+  open_questions:
+    - "Static vs dynamic (volatility-scaled) limits?"
+  dependencies:
+    - "Real-time Greeks calculation"
+    - "Alert system"
+  verification_needed: "Audit limit monitoring accuracy."
+  priority_hint: "correctness"

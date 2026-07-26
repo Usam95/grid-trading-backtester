@@ -1,0 +1,160 @@
+- id: STKTWIT-H1
+  title: "Price-change labeling thresholds partition StockTwits messages into separable signal groups"
+  status: proposed
+  derived_from: 
+    - STKTWIT-C1-003
+    - STKTWIT-C1-004
+  statement: "Labeling StockTwits messages based on stock price movements with a 0.5% threshold creates message classes with distinct linguistic patterns that supervised classifiers can discriminate."
+  proposed_mechanism: "The correlation between stock price changes and public sentiment means messages coinciding with larger price moves (≥0.5%) share linguistic markers; messages around neutral price moves (-0.5% to +0.5%) are ambiguous; threshold selection maximizes inter-class separation."
+  applicable_markets_and_regimes: "FAANG equities, 2015-2017; may not hold in highly correlated or meme-driven regimes."
+  assumptions:
+    - "Retail social media sentiment lags institutional price discovery"
+    - "0.5% threshold is calibrated appropriately (not data-snooped)"
+    - "Message-date alignment is precise"
+  data_requirements: 
+    - "Historical StockTwits messages with timestamps"
+    - "Daily OHLCV data from Yahoo Finance or equivalent"
+  baseline_or_null_hypothesis: "Random labeling or sentiment-based labels produce worse class separation than price-change labels."
+  validation_approach: "Compare F1 scores across three label schemes (binary, 2-label, 3-label threshold, sentiment-based). Test on held-out companies and time periods not used to calibrate threshold."
+  transaction_cost_and_fill_considerations: "Not applicable to this hypothesis; focuses on classification task, not execution."
+  robustness_checks:
+    - "Threshold sensitivity: vary 0.5% to ±1%, ±2%, measure F1 change"
+    - "Cross-period generalization: train on 2015-2016, test on 2017"
+    - "Cross-company generalization: train on 4 FAANG, test on fifth"
+  rejection_criteria: "If percentage-change labels underperform random labels or sentiment-based labels across multiple models."
+  failure_modes:
+    - "Threshold optimized on test set (data snooping)"
+    - "Survivorship bias: only succeeded companies studied"
+    - "Regime change: retail sentiment loses correlation with price"
+  freshness_concerns: "Social media sentiment dynamics may have shifted post-2017 due to algorithmic changes and user behavior evolution."
+  unresolved_questions:
+    - "Is 0.5% optimal or arbitrary? How to validate threshold without test-set leakage?"
+    - "Does threshold vary across volatility regimes?"
+    - "How persistent is correlation over 10-year span?"
+
+- id: STKTWIT-H2
+  title: "Traditional ML with TF-IDF features is more cost-effective than transformers for price-change classification"
+  status: proposed
+  derived_from:
+    - STKTWIT-C1-006
+    - STKTWIT-C1-011
+  statement: "For the task of predicting same-day stock price movement labels from StockTwits text, Naive Bayes with TF-IDF feature extraction achieves comparable F1 scores to BERT with ~180x less training time, and outperforms transformer-based models due to the output label being independent of text semantics."
+  proposed_mechanism: "Transformers learn bidirectional context and semantic relationships, optimized for tasks like sentiment or intent prediction. Price-change prediction requires memorizing text-price correlations that are not semantic properties; simple word-frequency models (Naive Bayes + TF-IDF) capture this correlation equally well without gradient computation overhead."
+  applicable_markets_and_regimes: "FAANG 2015-2017; most likely applies when target outcome (price) is externally determined and not text-semantic."
+  assumptions:
+    - "Training infrastructure cost is relevant constraint"
+    - "Inference latency is acceptable (~seconds to minutes)"
+    - "Price-change task is not sequence-dependent (each message labeled independently)"
+  data_requirements:
+    - "Historical StockTwits messages"
+    - "Preprocessed and TF-IDF vectorized"
+  baseline_or_null_hypothesis: "Transformer models outperform simpler models on this task due to superior representation learning."
+  validation_approach: "Train both Naive Bayes (TF-IDF) and BERT on identical train/test splits; measure F1, accuracy, and wall-clock training time. Repeat across labeling schemes (binary, 2-label, 3-label). Evaluate on out-of-sample periods."
+  transaction_cost_and_fill_considerations: "Relevant for production: faster training allows more frequent retraining and A/B testing."
+  robustness_checks:
+    - "Cross-validation: 5-fold CV on both models"
+    - "Hyperparameter sweep: grid search for both architectures"
+    - "Feature ablation: compare TF-IDF vs Count Vectorizer"
+  rejection_criteria: "If transformer F1 exceeds traditional ML by >5% or if deployment cost dominates benefits."
+  failure_modes:
+    - "Newer social media conventions could favor semantic models"
+    - "Regime change where contextual information becomes important"
+    - "Inference cost becomes bottleneck if real-time decision-making required"
+  freshness_concerns: "Social platform evolution; text preprocessing requirements may change."
+  unresolved_questions:
+    - "How do ensemble methods (traditional + transformer) perform?"
+    - "Is cost-benefit analysis tied to specific hardware (GPU availability)?"
+    - "How do performance and cost scale with dataset size?"
+
+- id: STKTWIT-H3
+  title: "Domain-specific pre-training requires sufficient data volume and training steps to exceed generic models"
+  status: proposed
+  derived_from:
+    - STKTWIT-C1-005
+    - STKTWIT-C1-010
+  statement: "FinALBERT, an ALBERT model pre-trained on financial domain text (Reuters-21578, AG News, 10% BookCorpus), underperforms general-domain BERT when fine-tuned on price-change labels due to smaller pre-training corpus (7.4M sentences, 10k steps vs 2.5B words, 125k steps for BERT). Domain-specific pre-training would exceed generic models if scaled to equivalent data and training budget."
+  proposed_mechanism: "Transformer models benefit from large pre-training corpora that build rich vocabulary and linguistic patterns. Domain-specific pre-training is effective only when domain corpus is large relative to fine-tuning task and training steps are sufficient for convergence. Under-training on small domain corpus results in poor generalization."
+  applicable_markets_and_regimes: "Financial text classification with limited domain data; applicable to trading, risk, compliance NLP tasks."
+  assumptions:
+    - "125k steps is sufficient convergence threshold for ALBERT on domain data"
+    - "7.4M sentences is materially smaller than 2.5B words"
+    - "Domain vocabulary from Reuters+AG_News is representative of target task"
+  data_requirements:
+    - "Large financial corpus (>=50M sentences equivalent)"
+    - "Compute budget for 125k+ pre-training steps on GPU/TPU"
+  baseline_or_null_hypothesis: "Domain-specific pre-training provides no benefit over generic models regardless of data size."
+  validation_approach: "Scale FinALBERT pre-training to 50M sentence corpus and 125k steps; compare F1 on held-out StockTwits test set vs BERT. Ablation: vary corpus size (7.4M, 20M, 50M) and steps (10k, 50k, 125k) to quantify scaling laws."
+  transaction_cost_and_fill_considerations: "Pre-training cost is fixed; amortized across many downstream tasks; not directly relevant to trading execution."
+  robustness_checks:
+    - "Cross-domain test: fine-tune scaled FinALBERT on FinancialPhraseBank, Reuters sentiment tasks"
+    - "Sensitivity: measure F1 vs corpus size and training steps"
+    - "Ensemble: combine scaled FinALBERT with BERT"
+  rejection_criteria: "If scaled FinALBERT still underperforms BERT; indicates data quality or task mismatch, not quantity."
+  failure_modes:
+    - "Financial domain corpus is qualitatively different from trading task; domain-specific irrelevant"
+    - "7.4M sentence corpus sufficient after all; problem is hyperparameter tuning, not data"
+  freshness_concerns: "Financial vocabulary evolves (e.g., new trading instruments, regulations); corpus must be refreshed."
+  unresolved_questions:
+    - "What is minimum corpus size for domain-specific advantage?"
+    - "Is FinancialPhraseBank success (F1 0.83) due to sentiment task better-suited to transformers, or proof-of-concept that domain pre-training works?"
+    - "How to separate domain-vocab benefit from larger pre-training budget?"
+
+- id: STKTWIT-H4
+  title: "Neutral class from threshold-based labeling introduces noise; binary or 2-label schemes reduce noise"
+  status: proposed
+  derived_from:
+    - STKTWIT-C1-003
+    - STKTWIT-C1-009
+  statement: "The neutral class created by three-label threshold-based labeling (price change between -0.5% and +0.5%) represents ambiguous or noisy target labels, not a real phenomenon. Models trained with binary or 2-label schemes achieve higher F1 (0.54-0.60) than 3-label (0.21-0.41); imbalance is secondary factor."
+  proposed_mechanism: "Threshold range [-0.5%, +0.5%] captures random walk noise and intra-day volatility, not meaningful price movements. Messages labeled neutral have no clear relationship to price trajectory; including them as a target class adds label noise, degrading gradient-based learning."
+  applicable_markets_and_regimes: "Low-volatility regimes where 0.5% threshold captures noise; high-volatility regimes may have genuine neutral pattern."
+  assumptions:
+    - "Price movements < 0.5% are noise, not signal"
+    - "Neutral messages are linguistically ambiguous, not distinct"
+  data_requirements:
+    - "Historical price/message data to measure signal-to-noise ratio in threshold range"
+  baseline_or_null_hypothesis: "Neutral class is a genuine third outcome; three-label scheme has equal or higher F1 than two-label."
+  validation_approach: "Analyze linguistic properties of messages in neutral window vs positive/negative. Train models with neutral class downweighted, removed, or re-labeled as positive/negative based on stronger threshold. Compare F1 curves."
+  transaction_cost_and_fill_considerations: "For trading: three-way signal (buy/sell/hold) could be useful; but empirical evidence suggests hold signal unreliable."
+  robustness_checks:
+    - "Threshold sensitivity: vary neutral window from ±0.3% to ±1%"
+    - "Class weight adjustment: apply sample_weight to neutral class during training"
+    - "Alternative labeling: map neutral to stochastic positive/negative"
+  rejection_criteria: "If three-label F1 exceeds two-label by >5% or if neutral class F1 is comparable to positive/negative."
+  failure_modes:
+    - "Neutral class is valid and market regime dependent; threshold too narrow"
+    - "Linguistic analysis reveals neutral messages are genuinely distinct (e.g., high uncertainty)"
+  freshness_concerns: "Volatility regime may shift; neutral window should be adaptive."
+  unresolved_questions:
+    - "Is neutral class problem universal or FAANG-specific?"
+    - "Does dynamically adjusting threshold per stock improve three-label performance?"
+
+- id: STKTWIT-H5
+  title: "FinALBERT hyperparameter sensitivity and labeling bias reflect insufficient pre-training rather than architectural flaw"
+  status: proposed
+  derived_from:
+    - STKTWIT-C1-008
+    - STKTWIT-C1-010
+  statement: "FinALBERT exhibited labeling bias (collapsing to majority class) during fine-tuning and required careful hyperparameter tuning (learning_rate=1e-05, batch_size=32, weight_decay) to stabilize. These issues are symptoms of under-trained foundation model, not ALBERT architecture defect. With adequate pre-training (125k steps vs 10k), hyperparameter sensitivity would reduce."
+  proposed_mechanism: "Under-trained models have unstable loss landscape; small changes in learning rate cause optimization to diverge. Larger pre-training converges to broader loss minima, increasing fine-tuning robustness. Weight decay acts as implicit regularization to compensate for weak pre-training."
+  applicable_markets_and_regimes: "Applies to any transformer fine-tuning scenario with limited pre-training budget."
+  assumptions:
+    - "125k pre-training steps reaches convergence for ALBERT on domain corpus"
+    - "Learning_rate coupling issue is not task-specific but pre-training related"
+  data_requirements:
+    - "Large financial domain corpus (50M+ sentences)"
+    - "Adequate compute for 125k+ pre-training steps"
+  baseline_or_null_hypothesis: "ALBERT architecture is unsuitable for financial text; BERT is structurally superior."
+  validation_approach: "Retrain FinALBERT with 125k steps; hold fine-tuning hyperparameters fixed; measure F1 and label-bias absence. Compare with fixed hyperparameter BERT as control."
+  transaction_cost_and_fill_considerations: "Pre-training cost; amortized across tasks."
+  robustness_checks:
+    - "Hyperparameter grid search on both under-trained (10k) and properly-trained (125k) FinALBERT"
+    - "Sensitivity analysis: plot F1 vs learning_rate, batch_size, weight_decay for both pre-training regimes"
+  rejection_criteria: "If properly-trained FinALBERT still requires hyperparameter fiddling or exhibits instability."
+  failure_modes:
+    - "ALBERT architecture has fundamental limitations (e.g., parameter sharing reduces capacity)"
+    - "Financial domain corpus insufficient regardless of steps"
+  freshness_concerns: "Newer ALBERT variants or training methods may improve stability."
+  unresolved_questions:
+    - "What pre-training step count minimizes hyperparameter sensitivity?"
+    - "Is parameter-sharing in ALBERT the root cause, or just pre-training insufficiency?"

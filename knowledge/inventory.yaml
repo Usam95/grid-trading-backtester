@@ -1,0 +1,816 @@
+schema_version: '1.0'
+prompt_version: '1.0'
+source_root: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+  Trading
+output_root: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+  Trading\_KNOWLEDGE_EXTRACTION
+total_files: 39
+total_pdf: 31
+total_epub: 8
+total_bytes: 593923048
+books:
+- book_id: advanced-techniques-in-day-trading-a-practical-guide-to-high-2021
+  absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\Advanced Techniques in Day Trading.pdf
+  relative_path: Advanced Techniques in Day Trading.pdf
+  filename: Advanced Techniques in Day Trading.pdf
+  extension: .pdf
+  byte_size: 10503315
+  sha256: b81a00a102908d50e8632048069fe4983168c99815498fcde5162e29a7820eb0
+  probable_title: 'Advanced Techniques in Day Trading: A Practical Guide to High Probability
+    Day Trading Strategies and Methods'
+  probable_authors: Andrew Aziz
+  probable_year: 2021
+  language: unknown
+  page_count: 406
+  chapter_count: null
+  text_extraction_quality: good
+  ocr_needed: 'no'
+  duplicate_of: null
+  processing_status: inventoried
+  extract_error: null
+- book_id: coding-capital-the-art-of-algorithmic-trading-a-comprehensiv-2024
+  absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\ALGO_TRADING_03_07_26\Coding Capital. The Art of Algorithmic Trading -
+    A Comprehensive Guide for Algorithmic Trading with Python in 2024.epub
+  relative_path: ALGO_TRADING_03_07_26\Coding Capital. The Art of Algorithmic Trading
+    - A Comprehensive Guide for Algorithmic Trading with Python in 2024.epub
+  filename: Coding Capital. The Art of Algorithmic Trading - A Comprehensive Guide
+    for Algorithmic Trading with Python in 2024.epub
+  extension: .epub
+  byte_size: 2128501
+  sha256: 96abafa8e9bbc03ea5fe44be2206a19bc3361de0007aa3c04a2ed3bfb4606b50
+  probable_title: 'Coding Capital: The Art of Algorithmic Trading: A Comprehensive
+    Guide for Algorithmic Trading with Python in 2024'
+  probable_authors: Strauss, Johann
+  probable_year: 2024
+  language: unknown
+  page_count: null
+  chapter_count: 21
+  text_extraction_quality: good
+  ocr_needed: 'no'
+  duplicate_of: null
+  processing_status: inventoried
+  extract_error: null
+- book_id: financial-machina-machine-learning-for-finance-the-quintesse-2024
+  absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\ALGO_TRADING_03_07_26\Financial Machina Machine Learning For Finance The
+    Quintessential Compendium for Python Machine Learning For 2024.epub
+  relative_path: ALGO_TRADING_03_07_26\Financial Machina Machine Learning For Finance
+    The Quintessential Compendium for Python Machine Learning For 2024.epub
+  filename: Financial Machina Machine Learning For Finance The Quintessential Compendium
+    for Python Machine Learning For 2024.epub
+  extension: .epub
+  byte_size: 6358743
+  sha256: eb238b0535342e8545c96dfe8204b3289368f579c04240c539fc72d63dc911ec
+  probable_title: 'Financial Machina: Machine Learning For Finance: The Quintessential
+    Compendium for Python Machine Learning For 2024 & Beyond'
+  probable_authors: Sampson, Josh
+  probable_year: 2024
+  language: unknown
+  page_count: null
+  chapter_count: 57
+  text_extraction_quality: good
+  ocr_needed: 'no'
+  duplicate_of: null
+  processing_status: inventoried
+  extract_error: null
+- book_id: igi-epub-test-book-85x11
+  absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\ALGO_TRADING_03_07_26\Machine Learning and Modeling Techniques in Financial
+    Data Science.epub
+  relative_path: ALGO_TRADING_03_07_26\Machine Learning and Modeling Techniques in
+    Financial Data Science.epub
+  filename: Machine Learning and Modeling Techniques in Financial Data Science.epub
+  extension: .epub
+  byte_size: 19324188
+  sha256: ec1b5222cb4211e154a00803aec5ae18c8d96fe45a5eb4a943c96977e85b9c8c
+  probable_title: IGI EPUB Test Book 85x11
+  probable_authors: IGI Global
+  probable_year: null
+  language: unknown
+  page_count: null
+  chapter_count: 199
+  text_extraction_quality: good
+  ocr_needed: 'no'
+  duplicate_of: null
+  processing_status: inventoried
+  extract_error: null
+- book_id: next-gen-algorithmic-trading-strategies-tools-and-techniques
+  absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\ALGO_TRADING_03_07_26\Next-Gen Algorithmic Trading. Strategies, Tools,
+    and Techniques for Professionals with Python.epub
+  relative_path: ALGO_TRADING_03_07_26\Next-Gen Algorithmic Trading. Strategies, Tools,
+    and Techniques for Professionals with Python.epub
+  filename: Next-Gen Algorithmic Trading. Strategies, Tools, and Techniques for Professionals
+    with Python.epub
+  extension: .epub
+  byte_size: 1642314
+  sha256: 8a61d588192fc3421f56463aceb9497d5ee6a89c52a504f5079aa9db3de878aa
+  probable_title: 'Next-Gen Algorithmic Trading: Strategies, Tools, and Techniques
+    for Professionals with Python'
+  probable_authors: Bisette, Vincent
+  probable_year: null
+  language: unknown
+  page_count: null
+  chapter_count: 13
+  text_extraction_quality: good
+  ocr_needed: 'no'
+  duplicate_of: null
+  processing_status: inventoried
+  extract_error: null
+- book_id: quantitative-finance-advanced-analysis-with-python-a-compreh-2024
+  absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\ALGO_TRADING_03_07_26\Quantitative Finance Advanced Analysis with Python
+    A Comprehensive Guide for 2024.epub
+  relative_path: ALGO_TRADING_03_07_26\Quantitative Finance Advanced Analysis with
+    Python A Comprehensive Guide for 2024.epub
+  filename: Quantitative Finance Advanced Analysis with Python A Comprehensive Guide
+    for 2024.epub
+  extension: .epub
+  byte_size: 2465667
+  sha256: a27b30d26e8e7ad1e8c4cf13740b2f17462733800eaf1a4bfbced87e20095dab
+  probable_title: 'Quantitative Finance: Advanced Analysis with Python: A Comprehensive
+    Guide for 2024'
+  probable_authors: Van Der Post, Hayden
+  probable_year: 2024
+  language: unknown
+  page_count: null
+  chapter_count: 60
+  text_extraction_quality: good
+  ocr_needed: 'no'
+  duplicate_of: null
+  processing_status: inventoried
+  extract_error: null
+- book_id: super-stock-trading-pro-algorithmic-trading-with-python
+  absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\ALGO_TRADING_03_07_26\Super Stock Trading Pro Algorithmic Trading with
+    Python.epub
+  relative_path: ALGO_TRADING_03_07_26\Super Stock Trading Pro Algorithmic Trading
+    with Python.epub
+  filename: Super Stock Trading Pro Algorithmic Trading with Python.epub
+  extension: .epub
+  byte_size: 2735100
+  sha256: 8212c132b5b0a693763349688ea118b45ccb16d1a0b7053217083eb86acbb438
+  probable_title: 'Super Stock Trading Pro: Algorithmic Trading with Python'
+  probable_authors: Van Der Post, Hayden
+  probable_year: null
+  language: unknown
+  page_count: null
+  chapter_count: 79
+  text_extraction_quality: good
+  ocr_needed: 'no'
+  duplicate_of: null
+  processing_status: inventoried
+  extract_error: null
+- book_id: tiny-book-massive-returns-long-term-investing-and-timing-exc
+  absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\ALGO_TRADING_03_07_26\Tiny Book, Massive Returns Long-Term Investing and
+    Timing Excellence in the Stock Market.epub
+  relative_path: ALGO_TRADING_03_07_26\Tiny Book, Massive Returns Long-Term Investing
+    and Timing Excellence in the Stock Market.epub
+  filename: Tiny Book, Massive Returns Long-Term Investing and Timing Excellence in
+    the Stock Market.epub
+  extension: .epub
+  byte_size: 12381312
+  sha256: c6b5fbb1e3fb2c6197afd5d0ff39979ac4d9b3cf1866db991522ab093acfd4fa
+  probable_title: 'Tiny Book, Massive Returns: Long-Term Investing and Timing Excellence
+    in the Stock Market: Four Decades of Wisdom: The Art of Perfect Entry in a Trade
+    ... Examples (Building Wealth at Every Age)'
+  probable_authors: Goldwyn, Benedict
+  probable_year: null
+  language: unknown
+  page_count: null
+  chapter_count: 34
+  text_extraction_quality: good
+  ocr_needed: 'no'
+  duplicate_of: null
+  processing_status: inventoried
+  extract_error: null
+- book_id: algorithmic-trading-with-interactive-brokers-python
+  absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\Algorithmic Trading With Interactive Brokers Python.pdf
+  relative_path: Algorithmic Trading With Interactive Brokers Python.pdf
+  filename: Algorithmic Trading With Interactive Brokers Python.pdf
+  extension: .pdf
+  byte_size: 19405679
+  sha256: 6be3829c463cb4dd8767bff2b249882f85338c29abc96d772a6025a2f4a95666
+  probable_title: Algorithmic Trading With Interactive Brokers Python
+  probable_authors: null
+  probable_year: null
+  language: unknown
+  page_count: 558
+  chapter_count: null
+  text_extraction_quality: good
+  ocr_needed: 'no'
+  duplicate_of: null
+  processing_status: inventoried
+  extract_error: null
+- book_id: account-management-users-guide-2015
+  absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\APIprintable.pdf
+  relative_path: APIprintable.pdf
+  filename: APIprintable.pdf
+  extension: .pdf
+  byte_size: 18517412
+  sha256: 62ee488e67677c0857fe2c13f10cc1a0dd2d27c3e2c90977e8aa64afc3def725
+  probable_title: Account Management Users' Guide
+  probable_authors: Interactive Brokers
+  probable_year: 2015
+  language: unknown
+  page_count: 602
+  chapter_count: null
+  text_extraction_quality: good
+  ocr_needed: 'no'
+  duplicate_of: null
+  processing_status: inventoried
+  extract_error: null
+- book_id: beginners-guide-to-trading-this-book-includes-day-forex-opti-2020
+  absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\BEGINNERS GUIDE TO TRADING.pdf
+  relative_path: BEGINNERS GUIDE TO TRADING.pdf
+  filename: BEGINNERS GUIDE TO TRADING.pdf
+  extension: .pdf
+  byte_size: 4244857
+  sha256: 12ff0032fc46d0dd5f906322a58e3f8ebd587633f8dad2b80ecfbb1488b92b10
+  probable_title: 'BEGINNERS GUIDE TO TRADING: This Book Includes: Day, Forex, Options
+    and Swing Trading for Beginners. Learn Psychology, Tips, Tricks How to Start Investing
+    and Create a Passive Income from Home.'
+  probable_authors: ALEXANDER PEACE
+  probable_year: 2020
+  language: unknown
+  page_count: 553
+  chapter_count: null
+  text_extraction_quality: good
+  ocr_needed: 'no'
+  duplicate_of: null
+  processing_status: inventoried
+  extract_error: null
+- book_id: detecting-regime-change-in-computational-finance-2020
+  absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\Detecting regime change.pdf
+  relative_path: Detecting regime change.pdf
+  filename: Detecting regime change.pdf
+  extension: .pdf
+  byte_size: 15888503
+  sha256: c96b7af5b2f53462271c28174ca9be993666015b5c64d8cb0f08d81bfa908ded
+  probable_title: Detecting Regime Change in Computational Finance
+  probable_authors: Jun Cheng and Edward P K Tsang
+  probable_year: 2020
+  language: unknown
+  page_count: 165
+  chapter_count: null
+  text_extraction_quality: good
+  ocr_needed: 'no'
+  duplicate_of: null
+  processing_status: inventoried
+  extract_error: null
+- book_id: bloomberg-professional-forex-analysis-and-trading-effective--2010
+  absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\forex\Forex analysis and trading.pdf
+  relative_path: forex\Forex analysis and trading.pdf
+  filename: Forex analysis and trading.pdf
+  extension: .pdf
+  byte_size: 3881419
+  sha256: ba965aff97175300d842643d07e799029ec2dcf42f76bc20005c6ec3df9e9bdf
+  probable_title: 'Bloomberg Professional : Forex Analysis and Trading : Effective
+    Top-Down Strategies Combining Fundamental, Position, and Technical Analyses'
+  probable_authors: Marta, T. J.(Author)
+  probable_year: 2010
+  language: unknown
+  page_count: 274
+  chapter_count: null
+  text_extraction_quality: good
+  ocr_needed: 'no'
+  duplicate_of: null
+  processing_status: inventoried
+  extract_error: null
+- book_id: forex-on-five-hours-a-week-2010
+  absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\forex\Forex on Five Hours a Week.pdf
+  relative_path: forex\Forex on Five Hours a Week.pdf
+  filename: Forex on Five Hours a Week.pdf
+  extension: .pdf
+  byte_size: 6828543
+  sha256: 84adeae37b49ee5d8aa7e31516fc8e13067aa1d4042bc0c500d240c3f8226d29
+  probable_title: Forex on Five Hours a Week
+  probable_authors: null
+  probable_year: 2010
+  language: unknown
+  page_count: 211
+  chapter_count: null
+  text_extraction_quality: good
+  ocr_needed: 'no'
+  duplicate_of: null
+  processing_status: inventoried
+  extract_error: null
+- book_id: forex-trading-2020-2020
+  absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\forex\Forex Trading 2020.pdf
+  relative_path: forex\Forex Trading 2020.pdf
+  filename: Forex Trading 2020.pdf
+  extension: .pdf
+  byte_size: 36009687
+  sha256: ea31679982718bd52dea3f0034705194ebf7a7c891790f8607c9e712aa9b8f92
+  probable_title: Forex Trading 2020
+  probable_authors: null
+  probable_year: 2020
+  language: unknown
+  page_count: 146
+  chapter_count: null
+  text_extraction_quality: good
+  ocr_needed: 'no'
+  duplicate_of: null
+  processing_status: inventoried
+  extract_error: null
+- book_id: forex-trading-for-beginners-simple-strategies-to-make-money--2021
+  absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\forex\Forex Trading for Beginners.pdf
+  relative_path: forex\Forex Trading for Beginners.pdf
+  filename: Forex Trading for Beginners.pdf
+  extension: .pdf
+  byte_size: 6328318
+  sha256: feec631c328b0fb127b23b16260ba3a79b8f0e6ef5849a5a6164a1d3eb88c950
+  probable_title: 'Forex Trading for Beginners: Simple Strategies to Make Money With
+    Forex Trading: The Best Guide With Basics, Secrets Tactics, and Psychology to
+    Big Profit and Income From the Financial Market'
+  probable_authors: William Rogers & George Evans
+  probable_year: 2021
+  language: unknown
+  page_count: 113
+  chapter_count: null
+  text_extraction_quality: good
+  ocr_needed: 'no'
+  duplicate_of: null
+  processing_status: inventoried
+  extract_error: null
+- book_id: wiley-trading-forex-trading-course-a-self-study-guide-to-bec-2015
+  absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\forex\The Forex trading course.pdf
+  relative_path: forex\The Forex trading course.pdf
+  filename: The Forex trading course.pdf
+  extension: .pdf
+  byte_size: 8709444
+  sha256: b3e934206e46d5c2c24a4c2f5ea44b1cdab503b661e49541f903f396e3f54ab8
+  probable_title: 'Wiley Trading : Forex Trading Course : A Self-Study Guide to Becoming
+    a Successful Currency Trader (2nd Edition)'
+  probable_authors: Cofnas, Abe(Author)
+  probable_year: 2015
+  language: unknown
+  page_count: 243
+  chapter_count: null
+  text_extraction_quality: good
+  ocr_needed: 'no'
+  duplicate_of: null
+  processing_status: inventoried
+  extract_error: null
+- book_id: guide-to-financial-markets
+  absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\Guide to Financial Markets.pdf
+  relative_path: Guide to Financial Markets.pdf
+  filename: Guide to Financial Markets.pdf
+  extension: .pdf
+  byte_size: 7429792
+  sha256: aca7656896b6d652e81495345ef05054f884aca2b413fc28dfc26d8121801024
+  probable_title: Guide to Financial Markets
+  probable_authors: null
+  probable_year: null
+  language: unknown
+  page_count: 322
+  chapter_count: null
+  text_extraction_quality: good
+  ocr_needed: 'no'
+  duplicate_of: null
+  processing_status: inventoried
+  extract_error: null
+- book_id: hands-on-machine-learning-for-algorithmic-trading-2018
+  absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\Hands-On Machine Learning for Algorithmic Trading.pdf
+  relative_path: Hands-On Machine Learning for Algorithmic Trading.pdf
+  filename: Hands-On Machine Learning for Algorithmic Trading.pdf
+  extension: .pdf
+  byte_size: 26429678
+  sha256: 452a120ec5d4bcec572cc55292bceb53aa77317da3517a82fa06cd9a5a0a8d99
+  probable_title: Hands-On Machine Learning for Algorithmic Trading
+  probable_authors: null
+  probable_year: 2018
+  language: unknown
+  page_count: 503
+  chapter_count: null
+  text_extraction_quality: good
+  ocr_needed: 'no'
+  duplicate_of: null
+  processing_status: inventoried
+  extract_error: null
+- book_id: high-probability-trading-strategies-2008
+  absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\High Probability Trading Strategies.pdf
+  relative_path: High Probability Trading Strategies.pdf
+  filename: High Probability Trading Strategies.pdf
+  extension: .pdf
+  byte_size: 7671402
+  sha256: 6b52a341ce20a7b2ec93c92049e63382d6bc9b5a050dc2983d73bfbd7e4c88af
+  probable_title: High Probability Trading Strategies
+  probable_authors: null
+  probable_year: 2008
+  language: unknown
+  page_count: 290
+  chapter_count: null
+  text_extraction_quality: good
+  ocr_needed: 'no'
+  duplicate_of: null
+  processing_status: inventoried
+  extract_error: null
+- book_id: how-to-day-trade-for-a-living-tools-tactics-money-management-2018
+  absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\How to Day Trade for a Living by Andrew .pdf
+  relative_path: How to Day Trade for a Living by Andrew .pdf
+  filename: How to Day Trade for a Living by Andrew .pdf
+  extension: .pdf
+  byte_size: 8098590
+  sha256: 8bfb487f8696199d72872c42ce236f4ddbf6b908f7ed99ec4b8d2bc39fa8e199
+  probable_title: 'How to Day Trade for a Living: Tools, Tactics, Money Management,
+    Discipline and Trading Psychology'
+  probable_authors: Andrew Aziz
+  probable_year: 2018
+  language: unknown
+  page_count: 222
+  chapter_count: null
+  text_extraction_quality: good
+  ocr_needed: 'no'
+  duplicate_of: null
+  processing_status: inventoried
+  extract_error: null
+- book_id: learn-algorithmic-trading-build-and-deploy-algorithmic-tradi-2019
+  absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\Learn Algorithmic Trading Build and deploy algorithmic trading systems
+    and strategies using Python and advanced data analysis.pdf
+  relative_path: Learn Algorithmic Trading Build and deploy algorithmic trading systems
+    and strategies using Python and advanced data analysis.pdf
+  filename: Learn Algorithmic Trading Build and deploy algorithmic trading systems
+    and strategies using Python and advanced data analysis.pdf
+  extension: .pdf
+  byte_size: 18134059
+  sha256: 436a53b4c95f973a6457890e27352c7119cacbcde4b9e136f23d5ae75296d211
+  probable_title: Learn Algorithmic Trading Build and deploy algorithmic trading systems
+    and strategies using Python and advanced data analysis
+  probable_authors: null
+  probable_year: 2019
+  language: unknown
+  page_count: 378
+  chapter_count: null
+  text_extraction_quality: good
+  ocr_needed: 'no'
+  duplicate_of: null
+  processing_status: inventoried
+  extract_error: null
+- book_id: machine-learning-for-algorithm-trading-master-as-a-pro-appli
+  absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\MACHINE LEARNING FOR ALGORITHM TRADING  Master as a PRO.epub
+  relative_path: MACHINE LEARNING FOR ALGORITHM TRADING  Master as a PRO.epub
+  filename: MACHINE LEARNING FOR ALGORITHM TRADING  Master as a PRO.epub
+  extension: .epub
+  byte_size: 15476517
+  sha256: ae0e155971c4d681091e17ab49d95d19de7612475ae9c4c6658d3f22c6e3d5ef
+  probable_title: 'MACHINE LEARNING FOR ALGORITHM TRADING : Master as a PRO applied
+    artificial intelligence and Python for predict systematic strategies for options
+    and stocks. Learn data-driven finance using keras'
+  probable_authors: Broker , Mark
+  probable_year: null
+  language: unknown
+  page_count: null
+  chapter_count: 44
+  text_extraction_quality: good
+  ocr_needed: 'no'
+  duplicate_of: null
+  processing_status: inventoried
+  extract_error: null
+- book_id: machine-learning-for-algorithmic-trading-predictive-models-t-2020
+  absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\Machine Learning for Algorithmic Trading Predictive models to extract
+    signals from market and alternative data for systematic trading strategies with
+    Python.pdf
+  relative_path: Machine Learning for Algorithmic Trading Predictive models to extract
+    signals from market and alternative data for systematic trading strategies with
+    Python.pdf
+  filename: Machine Learning for Algorithmic Trading Predictive models to extract
+    signals from market and alternative data for systematic trading strategies with
+    Python.pdf
+  extension: .pdf
+  byte_size: 25738822
+  sha256: eda0e30b1ae23d6d97b54fef0c801b8297372f2991ade0bb10c3268a2dbf6ca0
+  probable_title: Machine Learning for Algorithmic Trading Predictive models to extract
+    signals from market and alternative data for systematic trading strategies with
+    Python
+  probable_authors: null
+  probable_year: 2020
+  language: unknown
+  page_count: 821
+  chapter_count: null
+  text_extraction_quality: good
+  ocr_needed: 'no'
+  duplicate_of: null
+  processing_status: inventoried
+  extract_error: null
+- book_id: text-mining-of-stocktwits-data-for-predicting-stock-prices-2021
+  absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\NLP_Trading.pdf
+  relative_path: NLP_Trading.pdf
+  filename: NLP_Trading.pdf
+  extension: .pdf
+  byte_size: 12518048
+  sha256: cfdf8c4cb3c558eb674abdc1155f30916641a4d517439b6910756ac37c9150da
+  probable_title: Text Mining of Stocktwits Data for Predicting Stock Prices
+  probable_authors: Mukul Jaggi, Priyanka Mandal, Shreya Narang, Usman Naseem and
+    Matloob Khushi
+  probable_year: 2021
+  language: unknown
+  page_count: 22
+  chapter_count: null
+  text_extraction_quality: good
+  ocr_needed: 'no'
+  duplicate_of: null
+  processing_status: inventoried
+  extract_error: null
+- book_id: option-volatility-and-pricing-advanced-trading-strategies-an-2014
+  absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\OPTIONS\Option Volatility and Pricing Advanced Trading Strategies and
+    Techniques by Sheldon Natenberg.pdf
+  relative_path: OPTIONS\Option Volatility and Pricing Advanced Trading Strategies
+    and Techniques by Sheldon Natenberg.pdf
+  filename: Option Volatility and Pricing Advanced Trading Strategies and Techniques
+    by Sheldon Natenberg.pdf
+  extension: .pdf
+  byte_size: 26709965
+  sha256: 5909961952259195d534ee98ed0b5390fadeeaca1ba8532d520317ac71a51a4a
+  probable_title: 'Option Volatility and Pricing: Advanced Trading Strategies and
+    Techniques: Second Edition'
+  probable_authors: Sheldon Natenberg
+  probable_year: 2014
+  language: unknown
+  page_count: 588
+  chapter_count: null
+  text_extraction_quality: good
+  ocr_needed: 'no'
+  duplicate_of: null
+  processing_status: inventoried
+  extract_error: null
+- book_id: options-trading-for-beginners-a-crash-course-on-how-to-build-2021
+  absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\OPTIONS\Options Trading for Beginners A Crash Course On How To Build A
+    Passive Income In 2020 And How To Trade Stocks For A Living..pdf
+  relative_path: OPTIONS\Options Trading for Beginners A Crash Course On How To Build
+    A Passive Income In 2020 And How To Trade Stocks For A Living..pdf
+  filename: Options Trading for Beginners A Crash Course On How To Build A Passive
+    Income In 2020 And How To Trade Stocks For A Living..pdf
+  extension: .pdf
+  byte_size: 1809833
+  sha256: 31ef4d6c787b8a24c55eea2e711bc4599dbc7a813c16b7105da815ccbb21dcbd
+  probable_title: 'Options Trading for Beginners: A Crash Course On How To Build A
+    Passive Income In 2020 And How To Trade Stocks For A Living. Become A Swing Trader
+    RIGHT NOW'
+  probable_authors: Robert Douglas
+  probable_year: 2021
+  language: unknown
+  page_count: 245
+  chapter_count: null
+  text_extraction_quality: good
+  ocr_needed: 'no'
+  duplicate_of: null
+  processing_status: inventoried
+  extract_error: null
+- book_id: the-options-course-high-profit-and-low-stress-trading-method-2005
+  absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\OPTIONS\The Options Course High Profit and Low Stress Trading Methods.pdf
+  relative_path: OPTIONS\The Options Course High Profit and Low Stress Trading Methods.pdf
+  filename: The Options Course High Profit and Low Stress Trading Methods.pdf
+  extension: .pdf
+  byte_size: 5248057
+  sha256: 44e6e75edb294be4034ccf428bf8331b4a8b393ad23ca72e975eef044447affc
+  probable_title: The Options Course High Profit and Low Stress Trading Methods
+  probable_authors: MR2
+  probable_year: 2005
+  language: unknown
+  page_count: 593
+  chapter_count: null
+  text_extraction_quality: good
+  ocr_needed: 'no'
+  duplicate_of: null
+  processing_status: inventoried
+  extract_error: null
+- book_id: trading-options-greeks-how-time-volatility-and-other-pricing-2013
+  absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\OPTIONS\Trading Options Greeks How Time, Volatility, and Other Pricing
+    Factors Drive Profits.pdf
+  relative_path: OPTIONS\Trading Options Greeks How Time, Volatility, and Other Pricing
+    Factors Drive Profits.pdf
+  filename: Trading Options Greeks How Time, Volatility, and Other Pricing Factors
+    Drive Profits.pdf
+  extension: .pdf
+  byte_size: 2531141
+  sha256: 790e0ec4537813c1a856447454151ecb01da2ab4719afa8eadc49b51320c0cbf
+  probable_title: Trading Options Greeks How Time, Volatility, and Other Pricing Factors
+    Drive Profits
+  probable_authors: "\x104<8=8AB@0B>@"
+  probable_year: 2013
+  language: unknown
+  page_count: 345
+  chapter_count: null
+  text_extraction_quality: good
+  ocr_needed: 'no'
+  duplicate_of: null
+  processing_status: inventoried
+  extract_error: null
+- book_id: python-for-algorithmic-trading-2020
+  absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\Python for Algorithmic Trading From Idea to Cloud Deployment.pdf
+  relative_path: Python for Algorithmic Trading From Idea to Cloud Deployment.pdf
+  filename: Python for Algorithmic Trading From Idea to Cloud Deployment.pdf
+  extension: .pdf
+  byte_size: 25668321
+  sha256: c2f6101b08d3bf15a28afdc631749539b23a88b64f9147a884e7eccaca385f09
+  probable_title: Python for Algorithmic Trading
+  probable_authors: Yves Hilpisch;
+  probable_year: 2020
+  language: unknown
+  page_count: 380
+  chapter_count: null
+  text_extraction_quality: good
+  ocr_needed: 'no'
+  duplicate_of: null
+  processing_status: inventoried
+  extract_error: null
+- book_id: stock-market-investing-for-beginners-2020
+  absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\Stock Market Investing For Beginners.pdf
+  relative_path: Stock Market Investing For Beginners.pdf
+  filename: Stock Market Investing For Beginners.pdf
+  extension: .pdf
+  byte_size: 44257737
+  sha256: ab03f15451a4937642934dded7792babdc0cb94888d7f5bc51f3df9d401985a2
+  probable_title: Stock Market Investing For Beginners
+  probable_authors: null
+  probable_year: 2020
+  language: unknown
+  page_count: 182
+  chapter_count: null
+  text_extraction_quality: good
+  ocr_needed: 'no'
+  duplicate_of: null
+  processing_status: inventoried
+  extract_error: null
+- book_id: technical-analysis-explained-2015
+  absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\Technical Analysis Explained.pdf
+  relative_path: Technical Analysis Explained.pdf
+  filename: Technical Analysis Explained.pdf
+  extension: .pdf
+  byte_size: 20081417
+  sha256: 98d207584586e81ea596a7508e3653d2b1dd21fe2df80aa2388de716b5d063eb
+  probable_title: Technical Analysis Explained
+  probable_authors: Martin J. Pring
+  probable_year: 2015
+  language: unknown
+  page_count: 814
+  chapter_count: null
+  text_extraction_quality: good
+  ocr_needed: 'no'
+  duplicate_of: null
+  processing_status: inventoried
+  extract_error: null
+- book_id: the-art-science-of-technical-analysis-market-structure-price-2014
+  absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\The Art and Science of Technical Analysis.pdf
+  relative_path: The Art and Science of Technical Analysis.pdf
+  filename: The Art and Science of Technical Analysis.pdf
+  extension: .pdf
+  byte_size: 11794391
+  sha256: 38d134feacb925e6562e813aff728ff18fb235ce2f8208835384dc8d2233d8db
+  probable_title: 'The Art & Science of Technical Analysis: Market Structure, Price
+    Action & Trading Strategies (Wiley Trading)'
+  probable_authors: Adam Grimes
+  probable_year: 2014
+  language: unknown
+  page_count: 424
+  chapter_count: null
+  text_extraction_quality: good
+  ocr_needed: 'no'
+  duplicate_of: null
+  processing_status: inventoried
+  extract_error: null
+- book_id: the-new-trading-for-a-living-study-guide-2014
+  absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\The New Trading for a Living Study Guide.pdf
+  relative_path: The New Trading for a Living Study Guide.pdf
+  filename: The New Trading for a Living Study Guide.pdf
+  extension: .pdf
+  byte_size: 3244460
+  sha256: abf4b2bb07fbaefcd68db225b605688648f753f01158f0d46995334add7050de
+  probable_title: The New Trading for a Living Study Guide
+  probable_authors: Alexander Elder
+  probable_year: 2014
+  language: unknown
+  page_count: 162
+  chapter_count: null
+  text_extraction_quality: good
+  ocr_needed: 'no'
+  duplicate_of: null
+  processing_status: inventoried
+  extract_error: null
+- book_id: trading-evolved-anyone-can-build-killer-trading-strategies-i-2021
+  absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\Trading Evolved Anyone can Build Killer Trading Strategies in Python.pdf
+  relative_path: Trading Evolved Anyone can Build Killer Trading Strategies in Python.pdf
+  filename: Trading Evolved Anyone can Build Killer Trading Strategies in Python.pdf
+  extension: .pdf
+  byte_size: 6386476
+  sha256: 705e31dbe685515a3897aa6efa6f8ebf46bd56c42baaa13ed4904ab53f282186
+  probable_title: 'Trading Evolved: Anyone can Build Killer Trading Strategies in
+    Python'
+  probable_authors: Clenow, Andreas
+  probable_year: 2021
+  language: unknown
+  page_count: 325
+  chapter_count: null
+  text_extraction_quality: good
+  ocr_needed: 'no'
+  duplicate_of: null
+  processing_status: inventoried
+  extract_error: null
+- book_id: trading-price-action-reversals-2011
+  absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\Trading Price Action Reversals.pdf
+  relative_path: Trading Price Action Reversals.pdf
+  filename: Trading Price Action Reversals.pdf
+  extension: .pdf
+  byte_size: 80313686
+  sha256: 881f25611518287870e27bd03ce39dbabe5f478a1ade82e31e27d564a5cf2e06
+  probable_title: Trading Price Action Reversals
+  probable_authors: Al Brooks
+  probable_year: 2011
+  language: unknown
+  page_count: 578
+  chapter_count: null
+  text_extraction_quality: good
+  ocr_needed: 'no'
+  duplicate_of: null
+  processing_status: inventoried
+  extract_error: null
+- book_id: trading-price-action-trends-technical-analysis-of-price-char-2011
+  absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\Trading Price Action Trends.pdf
+  relative_path: Trading Price Action Trends.pdf
+  filename: Trading Price Action Trends.pdf
+  extension: .pdf
+  byte_size: 54160421
+  sha256: 787300b78dcc3748e2aef49092f22ae2b422e1a316d394983ca3098f686158ba
+  probable_title: 'Trading Price Action TRENDS : TECHNICAL ANALYSIS OF PRICE CHARTS
+    BAR BY BAR FOR THE SERIOUS TRADER'
+  probable_authors: AL BROOKS
+  probable_year: 2011
+  language: unknown
+  page_count: 479
+  chapter_count: null
+  text_extraction_quality: good
+  ocr_needed: 'no'
+  duplicate_of: null
+  processing_status: inventoried
+  extract_error: null
+- book_id: trading-technical-analysis-masterclass-master-the-financial--2021
+  absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\Trading Technical Analysis Masterclass.pdf
+  relative_path: Trading Technical Analysis Masterclass.pdf
+  filename: Trading Technical Analysis Masterclass.pdf
+  extension: .pdf
+  byte_size: 6445861
+  sha256: 8e2951c98816ece6d159bfd61ed99ca98c2b268c4ec39f8a9f680d7f83a99fc8
+  probable_title: 'Trading: Technical Analysis Masterclass: Master the financial markets'
+  probable_authors: Rolf Schlotmann & Moritz Czubatinski
+  probable_year: 2021
+  language: unknown
+  page_count: 145
+  chapter_count: null
+  text_extraction_quality: good
+  ocr_needed: 'no'
+  duplicate_of: null
+  processing_status: inventoried
+  extract_error: null
+- book_id: visual-guide-to-financial-markets-by-david-wilson-z-lib-org-2013
+  absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\Visual Guide to Financial Markets by David Wilson (z-lib.org).pdf
+  relative_path: Visual Guide to Financial Markets by David Wilson (z-lib.org).pdf
+  filename: Visual Guide to Financial Markets by David Wilson (z-lib.org).pdf
+  extension: .pdf
+  byte_size: 6421372
+  sha256: 872e8771c4a2fc0edbddb70ce25287d8350d0b345fce454e1c7c850d92524223
+  probable_title: Visual Guide to Financial Markets by David Wilson (z-lib.org)
+  probable_authors: "\x104<8=8AB@0B>@"
+  probable_year: 2013
+  language: unknown
+  page_count: 196
+  chapter_count: null
+  text_extraction_quality: good
+  ocr_needed: 'no'
+  duplicate_of: null
+  processing_status: inventoried
+  extract_error: null

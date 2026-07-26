@@ -1,0 +1,211 @@
+book_id: account-management-users-guide-2015
+sections:
+  # Chapter 1: Overview
+  - ref: "1.1"
+    title: "About the APIs"
+    pdf_page_start: 33
+    status: "processed"
+    reason: "Covers TWS vs IB Gateway connection methods, API capabilities, connectivity requirements."
+
+  - ref: "1.2"
+    title: "Installing the API Software"
+    pdf_page_start: 34
+    status: "low_priority"
+    reason: "Installation procedure; not decision-relevant for live trading system design."
+
+  - ref: "1.3"
+    title: "Run the API through TWS"
+    pdf_page_start: 35
+    status: "processed"
+    reason: "API configuration in TWS, connection setup, client ID handling."
+
+  - ref: "1.4"
+    title: "Run the API through the IB Gateway"
+    pdf_page_start: 37
+    status: "processed"
+    reason: "Headless gateway option for production systems; avoids GUI overhead."
+
+  - ref: "1.5"
+    title: "Recommendations"
+    pdf_page_start: 39
+    status: "processed"
+    reason: "Best practices for sample applications, development vs. production."
+
+  - ref: "1.6"
+    title: "API Orders and TWS Precautionary Settings"
+    pdf_page_start: 40
+    status: "processed"
+    reason: "Order precautionary checks can be bypassed in API; operational decision point."
+
+  - ref: "1.7"
+    title: "API Order IDs"
+    pdf_page_start: 42
+    status: "processed"
+    reason: "Order ID sequencing rule (must be > previous ID); critical for order management."
+
+  - ref: "1.8"
+    title: "Trader Workstation API Settings"
+    pdf_page_start: 43
+    status: "processed"
+    reason: "Socket port, logging, trusted IPs, automatic order binding, timeout settings."
+
+  - ref: "1.9"
+    title: "Uninstalling and Re-installing the TWS API Software on Windows"
+    pdf_page_start: 45
+    status: "low_priority"
+    reason: "Troubleshooting procedure; not directly relevant to trading system design."
+
+  # Chapter 2: DDE for Excel
+  - ref: "2.1"
+    title: "DDE for Excel (Overview)"
+    pdf_page_start: 46
+    status: "low_priority"
+    reason: "Legacy Excel-based API; modern systems use direct socket/WebSocket APIs."
+
+  - ref: "2.2"
+    title: "Tutorial: Requesting Real-Time Market Data (DDE)"
+    pdf_page_start: 47
+    status: "low_priority"
+    reason: "DDE examples; not relevant to modern trading system architecture."
+
+  - ref: "2.3"
+    title: "Tutorial: Requesting Historical Data (DDE)"
+    pdf_page_start: 59
+    status: "low_priority"
+    reason: "DDE historical data fetching; legacy technology."
+
+  - ref: "2.4"
+    title: "Getting Started with the DDE for Excel API"
+    pdf_page_start: 69
+    status: "low_priority"
+    reason: "DDE setup and sample spreadsheet usage; operational but legacy."
+
+  - ref: "2.5"
+    title: "Using the DDE for Excel Sample Spreadsheet - Tickers Page"
+    pdf_page_start: 73
+    status: "low_priority"
+    reason: "DDE spreadsheet features; not relevant to production trading system."
+
+  - ref: "2.6"
+    title: "Using the DDE for Excel Sample Spreadsheet - Basic Orders Page"
+    pdf_page_start: 77
+    status: "low_priority"
+    reason: "DDE order entry in Excel; legacy approach."
+
+  - ref: "2.7"
+    title: "Using the DDE for Excel Sample Spreadsheet - Extended Order Attributes"
+    pdf_page_start: 81
+    status: "low_priority"
+    reason: "DDE order customization; operational but legacy."
+
+  - ref: "2.8"
+    title: "Using the DDE for Excel Sample Spreadsheet - Conditional Orders"
+    pdf_page_start: 88
+    status: "planned_targeted_read"
+    reason: "Conditional order logic may inform bracket/OCO order mechanics in live system."
+
+  - ref: "2.9"
+    title: "Using the DDE for Excel Sample Spreadsheet - Advanced Orders"
+    pdf_page_start: 91
+    status: "planned_targeted_read"
+    reason: "Advanced order types (bracket, volatility, scale, relative); relevant to order execution strategy."
+
+  - ref: "2.10"
+    title: "Using the DDE for Excel Sample Spreadsheet - Account Page"
+    pdf_page_start: 100
+    status: "processed"
+    reason: "Account metrics (Available Funds, Buying Power, Margin, Day Trades Remaining, Leverage, Cushion)."
+
+  - ref: "2.11"
+    title: "Using the DDE for Excel Sample Spreadsheet - Portfolio Page"
+    pdf_page_start: 106
+    status: "processed"
+    reason: "Portfolio tracking, position management."
+
+  - ref: "2.12"
+    title: "Using the DDE for Excel Sample Spreadsheet - Historical Data Page"
+    pdf_page_start: 108
+    status: "low_priority"
+    reason: "DDE historical data viewer; operational but not critical for system design."
+
+  - ref: "2.13"
+    title: "DDE for Excel API Reference"
+    pdf_page_start: 128
+    status: "low_priority"
+    reason: "DDE syntax reference; legacy technology."
+
+  # Chapter 3: ActiveX
+  - ref: "3.1"
+    title: "ActiveX (Overview)"
+    pdf_page_start: 139
+    status: "low_priority"
+    reason: "Legacy Windows COM technology; modern systems use socket-based APIs."
+
+  - ref: "3.2"
+    title: "Linking to the Application using ActiveX"
+    pdf_page_start: 140
+    status: "low_priority"
+    reason: "ActiveX connection setup; legacy."
+
+  - ref: "3.3"
+    title: "ActiveX Methods"
+    pdf_page_start: 143
+    status: "processed"
+    reason: "API method signatures and semantics; documents order, market data, account request flows."
+
+  - ref: "3.4"
+    title: "ActiveX Events"
+    pdf_page_start: 165
+    status: "processed"
+    reason: "Callback event types and semantics; order status, fills, account updates."
+
+  # Chapter 4: C++
+  - ref: "4.1"
+    title: "C++ API (Overview)"
+    pdf_page_start: "unknown"
+    status: "planned_targeted_read"
+    reason: "Modern socket-based C++ API; relevant to production system architecture."
+
+  - ref: "4.2"
+    title: "Order Attributes (C++)"
+    pdf_page_start: 200
+    status: "processed"
+    reason: "Complete order field reference; margin impact, commission, order types, algo parameters."
+
+  - ref: "4.3"
+    title: "ComboLeg and Combination Orders"
+    pdf_page_start: 280
+    status: "planned_targeted_read"
+    reason: "Combo order mechanics; relevant for spread/basket trading."
+
+  # Chapter 5: Java and C#
+  - ref: "5.1"
+    title: "Java API"
+    pdf_page_start: "unknown"
+    status: "planned_targeted_read"
+    reason: "Alternative language binding; not extracted in this pass."
+
+  - ref: "5.2"
+    title: "C# API"
+    pdf_page_start: "unknown"
+    status: "planned_targeted_read"
+    reason: "Alternative language binding; not extracted in this pass."
+
+  # Not extracted in this pass but documented in coverage
+  - ref: "X.1"
+    title: "Frequently Asked Questions"
+    pdf_page_start: "unknown"
+    status: "planned_targeted_read"
+    reason: "Common issues and solutions; likely contains undocumented constraints and workarounds."
+
+  - ref: "X.2"
+    title: "TWS Users' Guide (referenced)"
+    pdf_page_start: "external"
+    status: "irrelevant_to_mission"
+    reason: "GUI reference; not relevant to API/programmatic trading system."
+
+  - ref: "X.3"
+    title: "IB Gateway Users' Guide (referenced)"
+    pdf_page_start: "external"
+    status: "irrelevant_to_mission"
+    reason: "GUI reference; not relevant to API/programmatic trading system."

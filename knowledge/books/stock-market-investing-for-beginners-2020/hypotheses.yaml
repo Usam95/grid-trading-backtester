@@ -1,0 +1,215 @@
+- id: SMIB-H-001
+  title: "Multi-timeframe alignment improves trade entry quality"
+  status: proposed
+  derived_from: [SMIB-C1-009, SMIB-C1-010, SMIB-C1-016]
+  statement: |
+    Entries triggered when both daily (or lower) and weekly (or higher) timeframe indicators align
+    (e.g., weekly uptrend + daily support bounce) have higher win rate and lower drawdown than
+    entries on single timeframe alone.
+  proposed_mechanism: |
+    Multi-timeframe alignment acts as a regime filter. Higher-timeframe trend provides conviction
+    and reduces false breakouts. Lower-timeframe entry removes noise and improves fill.
+  applicable_markets_and_regimes: |
+    Equities (US large-cap, mid-cap); trending and ranging market regimes.
+  assumptions:
+    - "Higher timeframe trend persists over lower timeframe entry period"
+    - "Trader has discipline to wait for alignment"
+    - "Charts are correctly drawn with support/resistance lines"
+  data_requirements:
+    - "OHLCV data at least daily; intraday data for lower timeframe entries"
+    - "Marked turning points (valleys/peaks) for technical levels"
+  baseline_or_null_hypothesis: |
+    Single-timeframe entries (daily only or intraday only) are equally effective; or multi-timeframe
+    alignment adds no signal value (p-value > 0.05).
+  validation_approach: |
+    1. Backtest two-stage entry (weekly align + daily signal) vs. single-stage (daily signal only)
+    2. Measure win rate, avg-win, avg-loss, and drawdown by alignment
+    3. Control for survivor bias and market regime
+    4. Test robustness across 50+ years of data and across different stock universes
+  transaction_cost_and_fill_considerations: |
+    Multi-timeframe waiting increases hold-time before entry; limit-order strategy partially mitigates entry slippage.
+  robustness_checks:
+    - "Sensitivity to turning-point detection method (visual vs. automated peak/valley)"
+    - "Sensitivity to support/resistance line interpretation"
+    - "Performance in high-volatility vs. low-volatility regimes"
+  rejection_criteria:
+    - "Win rate of multi-timeframe entries ≤ win rate of single-timeframe after transaction costs"
+    - "Average drawdown of multi-timeframe entries > single-timeframe by >10%"
+  failure_modes:
+    - "Higher-timeframe trend reverses mid-trade; entry was false alignment"
+    - "Price gaps through support level overnight; limit order never filled"
+  freshness_concerns: |
+    Multi-timeframe analysis relies on visual chart reading; modern automated detection methods may improve performance.
+  unresolved_questions:
+    - "What is the optimal timeframe ratio (e.g., daily+weekly vs. 1-hour+daily)?"
+    - "Does alignment improve performance on stocks with poor liquidity or high spreads?"
+
+- id: SMIB-H-002
+  title: "Dollar-cost averaging (DCA) accumulation over 7+ years produces positive returns in most regimes"
+  status: proposed
+  derived_from: [SMIB-C1-004, SMIB-C1-005]
+  statement: |
+    Fixed-amount monthly investing over 7-14 years (spanning two economic cycles) produces positive
+    terminal wealth and lower drawdown than lump-sum investing in the same period.
+  proposed_mechanism: |
+    DCA reduces sequence-of-returns risk by averaging entry price. Early entries into bear market
+    capture low prices; later entries into recovery capture rebound.
+  applicable_markets_and_regimes: |
+    Equities (diversified index funds); cyclic regimes containing full bull + bear cycles.
+  assumptions:
+    - "Economic cycles are approximately 7-14 years"
+    - "Market recovers to prior highs within 7-14 years"
+    - "Investor does not panic-sell in bear market"
+  data_requirements:
+    - "Monthly closing prices for 7+ year periods"
+    - "Test across multiple historical start dates to capture different regimes"
+  baseline_or_null_hypothesis: |
+    DCA produces no better risk-adjusted returns than lump-sum at start of period or quarterly rebalancing.
+  validation_approach: |
+    1. Simulate DCA on S&P 500 monthly data from 1950-2024
+    2. Compute terminal wealth, annualized return, max drawdown, Sharpe ratio vs. lump-sum alternatives
+    3. Stratify by bear/bull regime entry date
+  transaction_cost_and_fill_considerations: |
+    Monthly transactions incur small bid-ask spreads; commissions are negligible for index funds.
+  robustness_checks:
+    - "Test across different DCA periods (weekly, quarterly, annual)"
+    - "Test across different stock universes (small-cap, emerging)"
+    - "Test sensitivity to market-timing (enter at bull peak vs. bear trough)"
+  rejection_criteria:
+    - "Lump-sum investing at start of 7-year window outperforms DCA by >20% annualized"
+    - "DCA maximum drawdown is >20% worse than lump-sum"
+  failure_modes:
+    - "Permanent loss if company fails (single-stock DCA) or index enters secular bear"
+    - "Inflation erodes purchasing power; real returns may be negative in stagflation"
+  freshness_concerns: |
+    Interest rates and inflation dynamics have changed since 2020; passive indexing has become even cheaper.
+  unresolved_questions:
+    - "Is 7 years empirically validated as the optimal minimum horizon, or is it heuristic?"
+    - "Does DCA outperform trend-following or other dynamic allocation methods?"
+
+- id: SMIB-H-003
+  title: "Stop-loss placement at support/resistance reduces drawdown without material impact on win rate"
+  status: proposed
+  derived_from: [SMIB-C1-006, SMIB-C1-007]
+  statement: |
+    Placing stop-loss orders at technical support/resistance levels (rather than arbitrary percentages
+    or tight mechanical stops) maintains acceptable win rate while reducing average loss size and maximum drawdown.
+  proposed_mechanism: |
+    Support/resistance levels reflect consensus trader psychology; stops placed beyond these levels avoid
+    triggering on noise. Stops inside levels are hit by whipsaw, increasing false exits.
+  applicable_markets_and_regimes: |
+    Equities (liquid names with clear chart patterns); trending and ranging regimes.
+  assumptions:
+    - "Support/resistance levels are predictive of bounce or reversal"
+    - "Stop orders are guaranteed to fill within specified price"
+    - "Trader has discipline not to move stops emotionally"
+  data_requirements:
+    - "Daily+ OHLCV data; manually or algorithmically marked support/resistance levels"
+  baseline_or_null_hypothesis: |
+    Randomly-placed stops (e.g., 2% below entry) have similar risk-return profile to support/resistance stops.
+  validation_approach: |
+    1. Backtest swing trades with stops at support (technical) vs. 2%/5%/10% fixed stops
+    2. Measure win rate, average loss, max-loss, max-drawdown by stop type
+    3. Control for holding period (longer holds warrant wider stops)
+  transaction_cost_and_fill_considerations: |
+    Support/resistance stops are wider; fewer false fills = lower slippage.
+  robustness_checks:
+    - "Sensitivity to support/resistance detection method (visual vs. automated)"
+    - "Performance in high-volatility vs. calm periods"
+    - "Performance across market cap and sector"
+  rejection_criteria:
+    - "Support/resistance stops have win rate <50% after slippage"
+    - "Average loss at support/resistance stops is not materially smaller than fixed stops"
+  failure_modes:
+    - "Gap risk: market gaps through support overnight on bad news"
+    - "Whipsaw: stop hit, then price recovers and makes target"
+    - "Over-optimization: support/resistance detected too tightly"
+  freshness_concerns: |
+    Market structure and liquidity patterns have evolved; support/resistance may be less sticky.
+  unresolved_questions:
+    - "What distance beyond support/resistance is optimal (1%, 2%, 5%)?"
+    - "Do algorithmic methods improve support/resistance detection vs. manual charting?"
+
+- id: SMIB-H-004
+  title: "Fundamental analysis as pre-filter, technical analysis as entry trigger, improves signal quality"
+  status: proposed
+  derived_from: [SMIB-C1-001, SMIB-C1-008, SMIB-C1-009]
+  statement: |
+    A two-stage stock selection process—fundamental metrics to build watchlist, then technical
+    setup to trigger entry—yields higher win rate and lower false-signal rate than either stage alone.
+  proposed_mechanism: |
+    Fundamental analysis filters for quality/value; technical analysis identifies favorable entry timing.
+    Combination reduces entry into deteriorating names and improves entry price.
+  applicable_markets_and_regimes: |
+    Equities (mid/large-cap with good fundamentals); trending regimes.
+  assumptions:
+    - "Fundamental metrics are predictive of outperformance"
+    - "Technical patterns are predictive of short-term price reversion or continuation"
+  data_requirements:
+    - "Fundamental data: P/E, ROE, revenue growth, debt ratios"
+    - "Technical data: daily+ OHLCV, support/resistance marks"
+  baseline_or_null_hypothesis: |
+    Single-stage selection (fundamentals only, or technical only) is equally effective.
+  validation_approach: |
+    1. Backtest: identify fundamentally good names; then (a) enter on technical setup, (b) random entry, (c) dollar-cost-average entry
+    2. Measure win rate, avg-win, avg-loss, Sharpe, max-drawdown by method
+    3. Control for selection bias
+  transaction_cost_and_fill_considerations: |
+    Technical entry may occur at better price than immediate lump-sum.
+  robustness_checks:
+    - "Sensitivity to fundamental screen parameters (P/E cutoff, growth threshold)"
+    - "Sensitivity to technical pattern definition"
+    - "Performance across different market regimes and sectors"
+  rejection_criteria:
+    - "Two-stage win rate ≤ single-stage after accounting for reduced trade count"
+    - "Average loss on two-stage is materially higher than single-stage"
+  failure_modes:
+    - "Fundamental deterioration during hold period"
+    - "Technical setup breaks in regime change"
+    - "Watchlist becomes stale; missed names"
+  freshness_concerns: |
+    Real-time fundamental data availability and accuracy have improved since 2020.
+  unresolved_questions:
+    - "What fundamental metrics are most predictive for this approach?"
+    - "How often should watchlist be refreshed?"
+
+- id: SMIB-H-005
+  title: "Risk-first trade planning (define loss before defining target) improves discipline and reduces ruin risk"
+  status: proposed
+  derived_from: [SMIB-C1-013]
+  statement: |
+    Traders who pre-define maximum acceptable loss per trade (stop level and position size) before
+    entry achieve lower realized drawdown and fewer catastrophic losses than traders who plan targets first.
+  proposed_mechanism: |
+    Pre-defining loss removes emotional override and FOMO; trader enters with clear "no worse than X" frame.
+    Planning target after loss-definition ensures risk-reward ratio is acceptable.
+  applicable_markets_and_regimes: |
+    All strategies and timeframes; all market regimes.
+  assumptions:
+    - "Traders can maintain psychological discipline"
+    - "Pre-defined rules reduce emotional override"
+  data_requirements:
+    - "Trade log: entry, stop, target, actual stop-hit, actual exit"
+    - "Measure compliance: % of stops moved, % of trades that exceeded pre-defined loss"
+  baseline_or_null_hypothesis: |
+    Traders with pre-defined stops have the same drawdown and ruin risk as those without.
+  validation_approach: |
+    1. Survey trader logs: compare traders with strict stop-loss discipline vs. ad-hoc stop placement
+    2. Measure realized drawdown, % of trades hitting stops, average-loss distribution
+    3. Backtest: force adherence to pre-planned stops vs. allow dynamic re-planning
+  transaction_cost_and_fill_considerations: |
+    Stop slippage: stop-loss orders may fill worse than predefined stop price.
+  robustness_checks:
+    - "Sensitivity to trader type (discretionary vs. algorithmic)"
+    - "Sensitivity to market regime (calm vs. gap-risk environments)"
+  rejection_criteria:
+    - "Disciplined traders have same or higher realized drawdown as non-disciplined"
+    - "Stop slippage negates benefit of pre-planning"
+  failure_modes:
+    - "Gap risk: overnight gap through stop; much worse fill than planned"
+    - "Trader violates discipline under stress (moves stops)"
+  freshness_concerns: |
+    Psychological biases have not changed; trading psychology remains relevant.
+  unresolved_questions:
+    - "Can algorithmic position management enforce this discipline better than human?"
+    - "How much does training/experience improve stop discipline?"

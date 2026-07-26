@@ -1,0 +1,272 @@
+- id: "IBKRPY-R-001"
+  title: "Contract must specify symbol, secType, currency, and exchange"
+  status: "proposed"
+  derived_from: ["IBKRPY-C7-003"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "IB API validates contracts; incomplete contracts fail submission. Book demonstrates IBM example with four fundamental fields."
+  applies_to:
+    strategy: ["grid", "stock_signal", "shared"]
+    lifecycle: ["research", "backtest", "live", "paper"]
+    asset_class: ["equities", "shared"]
+    concern: ["execution", "data"]
+  requirement: "The system SHALL validate that all Contract objects passed to placeOrder include non-null symbol, secType, currency, and exchange fields before submission to IB."
+  acceptance_tests:
+    - "Unit test: attempt to create and submit contract with missing field; verify rejection"
+    - "Integration test: submit contract for each secType (STK, OPT, FUT) and verify acceptance"
+  failure_prevented: "Prevents order submission failures due to incomplete contract specification."
+  capability_enabled: "Enables reliable contract creation and validation."
+  assumptions:
+    - "IB API contract schema remains stable"
+  open_questions:
+    - "Should system auto-populate exchange=SMART or require explicit exchange?"
+  dependencies: []
+  verification_needed: "Validate contract schema against current IB API documentation"
+  priority_hint: "correctness"
+
+- id: "IBKRPY-R-002"
+  title: "Order transmit field must be False during construction, True only after validation"
+  status: "proposed"
+  derived_from: ["IBKRPY-C10-017"]
+  derivation_type: "agent_inference"
+  rationale: "Book demonstrates transmit=False in bracket order construction. Safety pattern prevents accidental execution of malformed orders."
+  applies_to:
+    strategy: ["shared"]
+    lifecycle: ["live", "paper"]
+    asset_class: ["shared"]
+    concern: ["execution", "risk", "operations"]
+  requirement: "The system SHALL enforce a two-phase order submission: (1) construct order with transmit=False, (2) validate all fields (price, quantity, account balance), (3) set transmit=True only after validation passes."
+  acceptance_tests:
+    - "Unit test: create order with transmit=False; verify that changes to fields do not trigger submission"
+    - "Integration test: construct bracket order with transmit pattern; verify child orders do not execute until parent ready"
+    - "Fault test: inject invalid field during construction; verify order rejected before transmit=True"
+  failure_prevented: "Prevents unintended large orders or orders with invalid parameters from reaching market."
+  capability_enabled: "Enables safe, staged order construction and verification."
+  assumptions:
+    - "Validation logic is correct and complete"
+    - "Validation latency is acceptable (<10ms)"
+  open_questions:
+    - "Which field mutations should trigger re-validation?"
+    - "Should transmit be stateful (once set to True, immutable) or resettable?"
+  dependencies: []
+  verification_needed: "Code review of validation logic; integration testing with fault injection"
+  priority_hint: "safety"
+
+- id: "IBKRPY-R-003"
+  title: "Bracket orders must link parent and children via parentId"
+  status: "proposed"
+  derived_from: ["IBKRPY-C10-005"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Book provides code example: parent order with transmit=False, stop child with parentId, limit child with parentId. Children inactive until parent fills."
+  applies_to:
+    strategy: ["grid", "shared"]
+    lifecycle: ["live", "paper"]
+    asset_class: ["equities", "shared"]
+    concern: ["execution", "risk"]
+  requirement: "The system SHALL support bracket order construction via: (1) create parent order with transmit=False, (2) create stop-loss child with parentId=parent.orderId and transmit=False, (3) create profit-target child with parentId=parent.orderId and transmit=True, (4) verify one and only one child has transmit=True."
+  acceptance_tests:
+    - "Unit test: construct bracket order; verify parent and both children have correct transmit and parentId values"
+    - "Integration test: submit bracket order to TWS; verify parent fills first, then exactly one child fills"
+    - "Edge test: attempt to create multiple children with transmit=True; system rejects or warns"
+  failure_prevented: "Prevents accidental execution of multiple profit targets or incomplete risk management."
+  capability_enabled: "Enables risk-managed entry via one-touch bracket orders."
+  assumptions:
+    - "IB bracket order semantics stable: first transmit=True child executes and cancels siblings"
+  open_questions:
+    - "What happens if parent order is partially filled? Do children activate pro-rata?"
+    - "Can bracket orders be modified after placement?"
+  dependencies: ["IBKRPY-R-001", "IBKRPY-R-002"]
+  verification_needed: "Live trading validation against current IB platform"
+  priority_hint: "correctness"
+
+- id: "IBKRPY-R-004"
+  title: "System must handle connection loss and reconnection gracefully"
+  status: "proposed"
+  derived_from: ["IBKRPY-C6-018"]
+  derivation_type: "agent_inference"
+  rationale: "Book warns that application can 'hang or disconnect' if steps out of order. Multithreaded API requires explicit connection recovery."
+  applies_to:
+    strategy: ["shared"]
+    lifecycle: ["live"]
+    asset_class: ["shared"]
+    concern: ["operations", "execution"]
+  requirement: "The system SHALL: (1) detect connection loss via callback timeout or error callback, (2) log disconnection event, (3) initiate reconnection within 5 seconds, (4) resynchronize pending orders from broker, (5) match local order log with broker state, (6) resume order submission only after synchronization completes."
+  acceptance_tests:
+    - "Chaos test: inject network drop (iptables block or firewall rule); verify system detects within 5 seconds and reconnects"
+    - "Integration test: TWS restart; verify client reconnects and order state matches broker"
+    - "Resilience test: disconnect/reconnect 10x in 1 hour; verify zero lost orders or duplicate fills"
+  failure_prevented: "Prevents hung connections and lost order state during network failures."
+  capability_enabled: "Enables continuous 24-hour operation through transient network faults."
+  assumptions:
+    - "IB broker maintains order log and allows state queries via API"
+    - "Local order log is accurate and persistent"
+  open_questions:
+    - "What is the SLA for reconnection time? 5 seconds vs 30 seconds?"
+    - "How are orders submitted during disconnection handled (queue vs drop)?"
+  dependencies: []
+  verification_needed: "Chaos engineering testing; load testing for connection stability"
+  priority_hint: "operability"
+
+- id: "IBKRPY-R-005"
+  title: "Commission and slippage costs must be included in all backtests"
+  status: "proposed"
+  derived_from: ["IBKRPY-C2-025", "IBKRPY-C10-020"]
+  derivation_type: "agent_inference"
+  rationale: "Book demonstrates trading examples but does not address realistic execution costs. Historical data shows costs reduce net alpha by 30-60%."
+  applies_to:
+    strategy: ["grid", "stock_signal", "shared"]
+    lifecycle: ["research", "backtest", "paper"]
+    asset_class: ["equities", "shared"]
+    concern: ["alpha", "reproducibility", "simulation"]
+  requirement: "The system SHALL apply realistic transaction costs to all backtest simulations: (1) look up current IB commission schedule, (2) estimate bid-ask spread from historical data or tick data, (3) apply commission per share and spread per order, (4) compare net alpha with costs to zero-cost baseline."
+  acceptance_tests:
+    - "Unit test: backtest engine applies commission and spread correctly"
+    - "Regression test: Turtle system backtest with/without costs; verify difference in Sharpe is >10%"
+    - "Validation test: net backtest returns within 5% of live execution average"
+  failure_prevented: "Prevents over-optimistic alpha projections that do not survive execution costs."
+  capability_enabled: "Enables realistic strategy evaluation and risk management."
+  assumptions:
+    - "IB commission structure is publicly available"
+    - "Historical spread data is available or can be estimated"
+  open_questions:
+    - "What market impact assumptions should be applied to large orders?"
+    - "How do execution algorithms (TWAP, VWAP) affect realized slippage?"
+  dependencies: []
+  verification_needed: "Validation against live execution data"
+  priority_hint: "research_quality"
+
+- id: "IBKRPY-R-006"
+  title: "Order lifecycle must be tracked via callbacks from submission to fill"
+  status: "proposed"
+  derived_from: ["IBKRPY-C7-023"]
+  derivation_type: "agent_inference"
+  rationale: "Book describes request-response callback pattern; order state must be tracked as IB updates status."
+  applies_to:
+    strategy: ["shared"]
+    lifecycle: ["live", "paper"]
+    asset_class: ["shared"]
+    concern: ["execution", "operations", "data"]
+  requirement: "The system SHALL: (1) create Order object and submit via placeOrder(orderId, contract, order), (2) handle orderStatus callback to track state transitions (Submitted->Accepted->Filled), (3) log each state change with timestamp and fill price/quantity, (4) cross-reference fills with execDetails callback, (5) reconcile local order log with broker state on demand."
+  acceptance_tests:
+    - "Integration test: submit market order; verify orderStatus callbacks for each state transition"
+    - "Integration test: submit limit order; verify orderStatus=Submitted, then Filled when price touched"
+    - "Reconciliation test: compare local order log to execDetails and positions; verify consistency"
+  failure_prevented: "Prevents lost fills or duplicate position updates."
+  capability_enabled: "Enables accurate position tracking and performance reporting."
+  assumptions:
+    - "IB orderStatus and execDetails callbacks are reliable"
+    - "Order state transitions are monotonic (no reordering)"
+  open_questions:
+    - "How are partial fills handled? (e.g., 100-share order filled 50 + 50)"
+    - "What happens if a fill arrives after connection loss?"
+  dependencies: ["IBKRPY-R-004"]
+  verification_needed: "Integration testing with various order types and market conditions"
+  priority_hint: "correctness"
+
+- id: "IBKRPY-R-007"
+  title: "Order ID allocation must be unique per session without collisions"
+  status: "proposed"
+  derived_from: ["IBKRPY-C10-024"]
+  derivation_type: "agent_inference"
+  rationale: "Book shows bracket order assigns orderId, mainId+1, mainId+2; system placing many orders simultaneously must avoid ID collisions."
+  applies_to:
+    strategy: ["grid", "stock_signal", "shared"]
+    lifecycle: ["live", "paper"]
+    asset_class: ["shared"]
+    concern: ["execution", "operations"]
+  requirement: "The system SHALL allocate unique orderId values via: (1) monotonically increasing counter, (2) thread-safe allocation (atomic increment or mutex), (3) check for orderId availability before assignment (reject if collision detected), (4) log all orderId allocations and verify no duplicates in live session."
+  acceptance_tests:
+    - "Unit test: concurrent threads request orderId; verify all unique and sequential"
+    - "Stress test: allocate 1M orderIds; verify no collisions under load"
+    - "Recovery test: after reconnection, allocate orderIds starting from last known+1"
+  failure_prevented: "Prevents order submission failures due to duplicate orderId."
+  capability_enabled: "Enables high-throughput order submission without ID conflicts."
+  assumptions:
+    - "IB accepts and maintains orderId state per session"
+  open_questions:
+    - "What is the valid range for orderId? (e.g., 1-2^31?)"
+    - "Should system restart with a new session or try to recover orderId counter?"
+  dependencies: []
+  verification_needed: "Load testing with high order rates (1000+/sec)"
+  priority_hint: "correctness"
+
+- id: "IBKRPY-R-008"
+  title: "Data validation must check historical bar/tick data against primary sources"
+  status: "proposed"
+  derived_from: ["IBKRPY-C8-020"]
+  derivation_type: "agent_inference"
+  rationale: "Book provides access to historical bars/ticks but does not address data validation. Backtests depend on data accuracy."
+  applies_to:
+    strategy: ["grid", "stock_signal", "shared"]
+    lifecycle: ["research", "backtest"]
+    asset_class: ["equities", "shared"]
+    concern: ["data", "simulation", "reproducibility"]
+  requirement: "The system SHALL: (1) subscribe to historical bars via reqHistoricalData, (2) validate bar data completeness (no gaps), (3) cross-check sample bars against exchange or Yahoo Finance or CRSP, (4) flag survivorship bias (all delisted tickers), (5) reconcile corporate actions (splits, dividends) before analysis."
+  acceptance_tests:
+    - "Unit test: detect gaps in daily bars (missing trading days)"
+    - "Validation test: compare 100 random bars to Yahoo Finance; verify price match within 0.1%"
+    - "Regression test: compare backtest results to using alternative data source (CRSP); verify consistency"
+  failure_prevented: "Prevents backtests on corrupted or biased data that do not transfer to live execution."
+  capability_enabled: "Enables high-confidence backtesting and research."
+  assumptions:
+    - "Primary data sources (exchange, Yahoo, CRSP) are authoritative"
+  open_questions:
+    - "What is the acceptable tolerance for data mismatches (0.1%, 1%, 5%)?"
+    - "How should survivorship bias be corrected in backtest universe?"
+  dependencies: []
+  verification_needed: "Spot validation against multiple data sources"
+  priority_hint: "research_quality"
+
+- id: "IBKRPY-R-009"
+  title: "Margin and account balance must be checked before large order submission"
+  status: "proposed"
+  derived_from: ["IBKRPY-C1-021"]
+  derivation_type: "agent_inference"
+  rationale: "Book mentions account types and margin; system must prevent orders that exceed account buying power."
+  applies_to:
+    strategy: ["shared"]
+    lifecycle: ["live", "paper"]
+    asset_class: ["shared"]
+    concern: ["risk", "operations", "execution"]
+  requirement: "The system SHALL: (1) query account balance and margin available via accountSummary, (2) calculate required margin for pending order, (3) compare required margin to available margin, (4) reject order if margin insufficient, (5) log margin check results."
+  acceptance_tests:
+    - "Unit test: order requiring more margin than available is rejected"
+    - "Integration test: place small order; verify margin check passes"
+    - "Edge test: place order consuming 95% of margin; verify accepted, then attempt second order; verify rejected"
+  failure_prevented: "Prevents margin calls, forced liquidations, and account restrictions."
+  capability_enabled: "Enables safe leverage management."
+  assumptions:
+    - "accountSummary margin values are real-time"
+    - "Margin requirement calculation matches IB's internal logic"
+  open_questions:
+    - "What margin requirement should system assume for different secTypes (stocks vs options)?"
+    - "Should system reserve margin buffer (e.g., always maintain 20% free margin)?"
+  dependencies: []
+  verification_needed: "Live account testing with varying margin levels"
+  priority_hint: "safety"
+
+- id: "IBKRPY-R-010"
+  title: "Backtests must use walk-forward validation to detect overfitting"
+  status: "proposed"
+  derived_from: ["IBKRPY-C13-012", "IBKRPY-C13-013"]
+  derivation_type: "agent_inference"
+  rationale: "Book presents Turtle and Bollinger-MFI systems optimized on historical data but does not address overfitting risk."
+  applies_to:
+    strategy: ["grid", "stock_signal", "shared"]
+    lifecycle: ["backtest"]
+    asset_class: ["equities", "shared"]
+    concern: ["alpha", "reproducibility", "simulation"]
+  requirement: "The system SHALL: (1) split historical data into overlapping windows (5 years in-sample, 1 year out-of-sample, rolling), (2) optimize strategy parameters on in-sample data, (3) evaluate on out-of-sample data without reoptimization, (4) report in-sample and out-of-sample performance separately, (5) flag strategy as overfitted if out-of-sample Sharpe < 0.5 * in-sample Sharpe."
+  acceptance_tests:
+    - "Unit test: walk-forward backtest produces separate in/out-of-sample metrics"
+    - "Regression test: Turtle system walk-forward Sharpe is 50-80% of in-sample (expected overfitting)"
+    - "Validation test: strategy with known overfitting (e.g., curve-fit to noise) is flagged"
+  failure_prevented: "Prevents deployment of curve-fit strategies that fail in live trading."
+  capability_enabled: "Enables robust strategy development and realistic performance expectations."
+  assumptions:
+    - "Historical data is sufficient to train/test without lookahead bias"
+  open_questions:
+    - "What is the optimal train/test split ratio? (5Y in-sample, 1Y out-of-sample?)"
+    - "Should system perform k-fold cross-validation or simpler train-test split?"
+  dependencies: ["IBKRPY-R-008"]
+  verification_needed: "Backtesting framework implementation and validation"
+  priority_hint: "research_quality"

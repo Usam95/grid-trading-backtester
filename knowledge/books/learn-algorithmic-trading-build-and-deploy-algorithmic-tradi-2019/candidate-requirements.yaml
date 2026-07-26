@@ -1,0 +1,195 @@
+- id: LEARNALGO-R1
+  title: "Order routing must handle multiple order types with correct matching algorithm priority"
+  status: "proposed"
+  derived_from:
+    - LEARNALGO-C1-003
+  derivation_type: "direct_book_recommendation"
+  requirement: "System shall support market, limit, iceberg, and stop orders. Matching engine shall enforce FIFO for standard orders, with pro-rata tiebreaking for reserve orders per exchange rules."
+  rationale: "Correct order type handling critical to strategy profitability; incorrect matching assumptions cause backtests to diverge from live execution."
+  applies_to:
+    strategy: ["shared"]
+    lifecycle: ["backtest", "paper", "live"]
+    asset_class: ["equities", "crypto_futures"]
+    concern: ["execution", "operations"]
+  priority_hint: "correctness"
+
+- id: LEARNALGO-R2
+  title: "Risk module must quantify and monitor Sharpe Ratio, Max Drawdown, and VaR"
+  status: "proposed"
+  derived_from:
+    - LEARNALGO-C6-001
+  derivation_type: "direct_book_recommendation"
+  requirement: "Risk computation engine shall calculate Sharpe Ratio, Maximum Drawdown, and Value-at-Risk. Updates shall occur daily minimum."
+  rationale: "Three key risk metrics essential for portfolio monitoring and performance benchmarking. Enables early warning when strategy drifts from expected risk profile."
+  applies_to:
+    strategy: ["grid", "stock_signal", "portfolio", "shared"]
+    lifecycle: ["backtest", "paper", "live"]
+    asset_class: ["equities", "crypto_spot", "crypto_futures"]
+    concern: ["risk", "monitoring"]
+  priority_hint: "safety"
+
+- id: LEARNALGO-R3
+  title: "Risk controls shall enforce real-time position limits and Greeks hedging for derivatives"
+  status: "proposed"
+  derived_from:
+    - LEARNALGO-C6-002
+  derivation_type: "direct_book_recommendation"
+  requirement: "System shall monitor and enforce limits: max notional per position, max contracts open, portfolio Greeks (delta, gamma, theta) within thresholds. Breach shall trigger automatic order cancellation or liquidation."
+  rationale: "Real-time risk controls prevent catastrophic losses from execution errors or market dislocations. Mandatory for live trading with leverage."
+  applies_to:
+    strategy: ["grid", "stock_signal", "portfolio"]
+    lifecycle: ["live"]
+    asset_class: ["crypto_futures", "shared"]
+    concern: ["risk", "operations"]
+  priority_hint: "safety"
+
+- id: LEARNALGO-R4
+  title: "VaR shall be complemented with stress testing and scenario analysis"
+  status: "proposed"
+  derived_from:
+    - LEARNALGO-C6-003
+  derivation_type: "agent_inference"
+  requirement: "System shall implement weekly stress tests: replay historical market dislocations (2008 crisis, COVID crash, flash crash), sensitivity analysis on key risk factors, scenario modeling (correlation breakdown, liquidity evaporation)."
+  rationale: "VaR underestimates tail risk; stress testing required to complement VaR for comprehensive risk awareness."
+  applies_to:
+    strategy: ["portfolio"]
+    lifecycle: ["backtest", "paper", "live"]
+    asset_class: ["equities", "crypto_spot", "crypto_futures"]
+    concern: ["risk", "reproducibility"]
+  priority_hint: "research_quality"
+
+- id: LEARNALGO-R5
+  title: "Data layer shall normalize market data feeds and detect gaps/outages"
+  status: "proposed"
+  derived_from:
+    - LEARNALGO-C8-002
+  derivation_type: "direct_book_recommendation"
+  requirement: "Data ingestion module shall handle multicast and unicast feeds, merge into canonical tick stream, and detect missing ticks via sequence numbers or timestamp gaps. Outage detection shall log incident and trigger alert within 10 seconds."
+  rationale: "Feed reliability essential to backtesting fidelity and live trading stability. Multicast = low-latency but unreliable; unicast = reliable but higher latency; system must handle both."
+  applies_to:
+    strategy: ["shared"]
+    lifecycle: ["backtest", "live"]
+    asset_class: ["shared"]
+    concern: ["data", "monitoring"]
+  priority_hint: "correctness"
+
+- id: LEARNALGO-R6
+  title: "OMS gateway shall coordinate order lifecycle with idempotent delivery and audit trail"
+  status: "proposed"
+  derived_from:
+    - LEARNALGO-C7-002
+  derivation_type: "direct_book_recommendation"
+  requirement: "Order Management System shall support order creation, cancellation, modification, execution, and settlement. Each order transitions through state machine; gateway shall maintain idempotent key (prevent duplicate fills) and complete audit trail."
+  rationale: "OMS decoupling enables independent testing and strategy deployment; idempotent handling prevents costly execution errors."
+  applies_to:
+    strategy: ["shared"]
+    lifecycle: ["backtest", "paper", "live"]
+    asset_class: ["shared"]
+    concern: ["execution", "operations"]
+  priority_hint: "correctness"
+
+- id: LEARNALGO-R7
+  title: "FIX protocol client shall implement message sequencing, heartbeat, and reconnection logic"
+  status: "proposed"
+  derived_from:
+    - LEARNALGO-C8-001
+  derivation_type: "direct_book_recommendation"
+  requirement: "FIX connectivity module shall: assign unique sequence numbers to outgoing messages, verify incoming sequence numbers and reconstruct lost messages, send/receive heartbeats every 30 seconds, initiate orderly reconnection on timeout."
+  rationale: "FIX protocol ensures order integrity and exchange compliance. Message sequencing prevents duplicate fills; heartbeat enables early detection of connectivity loss."
+  applies_to:
+    strategy: ["shared"]
+    lifecycle: ["paper", "live"]
+    asset_class: ["shared"]
+    concern: ["execution", "operations"]
+  priority_hint: "correctness"
+
+- id: LEARNALGO-R8
+  title: "Backtester shall support both for-loop and event-driven simulation modes"
+  status: "proposed"
+  derived_from:
+    - LEARNALGO-C9-001
+  derivation_type: "direct_book_recommendation"
+  requirement: "Backtest engine shall provide two modes: (1) for-loop (fast, simplified), for quick alpha iteration; (2) event-driven (realistic, slower), for final validation. Event-driven mode shall model partial fills, rejections, and realistic order latency."
+  rationale: "For-loop fast for research; event-driven essential for validating final strategy before live deployment to avoid backtest-to-live gaps."
+  applies_to:
+    strategy: ["shared"]
+    lifecycle: ["backtest"]
+    asset_class: ["shared"]
+    concern: ["simulation", "reproducibility"]
+  priority_hint: "research_quality"
+
+- id: LEARNALGO-R9
+  title: "Transaction cost model shall scale commission, slippage, and spread with order size and market conditions"
+  status: "proposed"
+  derived_from:
+    - LEARNALGO-C9-002
+  derivation_type: "direct_book_recommendation"
+  requirement: "Backtester cost module shall model: commission as flat fee or basis points, slippage as fraction of average true range (ATR) scaling with order size, bid-ask spread captured from market data. Cost estimates shall be calibrated monthly against paper trading fills."
+  rationale: "Accurate cost modeling bridges backtest-to-live gap; omitted or underestimated costs render backtest useless. Large orders face non-linear market impact."
+  applies_to:
+    strategy: ["shared"]
+    lifecycle: ["backtest"]
+    asset_class: ["shared"]
+    concern: ["simulation", "execution"]
+  priority_hint: "correctness"
+
+- id: LEARNALGO-R10
+  title: "Strategy monitoring shall detect profit decay and trigger re-optimization or retirement"
+  status: "proposed"
+  derived_from:
+    - LEARNALGO-C10-001
+    - LEARNALGO-C10-002
+  derivation_type: "direct_book_recommendation"
+  requirement: "Live trading monitor shall compute rolling Sharpe Ratio (20-day window) daily. When Sharpe < 0.5 or negative drift detected (5+ consecutive days), system shall alert and enable manual re-optimization or strategy swap. Walk-forward re-optimization shall occur quarterly."
+  rationale: "Profit decay inevitable as strategy exposures become crowded or regimes shift. Continuous monitoring and re-optimization essential to maintain live performance."
+  applies_to:
+    strategy: ["grid", "stock_signal", "portfolio"]
+    lifecycle: ["live"]
+    asset_class: ["shared"]
+    concern: ["monitoring", "alpha"]
+  priority_hint: "alpha"
+
+- id: LEARNALGO-R11
+  title: "Out-of-sample validation shall be mandatory for all supervised ML models"
+  status: "proposed"
+  derived_from:
+    - LEARNALGO-C3-002
+  derivation_type: "agent_inference"
+  requirement: "ML model pipeline shall implement walk-forward cross-validation: partition data into N non-overlapping windows, train on window 1..N-1, test on window N+1. Out-of-sample Sharpe must be > 60% of in-sample Sharpe to pass validation."
+  rationale: "Data leakage and overfitting render ML backtest results meaningless; walk-forward validation essential guard rail. OOS Sharpe 60%+ indicates non-overfitted model."
+  applies_to:
+    strategy: ["stock_signal"]
+    lifecycle: ["backtest", "paper"]
+    asset_class: ["equities", "shared"]
+    concern: ["reproducibility", "alpha"]
+  priority_hint: "research_quality"
+
+- id: LEARNALGO-R12
+  title: "Portfolio shall maintain diversification across strategies and asset classes with correlation monitoring"
+  status: "proposed"
+  derived_from:
+    - LEARNALGO-C10-003
+  derivation_type: "direct_book_recommendation"
+  requirement: "Portfolio allocator shall maintain: correlation matrix across strategies (target < 0.3 each pair), allocation across asset classes (equities, crypto, futures), quarterly stress tests replaying historical dislocations. If correlation drifts > 0.5, allocations shall rebalance."
+  rationale: "Diversification reduces concentration risk and smooths returns; stress testing ensures benefits persist during tail events."
+  applies_to:
+    strategy: ["portfolio"]
+    lifecycle: ["backtest", "paper", "live"]
+    asset_class: ["equities", "crypto_spot", "crypto_futures"]
+    concern: ["risk", "reproducibility"]
+  priority_hint: "research_quality"
+
+- id: LEARNALGO-R13
+  title: "Execution algorithm (TWAP/VWAP) shall limit market impact and fill tracking"
+  status: "proposed"
+  derived_from:
+    - LEARNALGO-C5-002
+  derivation_type: "direct_book_recommendation"
+  requirement: "System shall implement TWAP (distribute order evenly over time window) and VWAP (align execution with volume profile). Each algorithm tracks realized fill prices and computes slippage vs. benchmark."
+  rationale: "Execution algorithms minimize transaction costs and reduce adverse selection; market impact quantification enables realistic backtest cost modeling."
+  applies_to:
+    strategy: ["grid", "stock_signal", "portfolio"]
+    lifecycle: ["paper", "live"]
+    asset_class: ["equities", "crypto_spot"]
+    concern: ["execution", "operations"]
+  priority_hint: "alpha"

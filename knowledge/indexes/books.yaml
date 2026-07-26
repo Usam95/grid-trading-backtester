@@ -1,0 +1,218 @@
+generated: true
+books:
+- book_id: account-management-users-guide-2015
+  title: Account Management Users' Guide
+  processing_status: audited
+  audit_grade: B
+  low_reliability: false
+- book_id: advanced-techniques-in-day-trading-a-practical-guide-to-high-2021
+  title: 'Advanced Techniques in Day Trading: A Practical Guide to High Probability
+    Day Trading Strategies and Methods'
+  processing_status: audited
+  audit_grade: B
+  low_reliability: false
+- book_id: algorithmic-trading-with-interactive-brokers-python
+  title: Algorithmic Trading with Interactive Brokers (Python)
+  processing_status: audited
+  audit_grade: A
+  low_reliability: false
+- book_id: beginners-guide-to-trading-this-book-includes-day-forex-opti-2020
+  title: 'Beginners Guide to Trading: Day, Forex, Options and Swing Trading for Beginners'
+  processing_status: audited
+  audit_grade: B
+  low_reliability: false
+- book_id: bloomberg-professional-forex-analysis-and-trading-effective--2010
+  title: 'Bloomberg Professional: Forex Analysis and Trading: Effective Top-Down Strategies
+    Combining Fundamental, Position, and Technical Analyses'
+  processing_status: audited
+  audit_grade: B
+  low_reliability: false
+- book_id: coding-capital-the-art-of-algorithmic-trading-a-comprehensiv-2024
+  title: 'Coding Capital: The Art of Algorithmic Trading: A Comprehensive Guide for
+    Algorithmic Trading with Python in 2024'
+  processing_status: audited
+  audit_grade: B
+  low_reliability: false
+- book_id: detecting-regime-change-in-computational-finance-2020
+  title: Detecting Regime Change in Computational Finance
+  processing_status: audited
+  audit_grade: B
+  low_reliability: false
+- book_id: financial-machina-machine-learning-for-finance-the-quintesse-2024
+  title: 'Financial Machina: Machine Learning For Finance: The Quintessential Compendium
+    for Python Machine Learning For 2024 & Beyond'
+  processing_status: audited
+  audit_grade: C
+  low_reliability: true
+- book_id: forex-on-five-hours-a-week-2010
+  title: 'Forex on Five Hours a Week: How to Make Money Trading on Your Own Time'
+  processing_status: audited
+  audit_grade: B
+  low_reliability: false
+- book_id: forex-trading-2020-2020
+  title: 'Forex Trading 2020: Beginner''s Guide. Secrets, Strategies & Tactics'
+  processing_status: audited
+  audit_grade: B
+  low_reliability: false
+- book_id: forex-trading-for-beginners-simple-strategies-to-make-money--2021
+  title: 'Forex Trading for Beginners: Simple Strategies to Make Money with Forex
+    Trading: The Best Guide with Basics, Secrets Tactics, and Psychology to Big Profit
+    and Income from the Financial Market'
+  processing_status: audited
+  audit_grade: C
+  low_reliability: true
+- book_id: guide-to-financial-markets
+  title: Guide to Financial Markets
+  processing_status: audited
+  audit_grade: B
+  low_reliability: false
+- book_id: hands-on-machine-learning-for-algorithmic-trading-2018
+  title: Hands-On Machine Learning for Algorithmic Trading
+  processing_status: audited
+  audit_grade: A
+  low_reliability: false
+- book_id: high-probability-trading-strategies-2008
+  title: 'High Probability Trading Strategies: Entry to Exit Tactics for the Forex,
+    Futures, and Stock Markets'
+  processing_status: audited
+  audit_grade: B
+  low_reliability: false
+- book_id: how-to-day-trade-for-a-living-tools-tactics-money-management-2018
+  title: 'How to Day Trade for a Living: Tools, Tactics, Money Management, Discipline
+    and Trading Psychology'
+  processing_status: audited
+  audit_grade: B
+  low_reliability: false
+- book_id: igi-epub-test-book-85x11
+  title: Machine Learning and Modeling Techniques in Financial Data Science
+  processing_status: audited
+  audit_grade: A
+  low_reliability: false
+- book_id: learn-algorithmic-trading-build-and-deploy-algorithmic-tradi-2019
+  title: 'Learn Algorithmic Trading: Build and Deploy Algorithmic Trading Systems
+    and Strategies'
+  processing_status: audited
+  audit_grade: A
+  low_reliability: false
+- book_id: machine-learning-for-algorithm-trading-master-as-a-pro-appli
+  title: 'Machine Learning for Algorithm Trading: Master as a PRO applied artificial
+    intelligence and Python for predict systematic strategies for options and stocks.
+    Learn data-driven finance using keras'
+  processing_status: audited
+  audit_grade: C
+  low_reliability: true
+- book_id: machine-learning-for-algorithmic-trading-predictive-models-t-2020
+  title: 'Machine Learning for Algorithmic Trading: Predictive Models to Extract Signals
+    from Market and Alternative Data'
+  processing_status: audited
+  audit_grade: A
+  low_reliability: false
+- book_id: next-gen-algorithmic-trading-strategies-tools-and-techniques
+  title: 'Next-Gen Algorithmic Trading: Strategies, Tools, and Techniques for Professionals
+    with Python'
+  processing_status: audited
+  audit_grade: B
+  low_reliability: false
+- book_id: option-volatility-and-pricing-advanced-trading-strategies-an-2014
+  title: 'Option Volatility and Pricing: Advanced Trading Strategies'
+  processing_status: audited
+  audit_grade: A
+  low_reliability: false
+- book_id: options-trading-for-beginners-a-crash-course-on-how-to-build-2021
+  title: 'Options Trading for Beginners: A Crash Course On How To Build A Passive
+    Income In 2020 And How To Trade Stocks For A Living'
+  processing_status: audited
+  audit_grade: C
+  low_reliability: true
+- book_id: python-for-algorithmic-trading-2020
+  title: 'Python for Algorithmic Trading: From Idea to Cloud Deployment'
+  processing_status: audited
+  audit_grade: A
+  low_reliability: false
+- book_id: quantitative-finance-advanced-analysis-with-python-a-compreh-2024
+  title: 'Quantitative Finance: Advanced Analysis with Python - A Comprehensive Guide
+    for 2024'
+  processing_status: audited
+  audit_grade: B
+  low_reliability: false
+- book_id: stock-market-investing-for-beginners-2020
+  title: Stock Market Investing For Beginners
+  processing_status: audited
+  audit_grade: B
+  low_reliability: false
+- book_id: super-stock-trading-pro-algorithmic-trading-with-python
+  title: 'Super Stock Trading Pro: Algorithmic Trading with Python'
+  processing_status: audited
+  audit_grade: B
+  low_reliability: false
+- book_id: technical-analysis-explained-2015
+  title: 'Technical Analysis Explained: The Successful Investor''s Guide to Spotting
+    Investment Trends and Turning Points'
+  processing_status: audited
+  audit_grade: B
+  low_reliability: false
+- book_id: text-mining-of-stocktwits-data-for-predicting-stock-prices-2021
+  title: Text Mining of StockTwits Data for Predicting Stock Prices
+  processing_status: audited
+  audit_grade: B
+  low_reliability: false
+- book_id: the-art-science-of-technical-analysis-market-structure-price-2014
+  title: 'The Art & Science of Technical Analysis: Market Structure, Price Action
+    & Trading Strategies'
+  processing_status: audited
+  audit_grade: A
+  low_reliability: false
+- book_id: the-new-trading-for-a-living-study-guide-2014
+  title: The New Trading for a Living Study Guide
+  processing_status: audited
+  audit_grade: A
+  low_reliability: false
+- book_id: the-options-course-high-profit-and-low-stress-trading-method-2005
+  title: 'The Options Course: High Profit & Low Stress Trading Methods'
+  processing_status: audited
+  audit_grade: B
+  low_reliability: false
+- book_id: tiny-book-massive-returns-long-term-investing-and-timing-exc
+  title: 'Tiny Book, Massive Returns: Long-Term Investing and Timing Excellence in
+    the Stock Market'
+  processing_status: audited
+  audit_grade: C
+  low_reliability: true
+- book_id: trading-evolved-anyone-can-build-killer-trading-strategies-i-2021
+  title: 'Trading Evolved: Anyone can Build Killer Trading Strategies in Python'
+  processing_status: audited
+  audit_grade: A
+  low_reliability: false
+- book_id: trading-options-greeks-how-time-volatility-and-other-pricing-2013
+  title: 'Trading Option Greeks: How Time, Volatility, and Other Pricing Factors Drive
+    Profits'
+  processing_status: audited
+  audit_grade: A
+  low_reliability: false
+- book_id: trading-price-action-reversals-2011
+  title: Trading Price Action Reversals
+  processing_status: audited
+  audit_grade: B
+  low_reliability: false
+- book_id: trading-price-action-trends-technical-analysis-of-price-char-2011
+  title: 'Trading Price Action TRENDS: Technical Analysis of Price Charts Bar by Bar
+    for the Serious Trader'
+  processing_status: audited
+  audit_grade: C
+  low_reliability: true
+- book_id: trading-technical-analysis-masterclass-master-the-financial--2021
+  title: 'Trading: Technical Analysis Masterclass: Master the Financial Markets'
+  processing_status: audited
+  audit_grade: C
+  low_reliability: true
+- book_id: visual-guide-to-financial-markets-by-david-wilson-z-lib-org-2013
+  title: Visual Guide to Financial Markets
+  processing_status: audited
+  audit_grade: B
+  low_reliability: false
+- book_id: wiley-trading-forex-trading-course-a-self-study-guide-to-bec-2015
+  title: 'Wiley Trading: Forex Trading Course: A Self-Study Guide to Becoming a Successful
+    Currency Trader'
+  processing_status: audited
+  audit_grade: B
+  low_reliability: false

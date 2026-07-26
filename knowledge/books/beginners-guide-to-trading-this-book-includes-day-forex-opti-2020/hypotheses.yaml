@@ -1,0 +1,186 @@
+- id: BGTTRADING-HYP-001
+  title: Scalping is profitable with transaction costs below 5 bps
+  status: proposed
+  derived_from:
+  - BGTTRADING-FX-004
+  statement: Forex scalping strategy (5-10 pip targets, tight stops) achieves positive
+    returns net of transaction costs when spreads < 2 pips and slippage < 1 pip
+  proposed_mechanism: High-win-rate strategy (>60%) with 5-10 pip targets and stops;
+    large volume compensates for small per-trade gains
+  applicable_markets_and_regimes: Forex majors (EUR/USD, GBP/USD) during high-liquidity
+    hours (overlapping London-NY session)
+  assumptions:
+  - Spreads < 2 pips
+  - Slippage < 1 pip
+  - Broker allows scalping
+  - Win rate >55%
+  data_requirements:
+  - Bid-ask tick data
+  - Broker execution statistics
+  - Slippage measurements
+  baseline_or_null_hypothesis: Scalping returns = random walk; transaction costs exceed
+    alpha
+  validation_approach: Backtest with realistic spreads/slippage; forward test with
+    demo account; measure win rate and average win/loss ratio
+  transaction_cost_and_fill_considerations: Spreads 2-3 pips, slippage 1-2 pips typical;
+    profitability threshold tight
+  robustness_checks: Test across spreads 1.5-3 pips; vary slippage; test across pairs
+    and time periods
+  rejection_criteria: Backtest Sharpe < 0.5; real forward test Sharpe < 0.3; win rate
+    < 55%
+  failure_modes:
+  - Spreads widen during high volatility
+  - Slippage increases
+  - Broker restricts scalping
+  freshness_concerns: Broker environment and spreads change; current data may not
+    reflect live execution
+  unresolved_questions:
+  - What win rate is sustainable live?
+  - How do market regimes affect scalping?
+- id: BGTTRADING-HYP-002
+  title: Swing trading outperforms day trading on risk-adjusted returns
+  status: proposed
+  derived_from:
+  - BGTTRADING-SW-001
+  statement: Swing trading 2-5 day holding period achieves higher Sharpe ratio than
+    day trading (<1 day) on liquid large-cap stocks
+  proposed_mechanism: Longer holding period reduces transaction cost impact; fewer
+    trades per day reduce slippage; overnight holding captures larger moves
+  applicable_markets_and_regimes: US equities, liquid large-cap stocks (volume >1M/day),
+    established trends
+  assumptions:
+  - Trends persist 2-5 days
+  - Overnight liquidity sufficient
+  - No gap gap-down risk manageable
+  data_requirements:
+  - Daily OHLCV data
+  - Intraday slippage estimates
+  - Transaction cost schedules
+  baseline_or_null_hypothesis: Swing vs day trading returns equal after transaction
+    costs
+  validation_approach: Backtest both approaches on same signal; compare Sharpe and
+    max drawdown; control for transaction costs
+  transaction_cost_and_fill_considerations: Day trading higher costs due to more round-trips;
+    swing trading lower costs but overnight gaps risk
+  robustness_checks: Test across market caps, volatility regimes, trend definitions
+  rejection_criteria: Swing trading Sharpe not >1.3x day trading Sharpe; max drawdown
+    not <20% less; win rate not >50%
+  failure_modes:
+  - Trends disappear
+  - Overnight gaps hurt
+  - Transaction costs higher than modeled
+  freshness_concerns: Market microstructure changes; broker rebates/fees may shift
+    cost advantage
+  unresolved_questions:
+  - Does swing trading work in mean-reverting markets?
+  - What volatility regime?
+- id: BGTTRADING-HYP-003
+  title: Position sizing rule (1-2% risk per trade) prevents catastrophic drawdown
+  status: proposed
+  derived_from:
+  - BGTTRADING-SW-006
+  statement: Trading with risk limit of 1-2% per trade results in maximum drawdown
+    <20% even with 40% losing trades
+  proposed_mechanism: Fixed fraction position sizing caps loss per trade; portfolio
+    volatility limited by sum of individual trades
+  applicable_markets_and_regimes: Any strategy with defined stop loss; risk/reward
+    defined per entry
+  assumptions:
+  - Stop losses honored
+  - Win/loss ratios as modeled
+  - Correlation modest
+  data_requirements:
+  - Historical win rates
+  - Average win/loss sizes
+  - Correlation matrix
+  baseline_or_null_hypothesis: Position sizing irrelevant; maximum drawdown determined
+    by win rate alone
+  validation_approach: Monte Carlo simulation of trade sequences; backtest with different
+    position sizes; measure drawdown
+  transaction_cost_and_fill_considerations: Position sizing affects total volume/fees
+    but primary benefit is risk control not cost
+  robustness_checks: Test with varying win rates (40%-60%), win/loss ratios (1:1 to
+    1:2), correlation structures
+  rejection_criteria: Backtest max drawdown >25%; Monte Carlo 95% CVar of drawdown
+    >30%
+  failure_modes:
+  - Stop losses not honored
+  - Slippage exceeds target size
+  - Correlation increases in crisis
+  freshness_concerns: Fundamental principle; no freshness risk
+  unresolved_questions:
+  - What's optimal risk per trade?
+  - How does correlation affect rule?
+- id: BGTTRADING-HYP-004
+  title: Collar strategy reduces tail risk by 50% vs unhedged long
+  status: proposed
+  derived_from:
+  - BGTTRADING-OPT-003
+  statement: Collar hedge (buy put + sell call) on equity position reduces 5% drawdown
+    by 50% vs unhedged long at cost of <2% upside
+  proposed_mechanism: Put floor limits downside; call premium offsets put cost; creates
+    defined risk band
+  applicable_markets_and_regimes: High-volatility equities or portfolios with high
+    vega; works best when put/call vols in line
+  assumptions:
+  - Options liquid
+  - Bid-ask spreads <5% of premium
+  - Correlation stable
+  data_requirements:
+  - Option bid-ask quotes
+  - Equity prices
+  - Historical vol
+  - Correlation vol to equity vol
+  baseline_or_null_hypothesis: Collar cost exceeds benefit; simpler to reduce position
+    size
+  validation_approach: Backtest collar on historical equities; measure max drawdown
+    and Sharpe; compare to reduced-size unhedged
+  transaction_cost_and_fill_considerations: Collar costs entry/exit transaction costs
+    on 3 legs; high slippage in illiquid options kills profitability
+  robustness_checks: Test across underlying volatilities, moneyness, time to expiration
+  rejection_criteria: Max drawdown reduction <30%; Sharpe reduction >0.2; cost >3%
+    of underlying value
+  failure_modes:
+  - Options illiquid
+  - Gap move exceeds collar bounds
+  - Vol crush reduces hedge value
+  freshness_concerns: Options availability and liquidity change; corporate actions
+    complicate hedges
+  unresolved_questions:
+  - Cost-effective collar ratio?
+  - Dynamic rebalancing needed?
+- id: BGTTRADING-HYP-005
+  title: Trading plan written out achieves 30% higher returns than ad-hoc trading
+  status: proposed
+  derived_from:
+  - BGTTRADING-FX-006
+  statement: Traders with documented trading plan (entry criteria, risk limits, position
+    sizing) achieve 30% higher returns and 40% lower drawdown
+  proposed_mechanism: Plan removes ad-hoc decisions; reduces emotional overriding;
+    forces consistency
+  applicable_markets_and_regimes: All trading strategies; effect stronger in retail
+    traders
+  assumptions:
+  - Plan followed
+  - Plan is realistic
+  - Measurement accurate
+  data_requirements:
+  - Trading logs vs plan
+  - Rule adherence measurement
+  baseline_or_null_hypothesis: Written plan irrelevant; returns determined by skill
+    only
+  validation_approach: Compare historical traders with/without written plans; measure
+    adherence; correlate to returns
+  transaction_cost_and_fill_considerations: Plan may reduce over-trading, reducing
+    transaction costs
+  robustness_checks: Control for trader experience, strategy type, market condition
+  rejection_criteria: Return difference <15%; drawdown reduction <25%; adherence not
+    >80%
+  failure_modes:
+  - Plan not followed
+  - Plan is poor quality
+  - Plan becomes outdated
+  freshness_concerns: Behavioral research ongoing; effect may vary by trader population
+  unresolved_questions:
+  - What plan quality is sufficient?
+  - When does plan need updating?

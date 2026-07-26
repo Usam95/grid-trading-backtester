@@ -1,0 +1,69 @@
+schema_version: "1.0"
+prompt_version: "1.0"
+book_id: python-for-algorithmic-trading-2020
+sources:
+  - absolute_path: "C:\\Users\\W4TV5V8\\PROJECTS\\Codex\\Research\\Books_03_07_26\\Algorithmical Trading"
+    relative_path: "python-for-algorithmic-trading-2020.pdf"
+    sha256: "pending_verification"
+title: "Python for Algorithmic Trading: From Idea to Cloud Deployment"
+authors:
+  - "Yves Hilpisch"
+edition: "1st Edition"
+publication_year: 2020
+publisher_or_identifier: "O'Reilly Media"
+format: "pdf"
+language: "English"
+page_count: 380
+chapter_count: 10
+extraction_quality: "high"
+ocr_quality: "excellent"
+processing_status: "audited"
+timestamps:
+  extraction_started: "2026-07-24T18:24:03Z"
+  extraction_completed: null
+  validated: null
+duplicate_relationships: []
+limitations_and_warnings:
+  - "FXCM and Oanda API details are subject to rapid change; endpoint URLs, authentication schemes, and fee structures should be verified against current documentation before use."
+  - "Code examples focus on pedagogical clarity over production robustness; missing error handling, logging, and state management common in live systems."
+  - "Backtesting assumes zero slippage, fixed commissions, and no gaps; real market microstructure differs significantly."
+  - "ML models use simple linear regression and logistic regression; no cross-validation, walk-forward validation, or out-of-sample testing methodology is detailed."
+  - "Capital management examples use Kelly Criterion but do not address regime change, correlation drift, or drawdown constraints typical of live portfolios."
+  - "No discussion of market impact, order routing, or latency effects beyond basic concepts."
+scores:
+  source_credibility:
+    score: 4
+    justification: "Established practitioner-author with strong industry credentials; O'Reilly publishing; practical focus reduces theoretical speculation."
+  citation_quality:
+    score: 3
+    justification: "Limited citations; primarily code examples and practical illustration rather than academic rigor or empirical validation."
+  reproducibility:
+    score: 4
+    justification: "Complete code examples provided for all strategy types; data sources (Oanda, FXCM APIs) are documented; environment setup instructions enable reproduction."
+  likely_freshness:
+    score: 2
+    justification: "Published 2020; API endpoints, broker policies, market structure have changed; regulatory environment (MiFID II, Dodd-Frank) is not addressed; needs verification against current sources."
+  system_engineering_relevance:
+    score: 4
+    justification: "Covers infrastructure (conda, Docker, cloud instances), deployment orchestration, monitoring; addresses reproducibility and operational considerations."
+  grid_relevance:
+    score: 3
+    justification: "Backtesting framework applicable to grid strategies; leverage/margin covered; no explicit grid-specific components (order book interaction, partial fill handling)."
+  stock_strategy_relevance:
+    score: 4
+    justification: "SMA, momentum, mean-reversion, and ML strategies apply to equities; no sector-specific or large-cap/small-cap considerations."
+  backtesting_relevance:
+    score: 5
+    justification: "Core chapters (4, 6) dedicate ~70 pages to vectorized and event-based backtesting frameworks with detailed code and tradeoff analysis."
+  live_execution_relevance:
+    score: 4
+    justification: "Chapters 8-10 cover Oanda/FXCM real-time APIs, order placement, account management, automated deployment; live execution case study included."
+  risk_relevance:
+    score: 3
+    justification: "Kelly Criterion for position sizing; basic risk metrics (return, Sharpe, max drawdown); lacks stress testing, correlation risk, or portfolio-level optimization."
+  data_quality_relevance:
+    score: 3
+    justification: "Chapter 3 covers CSV, JSON, Excel, Eikon API, TsTables, SQLite storage; data validation not emphasized; no deduplication or gap-handling strategies."
+  machine_learning_relevance:
+    score: 3
+    justification: "Chapter 5 covers linear regression, logistic regression, and basic neural networks; feature engineering minimal; no cross-validation, hyperparameter tuning, or causality testing."

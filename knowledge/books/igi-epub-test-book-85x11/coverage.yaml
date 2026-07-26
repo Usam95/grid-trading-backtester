@@ -1,0 +1,92 @@
+book_id: igi-epub-test-book-85x11
+sections:
+  - ref: ch1
+    title: Fairness and Bias in ML Models for Credit Decisions
+    epub_chapter_index: 0
+    status: processed
+    reason: High priority - fairness, bias, explainability in financial AI
+  - ref: ch2
+    title: From Fintech to Green Fintech
+    epub_chapter_index: 1
+    status: targeted_read
+    reason: Medium priority - fintech infrastructure, sustainability
+  - ref: ch3
+    title: Regulatory Challenges in DeFi
+    epub_chapter_index: 2
+    status: targeted_read
+    reason: Medium priority - regulatory landscape, compliance
+  - ref: ch4
+    title: Revolutionizing High-Frequency Trading
+    epub_chapter_index: 3
+    status: processed
+    reason: High priority - HFT infrastructure, real-time execution, latency
+  - ref: ch5
+    title: Robo-Traders and PPO
+    epub_chapter_index: 4
+    status: processed
+    reason: High priority - RL-based trading agents, performance metrics
+  - ref: ch6
+    title: Exploring Leading Practices in Algorithmic Trading
+    epub_chapter_index: 5
+    status: processed
+    reason: High priority - algo trading methodology, best practices
+  - ref: ch7
+    title: Innovative Applications in Financial Data Science and ML for HFT
+    epub_chapter_index: 6
+    status: processed
+    reason: High priority - advanced ML for HFT, sentiment, anomaly detection
+  - ref: ch8
+    title: Current Applications of AI and ML for Financial Statement Analysis
+    epub_chapter_index: 7
+    status: targeted_read
+    reason: Medium priority - fundamental analysis, NLP applications
+  - ref: ch9
+    title: Enhancing Audit Effectiveness Through Data Analytics
+    epub_chapter_index: 8
+    status: low_priority
+    reason: Lower relevance - internal audit focus, not core trading
+  - ref: ch10
+    title: AI-Based Capital Structure Management
+    epub_chapter_index: 9
+    status: targeted_read
+    reason: Medium priority - portfolio construction, capital allocation
+  - ref: ch11
+    title: AI-Driven Credit Assessment
+    epub_chapter_index: 10
+    status: low_priority
+    reason: Lower relevance - credit scoring, not trading focus
+  - ref: ch12
+    title: From Chart to Chart
+    epub_chapter_index: 11
+    status: targeted_read
+    reason: Medium priority - technical analysis, pattern recognition
+  - ref: ch13
+    title: ML for Price Prediction and Risk-Adjusted Portfolio Optimization in Crypto
+    epub_chapter_index: 12
+    status: processed
+    reason: High priority - crypto strategies, portfolio optimization, backtesting
+  - ref: ch14
+    title: Optimized LSTM and XGBoost for High-Frequency Futures Prediction
+    epub_chapter_index: 13
+    status: processed
+    reason: High priority - deep learning for HFT, model validation, performance
+  - ref: ch15
+    title: Dynamic Volatility Transmission in Financial Markets
+    epub_chapter_index: 14
+    status: processed
+    reason: High priority - volatility modeling, regime analysis, cross-market
+  - ref: ch16
+    title: Natural Language Processing in Finance
+    epub_chapter_index: 15
+    status: processed
+    reason: High priority - NLP for sentiment, alternative data, text mining
+  - ref: ch17
+    title: Quantum ML Adoption in Finance
+    epub_chapter_index: 16
+    status: targeted_read
+    reason: Medium priority - emerging technology, future directions
+  - ref: ch18
+    title: ML for Financial Data Forecasting
+    epub_chapter_index: 17
+    status: processed
+    reason: High priority - forecasting methodology, time-series modeling

@@ -1,0 +1,153 @@
+- id: OPTBEG-HYP-001
+  title: "1% Risk Rule Maximizes Long-Term Capital Preservation"
+  status: proposed
+  derived_from:
+    - OPTBEG-C7-001
+    - OPTBEG-C7-002
+  statement: "Limiting risk per trade to 1% of account capital maximizes survival through consecutive loss streaks while maintaining compounding growth potential"
+  proposed_mechanism: "Mathematical: (1.0 - 0.01)^100 ≈ 0.37, meaning 100 consecutive 1% losses leave ~37% of capital. With wins interspersed, capital compounds; strategy should survive rare drawdown sequences that would wipe out aggressive sizing."
+  applicable_markets_and_regimes: "Any liquid market with traceable stop-loss levels; intraday equities, options, futures; less suitable for highly gapped markets or thinly traded assets"
+  assumptions:
+    - "Stop-loss orders execute at or near specified price"
+    - "Slippage bounded to <2% of trade risk"
+    - "No flash crashes or circuit breaker halts forcing positions open longer"
+    - "Account capital sufficient to margin position"
+  data_requirements:
+    - "Historical market data with open/close/high/low for stop-loss calibration"
+    - "Transaction cost model (commissions, spread, slippage)"
+    - "Account equity curve tracking"
+  baseline_or_null_hypothesis: "Traders using no position-sizing rule or fixed-dollar sizing suffer equivalent or worse drawdowns and capital depletion faster"
+  validation_approach: "Backtest strategy portfolio over 5-year period with simulated 1% rule vs. fixed-dollar sizing vs. no-rule control; measure max drawdown, time-to-ruin on synthetic loss sequences, median recovery time post-drawdown"
+  transaction_cost_and_fill_considerations: "Spread + commission must remain <0.5% of position value; wider spreads require adjusted position sizes downward; after-hours/pre-market gaps violate assumption"
+  robustness_checks:
+    - "Vary market regime: trending vs. choppy vs. gaps"
+    - "Vary transaction costs: +/-50% from baseline"
+    - "Vary win rate: 40%, 50%, 60%"
+    - "Test partial fill (10% slippage through stop)"
+  rejection_criteria:
+    - "Observed max drawdown of 1% rule portfolio exceeds no-rule portfolio by >20% in same regime"
+    - "Time-to-recover (break-even after drawdown) for 1% rule > 3x longer than no-rule in any tested regime"
+    - "Win rate required to breakeven at 1% sizing > 60% (suggests inadequate edge)"
+  failure_modes:
+    - "Gap openings overnight eliminate stop-loss protection; realized loss > 1%"
+    - "Correlation shock (e.g., market-wide selloff) causes simultaneous loss triggers across correlated positions"
+    - "Leverage cascades: Even 1% position loss amplified by forced liquidation under margin call"
+  freshness_concerns: "2020 publication; market structure and volatility regimes may differ materially from backtesting period; apply regime-detection before live trading"
+  unresolved_questions:
+    - "Does 1% rule remain optimal for options (where Greeks introduce non-linear risk) or only for spot/linear products?"
+    - "How does 1% rule interact with multi-leg strategies (spreads) where position size is indirect?"
+    - "Is 1% rule too conservative for systematic traders with >60% win rate? Trade-off: slower compounding?"
+
+- id: OPTBEG-HYP-002
+  title: "Covered Call Premium Collection Outperforms Buy-and-Hold in Sideways Markets"
+  status: proposed
+  derived_from:
+    - OPTBEG-C10-001
+    - OPTBEG-C16-001
+  statement: "Selling covered calls against owned shares generates alpha (premium income) in range-bound or slightly declining markets; returns exceed buy-and-hold on 12-month timeframes with <5% downside risk"
+  proposed_mechanism: "Own 100 shares at ; sell 1 call at  strike for  premium; profit = max(0, ST - 50) + 2 [for ST <= 55], where ST=stock price at expiry. If ST ends between -55, call expires worthless; trader keeps  + dividends + any upside to  = + per share (14%+ annualized if 3-month expiry)."
+  applicable_markets_and_regimes: "Stocks with high implied volatility (IV > 50th percentile) and low realized vol; dividend-paying stocks; sideways or slight downtrend markets; NOT trending bull markets (upside capped)"
+  assumptions:
+    - "Stock assigned at expiry if stock price > strike (deterministic if ITM)"
+    - "No early assignment before expiry (American options risk)"
+    - "Dividends not affected by call ownership"
+    - "IV mean reverts; no volatility collapse"
+  data_requirements:
+    - "Historical option prices (bid/ask) for strike selection"
+    - "Realized volatility vs. implied volatility decomposition"
+    - "Historical assignment patterns for that underlying"
+    - "Dividend yield and ex-date calendar"
+  baseline_or_null_hypothesis: "Buy-and-hold equities outperform covered calls in bull markets; covered calls underperform by ~(call_premium - dividends - buy_and_hold_appreciation)"
+  validation_approach: "Backtest on S&P 500 sector ETFs over 10-year period; compare covered-call portfolio (monthly rolls) vs. buy-and-hold on total return, Sharpe ratio, max drawdown; stratify by market regime (bull/bear/sideways)"
+  transaction_cost_and_fill_considerations: "Options bid-ask spread costs 0.5-2% of premium per roll; commission per leg reduces net premium by 0.1-0.5%; wide-bid-ask on ITM calls erodes exit fill quality"
+  robustness_checks:
+    - "Vary strike selection: ATM vs. 5% OTM vs. 10% OTM"
+    - "Vary roll timing: 14, 21, 30 DTE"
+    - "Test on high-vol names (tech) vs. low-vol names (utilities)"
+    - "Test during VIX spikes (IV compression); post-compression (collapse)"
+  rejection_criteria:
+    - "Covered call total return < buy-and-hold by >3% annualized in sideways regime"
+    - "Sharpe ratio of covered calls worse than buy-and-hold in tested regimes"
+    - "Realized assignment rate differs from theoretical by >25% (indicates model break)"
+  failure_modes:
+    - "Stock gaps down below strike on earnings; early assignment at loss"
+    - "IV crush post-earnings: premium collected decays faster than time value alone"
+    - "Stock rallies sharply above strike; opportunity cost (upside cap) hurts relative performance"
+    - "Dividend cut; net income drops"
+  freshness_concerns: "Options market structure, IV levels, and broker assignments may differ from 2020. Modern zero-commission brokers may have changed call premium levels."
+  unresolved_questions:
+    - "Is covered call strategy more profitable on beaten-down dividend stocks vs. stable blue chips?"
+    - "Can covered calls hedge portfolio downside better than protective puts?"
+    - "Does early assignment happen often enough to materially reduce returns?"
+
+- id: OPTBEG-HYP-003
+  title: "Fear-Driven Position Abandonment Creates Whipsaws; Discipline Rules Reduce This"
+  status: proposed
+  derived_from:
+    - OPTBEG-C9-001
+    - OPTBEG-C9-002
+  statement: "Traders who exit positions prematurely due to emotional fear realize losses on reversals; mechanical stop-loss / profit-target rules reduce whipsaws by 20-40% vs. discretionary traders"
+  proposed_mechanism: "Trader sets 1% stop-loss and 2% target upfront; signal triggers entry. If price dips 0.5%, fear triggers early exit at breakeven or small loss. Price then reverses to target, but trader missed it. Over many trades, whipsaws accumulate; mechanical rules keep trader in winning trades longer."
+  applicable_markets_and_regimes: "Swing trading (2-10 day holds); trend-following strategies; all markets; more acute in choppy/mean-reverting regimes"
+  assumptions:
+    - "Trader has pre-defined entry signal (technical/fundamental)"
+    - "Stop-loss and target are mechanistic (not moved emotionally)"
+    - "Time-in-trade is short enough (<10 days) that fear dominates conviction"
+  data_requirements:
+    - "Trade log with entry/exit price, reason for exit (plan vs. fear), realized P&L"
+    - "Marked-to-market price at each exit point"
+    - "Counterfactual: where would price go if position held to target?"
+  baseline_or_null_hypothesis: "Discretionary traders perform as well as rule-based traders; fear exits have equivalent payoff distribution"
+  validation_approach: "Run backtest of swing trading strategy with fixed rules vs. simulated 'fear exits' (exit early at 50% of max loss, 50% of time at random); measure realized P&L, win rate, average win/loss ratio"
+  transaction_cost_and_fill_considerations: "Extra exits incur higher commissions; early exits may hit worse spreads (liquidity dries up intraday); re-entry commissions also add up"
+  robustness_checks:
+    - "Vary fear trigger: early exit at 25%, 50%, 75% of target"
+    - "Test on different market regimes: trending vs. choppy"
+    - "Test on different timeframes: scalp (1h) vs. swing (5 days)"
+  rejection_criteria:
+    - "Fear-exit strategy outperforms rule-based by >5% in any tested regime (suggests rules are too tight)"
+    - "Whipsaw frequency in rule-based strategy > 50% of all trades"
+  failure_modes:
+    - "Rules are too loose; real drawdowns exceed tolerance despite mechanical stops"
+    - "Market structure breaks (halts, limit-up/down): rule can't exit"
+    - "Correlations shift; mechanical rules miss new regime (requires adaptation)"
+  freshness_concerns: "Behavioral finance research supports this; human psychology stable; however, market volatility and regime shifts change optimal rule settings"
+  unresolved_questions:
+    - "Do professional traders (humans or algos) with long backtested experience overcome fear?"
+    - "Is fear-driven exit worse for options (nonlinear Greeks) or equities?"
+
+- id: OPTBEG-HYP-004
+  title: "Leverage Beyond 1:1 Amplifies Drawdown Length; Recovery Time Scales Exponentially"
+  status: proposed
+  derived_from:
+    - OPTBEG-C21-001
+    - OPTBEG-C9-002
+  statement: "Margin leverage (e.g., 2:1, 3:1) increases max drawdown and time-to-recovery exponentially; a 30% drawdown on 2:1 leverage = 60% account loss; recovery to breakeven requires >8x longer than unlevered equivalent"
+  proposed_mechanism: "With 2:1 leverage, a 1% daily loss = 2% account loss. A 15% market correction = 30% account loss. If trader has 1.5:1 margin requirement, margin call triggers at ~33% loss. Forced liquidation at market-impact prices often triggers further loss spiral."
+  applicable_markets_and_regimes: "All leverage scenarios; most acute during volatility spikes (March 2020, Oct 1987); less acute in low-vol environments"
+  assumptions:
+    - "Margin requirement fixed (not variable)"
+    - "Liquidation happens at current market price, not favorable"
+    - "No emergency funding available to meet margin call"
+  data_requirements:
+    - "Historical drawdown paths (daily) for asset class"
+    - "Margin requirement schedule by broker"
+    - "Time series of price levels post-liquidation (realized slippage)"
+  baseline_or_null_hypothesis: "Leverage scales linear with risk: 2x leverage = 2x drawdown. No nonlinear amplification."
+  validation_approach: "Simulate 1000 random walk paths (GBM) with 1%, 2%, 3% leverage; measure actual max drawdown vs. expected, time-to-ruin, recovery time; test across vol levels (10%, 30%, 50% annual)"
+  transaction_cost_and_fill_considerations: "Margin interest (e.g., 1-3% annualized) compounds losses during leverage buildout; liquidation happens at market impact price, not mid"
+  robustness_checks:
+    - "Vary leverage levels: 1.5x, 2x, 3x, 4x"
+    - "Vary volatility regime: quiet, normal, spike"
+    - "Vary margin requirement: tight vs. loose"
+  rejection_criteria:
+    - "Observed time-to-recovery for 2x leverage < 2x time for 1x (suggests leverage not materially harmful)"
+    - "Observed max drawdown < 1.5x expected for 1.5x leverage (suggests model too conservative)"
+  failure_modes:
+    - "Broker liquidates at absolute worst price (flash crash); actual loss > theoretical"
+    - "Correlated positions: all liquidated simultaneously (worse slippage)"
+    - "Margin call threshold differs per broker/asset; assumptions break down"
+  freshness_concerns: "Margin requirements tightened post-2008 and post-2020; repo market dynamics changed; leverage behavior may differ in modern market structure"
+  unresolved_questions:
+    - "Can dynamic deleveraging (reducing leverage on drawdown) prevent spiral?"
+    - "Does options leverage (via spreads) have different recovery dynamics than futures margin?"

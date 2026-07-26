@@ -1,0 +1,235 @@
+- id: MLMODEL-R1
+  title: Backtester shall support realistic transaction cost modeling
+  status: proposed
+  derived_from:
+    - MLMODEL-C18-002
+  derivation_type: agent_inference
+  rationale: Published backtests overstate performance due to cost underestimation; realism requires accurate spread, commission, slippage modeling
+  applies_to:
+    strategy: [grid, stock_signal]
+    lifecycle: [backtest]
+    asset_class: [equities, crypto_futures]
+    concern: [simulation, reproducibility]
+  requirement: Backtester shall model bid-ask spreads, commissions, and slippage as time-varying functions of market conditions and order size
+  acceptance_tests:
+    - Backtest costs match historical average for given asset class and time period
+    - Comparison with live trading results shows cost estimate accuracy within 10%
+    - Slippage model reflects order book depth and market impact
+  failure_prevented: Deployed strategies fail in live trading due to underestimated costs
+  capability_enabled: More realistic strategy evaluation and comparison
+  assumptions:
+    - Cost models are calibrated to asset class
+    - Market conditions do not change dramatically
+  open_questions:
+    - How should slippage be modeled for low-liquidity regimes?
+    - How do market impact costs vary across trading venues?
+  dependencies: []
+  verification_needed: null
+  priority_hint: correctness
+
+- id: MLMODEL-R2
+  title: Backtester shall detect and prevent look-ahead bias
+  status: proposed
+  derived_from:
+    - MLMODEL-C18-002
+  derivation_type: agent_inference
+  rationale: Look-ahead bias inflates backtest results; architecture must ensure information from future time steps cannot influence signals
+  applies_to:
+    strategy: [grid, stock_signal]
+    lifecycle: [backtest]
+    asset_class: [equities, crypto_futures]
+    concern: [reproducibility]
+  requirement: Backtester shall enforce strict ordering constraints; features computed at time T can only use data available strictly before T
+  acceptance_tests:
+    - Automated check prevents future data from entering signal computation
+    - Explicit logging of data timestamps and signal computation times
+    - Manual audit of strategy code passes look-ahead bias review
+  failure_prevented: Strategies appear profitable in backtest but fail in live trading
+  capability_enabled: Trustworthy backtesting and strategy comparison
+  assumptions:
+    - All data sources have reliable timestamps
+    - Strategy code is auditable
+  open_questions:
+    - How to detect implicit look-ahead bias in complex feature engineering pipelines?
+    - What is the best API design to make look-ahead bias obvious?
+  dependencies: []
+  verification_needed: null
+  priority_hint: correctness
+
+- id: MLMODEL-R3
+  title: Live trading system shall implement automated circuit breakers and position limits
+  status: proposed
+  derived_from:
+    - MLMODEL-C6-001
+    - MLMODEL-C7-001
+  derivation_type: agent_inference
+  rationale: Real-time risk control prevents cascade failures and catastrophic losses; regulatory best practice
+  applies_to:
+    strategy: [grid, stock_signal]
+    lifecycle: [live]
+    asset_class: [equities, crypto_futures]
+    concern: [risk, operations]
+  requirement: Live system shall enforce per-strategy position limits, daily loss limits, and sub-second circuit breakers that halt execution on anomaly detection
+  acceptance_tests:
+    - Circuit breakers trigger within 100ms of anomaly detection
+    - Position limits prevent exceeding defined thresholds
+    - Daily loss limit halts all trading after threshold breach
+    - Alerts and logs clearly document limit enforcement
+  failure_prevented: Uncontrolled position growth, cascade failure, catastrophic loss
+  capability_enabled: Safe live execution with bounded downside
+  assumptions:
+    - Risk metrics are accurate
+    - Circuit breaker logic is correct and tested
+  open_questions:
+    - How should position limits adapt to market volatility regime?
+    - What are appropriate anomaly detection thresholds?
+  dependencies: []
+  verification_needed: null
+  priority_hint: safety
+
+- id: MLMODEL-R4
+  title: Data pipeline shall validate and flag data quality issues in real-time
+  status: proposed
+  derived_from:
+    - MLMODEL-C13-001
+  derivation_type: agent_inference
+  rationale: ML model accuracy depends on data quality; early detection prevents silent failures and cascading errors
+  applies_to:
+    strategy: [grid, stock_signal]
+    lifecycle: [backtest, live]
+    asset_class: [equities, crypto_futures]
+    concern: [data, reproducibility]
+  requirement: Data pipeline shall implement continuous validation; check for missing values, outliers, duplicate records, and feed freshness; alert on violations
+  acceptance_tests:
+    - Validation detects synthetic outliers injected into test data
+    - Alerts fired within 60 seconds of data quality breach
+    - Historical baseline computation is robust to outliers
+  failure_prevented: Silent data quality issues degrade model performance and trading results
+  capability_enabled: Early detection of data problems; improved model reliability
+  assumptions:
+    - Validation rules are well-specified
+    - Alert thresholds are calibrated to asset class
+  open_questions:
+    - How to distinguish market anomalies from data errors?
+    - What baseline period should validation use for outlier detection?
+  dependencies: []
+  verification_needed: null
+  priority_hint: correctness
+
+- id: MLMODEL-R5
+  title: Model validation framework shall include walk-forward and stress testing
+  status: proposed
+  derived_from:
+    - MLMODEL-C14-001
+  derivation_type: agent_inference
+  rationale: ML models for trading must generalize out-of-sample and tolerate market stress; standard train-test split is insufficient
+  applies_to:
+    strategy: [grid, stock_signal]
+    lifecycle: [research, backtest]
+    asset_class: [equities, crypto_futures]
+    concern: [reproducibility]
+  requirement: Model validation shall include; (1) walk-forward testing with monthly retraining, (2) stress tests using historical crisis periods, (3) sensitivity analysis of hyperparameters
+  acceptance_tests:
+    - Walk-forward Sharpe ratio within 20% of in-sample Sharpe
+    - Model performance on 2008, 2020, 2022 crisis data shows robustness
+    - Hyperparameter sensitivity documented and within bounds
+  failure_prevented: Models overfit to historical period; fail when deployed
+  capability_enabled: Reliable model generalization and robustness assessment
+  assumptions:
+    - Historical crises are representative of future stress
+    - Model hyperparameters are stable across time
+  open_questions:
+    - How to create synthetic stress scenarios for untested market regimes?
+    - What is the optimal walk-forward window size?
+  dependencies: [MLMODEL-R2]
+  verification_needed: null
+  priority_hint: correctness
+
+- id: MLMODEL-R6
+  title: System shall log and audit all trading decisions and risk control activations
+  status: proposed
+  derived_from:
+    - MLMODEL-C6-001
+  derivation_type: agent_inference
+  rationale: Accountability, regulatory compliance, and post-trade analysis require complete audit trail
+  applies_to:
+    strategy: [grid, stock_signal]
+    lifecycle: [live]
+    asset_class: [equities, crypto_futures]
+    concern: [operations, monitoring, reproducibility]
+  requirement: System shall maintain immutable audit log of; every signal generation, every order sent, every risk control activation, every limit breach, with timestamps to microsecond precision
+  acceptance_tests:
+    - Audit logs are queryable by time, strategy, signal reason, and control reason
+    - Log entries cannot be modified retroactively
+    - Live test with synthetic trades logs all events accurately
+  failure_prevented: Regulatory violations, inability to reconstruct trading decisions, loss of accountability
+  capability_enabled: Compliance, debugging, post-trade analysis, regulatory reporting
+  assumptions:
+    - Logging does not significantly impact performance
+    - Log storage is reliable and scalable
+  open_questions:
+    - What log retention period is appropriate?
+    - How should logs be compressed/archived for long-term storage?
+  dependencies: []
+  verification_needed: null
+  priority_hint: operability
+
+- id: MLMODEL-R7
+  title: Monitoring system shall detect regime shifts and alert operators
+  status: proposed
+  derived_from:
+    - MLMODEL-C15-001
+  derivation_type: agent_inference
+  rationale: Model performance degrades in new market regimes; early detection enables manual review or model retraining
+  applies_to:
+    strategy: [grid, stock_signal]
+    lifecycle: [live]
+    asset_class: [equities, crypto_futures]
+    concern: [monitoring, operations]
+  requirement: Monitoring system shall track regime indicators (volatility, correlation, volume) and alert when out-of-sample performance metrics degrade >20% or regime changes detected
+  acceptance_tests:
+    - Alerts generated when Sharpe ratio degrades significantly
+    - Regime-change detection matches manual review by traders
+    - Alert latency <5 minutes from regime change
+  failure_prevented: Continued deployment of models in regimes where they perform poorly
+  capability_enabled: Rapid detection of model degradation; timely manual intervention
+  assumptions:
+    - Regime indicators are reliable and computable in real-time
+    - Operators respond promptly to alerts
+  open_questions:
+    - How sensitive should regime detection be to avoid false positives?
+    - What performance degradation threshold warrants retraining?
+  dependencies: []
+  verification_needed: null
+  priority_hint: operability
+
+- id: MLMODEL-R8
+  title: Model serving system shall support A/B testing and gradual rollout
+  status: proposed
+  derived_from:
+    - MLMODEL-C5-001
+  derivation_type: agent_inference
+  rationale: New models should be tested on live data before full deployment; gradual rollout limits downside of model failures
+  applies_to:
+    strategy: [grid, stock_signal]
+    lifecycle: [live]
+    asset_class: [equities, crypto_futures]
+    concern: [operations]
+  requirement: Model serving shall support; (1) A/B testing with configurable traffic split, (2) gradual rollout increasing model allocation over days, (3) instant rollback on poor performance
+  acceptance_tests:
+    - A/B test comparing old vs. new model can run simultaneously
+    - Traffic split is configurable and logged
+    - Rollback to previous model within 1 minute of manual trigger
+  failure_prevented: Buggy new models cause unexpected losses; forced to live with bad model
+  capability_enabled: Safe model iteration and improvement
+  assumptions:
+    - A/B testing framework does not introduce latency
+    - Rollback logic is battle-tested
+  open_questions:
+    - How long should A/B test run to get statistical significance?
+    - What performance metrics should trigger automatic rollback?
+  dependencies: []
+  verification_needed: null
+  priority_hint: operability
+
+

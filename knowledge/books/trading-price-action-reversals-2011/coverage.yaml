@@ -1,0 +1,137 @@
+book_id: trading-price-action-reversals-2011
+sections:
+  - ref: frontmatter
+    title: Contents, Acknowledgments, List of Terms
+    pdf_page_start: 9
+    status: processed
+    reason: Terminology definitions essential for understanding price action nomenclature
+  - ref: introduction
+    title: Introduction
+    pdf_page_start: 29
+    status: processed
+    reason: Core philosophy; institutional money behavior drives market structure
+  - ref: ch1
+    title: 'Chapter 1: Example of How to Trade a Reversal'
+    pdf_page_start: 101
+    status: processed
+    reason: Foundational example; reversal entry, trend line breaks, signal bars
+  - ref: ch2
+    title: 'Chapter 2: Signs of Strength in a Reversal'
+    pdf_page_start: 107
+    status: processed
+    reason: Indicators of strong reversals; volume, bar structure, pullback characteristics
+  - ref: ch3
+    title: 'Chapter 3: Major Trend Reversal'
+    pdf_page_start: 111
+    status: processed
+    reason: Definition and patterns of major reversals vs minor corrections
+  - ref: ch4
+    title: 'Chapter 4: Climactic Reversals - Spike Followed by Spike'
+    pdf_page_start: 139
+    status: processed
+    reason: Specific reversal pattern with high volatility and reversal probability
+  - ref: ch5
+    title: 'Chapter 5: Wedges and Three-Push Reversal Patterns'
+    pdf_page_start: 179
+    status: processed
+    reason: Pattern recognition; wedge formations and exhaustion patterns
+  - ref: ch6
+    title: 'Chapter 6: Expanding Triangles'
+    pdf_page_start: 209
+    status: processed
+    reason: Triangle breakout patterns and volatility expansion
+  - ref: ch7
+    title: 'Chapter 7: Final Flags'
+    pdf_page_start: 217
+    status: processed
+    reason: Flag patterns as continuation or reversal signals
+  - ref: ch8
+    title: 'Chapter 8: Double Top and Bottom Pullbacks'
+    pdf_page_start: 245
+    status: processed
+    reason: Double-level formations and support/resistance testing
+  - ref: ch9
+    title: 'Chapter 9: Failures'
+    pdf_page_start: 253
+    status: processed
+    reason: Failed breakouts and false reversal patterns
+  - ref: ch10
+    title: 'Chapter 10: Huge Volume Reversals on Daily Charts'
+    pdf_page_start: 285
+    status: processed
+    reason: Daily timeframe reversals with extreme volume
+  - ref: ch11
+    title: 'Chapter 11: Key Times of the Day'
+    pdf_page_start: 291
+    status: processed
+    reason: Intraday timing; market open, momentum, fade windows
+  - ref: ch12
+    title: 'Chapter 12: Markets'
+    pdf_page_start: 299
+    status: processed
+    reason: Market context and venue considerations
+  - ref: ch13
+    title: 'Chapter 13: Time Frames and Chart Types'
+    pdf_page_start: 301
+    status: processed
+    reason: Technical parameters; bar size, moving averages, chart construction
+  - ref: ch14
+    title: 'Chapter 14: Globex, Premarket, Postmarket, Overnight Market'
+    pdf_page_start: 315
+    status: processed
+    reason: Extended hours behavior and gap analysis
+  - ref: ch15
+    title: 'Chapter 15: Always In'
+    pdf_page_start: 321
+    status: processed
+    reason: Continuous positioning strategy in trending markets
+  - ref: ch16
+    title: 'Chapter 16: Extreme Scalping'
+    pdf_page_start: 345
+    status: processed
+    reason: High-frequency short-term tactics
+  - ref: ch17
+    title: 'Chapter 17: Patterns Related to the Premarket'
+    pdf_page_start: 381
+    status: processed
+    reason: Premarket setup patterns for opening range
+  - ref: ch18
+    title: 'Chapter 18: Patterns Related to Yesterday - Breakouts, Pullbacks, Failures'
+    pdf_page_start: 385
+    status: processed
+    reason: Gap and overnight level importance
+  - ref: ch19
+    title: 'Chapter 19: Opening Patterns and Reversals'
+    pdf_page_start: 401
+    status: processed
+    reason: First-hour reversal setups
+  - ref: ch20
+    title: 'Chapter 20: Gap Openings - Reversals and Continuations'
+    pdf_page_start: 423
+    status: processed
+    reason: Gap trading logic
+  - ref: ch21
+    title: 'Chapter 21: Detailed Day Trading Examples'
+    pdf_page_start: 431
+    status: processed
+    reason: Real chart examples with entry/exit commentary
+  - ref: ch22
+    title: 'Chapter 22: Daily, Weekly, and Monthly Charts'
+    pdf_page_start: 443
+    status: processed
+    reason: Higher timeframe context and trend definition
+  - ref: ch23
+    title: 'Chapter 23: Options'
+    pdf_page_start: 459
+    status: low_priority
+    reason: Options strategies not primary focus; limited algorithmic relevance
+  - ref: ch24
+    title: 'Chapter 24: The Best Trades - Putting It All Together'
+    pdf_page_start: 483
+    status: processed
+    reason: Meta-patterns; characteristics of highest-probability setups
+  - ref: ch25
+    title: 'Chapter 25: Trading Guidelines'
+    pdf_page_start: 555
+    status: processed
+    reason: Position sizing, money management, risk control principles

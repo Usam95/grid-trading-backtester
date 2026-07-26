@@ -1,0 +1,159 @@
+- id: SUPSTK-H1
+  title: "Backtester simulation fidelity directly impacts live strategy performance"
+  status: "proposed"
+  derived_from: ["SUPSTK-C3-004", "SUPSTK-C6-005"]
+  statement: "Strategies backtest favorably under unrealistic assumptions (perfect fills, zero slippage, no market impact) but fail or underperform in live trading due to cost and liquidity realities"
+  proposed_mechanism: "Backtest unfidelity creates optimism bias; live market impact and costs are substantial"
+  applicable_markets_and_regimes: "All equity markets; particularly relevant in low-liquidity regimes and for high-turnover strategies"
+  assumptions:
+    - "Backtest simulation can be calibrated to match real execution"
+    - "Historical market impact and liquidity patterns persist"
+    - "Live trading conditions resemble backtest period"
+  data_requirements:
+    - "Historical tick-level market data with full order book"
+    - "Actual execution fills and slippage from live trading"
+    - "Historical bid-ask spreads and order book depth"
+  baseline_or_null_hypothesis: "Backtest returns = live returns (null); hypothesis: live returns < backtest returns by X% due to costs"
+  validation_approach: "Compare backtest Sharpe, max drawdown, win rate vs live performance; calculate degradation factor"
+  transaction_cost_and_fill_considerations: "Model order slippage, market impact (temporary and permanent), commissions, borrowing costs"
+  robustness_checks:
+    - "Vary cost assumptions ±20% and measure sensitivity"
+    - "Test on out-of-sample periods"
+    - "Stress test in low-liquidity market conditions"
+  rejection_criteria: "Live returns exceed backtest by >10% or tracking error > 50% (indicates poor calibration)"
+  failure_modes:
+    - "Model drift: market microstructure changes"
+    - "Liquidity crises: historical patterns break down"
+    - "Technology failure causing execution mismatches"
+  freshness_concerns: "Market structure changes (tick sizes, venue consolidation, circuit breakers) may invalidate historical cost models"
+  unresolved_questions:
+    - "How to model future market impact for novel strategies?"
+    - "How sensitive are grid strategies to tick-size and venue changes?"
+
+- id: SUPSTK-H2
+  title: "Parameter optimization bias: in-sample overfitting leads to false positive strategies"
+  status: "proposed"
+  derived_from: ["SUPSTK-C6-006"]
+  statement: "Strategies optimized on a fixed historical dataset yield inflated backtest returns due to overfitting to noise. Out-of-sample performance is significantly lower than in-sample"
+  proposed_mechanism: "Optimizer fits parameters to historical noise, not signal; generalization to new data is poor"
+  applicable_markets_and_regimes: "All asset classes; particularly acute for strategies with many parameters or high-frequency trading"
+  assumptions:
+    - "Historical data contains noise as well as signal"
+    - "Future market conditions differ from optimization period"
+    - "Parameters optimized in one regime will not work in others"
+  data_requirements:
+    - "In-sample (training) and out-of-sample (hold-out test) historical data"
+    - "Multiple regime examples to validate across conditions"
+  baseline_or_null_hypothesis: "In-sample Sharpe = out-of-sample Sharpe (null); hypothesis: out-of-sample Sharpe degrades by X%"
+  validation_approach: "Walk-forward analysis; hold-out test set; Monte Carlo random optimization; cross-validation"
+  transaction_cost_and_fill_considerations: "Include transaction costs in both in-sample and out-of-sample backtests to ensure fair comparison"
+  robustness_checks:
+    - "Random search vs grid search: compare in/out-of-sample ratios"
+    - "Test on synthetic data with known signal-to-noise ratio"
+    - "Monte Carlo permutation test"
+  rejection_criteria: "Out-of-sample Sharpe < 50% of in-sample (indicates overfitting); strategy rejected"
+  failure_modes:
+    - "Trader overconfidence from inflated backtest metrics"
+    - "Capital wasted on non-robust strategies"
+    - "Live trading loss"
+  freshness_concerns: "Market regimes shift over time; strategies robust in one era may not be in the next"
+  unresolved_questions:
+    - "How many out-of-sample test points are needed to reject overfitting?"
+    - "How do grid and stock strategies differ in overfitting susceptibility?"
+
+- id: SUPSTK-H3
+  title: "Market-making strategies profit from spread capture but face inventory risk"
+  status: "proposed"
+  derived_from: ["SUPSTK-C7-007"]
+  statement: "Market-making algorithms profit by capturing bid-ask spreads through frequent quoting and inventory management, but face adverse selection and gap risk if market moves against inventory"
+  proposed_mechanism: "Capture spread via rapid buy/sell cycles; hedge inventory via offsetting trades or time decay"
+  applicable_markets_and_regimes: "Liquid equity markets, crypto spot markets; less effective in trending or volatile regimes"
+  assumptions:
+    - "Bid-ask spread remains stable"
+    - "Inventory can be hedged quickly"
+    - "Technology latency is low"
+    - "No regulatory restrictions on quoting/cancellation"
+  data_requirements:
+    - "Full order book (top 10-20 levels) at high frequency"
+    - "Executed trade fills and timing"
+    - "Inventory tracking data"
+  baseline_or_null_hypothesis: "Market-making zero PnL (null); hypothesis: positive expected PnL from spread capture"
+  validation_approach: "Backtest market-making algorithm on simulated order book; measure spread capture, inventory turnover, and adverse selection losses"
+  transaction_cost_and_fill_considerations: "Commission per trade, borrowing costs, funding costs for inventory positions"
+  robustness_checks:
+    - "Stress test inventory size limits"
+    - "Test in high-volatility periods"
+    - "Vary quote cancellation rates"
+  rejection_criteria: "Adverse selection losses exceed spread capture; strategy unprofitable"
+  failure_modes:
+    - "Gap move overnight or market halt; inventory blown up"
+    - "Regulatory action against aggressive quoting"
+    - "Technological failure leading to unhedged positions"
+  freshness_concerns: "Exchanges have changed tick sizes and circuit breakers; venue consolidation affects spread patterns"
+  unresolved_questions:
+    - "How to optimally size inventory given volatility regime?"
+    - "What inventory risk metrics are most predictive of blowup?"
+
+- id: SUPSTK-H4
+  title: "Reinforcement learning can discover trading policies but risks reward hacking and non-stationarity"
+  status: "proposed"
+  derived_from: ["SUPSTK-C9-008"]
+  statement: "RL agents can learn trading policies from simulated markets but face risks of reward hacking (gaming the reward function) and poor generalization to non-stationary live markets"
+  proposed_mechanism: "RL agent learns via exploration and exploitation in simulated environment; may find spurious correlations or exploit flaws in simulation"
+  applicable_markets_and_regimes: "All asset classes in principle; most tested in equity and crypto"
+  assumptions:
+    - "Simulation environment accurately models real markets"
+    - "Reward function captures true trading objectives"
+    - "Agent exploration is sufficient but controlled"
+    - "Market regimes remain stationary during RL training"
+  data_requirements:
+    - "High-fidelity market microstructure simulator"
+    - "Historical market data for environment validation"
+    - "Regime classification to segment training data"
+  baseline_or_null_hypothesis: "RL policy = random trading (null); hypothesis: RL policy outperforms baseline on out-of-sample data"
+  validation_approach: "Backtest RL policy on held-out test data; compare vs simple baseline strategies; measure reward in backtest vs live"
+  transaction_cost_and_fill_considerations: "Include realistic slippage, commissions, and market impact in RL reward function"
+  robustness_checks:
+    - "Test on multiple market regimes"
+    - "Verify reward not gaming (e.g., taking excessive leverage)"
+    - "Out-of-distribution market conditions"
+  rejection_criteria: "RL policy fails on out-of-sample or exhibits extreme behavior (high leverage, churning)"
+  failure_modes:
+    - "Simulation gap: RL learns patterns that don't exist in real markets"
+    - "Reward hacking: agent exploits simulation unrealism"
+    - "Non-stationarity: policy trained on one regime fails in another"
+  freshness_concerns: "Market regimes shift; RL policies may not adapt in real-time"
+  unresolved_questions:
+    - "How to design RL reward functions that don't incentivize dangerous behavior?"
+    - "How to efficiently retrain RL policies as markets evolve?"
+
+- id: SUPSTK-H5
+  title: "Event-driven execution architecture reduces latency vs polling-based systems"
+  status: "proposed"
+  derived_from: ["SUPSTK-C13-013"]
+  statement: "Event-driven systems that react to market data events (ticks, fills) have lower median latency and more consistent latency compared to polling-based systems"
+  proposed_mechanism: "Event notification triggers order decisions immediately without waiting for next poll cycle"
+  applicable_markets_and_regimes: "All asset classes; particularly important for high-frequency and grid strategies"
+  assumptions:
+    - "Event ordering is guaranteed"
+    - "Event handler latency is predictable"
+    - "No event loss in race conditions"
+  data_requirements:
+    - "Instrumentation of event latency (event time, handler start time, handler end time)"
+    - "Comparison data from polling systems"
+  baseline_or_null_hypothesis: "Event and polling latencies are equal (null); hypothesis: event latency < polling latency by X ms"
+  validation_approach: "Measure end-to-end order latency; compare percentile latencies (p50, p95, p99)"
+  transaction_cost_and_fill_considerations: "Lower latency can reduce slippage and improve fill quality"
+  robustness_checks:
+    - "Test under high event frequency"
+    - "Test under CPU contention"
+    - "Measure tail latencies (p99, p99.9)"
+  rejection_criteria: "Event latency >= polling latency or tail latencies unacceptable (e.g., p99 > 100ms)"
+  failure_modes:
+    - "Event ordering violation in asynchronous systems"
+    - "Event loss or duplicate delivery"
+    - "Event handler crash without recovery"
+  freshness_concerns: "Modern trading technology constantly evolving; latency profiles change"
+  unresolved_questions:
+    - "How to guarantee event ordering and no-loss delivery in distributed systems?"
+    - "What is acceptable latency for grid strategies?"

@@ -1,0 +1,85 @@
+book_id: visual-guide-to-financial-markets-by-david-wilson-z-lib-org-2013
+sections:
+  - ref: "Part-I"
+    title: "Part I: Direct Investing"
+    pdf_page_start: 0
+    status: processed
+    reason: "Part introduction; foundational concepts for direct asset investment"
+  
+  - ref: "Ch-1"
+    title: "Chapter 1: Overview"
+    pdf_page_start: 2
+    status: processed
+    reason: "Introduces direct investing format and three Rs framework; foundational"
+  
+  - ref: "Ch-2"
+    title: "Chapter 2: Government"
+    pdf_page_start: 10
+    status: processed
+    reason: "Covers sovereign debt instruments, bonds, borrowing rates, treasury concepts"
+  
+  - ref: "Ch-3"
+    title: "Chapter 3: Companies"
+    pdf_page_start: 34
+    status: processed
+    reason: "Covers equities, stock market mechanics, company valuation, dividends"
+  
+  - ref: "Ch-4"
+    title: "Chapter 4: Hard Assets"
+    pdf_page_start: 62
+    status: processed
+    reason: "Covers real estate, commodities, tangible assets, alternative investments"
+  
+  - ref: "Ch-5"
+    title: "Chapter 5: Indexes"
+    pdf_page_start: 78
+    status: processed
+    reason: "Index construction, portfolio benchmarking, S&P 500, aggregate indices"
+  
+  - ref: "Ch-6"
+    title: "Chapter 6: Government Revisited"
+    pdf_page_start: 86
+    status: processed
+    reason: "Advanced government bond concepts, yield curves, risk analysis"
+  
+  - ref: "Ch-7"
+    title: "Chapter 7: Companies Revisited"
+    pdf_page_start: 98
+    status: processed
+    reason: "Advanced equity analysis, credit analysis, company metrics"
+  
+  - ref: "Ch-8"
+    title: "Chapter 8: Hard Assets Revisited"
+    pdf_page_start: 112
+    status: processed
+    reason: "Advanced hard asset analysis, MLPs, securitization; chart-heavy"
+  
+  - ref: "Part-II"
+    title: "Part II: Indirect Investing"
+    pdf_page_start: 122
+    status: processed
+    reason: "Introduction to derivatives and managed portfolios"
+  
+  - ref: "Ch-9"
+    title: "Chapter 9: Overview (Indirect Investing)"
+    pdf_page_start: 124
+    status: processed
+    reason: "Framework for derivatives and fund-based investing"
+  
+  - ref: "Ch-10"
+    title: "Chapter 10: Derivatives"
+    pdf_page_start: 128
+    status: processed
+    reason: "Options, forwards, futures, swaps; derivative mechanics and applications"
+  
+  - ref: "Ch-11"
+    title: "Chapter 11: Mutual Funds and Exchange-Traded Funds"
+    pdf_page_start: 158
+    status: processed
+    reason: "Fund structures, ETF mechanics, portfolio composition, cost analysis"
+  
+  - ref: "Ch-12"
+    title: "Chapter 12: Indexes Revisited"
+    pdf_page_start: 172
+    status: processed
+    reason: "Index methodology, passive investing, tactical allocation; appendix material"

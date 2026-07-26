@@ -1,0 +1,137 @@
+book_id: options-trading-for-beginners-a-crash-course-on-how-to-build-2021
+sections:
+  - ref: "INTRO"
+    title: "Introduction"
+    pdf_page_start: 4
+    status: "processed"
+    reason: "Key definition: options as derivatives; conceptual framework on portfolio diversification and options advantages; risk/reward structure overview."
+  - ref: "CH1"
+    title: "Chapter 1: Options Trading Basics"
+    pdf_page_start: 12
+    status: "processed"
+    reason: "Foundational terminology; call and put mechanics; European vs American options; expiration concepts; derivatives definition."
+  - ref: "CH2"
+    title: "Chapter 2: Why Options Trading Is Worth The Risk"
+    pdf_page_start: 20
+    status: "processed"
+    reason: "Risk/reward justification; leverage discussion; trading edge claims; passive income motivation."
+  - ref: "CH3"
+    title: "Chapter 3: How To Get Started"
+    pdf_page_start: 28
+    status: "processed"
+    reason: "Broker selection guidance; account setup; first trading steps; regulatory framework references (likely outdated)."
+  - ref: "CH4"
+    title: "Chapter 4: Passive Income"
+    pdf_page_start: 39
+    status: "processed"
+    reason: "Covered call strategy for income generation; dividend-like income concepts; position management for recurring revenue."
+  - ref: "CH5"
+    title: "Chapter 5: Understanding The Strike Price"
+    pdf_page_start: 46
+    status: "processed"
+    reason: "Strike price mechanics; ITM/OTM concepts; pricing relationship to underlying; exercise considerations."
+  - ref: "CH6"
+    title: "Chapter 6: Intrinsic Value And Time Value"
+    pdf_page_start: 54
+    status: "processed"
+    reason: "Options value decomposition; time decay dynamics; theta concepts; pricing drivers."
+  - ref: "CH7"
+    title: "Chapter 7: Risk Management"
+    pdf_page_start: 60
+    status: "processed"
+    reason: "1% risk rule framework; position sizing formula; stop-loss mechanics; loss containment strategy; maximum drawdown concepts."
+  - ref: "CH8"
+    title: "Chapter 8: Beginners Common Mistakes"
+    pdf_page_start: 69
+    status: "processed"
+    reason: "Novice pitfalls: overtrading, overleveraging, emotional decisions, inadequate planning; learning from failures."
+  - ref: "CH9"
+    title: "Chapter 9: Mindset"
+    pdf_page_start: 79
+    status: "processed"
+    reason: "Psychology of trading: fear, greed, hope; emotional management strategies; discipline and goal-setting; confidence building."
+  - ref: "CH10"
+    title: "Chapter 10: All About Buying Covered Calls"
+    pdf_page_start: 93
+    status: "processed"
+    reason: "Covered call mechanics; income generation; capital protection; profit cap trade-offs; premium collection."
+  - ref: "CH11"
+    title: "Chapter 11: Rolling And Managing Option Positions"
+    pdf_page_start: 101
+    status: "processed"
+    reason: "Position management techniques; rolling strategies; adjustment for moving targets; exiting winners/losers."
+  - ref: "CH12"
+    title: "Chapter 12: Technical Analysis"
+    pdf_page_start: 112
+    status: "processed"
+    reason: "Charts and patterns; trend identification; support/resistance; entry/exit signals based on technical levels."
+  - ref: "CH13"
+    title: "Chapter 13: Credit And Debit Spreads"
+    pdf_page_start: 118
+    status: "processed"
+    reason: "Spread strategy mechanics; risk-defined positions; premium collection vs directional bets; max profit/loss calculations."
+  - ref: "CH14"
+    title: "Chapter 14: The Greeks"
+    pdf_page_start: 129
+    status: "processed"
+    reason: "Delta, gamma, theta, vega definitions; hedging applications; Greeks as risk measures; implied volatility concepts."
+  - ref: "CH15"
+    title: "Chapter 15: Tools And Rules For Options Trading"
+    pdf_page_start: 137
+    status: "processed"
+    reason: "Trading platform features; screening criteria; broker tools; execution best practices; data resources."
+  - ref: "CH16"
+    title: "Chapter 16: Covered Calls"
+    pdf_page_start: 144
+    status: "processed"
+    reason: "Detailed covered call strategy; risk profile; entry mechanics; assignment management; income objectives."
+  - ref: "CH17"
+    title: "Chapter 17: Money Management"
+    pdf_page_start: 153
+    status: "processed"
+    reason: "Account sizing; capital allocation; risk per trade; portfolio construction; withdrawal strategies."
+  - ref: "CH18"
+    title: "Chapter 18: Collars Strategy"
+    pdf_page_start: 168
+    status: "processed"
+    reason: "Collar mechanics; downside protection; upside cap; cost-reducing hedging; protective strategies."
+  - ref: "CH19"
+    title: "Chapter 19: Differences Among Forex, Stocks, And Options"
+    pdf_page_start: 176
+    status: "processed"
+    reason: "Asset class comparison; leverage differences; volatility profiles; margin requirements; operational distinctness."
+  - ref: "CH20"
+    title: "Chapter 20: The Techniques Of Trading Options With Fundamental Analyses"
+    pdf_page_start: 185
+    status: "processed"
+    reason: "Fundamental analysis for options; earnings events; company metrics; financial news impact on pricing."
+  - ref: "CH21"
+    title: "Chapter 21: Why Is Leverage Riskier?"
+    pdf_page_start: 194
+    status: "processed"
+    reason: "Leverage mechanics; amplified losses; margin calls; forced liquidation risks; magnified drawdowns."
+  - ref: "CH22"
+    title: "Chapter 22: Buying And Selling Puts"
+    pdf_page_start: 203
+    status: "processed"
+    reason: "Put mechanics; downside speculation; protective puts; cash-secured puts; selling puts for income."
+  - ref: "CH23"
+    title: "Chapter 23: Technical Indicators"
+    pdf_page_start: 213
+    status: "processed"
+    reason: "Moving averages; RSI; MACD; indicator combinations; signal generation; trend confirmation."
+  - ref: "CH24"
+    title: "Chapter 24: Trading Varying Time Frames"
+    pdf_page_start: 224
+    status: "processed"
+    reason: "Intraday vs swing vs longer-term; volatility across timeframes; entry/exit optimization per timeframe; scalping concepts."
+  - ref: "CH25"
+    title: "Chapter 25: Bonus Strategies"
+    pdf_page_start: 231
+    status: "processed"
+    reason: "Advanced/niche strategies; strategy combinations; specialized setups; tactical variations."
+  - ref: "CONC"
+    title: "Conclusion"
+    pdf_page_start: 239
+    status: "processed"
+    reason: "Summary of key learnings; recommendations for next steps; reflection on concepts covered."

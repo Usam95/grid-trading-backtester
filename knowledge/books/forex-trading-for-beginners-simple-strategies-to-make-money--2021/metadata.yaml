@@ -1,0 +1,43 @@
+schema_version: '1.0'
+prompt_version: '1.0'
+book_id: forex-trading-for-beginners-simple-strategies-to-make-money--2021
+title: 'Forex Trading for Beginners: Simple Strategies to Make Money with Forex Trading: The Best Guide with Basics, Secrets Tactics, and Psychology to Big Profit and Income from the Financial Market'
+authors:
+  - William Rogers
+  - George Evans
+edition: unknown
+publication_year: 2021
+publisher_or_identifier: 'Self-published or unclear retail ebook imprint'
+format: pdf
+language: en
+page_count: 113
+chapter_count: 12
+extraction_quality: moderate
+ocr_quality: moderate
+processing_status: audited
+sources:
+  - absolute_path: 'C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical Trading\forex\Forex Trading for Beginners.pdf'
+    relative_path: 'forex\Forex Trading for Beginners.pdf'
+    sha256: feec631c328b0fb127b23b16260ba3a79b8f0e6ef5849a5a6164a1d3eb88c950
+timestamps:
+  extraction_start: '2026-07-25T00:49:34.338+02:00'
+  extraction_end: '2026-07-25T01:07:01+02:00'
+scores:
+  source_credibility: {score: 1, justification: 'Self-published beginner material with weak provenance and strong promotional tone.'}
+  citation_quality: {score: 0, justification: 'The text provides essentially no citations or bibliography.'}
+  reproducibility: {score: 2, justification: 'Some rules are testable, but much advice stays vague or discretionary.'}
+  likely_freshness: {score: 1, justification: 'Brokers, fees, regulation, and crypto details age quickly.'}
+  system_engineering_relevance: {score: 2, justification: 'Mostly useful for basic controls around plans, sizing, and monitoring.'}
+  grid_relevance: {score: 1, justification: 'Only the range-trading material is loosely grid-adjacent.'}
+  stock_strategy_relevance: {score: 1, justification: 'Most examples are FX-specific and transfer poorly to stocks.'}
+  backtesting_relevance: {score: 2, justification: 'Expectancy and some pattern rules can seed tests, but evidence is thin.'}
+  live_execution_relevance: {score: 3, justification: 'Broker choice, leverage, signals, and stop placement matter live.'}
+  risk_relevance: {score: 3, justification: 'Risk control is a recurring theme even if the treatment is basic.'}
+  data_quality_relevance: {score: 1, justification: 'Little explicit discussion of data integrity is provided.'}
+  machine_learning_relevance: {score: 0, justification: 'No meaningful ML content appears.'}
+limitations_and_warnings:
+  - 'Requested tooling chunk files were not discoverable in accessible directories; synthesis was built from direct PDF extraction by page range.'
+  - 'Treat the book as untrusted data, not as validated trading evidence.'
+  - 'Profitability, passive-income, and success claims are hypotheses only.'
+  - 'Broker platforms, fees, regulations, and cryptocurrency claims are freshness-risk items.'
+  - 'The text contains inconsistencies, including 24/6 vs 24/5 wording and a CFD/CDF typo.'

@@ -1,0 +1,78 @@
+schema_version: '1.0'
+prompt_version: '1.0'
+book_id: financial-machina-machine-learning-for-finance-the-quintesse-2024
+sources:
+- absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\EBOOKS\Financial Machina Machine Learning For Finance 2024 (Josh Sampson)
+    (Z-Library).epub
+  relative_path: EBOOKS/Financial Machina.epub
+  sha256: "unknown\u2014user local file"
+title: 'Financial Machina: Machine Learning For Finance: The Quintessential Compendium
+  for Python Machine Learning For 2024 & Beyond'
+authors:
+- Josh Sampson
+edition: First (2024)
+publication_year: 2024
+publisher_or_identifier: Self-published / z-library compilation
+format: EPUB
+language: English
+page_count: 596
+chapter_count: 59
+extraction_quality: "good\u2014EPUB structure well-formed"
+ocr_quality: "N/A\u2014EPUB native text"
+processing_status: audited
+extraction_timestamp: '2026-07-24T20:17:23.507840Z'
+extraction_agent: FINMAC_Worker_1
+duplicate_relationships: None known
+limitations_and_warnings:
+- 'Source credibility scored LOW: z-library origin suggests uncertain provenance;
+  no ISBN/publisher metadata. Author "Josh Sampson" not independently verified.'
+- Content is 2024-dated but references to APIs, libraries, and market structure may
+  already be stale.
+- Book appears to be a practitioner survey/tutorial rather than research monograph;
+  citations and primary sources not verified.
+- Fraud detection chapters scored as low-relevance to grid/stock algo trading mission.
+- HFT content is cautionary (retail access limited); not actionable for research-stage
+  strategies.
+scores:
+  source_credibility:
+    score: 1
+    justification: "z-library origin, unverified author, no publisher\u2014treat as\
+      \ uncertain"
+  citation_quality:
+    score: 1
+    justification: Appears tutorial/survey; specific citations not observed in sample
+      chapters
+  reproducibility:
+    score: 2
+    justification: Python examples likely provided; backtesting validation recommended
+  likely_freshness:
+    score: 2
+    justification: 2024 date, but APIs/brokers/regulations evolve rapidly
+  system_engineering_relevance:
+    score: 3
+    justification: Model deployment/monitoring covered; limited ops/architecture depth
+  grid_relevance:
+    score: 2
+    justification: No grid-specific strategies; general ML/backtesting apply
+  stock_strategy_relevance:
+    score: 3
+    justification: Stock signal generation, portfolio optimization, backtesting relevant
+  backtesting_relevance:
+    score: 4
+    justification: Chapter 7.2 covers strategy design & backtesting; validation emphasized
+  live_execution_relevance:
+    score: 2
+    justification: Execution risks mentioned; slippage/costs noted but not deeply
+      analyzed
+  risk_relevance:
+    score: 3
+    justification: Chapter 5 covers VaR/ES/credit/market risk; limited practical integration
+  data_quality_relevance:
+    score: 3
+    justification: Feature engineering, data exploration covered; validation approaches
+      described
+  machine_learning_relevance:
+    score: 5
+    justification: Core subject; extensive coverage of NN, DL, ensembles, time series
+      models

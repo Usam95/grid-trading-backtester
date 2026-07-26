@@ -1,0 +1,280 @@
+- id: TPAB-HYP-001
+  title: "Reversal signal bar patterns predict next-bar trend reversal at >55% accuracy"
+  status: proposed
+  derived_from:
+    - TPAB-C5-010
+    - TPAB-C1-003
+  statement: |
+    When a bar with specific reversal morphology (small body, large wick on reversal side) 
+    appears after strong trend continuation bars, the following bar will breakout in the 
+    reversal direction with >55% frequency (vs 50% random).
+  proposed_mechanism: |
+    Reversal signal bar represents price extremes where weak traders (shorts in downtrend, 
+    longs in uptrend) are forced to exit, triggering stop cascades that propel the market 
+    through the signal bar range on the next bar.
+  applicable_markets_and_regimes: |
+    Equities intraday (1-60min timeframes); most liquid contracts where institutional 
+    volume dominates; strong directional trends (not tight ranges).
+  assumptions:
+    - "Signal bar definition precise and objectively identifiable (body/wick ratios)"
+    - "Pattern persists despite 15+ years of algorithm evolution since 2011"
+    - "Stop placement at prior swing extremes is conventional behavior (not obsolete)"
+    - "No algorithm specifically front-runs reversal signal bars"
+  data_requirements:
+    - OHLC bars with 1-60min resolution
+    - Volume data to confirm bar morphology not anomaly
+    - High-fidelity intraday fills
+  baseline_or_null_hypothesis: |
+    Null: Next bar closes outside prior bar range 50% of the time (random walk); reversal 
+    signal bars offer no predictive edge.
+  validation_approach: |
+    Backtest on 5+ years equities data (2020-2025): for every reversal signal bar (per 
+    defined morphology), measure frequency next bar closes in predicted direction. 
+    Require >55% win rate with >=1:1 reward/risk and net positive expectancy.
+  transaction_cost_and_fill_considerations: |
+    Assuming 1-2 tick round-trip slippage and commissions; entry at signal bar high/low 
+    (market order risk); stop at prior extreme; profit target >=1x stop distance.
+  robustness_checks:
+    - "Sensitivity: test with +/- 10% variation in body/wick definitions"
+    - "Walk-forward backtest: train on 2020-2023, test on 2024-2025"
+    - "Cross-asset: validate on 3+ currency pairs and index futures"
+    - "Regime test: separate strong trend vs choppy market performance"
+  rejection_criteria:
+    - "Win rate <52% on any asset class or regime"
+    - "Sharpe ratio <0.5 across walk-forward periods"
+    - "Drawdown >3x average win size"
+  failure_modes:
+    - "Pattern degraded by market microstructure (dark pools, HFT)"
+    - "Institutions learned and exploit reversal bar traders"
+    - "Definition overfitting; pattern not robust across timeframes"
+  freshness_concerns: |
+    Significant: Book published 2011, algorithm/venue landscape drastically changed. 
+    Reversal bar definitions may need threshold recalibration for 2024+ market structure.
+  unresolved_questions:
+    - "Do reversal bars perform differently across market regimes (trending vs ranging)?"
+    - "Is next-bar breakout more predictive than multi-bar follow-through?"
+    - "How do algorithmic trading venues affect reversal bar frequency?"
+
+- id: TPAB-HYP-002
+  title: "Pullbacks during strong trends are bought by institutions at >60% frequency"
+  status: proposed
+  derived_from:
+    - TPAB-C2-004
+    - TPAB-C0-001
+  statement: |
+    When price pulls back (bar closes below prior bar low) during an established uptrend, 
+    the pullback stops at or near a prior support level (previous swing low, moving average, 
+    or channel line) and resumes uptrend with >60% frequency.
+  proposed_mechanism: |
+    Institutional money uses pullbacks as accumulation zones; weak-hand retail stops below 
+    prior bars trigger liquidations that provide liquidity; institutions absorb supply and 
+    trend resumes.
+  applicable_markets_and_regimes: |
+    Strongly trending markets (equities, index futures); intraday to daily timeframes; 
+    high institutional volume periods.
+  assumptions:
+    - "Pullback depth follows identifiable distribution around support"
+    - "Institutional dominance (>60% volume) persists"
+    - "Support levels (prior swings, moving averages) are respected"
+    - "No fundamental news breaks market structure during pullback"
+  data_requirements:
+    - "OHLC bars on relevant timeframe"
+    - "Volume profile around support levels"
+    - "Identified support levels (prior swings, key moving averages)"
+  baseline_or_null_hypothesis: |
+    Null: Pullbacks lead to reversal 50% of the time; support levels are no more significant 
+    than random price areas.
+  validation_approach: |
+    Backtest: identify strong uptrends; mark pullback entries at support; measure frequency 
+    trend resumes (next N bars close above entry). Target >60% resumption rate with 
+    favorable risk/reward.
+  transaction_cost_and_fill_considerations: |
+    Entry at support level (limit order); stop below support; target = next resistance or 
+    N-period high; 1-2 tick slippage; commissions per trade.
+  robustness_checks:
+    - "Vary support level definitions (swing low, 20/50 MA, channel line)"
+    - "Cross-asset test on equities, forex, commodities"
+    - "Regime separation: test during high-trend vs choppy periods"
+    - "Volatility sensitivity: compare low/high volatility regimes"
+  rejection_criteria:
+    - "Resumption frequency <55%"
+    - "Average loss exceeds average gain"
+    - "Drawdown clusters during certain market conditions"
+  failure_modes:
+    - "Support breaks; trend reversal complete"
+    - "Multiple stops before resumption (cumulative loss)"
+    - "Gap through support (overnight or news event)"
+  freshness_concerns: |
+    Moderate: Pullback structures may be more erratic due to algorithmic rebalancing; 
+    mean reversion assumptions need validation.
+  unresolved_questions:
+    - "Are pullbacks shallower/deeper in 2024 vs 2011?"
+    - "Do pullbacks hold better at certain hours or volatility levels?"
+    - "How do earnings announcements affect pullback reliability?"
+
+- id: TPAB-HYP-003
+  title: "Outside bars predict breakouts in close direction with >55% accuracy"
+  status: proposed
+  derived_from:
+    - TPAB-C7-008
+    - TPAB-C1-003
+  statement: |
+    An outside bar (high > prior bar high AND low < prior bar low) followed by a close 
+    above/below the bar's midpoint predicts breakout in that direction (i.e., if outside bar 
+    closes in upper half, next 5 bars close higher than entry) >55% of the time.
+  proposed_mechanism: |
+    Outside bar engulfs prior bar; stops triggered on both sides; close direction determines 
+    which institutional stops (bulls or bears) were run; breakout follows in close direction.
+  applicable_markets_and_regimes: |
+    All liquid markets (equities, index futures, crypto); intraday and swing timeframes; 
+    periods following consolidation (prior 5-20 bars range-bound).
+  assumptions:
+    - "Outside bar definition objective: high > prior high, low < prior low"
+    - "Close at bar midpoint or beyond is meaningful directional signal"
+    - "Stops exist at prior bar extremes (conventional trader behavior)"
+  data_requirements:
+    - "OHLC bars with verified close data"
+    - "Volume spike data to confirm outside bar significance"
+    - "Identified prior consolidation zone"
+  baseline_or_null_hypothesis: |
+    Null: Outside bar close direction uncorrelated with next breakout; random entry.
+  validation_approach: |
+    Backtest: identify outside bars; enter long/short based on close; measure next 5-bar 
+    close vs entry close. Require >55% Win-frequency with meaningful breakout distance 
+    (e.g., min 0.5% move).
+  transaction_cost_and_fill_considerations: |
+    Entry at outside bar close or next open; stop at prior bar extreme (= outside bar 
+    wicks); target range typically 0.5-2% move; 1-2 tick slippage.
+  robustness_checks:
+    - "Vary lookback for consolidation zone prior to outside bar"
+    - "Test on trending vs range-bound markets"
+    - "Cross-timeframe: 5min, 15min, 60min bars"
+    - "Separate by volatility regime"
+  rejection_criteria:
+    - "Win rate <52%"
+    - "Profit factor <1.2"
+    - "Drawdown >2x largest win"
+  failure_modes:
+    - "False breakout: outside bar breakout fails; reversal inside bar range"
+    - "Gap-and-reverse overnight"
+    - "Crowded trade: algorithm predicts and reverses at outside bar levels"
+  freshness_concerns: |
+    Moderate to High: Outside bar patterns may be crowded/front-run by algorithms; 
+    fill quality at breakout levels may degrade.
+  unresolved_questions:
+    - "Has outside bar effectiveness degraded since 2011?"
+    - "Are outside bars more/less common in current market?"
+    - "Do dark pools interfere with outside bar fill execution?"
+
+- id: TPAB-HYP-004
+  title: "Trend line breaks predict >50% continuation in break direction within 5 bars"
+  status: proposed
+  derived_from:
+    - TPAB-C13-013
+    - TPAB-C14-014
+  statement: |
+    When price breaks through a trend line (uptrend line break = close below line; 
+    downtrend line break = close above line) drawn from 2+ points, the market continues 
+    in the break direction for at least 3 bars (no reversal back above/below line) >50% 
+    of the time.
+  proposed_mechanism: |
+    Trend line represents institutional support/resistance; break through line signals 
+    institutional intent shift; market gravitates to next support/resistance level 
+    (continuation) or reverses sharply (fakeout).
+  applicable_markets_and_regimes: |
+    Trending markets (not tight ranges); all asset classes; intraday to weekly timeframes; 
+    established trend (min 10+ bars, clear slope).
+  assumptions:
+    - "Trend line drawn objectively from 2+ swing points, no hindsight bias"
+    - "Line slope representative of true trend, not noise"
+    - "Continuation occurs without fundamental shock"
+  data_requirements:
+    - "OHLC bars on analyzed timeframe"
+    - "Identified swing points to draw lines"
+    - "Volume confirmation of breakout"
+  baseline_or_null_hypothesis: |
+    Null: Trend line breaks have 50% probability of continuation vs reversal; random signal.
+  validation_approach: |
+    Backtest: draw trend lines on historical data; at each break, enter in break direction; 
+    measure 3-bar, 5-bar, 10-bar continuation. Target >50% continuation with 
+    risk/reward favorable (stop at trend line, target at next level).
+  transaction_cost_and_fill_considerations: |
+    Entry at trend line close or next bar; stop above/below trend line (retest distance); 
+    target = next support/resistance or measured move projection; 1-2 tick slippage.
+  robustness_checks:
+    - "Vary trend line definition (strict vs permissive breakage)"
+    - "Test walk-forward to avoid overfitting to line selection"
+    - "Cross-asset and cross-timeframe validation"
+    - "Separate strong vs weak trends by slope steepness"
+  rejection_criteria:
+    - "Continuation rate <48%"
+    - "Average loss exceeds average gain"
+    - "Fakeouts cluster (high false-break frequency)"
+  failure_modes:
+    - "Line breaks then reverses (false breakout)"
+    - "Hindsight bias in line selection during backtest"
+    - "Fundamental news invalidates trend continuation"
+  freshness_concerns: |
+    Moderate: Trend persistence may reduce; algorithmic mean-reversion may counter 
+    institutional continuation.
+  unresolved_questions:
+    - "How do trend slopes affect continuation probability?"
+    - "Does continuation vary by market volatility regime?"
+    - "Are trend lines still viable in 2024 high-frequency environment?"
+
+- id: TPAB-HYP-005
+  title: "Range-bound trading range breakouts are fakeouts >45% of the time; mean reversion >55%"
+  status: proposed
+  derived_from:
+    - TPAB-C15-015
+    - TPAB-C1-006
+  statement: |
+    When price breaks above or below a trading range (defined by 10+ touches of high/low 
+    boundaries over 20+ bars), the market reverts back inside the range >55% of the time 
+    within 5 bars; continued breakout (false breakout or fakeout) occurs >45% of the time.
+  proposed_mechanism: |
+    Trading ranges are accumulation/distribution zones where institutional money enters 
+    positions; breakouts often trigger stop orders; however, lack of conviction (weak 
+    volume) leads to reversion back into range as institutional orders absorb breakout 
+    demand/supply.
+  applicable_markets_and_regimes: |
+    Range-bound markets (non-trending periods); intraday and swing timeframes; after 
+    consolidation phases.
+  assumptions:
+    - "Range boundaries identifiable (multiple touches) and not arbitrary"
+    - "Mean reversion dynamic governs ranges"
+    - "No fundamental trend emerging during reversion"
+  data_requirements:
+    - "OHLC bars defining range boundaries"
+    - "Volume profile showing range accumulation"
+    - "Identified breakout bar"
+  baseline_or_null_hypothesis: |
+    Null: Breakout = 50% chance continuation, 50% mean reversion.
+  validation_approach: |
+    Backtest: identify ranges (10+ touches, 20+ bars); at breakout, enter; measure 
+    5-bar reversion vs continued breakout. Validate >55% mean reversion rate; 
+    design trades to capture high-probability range snapback.
+  transaction_cost_and_fill_considerations: |
+    Entry at range boundary on breakout attempt; stop beyond breakout extreme; target = 
+    range midpoint or opposite boundary; 1-2 tick slippage; scale position (smaller 
+    breakout, larger range-fade).
+  robustness_checks:
+    - "Vary range definition (touch count, time window)"
+    - "Test across asset classes and timeframes"
+    - "Volatility regime separation"
+    - "Range duration sensitivity (short vs long ranges)"
+  rejection_criteria:
+    - "Mean reversion rate <52%"
+    - "Drawdown on breakout-continuation trades >2x average win"
+    - "Profit factor <1.3"
+  failure_modes:
+    - "Breakout continues (no mean reversion; range boundary penetrated)"
+    - "Overnight gap past reversion target"
+    - "Fundamental trend emerges; range becomes new support"
+  freshness_concerns: |
+    High: Mean reversion dynamics may be suppressed by algorithmic trend-following; 
+    ranges may break out more frequently than 2011 market.
+  unresolved_questions:
+    - "Has mean reversion degraded in 2024?"
+    - "Do longer ranges behave differently than shorter ranges?"
+    - "How do news events affect range-breakout probabilities?"

@@ -1,0 +1,189 @@
+- id: TPAR-H001
+  title: Reversal probability increases with trend line break + signal bar strength
+  status: proposed
+  derived_from: [TPAR-C1-002, TPAR-C2-003]
+  statement: After a clear break of established trend line, a strong signal bar (large body, close in reversal direction, opposite tail) predicts 55-65% reversal continuation within 5 bars
+  proposed_mechanism: Trend line break signals institutional shift; strong signal bar confirms conviction; weak bars suggest uncertain reversal
+  applicable_markets_and_regimes: High-volume equities; intraday 5-60min charts; trending (not range-bound) markets
+  assumptions: [Trend line correctly drawn, Strong bar = body > 50th percentile 20-bar avg; close > median, No news/earnings risk]
+  data_requirements: [5-min OHLCV bars, Trend line slope/intercept, Historical backtesting 2+ years]
+  baseline_or_null_hypothesis: Random entry after trend line break = 50% probability (coin flip)
+  validation_approach: 'Backtest: count reversals after (trend break + strong signal bar) vs after (trend break + weak signal bar); compute empirical probability'
+  transaction_cost_and_fill_considerations: Assume 1 tick slippage on entry/exit; bid-ask 2 ticks typical; 0.001% commission
+  robustness_checks: Test across multiple stocks, time periods, timeframes; measure Sharpe/Sortino net of costs
+  rejection_criteria: If continuation probability < 52% or Sharpe < 0.5 net of costs over 2-year backtest
+  failure_modes: [Gap breakout overnight above trend line, Trend line redraw on next bar, Whipsaw on close reversal]
+  freshness_concerns: Market microstructure changed 2011-2025; HFT frontrunning may invalidate timing
+  unresolved_questions:
+    - 'How sensitive to trend line slope?'
+    - 'Does stock beta affect probability?'
+    - 'Does overall market momentum filter help?'
+
+- id: TPAR-H002
+  title: Climactic bar (2x range, extreme close) predicts reversal within 2-3 bars
+  status: proposed
+  derived_from: [TPAR-C4-004, TPAR-C4-005]
+  statement: A bar with range > 1.8x recent 20-bar average range, open at extreme, close at opposite extreme signals exhaustion; next 1-3 bars likely reverse 70-80% of bar range
+  proposed_mechanism: Climactic bar represents weak trader capitulation; once weak longs/shorts exit, institutions take other side; vacuum accelerates reversal
+  applicable_markets_and_regimes: Extended trending markets; after 3+ days of strong directional bias; typically first 2 hours or final hour
+  assumptions: [Range is 2x+ normal, Close is within 10% of bar extreme opposite open, No major news during bar, Not first bar of day]
+  data_requirements: [1-5min OHLCV, 20-bar rolling avg range, Volume profile ideally]
+  baseline_or_null_hypothesis: After any large bar, next 2 bars reverse 50-60% of range (random)
+  validation_approach: Identify climactic bars; measure actual 2-3 bar move direction and magnitude; compute reversal win rate and avg magnitude
+  transaction_cost_and_fill_considerations: 2 tick slippage typical during climax volatility; use market orders
+  robustness_checks: Test across market regimes (uptrend, downtrend, range); filter by volume
+  rejection_criteria: If reversal probability < 65% or average reversal magnitude < 50% of climactic bar range
+  failure_modes: [Climactic bar is start of new trend leg, not reversal, Overnight gap invalidates entry, Second climactic bar in same direction]
+  freshness_concerns: Volatility regime changed post-COVID; compression/expansion patterns may differ
+  unresolved_questions:
+    - 'Is 1.8x threshold optimal or should vary by ATR regime?'
+    - 'Does volume profile help identify true climax?'
+    - 'Does this work in options chains?'
+
+- id: TPAR-H003
+  title: Failed breakout predicts reversal to opposite direction at 60-70% probability
+  status: proposed
+  derived_from: [TPAR-C9-009]
+  statement: A bar that closes outside recent swing high (by >2 ticks) but then reverses back below that high within 1-3 bars predicts continued selling 60-70% of the time
+  proposed_mechanism: Failed breakout shows weak buyer commitment; no institutional follow-through; offers short entry at failed high
+  applicable_markets_and_regimes: Swing high within last 5-20 bars; break must be significant (>2 ticks, not noise); intraday timeframes
+  assumptions: [Swing high is recent support, Breakout close > high by 2+ ticks, Reversal back below high within 3 bars, No earnings/news]
+  data_requirements: [Recent swing high/low data, Intraday 5-60min bars, 2+ years backtesting]
+  baseline_or_null_hypothesis: After any failed breakout, 50% go up, 50% go down
+  validation_approach: Identify failed breakouts (open > swing high, close < swing high, or reverse bar closes < swing high); track next N bars direction
+  transaction_cost_and_fill_considerations: 'Entry: sell stop 1 tick below failed high; 2 tick slippage; 0.1% commission'
+  robustness_checks: Filter by volume on failed bar; test by timeframe; measure win rate and avg loss when wrong
+  rejection_criteria: If reversal probability < 55% or avg profit < 2x avg loss
+  failure_modes: [False failure: breakout bar rejected but next day new high, Multiple failed attempts then true breakout, Stop hit on wick]
+  freshness_concerns: Algorithmic market makers may absorb failed breakouts faster than 2011 era
+  unresolved_questions:
+    - 'Is 3-bar window optimal?'
+    - 'Does order book depth matter?'
+    - 'How to distinguish weak breakout from capitulation?'
+
+- id: TPAR-H004
+  title: Double-top/bottom structure filters reversal entries for 60%+ win rate
+  status: proposed
+  derived_from: [TPAR-C8-008]
+  statement: After identifying double-top (two highs within 2% price level), subsequent pullback to 50-80% of the two-bar range predicts downtrend entry at 60-70% success
+  proposed_mechanism: Double-top shows institutional resistance twice; pullback proves commitment to sell; continuation captures new downtrend
+  applicable_markets_and_regimes: Established uptrends; double top within last 5-50 bars; pullback depth 30-80% retracement
+  assumptions: [Double tops formed at similar levels, Pullback does not exceed first high, Pullback is 2-5 bars, Trend was uptrend before double top]
+  data_requirements: [Swing high/low identification, Price retracement %, Multi-day backtesting]
+  baseline_or_null_hypothesis: Sell after pullback in any downtrend; 50% win rate
+  validation_approach: Identify double-tops; measure pullback depth and structure; track subsequent downtrend success rate and magnitude
+  transaction_cost_and_fill_considerations: Sell on signal bar break below pullback low; expect 1-2 tick slippage
+  robustness_checks: Vary double-top distance (5 bars vs 50 bars); test pullback retracement thresholds; measure Sharpe
+  rejection_criteria: If win rate < 55% or Sharpe < 0.4 net of costs
+  failure_modes: [Double top not at same level (looks similar but different resistance), Pullback exceeds original high = false double-top, Pullback extends into prior trend]
+  freshness_concerns: Support/resistance levels may be more discretionary now with passive flows
+  unresolved_questions:
+    - 'How close must highs be?'
+    - 'Does volume matter?'
+    - 'Does this work in crypto or only equities?'
+
+- id: TPAR-H005
+  title: Opening range breakout predicts day direction continuation at 55-60% probability
+  status: proposed
+  derived_from: [TPAR-C19-017]
+  statement: If first 30-60 min (opening range) establishes high and low, breakout of either boundary in first 120 min predicts 55-60% continuation through close
+  proposed_mechanism: Opening range aggregates overnight positioning; breakout indicates institutional direction consensus; morning momentum continues until profit-taking
+  applicable_markets_and_regimes: Day trading, first 4 hours of session; equities and index futures; normal volatility days
+  assumptions: [Opening range formed in first 60 min, Breakout is on higher volume than opening range, No major news before 120min, Tight opening range suggests larger move]
+  data_requirements: [First 60 min high/low, Volume data, Daily direction outcome, 1-3 year backtesting]
+  baseline_or_null_hypothesis: Breakout of range predicts either direction 50% each
+  validation_approach: Identify opening ranges; track breakout direction vs actual close direction; compute win rate
+  transaction_cost_and_fill_considerations: Buy breakout of range high (or sell low); assume 2-3 tick slippage in first hour
+  robustness_checks: Filter by opening range size (too tight, too wide); measure by stock beta; test tight vs wide opening correlation
+  rejection_criteria: If directional win rate < 53% or Sharpe < 0.3
+  failure_modes: [Fake breakout then reversal within first 2 hours, Opening range extends across lunch, Multiple breakout attempts]
+  freshness_concerns: Pre-market activity has grown; gap dynamics changed
+  unresolved_questions:
+    - 'Should opening range be 30 min or 60 min?'
+    - 'Does opening range size predict continuation magnitude?'
+    - 'How to filter fake openings?'
+
+- id: TPAR-H006
+  title: Pullback depth after trend break predicts reversal strength
+  status: proposed
+  derived_from: [TPAR-C2-015, TPAR-C2-003]
+  statement: After trend line break, pullback retracement of <50% of last 5-bar range predicts strong reversal (>3R profit target); retracement >75% predicts weak reversal (<1.5R)
+  proposed_mechanism: Shallow pullback = institutional support at higher level = strong reversal; deep pullback = institutional supply/support uncertain = weak reversal
+  applicable_markets_and_regimes: Intraday swing trades; 5-60min timeframes; established prior trends (3+ days)
+  assumptions: [Trend line break is significant, Pullback length 2-5 bars, Last 5-bar range is relevant volatility baseline]
+  data_requirements: [Trend line slope, Retracement % calculation, Prior bar range stats]
+  baseline_or_null_hypothesis: Pullback depth independent of reversal strength; 50% win rate
+  validation_approach: Bin pullbacks by retracement %; measure avg reversal magnitude and success rate for each bin
+  transaction_cost_and_fill_considerations: Entry on pullback break; 1-2 tick slippage; set stop based on pullback depth
+  robustness_checks: Test retracement thresholds (30%, 50%, 75%); measure by stock
+  rejection_criteria: If Sharpe (shallow pullback) <= Sharpe (deep pullback)
+  failure_modes: [Deep pullback that sustains reversal (false negative), Shallow pullback that fails (false positive), Pullback overshoot into prior trend]
+  freshness_concerns: Volatility compression/expansion cycles may change retracement norms
+  unresolved_questions:
+    - 'Does VIX level affect optimal retracement threshold?'
+    - 'Does stock beta change threshold?'
+    - 'Is 5-bar baseline optimal?'
+
+- id: TPAR-H007
+  title: Multi-timeframe alignment (intraday entry aligned with daily trend) increases edge by 5-10%
+  status: proposed
+  derived_from: [TPAR-C22-016]
+  statement: Intraday short entries on 5-min chart in daily downtrend have 5-10% higher win rate and 10-20% larger avg profit than intraday shorts in daily uptrend
+  proposed_mechanism: Daily trend represents institutional longer-term positioning; intraday pullbacks that align with daily trend get better fill and follow-through
+  applicable_markets_and_regimes: Equities, indexes; intraday timeframes (5-60min) aligned with daily/4hr trend
+  assumptions: [Daily trend is established (>3 bars), Intraday timeframe is 10x smaller than daily, No news overnight]
+  data_requirements: [Daily OHLCV, Intraday OHLCV, Trend identification (EMA/slope), Win/loss statistics]
+  baseline_or_null_hypothesis: Intraday entry success is independent of daily trend alignment; 50% win rate both directions
+  validation_approach: Filter intraday trades by daily trend; compute win% and avg profit for aligned vs anti-aligned; measure statistical significance
+  transaction_cost_and_fill_considerations: Same as intraday; assumes institutional liquidity in daily trend direction
+  robustness_checks: Test across multiple stocks, years, timeframe combinations
+  rejection_criteria: If difference in win rate < 3% or Sharpe difference < 0.2
+  failure_modes: [Daily trend reverses mid-day, Intraday move exhausts before daily alignment helps, Gap overnight changes context]
+  freshness_concerns: Algorithmic factors now more important than daily trend
+  unresolved_questions:
+    - 'What is optimal daily timeframe?'
+    - 'Does this work in 1-day rapid reversals?'
+    - 'How strong must daily trend be?'
+
+- id: TPAR-H008
+  title: Fixed dollar risk position sizing outperforms fixed share sizing
+  status: proposed
+  derived_from: [TPAR-C25-013]
+  statement: Position sizing inversely proportional to stop distance (shares = max_risk_$ / stop_distance_ticks) produces 10-15% better Sharpe than fixed share sizing
+  proposed_mechanism: Market volatility varies by regime; fixed risk sizing maintains consistent loss magnitude; fixed shares expose trader to volatility swings
+  applicable_markets_and_regimes: All timeframes and market regimes
+  assumptions: [Max risk per trade is constant and sustainable, Stop placement scales with volatility, Account size sufficient to accommodate]
+  data_requirements: [Account equity, Stop loss distance stats, Position sizing calculations]
+  baseline_or_null_hypothesis: Fixed share sizing; same win rate and profit distribution as fixed risk sizing
+  validation_approach: Backtest same trades with both sizing methods; compute Sharpe, max drawdown, median profit
+  transaction_cost_and_fill_considerations: Fixed risk assumes slippage absorbed by risk budget
+  robustness_checks: Vary max risk per trade (1%, 2%); test across market conditions
+  rejection_criteria: If Sharpe improvement < 5% or max drawdown not reduced
+  failure_modes: [Position size becomes too small in high-volatility regimes, Too-large position in low-volatility regimes, Account blowup if risk is set too high]
+  freshness_concerns: 'Low, position sizing is universal'
+  unresolved_questions:
+    - 'What is optimal % risk per trade?'
+    - 'How to handle correlation across positions?'
+    - 'Does this account for slippage properly?'
+
+- id: TPAR-H009
+  title: Always-in discipline (staying in trends, re-entering pullbacks) increases profit capture vs profit-taking exits
+  status: proposed
+  derived_from: [TPAR-C15-011]
+  statement: Traders who maintain "always-in" position discipline (stay long in bull trends, re-enter on pullbacks, exit only on stop or trend break) capture 20-40% larger average trade profit and higher Sharpe ratio than traders who exit on reaching 1R or 2R profit targets
+  proposed_mechanism: Always-in discipline removes emotion-driven early exits; allows rides on large moves when institutions accumulate; re-entry on pullbacks prevents missing continuation; trend line breaks provide objective exit discipline
+  applicable_markets_and_regimes: Strong extended trends (3+ days of directional bias); intraday/swing trading; higher-volume equities
+  assumptions: [Trend is correctly identified, Stop placement is disciplined, Trader psychology supports holding, No black-swan events interrupt trend]
+  data_requirements: [Trade-by-trade records with entry/exit timing, P&L per trade, Policy adherence log (always-in vs profit-taking), Daily trend context]
+  baseline_or_null_hypothesis: Profit-taking at fixed R:R ratio (e.g., 1:1) yields typical Sharpe ~0.3; always-in yields similar or worse
+  validation_approach: Backtest sample of strong trends with both disciplines; measure average profit per trade, max profit per trade, Sharpe, win rate for each discipline; test on paper trading first
+  transaction_cost_and_fill_considerations: Re-entries may accumulate slippage; assume cumulative slippage tracked per trade
+  robustness_checks: Test across different trend lengths, exit timing windows, re-entry frequency; measure psychological factors (drawdown tolerance)
+  rejection_criteria: If always-in discipline produces lower average profit, lower Sharpe (<0.3), or lower median profit than profit-taking, or if trader psychology failure rate > 30%
+  failure_modes: [Trend reverses sharply, trapping large position; Trader misses trend break and exits late; Re-entry costs accumulate; Account blowup from holding through gap]
+  freshness_concerns: 'Market structure changed (HFT, passive flows); trend persistence may be lower than 2011'
+  unresolved_questions:
+   - 'What trend strength threshold triggers always-in mode?'
+   - 'Optimal re-entry frequency on pullbacks?'
+   - 'How to distinguish trend reversal from pullback?'
+   - 'Does this work in choppy/range-bound markets?'

@@ -1,0 +1,69 @@
+schema_version: "1.0"
+prompt_version: "1.0"
+book_id: account-management-users-guide-2015
+sources:
+  - absolute_path: "C:\\Users\\W4TV5V8\\PROJECTS\\Codex\\Research\\Books_03_07_26\\Algorithmical Trading\\_KNOWLEDGE_EXTRACTION\\books\\account-management-users-guide-2015\\source.pdf"
+    relative_path: "source.pdf"
+    sha256: "unknown"
+
+title: "Account Management Users' Guide"
+authors: ["Interactive Brokers"]
+edition: "1.0"
+publication_year: 2015
+publisher_or_identifier: "Interactive Brokers LLC"
+format: "pdf"
+language: "en"
+page_count: 602
+chapter_count: 1
+extraction_quality: "medium"
+ocr_quality: "high"
+processing_status: "audited"
+extraction_timestamp: "2026-07-24T19:18:30Z"
+extraction_completed_by: "copilot-worker"
+
+duplicate_relationships: []
+
+limitations_and_warnings:
+  - "2015 publication date; API, broker rules, fee structures, regulatory environment likely changed significantly"
+  - "No explicit treatment of post-2008 regulatory framework (Dodd-Frank, MiFID II, etc.) documented in this extraction"
+  - "Interactive Brokers-specific; may not reflect other brokers' risk controls or account structures"
+  - "Does not cover stress-test or tail-risk mechanics in detail"
+  - "DDE (Excel integration) and ActiveX content is legacy technology; modern APIs may differ"
+
+scores:
+  source_credibility:
+    score: 5
+    justification: "Official Interactive Brokers reference manual; highest credibility source."
+  citation_quality:
+    score: 4
+    justification: "Reference manual with clear definitions; limited external citations or research backing."
+  reproducibility:
+    score: 4
+    justification: "API and account mechanics are deterministic and reproducible in backtests/live systems."
+  likely_freshness:
+    score: 1
+    justification: "2015 publication; 11+ years old; broker policies, regulations, APIs substantially changed."
+  system_engineering_relevance:
+    score: 5
+    justification: "Core operational reference for live trading system architecture, account handling, risk limits."
+  grid_relevance:
+    score: 4
+    justification: "Order mechanics, margin, day-trade limits, account constraints directly apply to grid-trading systems."
+  stock_strategy_relevance:
+    score: 4
+    justification: "Account structure and risk controls apply; less specific to stock-specific order types or signals."
+  backtesting_relevance:
+    score: 4
+    justification: "Margin model, commissions, buying power, and order ID mechanics essential for realistic simulation."
+  live_execution_relevance:
+    score: 5
+    justification: "Critical: order routing, API settings, precautionary checks, account status updates directly drive live execution."
+  risk_relevance:
+    score: 5
+    justification: "Defines margin requirements, available funds, day-trade rules, cushion calculations—core risk model."
+  data_quality_relevance:
+    score: 2
+    justification: "Reference manual; limited guidance on data validation, time-series quality, or market microstructure."
+  machine_learning_relevance:
+    score: 1
+    justification: "No ML content; operational reference only."

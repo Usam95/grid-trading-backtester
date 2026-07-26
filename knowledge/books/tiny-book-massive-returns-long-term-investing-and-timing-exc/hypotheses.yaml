@@ -1,0 +1,110 @@
+- id: TBMR-HYP-001
+  title: RSI threshold entry improves timing
+  status: proposed
+  derived_from:
+  - TBMR-C05-004
+  statement: Entering positions when RSI(14) < 30 on daily timeframe improves cumulative
+    returns vs random entry over 10+ year horizons
+  proposed_mechanism: RSI < 30 indicates short-term oversold conditions; mean reversion
+    tendency provides edge on entry
+  applicable_markets_and_regimes: Trending markets; less effective in range-bound
+    or mean-reverting regimes
+  assumptions:
+  - RSI calculated with standard 14-period window
+  - Sufficient liquidity to execute on signal
+  data_requirements:
+  - Daily OHLC data
+  - Entry/exit timestamps
+  - Fill prices
+  baseline_or_null_hypothesis: Buy-and-hold or random entry timing yields same cumulative
+    returns
+  validation_approach: Backtest on 20+ years of daily data; walk-forward analysis;
+    cross-asset validation
+  transaction_cost_and_fill_considerations: Slippage, commissions, spread impact reduces
+    edge; assume realistic fills
+  robustness_checks: Test across multiple RSI periods (9, 21, 28); test on different
+    asset classes; regime-dependent returns
+  rejection_criteria: Strategy returns < buy-and-hold after costs over any 5-year
+    period; Sharpe ratio < benchmark
+  failure_modes:
+  - Over-fitting to historical parameters
+  - Regime shift reduces edge
+  - Liquidity crunch prevents execution
+  freshness_concerns: RSI is a widely-known indicator; any edge may be arbitraged
+    away by systematic traders
+  unresolved_questions:
+  - Optimal RSI threshold for different assets?
+  - How does regime (bull/bear/sideways) affect edge?
+- id: TBMR-HYP-002
+  title: Diamond Strategy performance persistence
+  status: proposed
+  derived_from:
+  - TBMR-C06-005
+  statement: The Diamond Strategy (RSI + price action) shows consistent positive returns
+    across diverse assets in forward-testing
+  proposed_mechanism: 'Common underlying mechanism across assets: RSI mean reversion
+    applies universally regardless of asset class'
+  applicable_markets_and_regimes: All tested asset classes; likely weaker in low-volatility
+    or circuit-breaker-heavy markets
+  assumptions:
+  - No regime shifts
+  - Consistent RSI calculation across asset classes
+  - Sufficient liquidity
+  data_requirements:
+  - Historical OHLC for 20+ years per asset
+  - Transaction cost data
+  - Regime labels
+  baseline_or_null_hypothesis: Strategy performance is asset-specific; no universal
+    applicability
+  validation_approach: Walk-forward backtest on held-out data; cross-asset correlation
+    analysis; paper trade for 1+ year
+  transaction_cost_and_fill_considerations: Commissions, spreads, and slippage vary
+    by asset; model realistically per venue
+  robustness_checks: Test subsets of assets; test different time periods; remove outliers;
+    re-optimize thresholds
+  rejection_criteria: Sharpe ratio < 0.5 on any major asset class; maximum drawdown
+    > 50%
+  failure_modes:
+  - Overfitting to historic periods
+  - Parameter instability
+  - Liquidity impact reduces returns
+  freshness_concerns: Case studies are backtested; forward performance unknown; market
+    microstructure has changed
+  unresolved_questions:
+  - Which assets benefit most?
+  - How do regimes affect returns?
+  - What is the Sharpe ratio post-costs?
+- id: TBMR-HYP-003
+  title: Backtesting results do not persist forward
+  status: proposed
+  derived_from:
+  - TBMR-C10-010
+  statement: Diamond Strategy backtest results significantly overestimate forward
+    returns due to overfitting and regime shifts
+  proposed_mechanism: Strategy parameters optimized on historical data that no longer
+    reflect current market conditions
+  applicable_markets_and_regimes: All assets and regimes
+  assumptions:
+  - No market structure changes
+  - Historical cost assumptions remain valid
+  data_requirements:
+  - Out-of-sample test data
+  - Forward-testing results
+  - Parameter sensitivity analysis
+  baseline_or_null_hypothesis: Backtest results accurately predict forward performance
+  validation_approach: Compare backtest returns (in-sample) vs live trading results
+    (out-of-sample); measure overfitting
+  transaction_cost_and_fill_considerations: Backtests often underestimate real costs;
+    use realistic slippage
+  robustness_checks: Sensitivity analysis on key parameters; stress tests; regime-based
+    return decomposition
+  rejection_criteria: Forward Sharpe ratio > 90% of backtest Sharpe ratio indicates
+    acceptable accuracy
+  failure_modes:
+  - Parameter overfitting
+  - Regime shift renders strategy unprofitable
+  - Regulatory changes reduce liquidity
+  freshness_concerns: Old data (case studies span decades); strategy may be stale
+  unresolved_questions:
+  - What is the actual forward out-of-sample Sharpe?
+  - How sensitive is performance to RSI period?

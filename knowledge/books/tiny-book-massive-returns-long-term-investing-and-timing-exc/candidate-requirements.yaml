@@ -1,0 +1,112 @@
+- id: TBMR-REQ-001
+  title: Backtest engine must support RSI indicator
+  status: proposed
+  derived_from:
+  - TBMR-C05-004
+  - TBMR-C06-005
+  derivation_type: agent_inference
+  rationale: The Diamond Strategy core mechanism relies on RSI(14); backtest framework
+    must compute RSI accurately
+  applies_to:
+    strategy:
+    - stock_signal
+    - shared
+    lifecycle:
+    - backtest
+    - research
+    asset_class:
+    - equities
+    - other
+    concern:
+    - data
+    - simulation
+  requirement: Backtest engine shall compute RSI(14) with standard Wilder smoothing;
+    output must match TradingView within 0.1% tolerance
+  acceptance_tests:
+  - RSI computed correctly on sample OHLC
+  - Signal generation accurate vs reference
+  failure_prevented: Incorrect signals due to implementation error
+  capability_enabled: Can test Diamond Strategy systematically
+  assumptions:
+  - 14-period is standard; may need tuning per asset
+  open_questions:
+  - Optimal RSI period for each asset class?
+  dependencies:
+  - Data ingestion module
+  - OHLC bar formation
+  verification_needed: Unit tests vs TA-Lib; integration tests
+  priority_hint: correctness
+- id: TBMR-REQ-002
+  title: Backtest must model realistic transaction costs
+  status: proposed
+  derived_from:
+  - TBMR-C10-010
+  - TBMR-C11-011
+  derivation_type: agent_inference
+  rationale: Book case studies likely underestimate trading costs; backtests must
+    include commissions, spreads, slippage to match reality
+  applies_to:
+    strategy:
+    - shared
+    lifecycle:
+    - backtest
+    asset_class:
+    - shared
+    concern:
+    - simulation
+    - execution
+    - risk
+  requirement: Backtest shall accept configurable per-trade costs; final returns must
+    be net of all costs
+  acceptance_tests:
+  - Cost model applied correctly
+  - Returns net of costs match manual calculation
+  failure_prevented: Overestimating strategy returns by ignoring real costs
+  capability_enabled: Realistic performance estimation
+  assumptions:
+  - Cost data available for test assets
+  open_questions:
+  - How do spreads vary with volatility?
+  - What is realistic slippage by venue?
+  dependencies:
+  - Historical cost data
+  - Backtest execution model
+  verification_needed: Regression tests on sample trades with known cost impact
+  priority_hint: correctness
+- id: TBMR-REQ-003
+  title: Research must validate strategy on hold-out data
+  status: proposed
+  derived_from:
+  - TBMR-C10-010
+  derivation_type: agent_inference
+  rationale: To avoid overfitting, strategy backtest must use walk-forward analysis
+    on data not used for parameter optimization
+  applies_to:
+    strategy:
+    - shared
+    lifecycle:
+    - research
+    - backtest
+    asset_class:
+    - shared
+    concern:
+    - reproducibility
+    - alpha
+  requirement: Research process shall partition data into training (60%), validation
+    (20%), test (20%); parameters tuned on training only; results from test set only
+  acceptance_tests:
+  - Data partition logged
+  - Parameters do not leak from test set
+  - Results reproducible
+  failure_prevented: Overfitting; false claims of strategy efficacy
+  capability_enabled: Honest assessment of true strategy edge
+  assumptions:
+  - Historical data sufficient for 20%+ hold-out
+  open_questions:
+  - Optimal partition ratios?
+  - Time-series vs random split?
+  dependencies:
+  - Historical data
+  - Parameter optimization framework
+  verification_needed: Code review + audit trail of data splits
+  priority_hint: alpha

@@ -1,0 +1,149 @@
+- id: FTFB-REQ-001
+  title: Pre-trade risk engine shall enforce fractional-risk and leverage caps
+  status: proposed
+  derived_from:
+  - FTFB-C1-002
+  - FTFB-C8-020
+  - FTFB-C11-024
+  derivation_type: direct_book_recommendation
+  rationale: The book repeatedly warns that oversized positions and leverage misuse are common account-damaging mistakes.
+  applies_to:
+    asset_class:
+    - shared
+    concern:
+    - risk
+    - risk
+    lifecycle:
+    - paper
+    - live
+    strategy:
+    - shared
+  requirement: The order-management system shall estimate worst-case loss from entry, stop, size, and venue costs before submission and shall reject any order that breaches the configured per-trade equity cap or leverage cap.
+  acceptance_tests:
+  - An order above the configured 2% loss cap is rejected.
+  - A stop-widening amendment without resizing is rejected or auto-resized.
+  - Portfolio-level risk caps block new correlated exposure when breached.
+  failure_prevented: Runaway drawdown from oversized or averaged-down positions.
+  assumptions:
+  - Stop and fee estimates are available pre-trade
+  open_questions:
+  - How should gap buffers be estimated?
+  dependencies:
+  - Equity tracker
+  - Fee model
+  - Order router
+  verification_needed: Scenario tests and historical stress replay.
+  priority_hint: safety
+- id: FTFB-REQ-002
+  title: Trade definitions shall be complete and executable
+  status: proposed
+  derived_from:
+  - FTFB-C1-003
+  - FTFB-C7-016
+  - FTFB-C11-023
+  derivation_type: agent_inference
+  rationale: The book treats planlessness and incomplete instructions as beginner failure modes.
+  applies_to:
+    asset_class:
+    - shared
+    concern:
+    - execution
+    - reproducibility
+    lifecycle:
+    - paper
+    - backtest
+    - live
+    strategy:
+    - shared
+  requirement: Every manual trade ticket, imported signal, or automated strategy instance shall include instrument, direction, entry condition, stop-loss, exit or target condition, timeframe, and maximum risk budget; incomplete definitions shall be rejected or quarantined.
+  acceptance_tests:
+  - Signal without stop or target is quarantined.
+  - Manual trade lacking timeframe or risk budget cannot be submitted.
+  - Backtest without explicit exit logic fails validation.
+  capability_enabled: Comparable evaluation of human and automated trades from one schema.
+  assumptions:
+  - Structured metadata can be captured
+  open_questions:
+  - Should provider identity also be mandatory?
+  dependencies:
+  - Signal-ingestion pipeline
+  - Trade journal
+  - Backtest schema validation
+  verification_needed: Schema validation and rejection-path integration tests.
+  priority_hint: correctness
+- id: FTFB-REQ-003
+  title: Automation shall expose provenance and runtime health
+  status: proposed
+  derived_from:
+  - FTFB-C7-017
+  - FTFB-C12-027
+  - FTFB-C12-028
+  derivation_type: agent_inference
+  rationale: The book promotes automation while also warning about crashes, opacity, and fraud.
+  applies_to:
+    asset_class:
+    - shared
+    concern:
+    - operations
+    - monitoring
+    - risk
+    lifecycle:
+    - paper
+    - live
+    strategy:
+    - other
+    - stock_signal
+    - portfolio
+  requirement: Any automated strategy or imported signal feed shall record provider identity, strategy version or code hash, generation timestamp, and runtime health status; automated trading shall halt on stale signals, crashed processes, missing provenance, or missing data.
+  acceptance_tests:
+  - Signal with no provider or timestamp does not auto-execute.
+  - Loss of automation heartbeat disables new orders and raises an alert.
+  - An auditor can reconstruct the producing signal or strategy version for every live order.
+  failure_prevented: Blind deployment of opaque or broken automation.
+  assumptions:
+  - Heartbeat and audit storage are available
+  open_questions:
+  - How long should replay artifacts be retained?
+  dependencies:
+  - Strategy registry
+  - Audit store
+  - Monitoring and alerting
+  verification_needed: Failure-injection tests and audit-trail reconstruction tests.
+  priority_hint: operability
+- id: FTFB-REQ-004
+  title: Broker integration shall measure execution quality and capital accessibility
+  status: proposed
+  derived_from:
+  - FTFB-C2-005
+  - FTFB-C3-006
+  - FTFB-C11-026
+  derivation_type: agent_inference
+  rationale: The book repeatedly treats broker reliability and trading conditions as decisive operational variables.
+  applies_to:
+    asset_class:
+    - other
+    concern:
+    - execution
+    - monitoring
+    - risk
+    lifecycle:
+    - paper
+    - live
+    strategy:
+    - shared
+  requirement: The broker adapter shall persist per-order spread, estimated and realized slippage, commission, swap or rollover charges, minimum tradable size, rejection reason, and account-access health; monitoring shall alert on abnormal degradation or failed capital-access checks.
+  acceptance_tests:
+  - Each fill stores quoted spread, requested price, fill price, and slippage.
+  - If minimum lot size breaches the risk cap, the trade is rejected with explicit reason.
+  - Periodic health checks detect failed withdrawals or unavailable account services and alert operators.
+  failure_prevented: Hidden cost drag, unsuitable lot sizing, and late discovery of broker-side failures.
+  assumptions:
+  - Broker API exposes fills and fees
+  open_questions:
+  - Should demo and live quality be compared automatically?
+  dependencies:
+  - Broker API
+  - Fee parser
+  - Monitoring stack
+  verification_needed: Broker-specific sandbox or live reconciliation and outage simulation.
+  priority_hint: operability

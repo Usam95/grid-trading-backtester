@@ -1,0 +1,69 @@
+schema_version: "1.0"
+prompt_version: "1.0"
+book_id: "next-gen-algorithmic-trading-strategies-tools-and-techniques"
+sources:
+  - absolute_path: "C:\\Users\\W4TV5V8\\.copilot\\session-state\\a55e8123-c79b-4d55-ace8-c7dd582db539\\files\\tooling"
+    relative_path: "books/next-gen-algorithmic-trading-strategies-tools-and-techniques"
+    sha256: "not-computed-epub-source"
+title: "Next-Gen Algorithmic Trading: Strategies, Tools, and Techniques for Professionals with Python"
+authors:
+  - "Vincent Bisette (primary metadata author listed); Content credited to Hayden Van Der Post; Reactive Publishing"
+edition: "First"
+publication_year: 2024
+publisher_or_identifier: "Reactive Publishing (z-library compilation)"
+format: "EPUB"
+language: "English"
+page_count: 257
+chapter_count: 14
+extraction_quality: 4
+ocr_quality: 5
+processing_status: "audited"
+timestamps:
+  extracted_at: "2026-07-24T18:24:03+02:00"
+  processing_completed_at: "2026-07-24T18:45:00+02:00"
+duplicate_relationships: []
+limitations_and_warnings:
+  - "Z-library source: assess credibility and citation quality critically"
+  - "Author attribution inconsistency: metadata lists Bisette, title page lists Van Der Post; verify primary author"
+  - "Some chapter content sparse in extraction; may reflect light chapters or extraction issues"
+  - "Broker APIs, fees, regulations, market structure notes marked for freshness validation"
+  - "No long-term empirical validation provided for strategies described"
+  - "Historical trading examples may reflect pre-2024 market conditions"
+
+scores:
+  source_credibility:
+    score: 2
+    justification: "Z-library source (unofficial/questionable legality); author metadata inconsistent; publisher 'Reactive Publishing' not independently verified"
+  citation_quality:
+    score: 2
+    justification: "Limited citations observed; mostly conceptual/narrative exposition; external references sparse"
+  reproducibility:
+    score: 3
+    justification: "Python code concepts provided but often high-level; backtest/execution examples limited; data sources not specified"
+  likely_freshness:
+    score: 2
+    justification: "Market structure, broker APIs, regulations must be re-verified against current sources; HFT/execution details may be outdated"
+  system_engineering_relevance:
+    score: 3
+    justification: "Covers execution, order management, platform architecture; risk and monitoring addressed at overview level"
+  grid_relevance:
+    score: 2
+    justification: "Limited grid-specific strategy content; concepts applicable but not deeply explored"
+  stock_strategy_relevance:
+    score: 3
+    justification: "Signal analysis, portfolio construction, regime detection touched; applicable to stock backtest/live systems"
+  backtesting_relevance:
+    score: 3
+    justification: "Backtesting principles mentioned; validation approaches outlined; concrete examples limited"
+  live_execution_relevance:
+    score: 3
+    justification: "Order management, execution methods, latency considerations covered; implementation depth varies"
+  risk_relevance:
+    score: 3
+    justification: "Risk management, portfolio diversification, drawdown control discussed; frameworks present but not formalized"
+  data_quality_relevance:
+    score: 2
+    justification: "Data challenges noted; specific data quality validation techniques not detailed; freshness concerns high"
+  machine_learning_relevance:
+    score: 2
+    justification: "ML mentioned; integration examples sparse; supervised/unsupervised distinctions not rigorous"

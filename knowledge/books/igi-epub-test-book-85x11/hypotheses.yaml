@@ -1,0 +1,185 @@
+- id: MLMODEL-H1
+  title: 'HFT infrastructure investment improves profitability through reduced latency and better execution'
+  status: proposed
+  derived_from:
+    - MLMODEL-C4-001
+  statement: 'Investing in colocation, direct market access, and low-latency execution infrastructure enables profitable arbitrage and reactive strategies'
+  proposed_mechanism: 'Latency advantage enables faster reaction to price signals; reduces adverse selection; attracts order flow'
+  applicable_markets_and_regimes: 'Equities futures, crypto spot/futures in high-volume markets with tight spreads'
+  assumptions:
+    - Technology cost is recovered through improved fill quality and reduced slippage
+    - Market structure remains conducive to speed-based arbitrage
+    - Regulatory environment permits latency-driven strategies
+  data_requirements:
+    - Execution latency benchmarks
+    - Fill quality metrics (slippage, latency-adjusted returns)
+    - Market microstructure data
+  baseline_or_null_hypothesis: 'Faster infrastructure provides no measurable edge; latency effects offset by higher costs'
+  validation_approach: 'Compare backtest performance with latency assumptions vs. without; validate with paper trading period; measure actual latency and fill improvements'
+  transaction_cost_and_fill_considerations: 'Must account for colocation fees, hardware depreciation, and diminishing returns as latency decreases'
+  robustness_checks:
+    - Sensitivity to latency thresholds
+    - Performance across market regimes (normal, stressed, regime-shift)
+    - Latency arms race scenario (cost escalation without alpha gains)
+  rejection_criteria:
+    - Live trading results show no improvement vs. baseline
+    - Latency-adjusted backtest performance is not significantly better
+    - Regulatory changes eliminate latency-based advantages
+  failure_modes:
+    - Technology becomes commoditized, eliminating alpha
+    - Black swan events bypass risk controls
+    - Regulatory restrictions target HFT
+  freshness_concerns: 'Market microstructure and technology landscape evolve; competitive advantage likely decreases over time'
+  unresolved_questions:
+    - How does alpha decay as more participants adopt similar infrastructure?
+    - What is the optimal latency threshold for profitability?
+    - How do regulatory restrictions impact HFT viability long-term?
+
+- id: MLMODEL-H2
+  title: 'Machine learning models can identify profitable price patterns in high-frequency futures markets'
+  status: proposed
+  derived_from:
+    - MLMODEL-C14-001
+  statement: 'LSTM and XGBoost classifiers trained on high-frequency futures data can predict directional moves with >55% accuracy, generating alpha after transaction costs'
+  proposed_mechanism: 'ML models learn non-linear patterns in price/volume/microstructure data; patterns reflect market microstructure and sentiment shifts'
+  applicable_markets_and_regimes: 'Futures markets with high liquidity and rapid price discovery (ES, NQ, crypto perpetuals)'
+  assumptions:
+    - Training data captures representative market regimes
+    - Model does not overfit to historical period
+    - Patterns generalize to out-of-sample data
+  data_requirements:
+    - High-frequency OHLCV data
+    - Order book snapshots or microstructure proxies
+    - Features: momentum, volatility, bid-ask spread, order flow imbalance
+  baseline_or_null_hypothesis: 'ML model accuracy equals random guessing (50%); no alpha after costs'
+  validation_approach: 'Walk-forward testing with monthly retraining; measure out-of-sample accuracy and Sharpe ratio; compare with random and buy-and-hold baselines'
+  transaction_cost_and_fill_considerations: 'Must include futures commissions, bid-ask spread costs, and slippage from order execution'
+  robustness_checks:
+    - Sensitivity to feature importance and engineering choices
+    - Performance across bull/bear/ranging markets
+    - Stress test with crisis data (March 2020, etc.)
+    - Parameter sensitivity
+  rejection_criteria:
+    - Out-of-sample accuracy <52%
+    - Sharpe ratio <1.0 after costs
+    - Model performance degrades significantly in new market regimes
+  failure_modes:
+    - Regime shifts invalidate learned patterns
+    - Crowding of similar strategies reduces alpha
+    - Data quality issues or look-ahead bias inflate backtest results
+  freshness_concerns: 'Model performance likely decays as market participants adopt similar strategies and market microstructure evolves'
+  unresolved_questions:
+    - How quickly does model performance decay out-of-sample?
+    - Are patterns driven by microstructure or fundamental factors?
+    - Can model adapt to regime shifts via online learning?
+
+- id: MLMODEL-H3
+  title: 'Sentiment analysis from financial news improves short-term stock price predictions'
+  status: proposed
+  derived_from:
+    - MLMODEL-C16-001
+  statement: 'NLP sentiment scores from news articles and social media correlate with 1-5 day ahead stock returns; combining sentiment with price momentum improves signal quality'
+  proposed_mechanism: 'Market participants react to news; sentiment captures early reaction; price adjusts gradually as information diffuses'
+  applicable_markets_and_regimes: 'Large-cap equities with significant media coverage and retail interest; works best during volatile regimes'
+  assumptions:
+    - Sentiment data is timely and representative
+    - Market has not fully incorporated news sentiment
+    - Sentiment effect is not crowded out by other traders
+  data_requirements:
+    - Financial news feed with timestamps
+    - Social media sentiment (Twitter, Reddit, StockTwits)
+    - Cross-reference with stock pricing
+  baseline_or_null_hypothesis: 'Sentiment has no predictive power for returns; buy-and-hold outperforms sentiment-based trading'
+  validation_approach: 'Backtest sentiment-based signals with realistic latency; measure information decay (1hr, 1day, 1week); compare with random sentiment labels'
+  transaction_cost_and_fill_considerations: 'Sentiment signals typically require frequent rebalancing; must account for trading costs, slippage, and realistic execution timing'
+  robustness_checks:
+    - Performance across different stock sectors
+    - Sensitivity to sentiment provider and model
+    - Impact of news sentiment vs. social media sentiment
+    - Effectiveness during normal vs. crisis regimes
+  rejection_criteria:
+    - Out-of-sample Sharpe ratio <0.5
+    - Sentiment alpha disappears after transaction costs
+    - Signal effectiveness decreases significantly over time
+  failure_modes:
+    - Sentiment crowding reduces alpha
+    - Sarcasm and context misclassification by NLP model
+    - Fake news or market manipulation via coordinated sentiment
+    - Regime shifts disconnect sentiment from returns
+  freshness_concerns: 'Sentiment alpha highly likely to decay as more traders adopt similar signals; sentiment crowding is an established market phenomenon'
+  unresolved_questions:
+    - How much of sentiment alpha is due to crowding vs. genuine predictive power?
+    - Do different market sectors respond differently to sentiment?
+    - Can machine learning detect and adapt to sentiment crowding?
+
+- id: MLMODEL-H4
+  title: 'Volatility transmission models predict multi-market spillover effects and improve risk management'
+  status: proposed
+  derived_from:
+    - MLMODEL-C15-001
+  statement: 'Dynamic conditional correlation (DCC) and GARCH models capture volatility spillovers between markets; improving risk forecasts and enabling hedging strategies'
+  proposed_mechanism: 'Volatility shocks propagate between markets with measurable delays; models predict spillover magnitude and timing'
+  applicable_markets_and_regimes: 'Portfolio hedging across equities/futures/crypto; effective during crisis regimes with high spillovers'
+  assumptions:
+    - Volatility spillover patterns are stable
+    - Market linkages persist over time
+    - Models capture the key transmission channels
+  data_requirements:
+    - Daily/intraday volatility estimates for multiple markets
+    - Returns series for correlation estimation
+    - Macro indicators for regime identification
+  baseline_or_null_hypothesis: 'Spillover models provide no improvement over constant correlation; simple risk models suffice'
+  validation_approach: 'Compare volatility forecasting accuracy (RMSE, MAE) vs. baseline models; validate on crisis periods (March 2020, SVB collapse)'
+  transaction_cost_and_fill_considerations: 'Hedging costs via futures or options; spillover-based rebalancing must not exceed hedge efficiency gains'
+  robustness_checks:
+    - Sensitivity to lag structure in spillover models
+    - Performance during regime shifts
+    - Cross-validation on different time periods
+  rejection_criteria:
+    - Out-of-sample volatility forecast RMSE not significantly better than baseline
+    - Hedging strategy does not reduce portfolio loss during crises
+  failure_modes:
+    - Non-linear spillovers not captured by linear models
+    - Structural breaks in market linkages
+    - Black swan events with unprecedented correlations
+  freshness_concerns: 'Market structure changes (new exchanges, trading venues, regulations) may alter spillover patterns'
+  unresolved_questions:
+    - How persistent are spillover patterns across years?
+    - Can machine learning detect and predict structural breaks?
+    - Do spillovers differ for crypto vs. traditional markets?
+
+- id: MLMODEL-H5
+  title: 'Fairness-aware ML models for credit decisions improve risk profiles and reduce regulatory exposure'
+  status: proposed
+  derived_from:
+    - MLMODEL-C1-001
+  statement: 'Constraining credit ML models for fairness (via reweighting, constraint-based optimization, or preprocessing) reduces default disparities without significantly harming predictive accuracy'
+  proposed_mechanism: 'Fair ML prevents models from learning demographic-correlated proxies for credit risk; reduces disparate impact and default rate gaps'
+  applicable_markets_and_regimes: 'Financial institutions subject to fair lending regulations; applicable to portfolio credit risk assessment'
+  assumptions:
+    - Fairness metrics are well-defined and legally defensible
+    - Fair models do not introduce hidden biases
+    - Regulatory enforcement is consistent
+  data_requirements:
+    - Labeled credit default data with demographic variables
+    - Feature engineering for model-agnostic fairness metrics
+    - Historical outcomes to measure disparities
+  baseline_or_null_hypothesis: 'Fairness constraints reduce accuracy without improving real-world outcomes; trade-off is not worth regulatory cost'
+  validation_approach: 'Compare accuracy and fairness metrics (demographic parity, equalized odds) of fair vs. unconstrained models; measure default rates by demographic group'
+  transaction_cost_and_fill_considerations: 'Regulatory compliance cost, monitoring overhead, potential decrease in profit from rejected applicants'
+  robustness_checks:
+    - Sensitivity to fairness constraint strength
+    - Performance across different demographic groups
+    - Generalization to new data
+  rejection_criteria:
+    - Accuracy loss exceeds regulatory tolerance
+    - Fairness constraints can be circumvented via proxy variables
+  failure_modes:
+    - Proxy discrimination circumvents fairness measures
+    - Unfair models cause regulatory action and reputational harm
+    - Fairness-accuracy trade-off is too steep
+  freshness_concerns: 'Regulatory definitions of fairness and disparate impact evolve; compliance requirements increase over time'
+  unresolved_questions:
+    - How do different fairness definitions (demographic parity, equalized odds, individual fairness) affect model performance?
+    - Can fairness be maintained while using high-dimensional features?
+    - How can hidden biases in synthetic features be detected?

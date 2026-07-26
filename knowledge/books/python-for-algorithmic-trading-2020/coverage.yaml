@@ -1,0 +1,67 @@
+book_id: python-for-algorithmic-trading-2020
+sections:
+  - ref: ch0_preface
+    title: "Preface & Introduction"
+    pdf_page_start: 4
+    status: processed
+    reason: "Contents and structure, conventions, prerequisites reviewed; lower priority but establishes scope and audience."
+  - ref: ch1
+    title: "Chapter 1: Python and Algorithmic Trading"
+    pdf_page_start: 21
+    status: processed
+    reason: "Foundation chapter; covers Python advantages for finance (vectorization, pandas, NumPy), trading fundamentals, strategy types (SMA, momentum, mean reversion, ML), and prerequisites."
+  - ref: ch2
+    title: "Chapter 2: Python Infrastructure"
+    pdf_page_start: 37
+    status: processed
+    reason: "Deployment infrastructure (conda, Docker, cloud instances, SSH); reproducibility-critical; deployment operations foundation."
+  - ref: ch3
+    title: "Chapter 3: Working with Financial Data"
+    pdf_page_start: 65
+    status: processed
+    reason: "Data sourcing (CSV, Excel, JSON, Eikon API), storage (pandas, TsTables, SQLite); high relevance to data pipeline reproducibility and integrity."
+  - ref: ch4
+    title: "Chapter 4: Mastering Vectorized Backtesting"
+    pdf_page_start: 101
+    status: processed
+    reason: "Core chapter on vectorized backtesting; SMA, momentum, mean-reversion strategies; data snooping and overfitting warnings; ~40 pages of backtesting methodology."
+  - ref: ch5
+    title: "Chapter 5: Predicting Market Movements with Machine Learning"
+    pdf_page_start: 143
+    status: processed
+    reason: "Linear regression, logistic regression, deep neural networks for direction prediction; strategy backtesting; feature engineering; ML validation approach."
+  - ref: ch6
+    title: "Chapter 6: Building Classes for Event-Based Backtesting"
+    pdf_page_start: 195
+    status: processed
+    reason: "Event-driven backtesting framework; base, long-only, long-short backtester classes; tick-level simulation; contrast to vectorized approach."
+  - ref: ch7
+    title: "Chapter 7: Working with Real-Time Data and Sockets"
+    pdf_page_start: 221
+    status: processed
+    reason: "Real-time tick data server/client, signal generation, streaming visualization; foundation for live execution infrastructure."
+  - ref: ch8
+    title: "Chapter 8: CFD Trading with Oanda"
+    pdf_page_start: 243
+    status: processed
+    reason: "Oanda API integration: account setup, historical data retrieval, streaming, order placement, leverage/margin handling; live execution case study."
+  - ref: ch9
+    title: "Chapter 9: FX Trading with FXCM"
+    pdf_page_start: 269
+    status: processed
+    reason: "FXCM API integration: account setup, data retrieval (tick and candles), streaming, order placement, account info; alternative broker integration."
+  - ref: ch10
+    title: "Chapter 10: Automating Trading Operations"
+    pdf_page_start: 285
+    status: processed
+    reason: "Capital management (Kelly Criterion), ML-based strategy backtesting, optimal leverage, risk analysis, model persistence, deployment orchestration, monitoring."
+  - ref: appa
+    title: "Appendix A: Python, NumPy, matplotlib, pandas"
+    pdf_page_start: 329
+    status: low_priority
+    reason: "Reference material; foundational Python and library syntax; not extraction-critical but supports reproducibility verification."
+  - ref: index
+    title: "Index"
+    pdf_page_start: 371
+    status: irrelevant_to_mission
+    reason: "Index only; no extractable knowledge."

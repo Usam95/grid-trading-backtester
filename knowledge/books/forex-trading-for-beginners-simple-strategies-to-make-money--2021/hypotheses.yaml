@@ -1,0 +1,190 @@
+- id: FTFB-HYP-001
+  title: Trend and timeframe alignment improves entries
+  status: proposed
+  derived_from:
+  - FTFB-C1-001
+  - FTFB-C8-018
+  statement: Entries that align a lower-timeframe signal with a higher-timeframe trend beat equivalent unsynchronized entries after costs.
+  proposed_mechanism: Multi-timeframe agreement filters noise.
+  applicable_markets_and_regimes: Major FX pairs in identifiable trends.
+  assumptions:
+  - Trend state is measurable
+  - Confirmation delay does not erase edge
+  data_requirements:
+  - Multi-timeframe OHLC data
+  - Cost model
+  - Trend labels or rules
+  baseline_or_null_hypothesis: Timeframe alignment offers no advantage.
+  validation_approach: Backtest synchronized and unsynchronized versions of the same entry logic.
+  transaction_cost_and_fill_considerations: Confirmation may worsen fill price.
+  robustness_checks:
+  - Walk-forward test
+  - Subsample by pair and year
+  rejection_criteria: No net expectancy improvement after costs.
+  failure_modes:
+  - Late entries
+  - False trend classification
+  freshness_concerns: Low conceptual freshness risk.
+  unresolved_questions:
+  - Best timeframe pair?
+- id: FTFB-HYP-002
+  title: RSI recovery improves pullback timing
+  status: proposed
+  derived_from:
+  - FTFB-C4-007
+  statement: Trend-aligned entries triggered when RSI leaves an extreme zone outperform simple continuation entries.
+  proposed_mechanism: Extreme recovery may mark pullback exhaustion.
+  applicable_markets_and_regimes: Liquid FX pairs in trends.
+  assumptions:
+  - RSI thresholds are informative
+  data_requirements:
+  - OHLC data
+  - RSI series
+  - Trend filter
+  baseline_or_null_hypothesis: RSI filter adds no value.
+  validation_approach: Backtest RSI-recovery entries against price-only entries.
+  transaction_cost_and_fill_considerations: Delayed entries may give up edge.
+  robustness_checks:
+  - Alternative RSI lengths
+  - Different thresholds
+  rejection_criteria: No improvement after costs.
+  failure_modes:
+  - Whipsaws
+  - Persistent extremes
+  freshness_concerns: Low.
+  unresolved_questions:
+  - Need extra structure filter?
+- id: FTFB-HYP-003
+  title: Range entries work only in true sideways regimes
+  status: proposed
+  derived_from:
+  - FTFB-C6-012
+  statement: Buying support and selling resistance has positive expectancy only when an objective range detector confirms a sideways regime.
+  proposed_mechanism: Mean reversion repeats inside bounded zones until breakout.
+  applicable_markets_and_regimes: Major FX pairs in low-trend conditions.
+  assumptions:
+  - Ranges can be detected without look-ahead
+  data_requirements:
+  - Range detector
+  - OHLC data
+  - Cost model
+  baseline_or_null_hypothesis: Range entries do not outperform random or breakout rules.
+  validation_approach: Backtest only on pre-identified ranges and compare alternatives.
+  transaction_cost_and_fill_considerations: Frequent trades make spread critical.
+  robustness_checks:
+  - Different range detectors
+  - Different stop widths
+  rejection_criteria: Non-positive expectancy after costs.
+  failure_modes:
+  - False range detection
+  - Sudden breakout
+  freshness_concerns: Broker execution quality matters.
+  unresolved_questions:
+  - How wide must the range be?
+- id: FTFB-HYP-004
+  title: Daily inside-bar continuation is reproducible
+  status: proposed
+  derived_from:
+  - FTFB-C6-013
+  statement: Daily inside-bar breakouts aligned with prior trend outperform generic daily breakout entries.
+  proposed_mechanism: Compression inside a mother bar precedes continuation.
+  applicable_markets_and_regimes: Daily FX data in trending conditions.
+  assumptions:
+  - Pattern rarity still leaves enough sample
+  data_requirements:
+  - Daily OHLC data
+  - Pattern detector
+  - Trend filter
+  baseline_or_null_hypothesis: Inside-bar continuation has no advantage over generic breakouts.
+  validation_approach: Test breakout-entry and retest-entry variants on rolling windows.
+  transaction_cost_and_fill_considerations: Daily frequency lowers cost burden but increases stop size.
+  robustness_checks:
+  - Alternative pattern definitions
+  - Out-of-sample test
+  rejection_criteria: No positive out-of-sample expectancy.
+  failure_modes:
+  - False breakout
+  - Trend exhaustion
+  freshness_concerns: Low.
+  unresolved_questions:
+  - Daily only, or also 4H?
+- id: FTFB-HYP-005
+  title: Filtered pin bars outperform unfiltered pin bars
+  status: proposed
+  derived_from:
+  - FTFB-C6-014
+  statement: Pin bars traded only with trend, structure, and value-area context outperform unfiltered pin-bar trades.
+  proposed_mechanism: Context removes many low-information candles.
+  applicable_markets_and_regimes: FX and other liquid candlestick markets.
+  assumptions:
+  - Pin-bar geometry and structure can be coded
+  data_requirements:
+  - OHLC data
+  - Pin-bar detector
+  - Structure labels
+  baseline_or_null_hypothesis: Context filters do not improve pin-bar performance.
+  validation_approach: Compare filtered and unfiltered pin-bar trades.
+  transaction_cost_and_fill_considerations: Tail-based stops may be wide.
+  robustness_checks:
+  - Different tail/body ratios
+  - Volatility splits
+  rejection_criteria: No cost-adjusted improvement.
+  failure_modes:
+  - Subjective structure rules
+  freshness_concerns: Low.
+  unresolved_questions:
+  - Best value-area definition?
+- id: FTFB-HYP-006
+  title: Confirmed breakouts beat blind breakout chasing
+  status: proposed
+  derived_from:
+  - FTFB-C6-015
+  statement: Breakout entries that wait for retest or confirmation outperform immediate breakout chasing after costs.
+  proposed_mechanism: Confirmation reduces false-breakout losses.
+  applicable_markets_and_regimes: Liquid FX pairs during volatility expansion.
+  assumptions:
+  - Confirmation does not arrive too late
+  data_requirements:
+  - OHLC data
+  - Support/resistance detector
+  - Volume proxy if used
+  baseline_or_null_hypothesis: Immediate breakout entry performs as well or better.
+  validation_approach: Run side-by-side backtests for immediate and confirmed entries.
+  transaction_cost_and_fill_considerations: Breakout bars often have worse spreads and slippage.
+  robustness_checks:
+  - Retest vs volume confirmation
+  - Different stop anchors
+  rejection_criteria: No reduction in false-breakout loss rate after costs.
+  failure_modes:
+  - Retest never arrives
+  - Noisy volume proxy
+  freshness_concerns: Broker and venue dependent.
+  unresolved_questions:
+  - 'Retest or volume: which is better?'
+- id: FTFB-HYP-007
+  title: Fixed 1%-2% sizing lowers drawdown versus larger sizing
+  status: proposed
+  derived_from:
+  - FTFB-C8-020
+  - FTFB-C11-024
+  statement: Consistent fixed-fraction sizing near 1%-2% of equity per trade lowers drawdown severity and ruin probability versus larger or escalating risk fractions.
+  proposed_mechanism: Smaller stable bets slow compounding of losses.
+  applicable_markets_and_regimes: Any stop-based trading program.
+  assumptions:
+  - Risk cap is actually enforced
+  data_requirements:
+  - Trade sequence or simulations
+  - Sizing engine
+  - Gap-loss assumptions
+  baseline_or_null_hypothesis: Higher or adaptive fractions are not meaningfully worse on a drawdown-adjusted basis.
+  validation_approach: Monte Carlo and historical replay under several risk schedules.
+  transaction_cost_and_fill_considerations: Small accounts may hit minimum lot-size constraints.
+  robustness_checks:
+  - Sensitivity to win rate
+  - Gap-loss stress tests
+  rejection_criteria: Higher-risk schedules dominate on return and drawdown after constraints.
+  failure_modes:
+  - Gap losses exceed stop estimates
+  freshness_concerns: Broker leverage and lot-size rules vary by jurisdiction.
+  unresolved_questions:
+  - How should correlated trades share risk?

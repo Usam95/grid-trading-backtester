@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Insight record",
+  "type": "object",
+  "required": ["id", "schema_version", "record_type", "title", "claim", "source",
+               "evidence_kind", "confidence", "freshness_risk", "testability"],
+  "properties": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9._-]+$"},
+    "schema_version": {"type": "string"},
+    "record_type": {"enum": ["BOOK_CLAIM", "AGENT_INFERENCE", "TEST_HYPOTHESIS",
+                              "IMPLEMENTATION_IDEA", "WARNING_OR_FAILURE_MODE"]},
+    "title": {"type": "string", "minLength": 1},
+    "claim": {"type": "string", "minLength": 1},
+    "source": {
+      "type": "object",
+      "required": ["book_id"],
+      "properties": {
+        "book_id": {"type": "string"},
+        "chapter": {"type": ["string", "number", "null"]},
+        "section": {"type": ["string", "null"]},
+        "pdf_file_page": {"type": ["integer", "null"]},
+        "printed_page": {"type": ["string", "integer", "null"]},
+        "epub_spine_item": {"type": ["string", "integer", "null"]},
+        "epub_locator": {"type": ["string", "null"]}
+      }
+    },
+    "support": {"type": ["string", "null"]},
+    "mechanism": {"type": ["string", "null"]},
+    "assumptions": {"type": "array", "items": {"type": "string"}},
+    "failure_modes": {"type": "array", "items": {"type": "string"}},
+    "applies_to": {
+      "type": "object",
+      "properties": {
+        "strategy": {"type": "array", "items": {"enum": ["grid", "stock_signal", "portfolio", "shared", "other"]}},
+        "lifecycle": {"type": "array", "items": {"enum": ["research", "backtest", "paper", "live"]}},
+        "asset_class": {"type": "array", "items": {"enum": ["crypto_spot", "crypto_futures", "equities", "shared", "other"]}},
+        "concern": {"type": "array", "items": {"enum": ["data", "simulation", "execution", "risk", "monitoring", "operations", "alpha", "reproducibility"]}}
+      }
+    },
+    "evidence_kind": {"enum": ["author_assertion", "anecdote", "conceptual_argument",
+                               "worked_example", "empirical_study", "external_citation",
+                               "code_demonstration", "independently_reproduced"]},
+    "confidence": {"enum": ["low", "medium", "high"]},
+    "freshness_risk": {"enum": ["low", "medium", "high"]},
+    "testability": {"enum": ["low", "medium", "high"]},
+    "validation": {"type": ["string", "null"]},
+    "related_records": {"type": "array", "items": {"type": "string"}},
+    "other_explanation": {"type": ["string", "null"]}
+  },
+  "if": {"properties": {"record_type": {"const": "BOOK_CLAIM"}}},
+  "then": {
+    "properties": {
+      "source": {
+        "anyOf": [
+          {"required": ["pdf_file_page"], "properties": {"pdf_file_page": {"type": "integer"}}},
+          {"required": ["printed_page"], "properties": {"printed_page": {"type": ["string", "integer"]}}},
+          {"required": ["epub_locator"], "properties": {"epub_locator": {"type": "string"}}},
+          {"required": ["epub_spine_item"], "properties": {"epub_spine_item": {"type": ["string", "integer"]}}}
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,65 @@
+schema_version: "1.0"
+prompt_version: "1.0"
+book_id: "machine-learning-for-algorithmic-trading-predictive-models-t-2020"
+title: "Machine Learning for Algorithmic Trading: Predictive Models to Extract Signals from Market and Alternative Data"
+authors:
+  - "Stefan Jansen"
+edition: "2nd edition (2020)"
+publication_year: 2020
+publisher_or_identifier: "Packt Publishing"
+format: "pdf"
+language: "English"
+page_count: 821
+chapter_count: 22
+extraction_quality: "high"
+ocr_quality: "excellent"
+processing_status: "audited"
+sources:
+  - absolute_path: "C:\\Users\\W4TV5V8\\PROJECTS\\Codex\\Research\\Books_03_07_26\\Algorithmical Trading\\_KNOWLEDGE_EXTRACTION\\inventory.yaml"
+    relative_path: "inventory.yaml"
+extraction_timestamp: "2026-07-24T19:18:30Z"
+extraction_notes: "Comprehensive extraction prioritizing ML workflow, feature engineering, backtesting pitfalls, alternative data, model evaluation, and financial ML validation across 22 chapters. ~40 insight records extracted with emphasis on reproducibility and execution safety."
+duplicate_relationships: []
+limitations_and_warnings:
+  - "Book published 2020: some library APIs (e.g., yfinance, Quantopian, Zipline) may have changed; requires primary-source verification of API availability and behavior."
+  - "Broker APIs, fees, and market microstructure details are time-sensitive; live execution must validate against current documentation."
+  - "No backtested returns reported in this extraction—all profitability/edge claims treated as hypotheses requiring validation."
+  - "Regulatory environment (SEC filing access, alternative data licensing) varies by jurisdiction and timeline."
+
+scores:
+  source_credibility:
+    score: 5
+    justification: "Recognized author, established publisher (Packt), comprehensive treatment of ML methodology in finance with worked examples."
+  citation_quality:
+    score: 4
+    justification: "Cites academic literature, industry practices, and open-source frameworks; however, relies on author assertion for some trading outcomes."
+  reproducibility:
+    score: 4
+    justification: "Code examples and library references provided; however, API changes and data availability require adaptation."
+  likely_freshness:
+    score: 2
+    justification: "Published 2020; library versions, market microstructure, and regulatory environment have evolved significantly by 2026."
+  system_engineering_relevance:
+    score: 4
+    justification: "Addresses backtesting engines, data infrastructure, pipeline design, risk measurement—all critical for live trading systems."
+  grid_relevance:
+    score: 3
+    justification: "Focuses primarily on equities; grid-trading strategy patterns (position sizing, risk aggregation, execution fidelity) partially covered."
+  stock_strategy_relevance:
+    score: 5
+    justification: "Highly relevant; dedicated chapters on equity signals, factor models, ensemble methods, deep learning for equity prediction."
+  backtesting_relevance:
+    score: 5
+    justification: "Chapter 8 dedicated to backtesting pitfalls, engines (backtrader, Zipline), and methodological soundness; top-tier for this concern."
+  live_execution_relevance:
+    score: 4
+    justification: "Addresses execution, risk management, position sizing; however, primarily focuses on daily/intraday simulations rather than ultra-high-frequency."
+  risk_relevance:
+    score: 4
+    justification: "Portfolio optimization, risk parity, drawdown measurement, stress testing covered; missing some operational and counterparty risk detail."
+  data_quality_relevance:
+    score: 5
+    justification: "Chapters 2-4 extensively cover data sourcing, alternative data evaluation, point-in-time validation, survivorship bias."
+  machine_learning_relevance:
+    score: 5
+    justification: "Comprehensive coverage of supervised, unsupervised, reinforcement learning; feature engineering; cross-validation; ensemble and deep learning methods."

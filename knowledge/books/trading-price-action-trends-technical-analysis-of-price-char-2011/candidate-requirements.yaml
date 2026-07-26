@@ -1,0 +1,379 @@
+- id: TPAB-REQ-001
+  title: "Bar pattern data structure and morphology classification module"
+  status: proposed
+  derived_from:
+    - TPAB-C1-003
+    - TPAB-C2-007
+  derivation_type: agent_inference
+  rationale: |
+    To implement pattern recognition and hypothesis validation, the system requires 
+    rigorous bar morphology classification (trend bar, doji bar, outside bar, signal bar, 
+    etc.). Each bar must have computed attributes: body size, wick lengths, close relative 
+    to range, close relative to open.
+  applies_to:
+    strategy: [stock_signal, shared]
+    lifecycle: [research, backtest]
+    asset_class: [equities, shared]
+    concern: [data, simulation]
+  requirement: |
+    The system SHALL provide a bar morphology classification module that computes for 
+    every OHLC bar: (1) body ratio (close-open)/(high-low), (2) upper wick length, 
+    (3) lower wick length, (4) close position in range [0,1], and (5) determines bar 
+    type (TREND_UP, TREND_DOWN, DOJI, OUTSIDE, INSIDE, OTHER) based on 
+    threshold parameters.
+  acceptance_tests:
+    - "Classification matches expert visual inspection for 95%+ of bars on test dataset"
+    - "Thresholds for each bar type are configurable and documented"
+    - "Performance: classify 100k bars in <1 second on standard hardware"
+  failure_prevented: "Prevents misclassification of bars leading to incorrect pattern detection"
+  capability_enabled: "Enables testable hypothesis validation for bar-pattern-based strategies"
+  assumptions:
+    - "OHLC data is accurate and gap-free"
+    - "Bar morphology thresholds are transferable across timeframes"
+  open_questions:
+    - "Should thresholds adjust for volatility regime?"
+    - "How to handle gap-open bars (OHLC discontinuity)?"
+  dependencies:
+    - "Clean OHLC data pipeline"
+  verification_needed: "Backtest validation of bar type definitions"
+  priority_hint: research_quality
+
+- id: TPAB-REQ-002
+  title: "Support and resistance level identification for trend lines and swings"
+  status: proposed
+  derived_from:
+    - TPAB-C13-013
+  derivation_type: agent_inference
+  rationale: |
+    Multiple hypotheses and patterns depend on accurate identification of swing points 
+    (local highs/lows) and construction of trend lines from those points. Systematic 
+    identification of key price levels is essential for both backtesting and live trading 
+    signal generation.
+  applies_to:
+    strategy: [stock_signal, shared]
+    lifecycle: [backtest, research, live]
+    asset_class: [equities, shared]
+    concern: [data, simulation, execution]
+  requirement: |
+    The system SHALL identify swing points (local highs and lows) using a configurable 
+    lookback window; construct trend lines from sequential swing points; compute slope 
+    and R-squared fit; and flag when price closes through or touches a trend line with 
+    precision to 1 tick or better.
+  acceptance_tests:
+    - "Identified swing points match expert visual inspection on chart samples"
+    - "Trend line touches/breaks detected with ±1 tick accuracy"
+    - "Algorithm runs in <100ms per chart update"
+  failure_prevented: "Prevents false support/resistance signals due to imprecise level detection"
+  capability_enabled: "Enables trend line hypothesis and support/resistance-based trading rules"
+  assumptions:
+    - "Swing point lookback period relevant to trading timeframe"
+    - "Trend line slopes are economically meaningful (not noise)"
+  open_questions:
+    - "How to handle fast trending markets where multiple swing points form?"
+    - "Should higher timeframe swings override lower timeframe swings?"
+  dependencies:
+    - "Bar morphology classification (TPAB-REQ-001)"
+  verification_needed: "Validate on out-of-sample data; compare to manual chart analysis"
+  priority_hint: research_quality
+
+- id: TPAB-REQ-003
+  title: "Risk/reward ratio calculation and minimum threshold enforcement"
+  status: proposed
+  derived_from:
+    - TPAB-C3-005
+  derivation_type: direct_book_recommendation
+  rationale: |
+    Brooks identifies risk/reward as foundational trade filtering criterion. Every trade 
+    candidate must be evaluated for risk (stop distance) vs reward (profit target distance); 
+    trades with <1:1 ratio must be rejected or scaled appropriately.
+  applies_to:
+    strategy: [stock_signal, grid]
+    lifecycle: [backtest, live]
+    asset_class: [equities, crypto_spot]
+    concern: [risk, execution]
+  requirement: |
+    For every trade signal generated, the system SHALL calculate reward-to-risk ratio 
+    (profit_target_distance / stop_distance) and enforce minimum 1.0 threshold. 
+    Trades with ratio <1.0 SHALL be rejected or marked as lower-priority. Ratio 
+    SHALL be logged for every trade attempt.
+  acceptance_tests:
+    - "Zero trades execute with reward/risk <1.0"
+    - "Trade log contains risk/reward ratio for every signal"
+    - "Filtering reduces dataset to only >=1:1 ratio trades"
+  failure_prevented: "Prevents execution of unfavorable risk/reward trades that reduce profitability"
+  capability_enabled: "Enforces mathematical foundation for profitable trading (positive expectancy even with <50% win rate)"
+  assumptions:
+    - "Stop and target placement is accurate and achievable"
+    - "Slippage is less than stop distance"
+  open_questions:
+    - "Should minimum ratio scale with volatility regime?"
+    - "How to account for partial fills impacting ratio?"
+  dependencies: []
+  verification_needed: "Validate that filtered strategy (>=1:1 ratio) outperforms unfiltered on backtests"
+  priority_hint: correctness
+
+- id: TPAB-REQ-004
+  title: "Market regime classification (trend vs range detection)"
+  status: proposed
+  derived_from:
+    - TPAB-C1-006
+  derivation_type: agent_inference
+  rationale: |
+    The spectrum concept (extreme trend to extreme range) is foundational; different 
+    strategies apply to trending vs ranging markets. The system must classify current 
+    market regime to select appropriate trading rules and hypotheses.
+  applies_to:
+    strategy: [stock_signal, shared]
+    lifecycle: [research, backtest, live]
+    asset_class: [equities, shared]
+    concern: [data, simulation, alpha]
+  requirement: |
+    The system SHALL classify every bar/period into regime: STRONG_TREND_UP, 
+    WEAK_TREND_UP, STRONG_TREND_DOWN, WEAK_TREND_DOWN, TRADING_RANGE, or 
+    TRANSITION_ZONE. Classification SHALL use ATR, slope of moving average, or 
+    bar pattern metrics. Regime change SHALL trigger alert/signal review.
+  acceptance_tests:
+    - "Regime classification is stable (not oscillating on every bar)"
+    - "Trending regime occurs 40-60% of time; ranging 20-40% (typical distribution)"
+    - "Regime classification parameter is documented and tunable"
+  failure_prevented: "Prevents applying ranging-market rules to trending markets (and vice versa) reducing false signals"
+  capability_enabled: "Enables regime-aware strategy switching and hypothesis selection"
+  assumptions:
+    - "Regime characteristics are stationary or slowly evolving"
+    - "Regime does not change mid-trade (or changes are absorbed in stop-loss)"
+  open_questions:
+    - "How to detect regime transitions in real-time?"
+    - "Should regime classification vary by timeframe?"
+  dependencies:
+    - "Bar morphology classification (TPAB-REQ-001)"
+  verification_needed: "Backtest showing >=5% improvement when regime-aware vs regime-agnostic"
+  priority_hint: research_quality
+
+- id: TPAB-REQ-005
+  title: "Pullback detection and accumulation zone identification"
+  status: proposed
+  derived_from:
+    - TPAB-C2-004
+  derivation_type: agent_inference
+  rationale: |
+    Hypothesis HYP-002 relies on pullback identification during trends. The system must 
+    distinguish tactical pullbacks (within-trend consolidations) from reversal pullbacks 
+    (trend-ending). This requires bar pattern analysis and support level detection.
+  applies_to:
+    strategy: [stock_signal]
+    lifecycle: [backtest, live]
+    asset_class: [equities]
+    concern: [alpha, execution]
+  requirement: |
+    The system SHALL identify pullback bars during established uptrends (where bar closes 
+    below prior bar low in uptrending market) and flag when pullback reaches prior support 
+    level (swing low, moving average, channel line). Pullback SHALL be labeled 
+    'STRONG_ACCUMULATION_ZONE' if pullback holds support and resumes uptrend 
+    within 3 bars; 'WEAK' if pullback breaks support.
+  acceptance_tests:
+    - "Pullback identification matches expert visual analysis 85%+ of time"
+    - "Support level is identified objectively (not subjectively)"
+    - "False pullbacks (reversals) misclassified <20% of time"
+  failure_prevented: "Prevents missing accumulation-zone entry opportunities; prevents entering reversal pullbacks"
+  capability_enabled: "Enables pullback-buy strategy hypothesis testing"
+  assumptions:
+    - "Pullback pattern repeats across markets and timeframes"
+    - "Support levels are properly identified (TPAB-REQ-002)"
+  open_questions:
+    - "How to distinguish pullback from reversal in real-time?"
+    - "What pullback depth is 'normal' for current volatility?"
+  dependencies:
+    - "Bar morphology classification (TPAB-REQ-001)"
+    - "Support/resistance identification (TPAB-REQ-002)"
+  verification_needed: "Backtest pullback-buy rules; measure win rate vs random entry"
+  priority_hint: research_quality
+
+- id: TPAB-REQ-006
+  title: "Trade log and performance attribution for hypotheses"
+  status: proposed
+  derived_from:
+    - TPAB-C3-005
+    - TPAB-C18-016
+  derivation_type: agent_inference
+  rationale: |
+    To validate hypotheses and requirements, the system must log every trade with 
+    attribution to the hypothesis/pattern that generated it, along with outcome 
+    (win/loss, price targets hit, slippage). This data is essential for backtesting 
+    and live performance validation.
+  applies_to:
+    strategy: [stock_signal, shared]
+    lifecycle: [backtest, live]
+    asset_class: [equities, shared]
+    concern: [reproducibility, monitoring]
+  requirement: |
+    Every trade attempt SHALL be logged with: (1) hypothesis/pattern ID, (2) entry 
+    signal bar number, (3) entry price and method (market/limit), (4) stop price, 
+    (5) profit target price, (6) exit price and method, (7) slippage vs target, 
+    (8) profit/loss, (9) risk/reward ratio achieved, (10) bar morphology metrics. 
+    Trade logs SHALL be queryable by hypothesis ID for aggregate performance.
+  acceptance_tests:
+    - "All trades logged with required fields; no missing data"
+    - "Query by hypothesis ID returns accurate trade list"
+    - "Performance metrics (win%, avg win, avg loss) computed from logs within 1% of manual verification"
+  failure_prevented: "Prevents blind backtesting; ensures hypothesis performance is measurable and reproducible"
+  capability_enabled: "Enables validation of hypotheses and root-cause analysis of drawdowns"
+  assumptions:
+    - "Trade logging adds <5% overhead to backtest runtime"
+  open_questions:
+    - "How to handle partial fills and multiple-leg trades?"
+    - "Should slippage be estimated or actual (live)?"
+  dependencies: []
+  verification_needed: "Validate trade log against manual chart review on sample trades"
+  priority_hint: correctness
+
+- id: TPAB-REQ-007
+  title: "Walk-forward backtesting framework for hypothesis validation"
+  status: proposed
+  derived_from:
+    - TPAB-C3-005
+    - TPAB-C1-003
+  derivation_type: agent_inference
+  rationale: |
+    Hypotheses are testable only with proper methodology that avoids overfitting and 
+    survivorship bias. Walk-forward backtesting (train on past, test on held-out future) 
+    is standard in ML/algo trading; required for rigorous hypothesis validation.
+  applies_to:
+    strategy: [stock_signal, shared]
+    lifecycle: [research, backtest]
+    asset_class: [equities, shared]
+    concern: [reproducibility, data]
+  requirement: |
+    The system SHALL support walk-forward backtesting with configurable train/test 
+    windows (e.g., train on 2020-2023, test on 2024-2025). For each hypothesis, 
+    perform: (1) train on first window, (2) test on held-out window, (3) roll forward, 
+    (4) aggregate results across windows. Performance metrics SHALL be computed 
+    separately for train and test periods to detect overfitting (train >> test performance).
+  acceptance_tests:
+    - "Walk-forward backtest completes without error on sample hypothesis"
+    - "Train and test performance metrics are separated and reported"
+    - "Overfitting detection (train/test divergence >20%) triggers warning"
+  failure_prevented: "Prevents false-positive hypothesis claims due to overfitting or selection bias"
+  capability_enabled: "Ensures hypotheses are robust and likely to generalize to live trading"
+  assumptions:
+    - "Market regime is not completely stationary (some drift acceptable)"
+    - "Walk-forward windows are long enough (min 6 months)"
+  open_questions:
+    - "Should windows overlap or be disjoint?"
+    - "How to handle market regime changes within windows?"
+  dependencies:
+    - "Trade log (TPAB-REQ-006)"
+  verification_needed: "Compare walk-forward results to single-period backtest; validate methodology against academic standards"
+  priority_hint: research_quality
+
+- id: TPAB-REQ-008
+  title: "Slippage and commission modeling for realistic backtest"
+  status: proposed
+  derived_from:
+    - TPAB-C5-010
+    - TPAB-C18-016
+  derivation_type: agent_inference
+  rationale: |
+    Backtests must account for transaction costs (commissions, slippage, spreads) to 
+    avoid overoptimistic performance claims. Brooks discusses risk/reward including 
+    fill risk; realistic slippage modeling is essential for credible hypothesis testing.
+  applies_to:
+    strategy: [stock_signal, grid]
+    lifecycle: [backtest]
+    asset_class: [equities, crypto_spot]
+    concern: [simulation, execution]
+  requirement: |
+    The backtest system SHALL apply slippage and commission costs to every trade: 
+    (1) entry slippage (market order fills at best ask for long, best bid for short); 
+    (2) exit slippage (similar); (3) round-trip commission per share/contract; 
+    (4) bid-ask spread modeling based on liquidity tier (liquid vs illiquid stock). 
+    Slippage model SHALL be configurable (1-2 ticks typical). All trades SHALL 
+    reflect these costs before final P&L calculation.
+  acceptance_tests:
+    - "Slippage and commissions properly deducted from every trade"
+    - "Net P&L with costs is 5-15% lower than gross P&L (typical)"
+    - "Model parameters documented and defensible"
+  failure_prevented: "Prevents unrealistic backtests overstating returns; ensures hypothesis edge survives transaction costs"
+  capability_enabled: "Enables realistic profitability assessment for live trading decisions"
+  assumptions:
+    - "Commissions and spreads do not change dramatically within backtest period"
+    - "Slippage is consistent (not adversarial or gamed)"
+  open_questions:
+    - "Should slippage scale with volatility or market impact?"
+    - "How to model dark pools and internalization?"
+  dependencies: []
+  verification_needed: "Validate slippage model against actual broker fills on live trades"
+  priority_hint: correctness
+
+- id: TPAB-REQ-009
+  title: "Drawdown and recovery metrics for risk management"
+  status: proposed
+  derived_from:
+    - TPAB-C3-005
+  derivation_type: agent_inference
+  rationale: |
+    Risk management requires monitoring of drawdowns (cumulative losses from peak) to 
+    detect strategy failure and trigger risk control. The system must calculate and 
+    alert on drawdown milestones and recovery paths.
+  applies_to:
+    strategy: [stock_signal, shared]
+    lifecycle: [live, backtest]
+    asset_class: [equities, shared]
+    concern: [risk, monitoring]
+  requirement: |
+    The system SHALL compute for every backtest/live session: (1) peak-to-trough 
+    drawdown (maximum cumulative loss from equity high), (2) drawdown duration 
+    (bars to recover to prior high), (3) largest single-trade loss, (4) largest 
+    consecutive losing trades. Alert thresholds SHALL be configurable (e.g., alert 
+    if drawdown >3x average win or >15% of account). Hypothesis with drawdown 
+    >3x largest win SHALL be flagged as high-risk.
+  acceptance_tests:
+    - "Drawdown calculations match manual spot-check on sample trades"
+    - "Alerts trigger at configured thresholds"
+    - "Risk metrics included in hypothesis validation report"
+  failure_prevented: "Prevents capital blowout due to uncontrolled drawdowns; alerts trader to strategy failure"
+  capability_enabled: "Enables risk-aware strategy selection and position sizing"
+  assumptions:
+    - "Drawdown thresholds are appropriate to account size (scaled by account)"
+  open_questions:
+    - "Should drawdown be in $ or %? Adjust for account size?"
+    - "How to model drawdown in live trading with intraday volatility?"
+  dependencies:
+    - "Trade log (TPAB-REQ-006)"
+  verification_needed: "Validate drawdown alerts match visual chart inspection"
+  priority_hint: safety
+
+- id: TPAB-REQ-010
+  title: "Data quality validation: gap detection and bar continuity"
+  status: proposed
+  derived_from:
+    - TPAB-C1-003
+  derivation_type: agent_inference
+  rationale: |
+    Bar-by-bar analysis assumes OHLC data is contiguous and gap-free (no missing bars). 
+    Gaps (overnight, news events, circuit breakers) corrupt pattern recognition and 
+    must be detected and handled. Data quality issues invalidate backtests.
+  applies_to:
+    strategy: [stock_signal, shared]
+    lifecycle: [backtest, live]
+    asset_class: [equities, shared]
+    concern: [data, simulation]
+  requirement: |
+    The system SHALL validate OHLC data for: (1) no missing bars (bar sequence 
+    continuous), (2) OHLC values in logical order (open/close in range [low, high]), 
+    (3) no negative or zero prices, (4) volume >0. Gaps (close to open price change 
+    >2x ATR) SHALL be flagged and optionally excluded from pattern analysis. Report 
+    SHALL include: count of gaps, count of invalid bars, data integrity score.
+  acceptance_tests:
+    - "Data validation completes in <100ms for 5 years of 1min bars"
+    - "All gaps and invalid bars identified and logged"
+    - "Data quality score <5% invalid bars is acceptable; >10% triggers warning"
+  failure_prevented: "Prevents corrupted backtest results due to data gaps; alerts to data quality issues"
+  capability_enabled: "Ensures reliable pattern recognition and reproducible backtests"
+  assumptions:
+    - "Gap detection threshold (2x ATR) is reasonable; configurable"
+  open_questions:
+    - "Should gaps be excluded from analysis or flagged?"
+    - "How to handle holiday/weekend gaps vs news gaps?"
+  dependencies: []
+  verification_needed: "Validate gap detection against known historical events (earnings, Fed announcements)"
+  priority_hint: correctness

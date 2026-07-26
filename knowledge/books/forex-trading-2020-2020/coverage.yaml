@@ -1,0 +1,37 @@
+book_id: forex-trading-2020-2020
+sections:
+  - ref: "C1"
+    title: "Introduction"
+    pdf_page_start: 2
+    status: processed
+    reason: "Introduction and 'What Is Forex Trading?' covered in pages 2-15"
+  - ref: "C2"
+    title: "Analyzing the Financial Markets"
+    pdf_page_start: 15
+    status: processed
+    reason: "Fundamental and Technical Analysis, Currency Forecasting covered in pages 15-50"
+  - ref: "C3"
+    title: "The Need to Be Objective"
+    pdf_page_start: 50
+    status: processed
+    reason: "Emotional control and step-by-step secrets to win with forex covered in pages 50-65"
+  - ref: "C4"
+    title: "Forex Trading Strategy"
+    pdf_page_start: 65
+    status: processed
+    reason: "Channel Breakout, Forex Assassin, Power Strategy, Real-time Charting, Automated Trading covered in pages 65-90"
+  - ref: "C5"
+    title: "Forex Trading Psychology"
+    pdf_page_start: 90
+    status: processed
+    reason: "Psychology of successful traders and mass psychology covered in pages 90-100"
+  - ref: "C6"
+    title: "Money and Position Management"
+    pdf_page_start: 100
+    status: processed
+    reason: "Stop-loss, Position Closing, Trading Journal, Risk Management covered in pages 100-112"
+  - ref: "C7"
+    title: "Currency Futures and Cryptocurrencies"
+    pdf_page_start: 112
+    status: processed
+    reason: "Futures contracts, cryptocurrencies, trading best practices covered in pages 112-146"

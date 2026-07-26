@@ -1,0 +1,66 @@
+schema_version: '1.0'
+prompt_version: '1.0'
+book_id: forex-on-five-hours-a-week-2010
+sources:
+- absolute_path: C:\Users\W4TV5V8\.copilot\session-state\a55e8123-c79b-4d55-ace8-c7dd582db539\files\tooling\_KNOWLEDGE_EXTRACTION\extract_0_50.txt
+  relative_path: extracts/part1.txt
+  sha256: unknown
+title: 'Forex on Five Hours a Week: How to Make Money Trading on Your Own Time'
+authors:
+- Raghee Horner
+edition: 1st
+publication_year: 2010
+publisher_or_identifier: Wiley
+format: pdf
+language: English
+page_count: 211
+chapter_count: 14
+extraction_quality: high
+ocr_quality: high
+processing_status: audited
+extraction_timestamp: '2026-07-24T22:36:41.005564+00:00'
+extraction_completed: true
+limitations_and_warnings:
+- Book published 2010 - FX regulations, broker APIs, market structure have changed
+  significantly
+- Some specific broker references (FXCM, OANDA APIs) require verification against
+  current versions
+- Trading strategies are conceptual - no profitability claims guaranteed
+- Examples use historical price data - not predictive of future performance
+scores:
+  source_credibility:
+    score: 4
+    justification: Wiley publisher, established author, but dated (2010)
+  citation_quality:
+    score: 3
+    justification: Limited citations; mostly practical observations
+  reproducibility:
+    score: 2
+    justification: Qualitative setup descriptions; broker APIs may have changed
+  likely_freshness:
+    score: 2
+    justification: Published 2010; FX market structure, regulations, fees have evolved
+  system_engineering_relevance:
+    score: 3
+    justification: Automation, charting, broker selection relevant
+  grid_relevance:
+    score: 2
+    justification: Not explicitly grid-focused; spot FX trading
+  stock_strategy_relevance:
+    score: 2
+    justification: Forex-specific; limited cross-asset applicability
+  backtesting_relevance:
+    score: 2
+    justification: Conceptual strategies; no systematic backtest methodology
+  live_execution_relevance:
+    score: 4
+    justification: Time frames, market sessions, execution tactics relevant
+  risk_relevance:
+    score: 4
+    justification: Stop loss, position sizing, risk management emphasized
+  data_quality_relevance:
+    score: 2
+    justification: Limited discussion of data requirements or quality
+  machine_learning_relevance:
+    score: 1
+    justification: No ML methods; manual technical analysis

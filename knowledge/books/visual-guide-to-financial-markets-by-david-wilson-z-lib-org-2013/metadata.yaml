@@ -1,0 +1,73 @@
+schema_version: "1.0"
+prompt_version: "1.0"
+book_id: visual-guide-to-financial-markets-by-david-wilson-z-lib-org-2013
+title: Visual Guide to Financial Markets
+authors:
+  - name: "David Wilson"
+    role: "Author"
+  - name: "Bloomberg L.P."
+    role: "Publisher/Series"
+edition: "1st"
+publication_year: 2013
+publisher_or_identifier: "Bloomberg Press / Wiley"
+format: pdf
+language: English
+page_count: 196
+chapter_count: 10
+extraction_quality: moderate
+ocr_quality: moderate
+processing_status: audited
+timestamps:
+  extraction_started: "2026-07-25T00:59:52Z"
+  extraction_completed: "2026-07-25T01:20:00Z"
+  validation_passed: "2026-07-25T01:25:00Z"
+sources:
+  - absolute_path: 'C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical Trading\_KNOWLEDGE_EXTRACTION\storage\visual-guide-to-financial-markets-by-david-wilson-z-lib-org-2013.pdf'
+    relative_path: "visual-guide-to-financial-markets-by-david-wilson-z-lib-org-2013.pdf"
+    sha256: "placeholder_sha256"
+duplicate_relationships: []
+limitations_and_warnings:
+  - "Book is heavily chart and graphic-based; extracted text is sparse in many sections"
+  - "OCR quality moderate; some technical terms may be transcribed incorrectly"
+  - "This is an educational reference, not a trading/strategy guide"
+  - "Published 2013; market data and regulatory environment have evolved significantly"
+  - "No specific trading strategies or tactical advice in this book"
+  - "Definitions and concepts are durable; market structure may be dated"
+
+scores:
+  source_credibility:
+    score: 4
+    justification: "Bloomberg Press (reputable financial publisher/data provider) with editorial oversight; financial concepts are authoritative."
+  citation_quality:
+    score: 2
+    justification: "Visual reference book; few explicit citations or academic references; focuses on definitions and illustrations."
+  reproducibility:
+    score: 1
+    justification: "Educational reference on concepts and instruments, not research with reproducible data/methods."
+  likely_freshness:
+    score: 2
+    justification: "Published 2013; foundational concepts (bonds, stocks, derivatives) remain valid but market structure/regulations evolved."
+  system_engineering_relevance:
+    score: 2
+    justification: "Limited relevance to system design; focuses on market instruments and concepts, not infrastructure."
+  grid_relevance:
+    score: 2
+    justification: "Minimal direct relevance; explains macro market structure but not grid-specific mechanics or venue-level details."
+  stock_strategy_relevance:
+    score: 3
+    justification: "Covers stock market mechanics, portfolio construction, risk/return basics; useful conceptual foundation."
+  backtesting_relevance:
+    score: 2
+    justification: "Defines instruments and concepts; does not address data quality, signal validation, or simulation fidelity."
+  live_execution_relevance:
+    score: 1
+    justification: "High-level market overview; lacks operational/execution/connectivity details."
+  risk_relevance:
+    score: 3
+    justification: "Covers risk fundamentals, portfolio risk, interest rate risk, market risk; useful conceptual baseline."
+  data_quality_relevance:
+    score: 1
+    justification: "Does not address data sourcing, cleaning, or quality validation."
+  machine_learning_relevance:
+    score: 0
+    justification: "No discussion of ML, feature engineering, or model validation."

@@ -1,0 +1,270 @@
+- id: HPTS-H-001
+  title: "Dual timeframe momentum alignment predicts trend continuation"
+  status: proposed
+  derived_from: [HPTS-C2-001, HPTS-C2-002, HPTS-C2-003]
+  statement: "When momentum indicator on a longer timeframe (daily) and shorter timeframe (hourly) both show same direction, the probability of immediate continuation in that direction exceeds 55% over the next 5-10 bars"
+  proposed_mechanism: "Alignment of two timeframe indicators reduces noise and false signals; single-timeframe signals have high false-signal rate"
+  applicable_markets_and_regimes: "Trending markets; breaks down in choppy/consolidation regimes"
+  assumptions:
+    - "Momentum indicators are independent signals"
+    - "Past momentum relationships predict forward returns"
+  data_requirements:
+    - "Price OHLC data at dual timeframes"
+    - "Momentum indicator values (RSI or MACD)"
+    - "Trade entry/exit times and prices"
+  baseline_or_null_hypothesis: "Random direction; 50% probability of continuation"
+  validation_approach: "Backtest on 5+ years of equity data; measure win rate and Sharpe ratio on dual-timeframe alignment trades vs. baseline"
+  transaction_cost_and_fill_considerations: "Assume 1-2 bp bid-ask spread; slippage 0-2 bp on entry; exit at limit orders"
+  robustness_checks:
+    - "Test on multiple securities and sectors"
+    - "Test on different timeframe pairs (1-hr/4-hr, 1-hr/daily, 15-min/1-hr)"
+    - "Test across market regimes (bull, bear, range-bound)"
+  rejection_criteria: "Win rate < 52% or Sharpe ratio < 0.5 after costs"
+  failure_modes:
+    - "Momentum divergences may persist for extended periods (oversold/overbought rebounds)"
+    - "Indicators may be correlated or leading/lagging at different speeds"
+  freshness_concerns: "Indicator effectiveness may vary with market structure changes; 2008 book may not reflect modern market behavior"
+  unresolved_questions:
+    - "Are specific timeframe pairs (daily/hourly) optimal, or does relative ratio matter?"
+    - "How sensitive is the rule to indicator parameter selection?"
+
+- id: HPTS-H-002
+  title: "Elliott Wave overlap guideline accurately identifies trend reversals"
+  status: proposed
+  derived_from: [HPTS-C3-001, HPTS-C3-002]
+  statement: "When price action overlaps into the range of prior wave 1 (in Elliott Wave context), the trend has reversed into a correction; the overlap guideline has 60%+ accuracy in identifying such reversals within 3-5 bars"
+  proposed_mechanism: "Overlap into prior wave range violates Elliott Wave trend rules; signals shift from trend mode to correction mode"
+  applicable_markets_and_regimes: "Works in trending markets; requires clear wave identification"
+  assumptions:
+    - "Elliott Wave framework accurately describes price structure"
+    - "Wave boundaries are objectively identifiable"
+  data_requirements:
+    - "High-resolution OHLC data (1-min to hourly)"
+    - "Subjective wave annotation (manual or via pattern recognition)"
+  baseline_or_null_hypothesis: "Trend reversal occurs at random times; 50% probability"
+  validation_approach: "Backtest by identifying Elliott Wave patterns retrospectively; measure % of overlaps that precede 3-5 bar reversals vs. non-overlaps"
+  transaction_cost_and_fill_considerations: "Overlap-based entries require tight execution; assume 1 bp slippage"
+  robustness_checks:
+    - "Blind backtest: have independent analyst identify waves without knowing outcomes"
+    - "Test across markets and timeframes"
+  rejection_criteria: "Accuracy < 55%; too subjective to automate profitably"
+  failure_modes:
+    - "Wave identification is highly subjective; different analysts disagree"
+    - "Overlap can occur in early moves that later reverse (whipsaws)"
+  freshness_concerns: "Elliott Wave theory is not quantitative; vulnerable to curve-fitting and selection bias"
+  unresolved_questions:
+    - "Can wave identification be automated with sufficient accuracy?"
+    - "Does order-flow or volume provide objective confirmation of wave transitions?"
+
+- id: HPTS-H-003
+  title: "Price projections from prior move magnitude predict future targets"
+  status: proposed
+  derived_from: [HPTS-C4-002]
+  statement: "When a new price move begins after a completed swing, projecting the new move to 1.0x, 1.618x, or 2.0x the prior move length predicts the final target with 50%+ accuracy within 3-5 bars"
+  proposed_mechanism: "Market structure creates Fibonacci-based geometric relationships; new moves often complete at Fibonacci-related distances"
+  applicable_markets_and_regimes: "Trend-following; less effective in choppy/ranging markets"
+  assumptions:
+    - "Prior move magnitude predicts new move magnitude"
+    - "Fibonacci ratios describe market structure"
+  data_requirements:
+    - "Prior swing high/low and magnitude"
+    - "Projected targets at Fibonacci multiples"
+  baseline_or_null_hypothesis: "Target reached at random multiple; 33% chance of hitting any given target"
+  validation_approach: "Backtest: measure % of moves that reach projected Fibonacci targets within 3-5 bars after move starts"
+  transaction_cost_and_fill_considerations: "Use limit orders at projected targets; assume 1-2 bp slippage"
+  robustness_checks:
+    - "Test on multiple timeframes (1-hour, daily, weekly)"
+    - "Test on equities, futures, forex"
+  rejection_criteria: "Accuracy < 48%; statistically indistinguishable from random"
+  failure_modes:
+    - "Projections assume prior move is complete; false assumptions lead to missed targets"
+    - "Fibonacci ratios are mathematical; no causal relationship to market structure"
+  freshness_concerns: "Price targets are backward-looking; prone to selection bias in worked examples"
+  unresolved_questions:
+    - "Which Fibonacci multiple (1x, 1.618x, 2x) is most predictive in different market conditions?"
+
+- id: HPTS-H-004
+  title: "Time bands calculated from prior cycles identify reversal windows"
+  status: proposed
+  derived_from: [HPTS-C5-001, HPTS-C5-002]
+  statement: "When price reaches multiple converging time bands (derived from Fibonacci ratios of prior cycle durations), the probability of a reversal within ±2 bars of that convergence exceeds 55%"
+  proposed_mechanism: "Markets exhibit cyclical time patterns; Fibonacci time ratios create confluence zones of high reversal probability"
+  applicable_markets_and_regimes: "Strongest in liquid markets with clear cyclical structure"
+  assumptions:
+    - "Prior cycle durations predict future cycle durations"
+    - "Fibonacci time ratios have predictive value"
+  data_requirements:
+    - "Identified prior cycle durations (manual or automatic)"
+    - "Calculated Fibonacci time projections"
+  baseline_or_null_hypothesis: "Reversals occur at random times; 2 bars out of every N bars average contains a reversal"
+  validation_approach: "Backtest: count reversals occurring within ±2 bars of time-band convergence vs. random dates"
+  transaction_cost_and_fill_considerations: "Time-based exits use market orders; assume 2 bp slippage"
+  robustness_checks:
+    - "Test on multiple markets and timeframes"
+    - "Sensitivity to prior cycle selection (which cycles to include?)"
+  rejection_criteria: "Reversal rate within ±2 bars < 54%; not significantly better than random"
+  failure_modes:
+    - "Cycle identification is subjective; different analysts pick different reference cycles"
+    - "Time targets rarely produce exact-date reversals; edge is small and inconsistent"
+  freshness_concerns: "Time analysis is speculative; limited academic support; highly vulnerable to overfitting"
+  unresolved_questions:
+    - "Which prior cycles should be included in time-band calculations?"
+    - "Is the edge large enough to exceed transaction costs?"
+
+- id: HPTS-H-005
+  title: "Trailing-bar entry with tight stop captures momentum with controlled risk"
+  status: proposed
+  derived_from: [HPTS-C6-001]
+  statement: "Entering on new 1-bar high (buying 1 tick above prior bar high) with stop 1 tick below prior bar low generates at least 52% win rate and 1.5:1 average risk/reward"
+  proposed_mechanism: "One-bar breakout captures momentum initiation; tight stop limits losses on false breaks"
+  applicable_markets_and_regimes: "Works in trending markets; high-frequency whipsaws in choppy markets"
+  assumptions:
+    - "1-bar breakouts are valid momentum signals"
+    - "Stops are executed at specified prices (no slippage)"
+  data_requirements:
+    - "Prior-bar high/low for each bar"
+    - "Entry and exit prices"
+  baseline_or_null_hypothesis: "Random entry with 50% win rate; 1:1 average risk/reward"
+  validation_approach: "Backtest: measure win rate, average win/loss, Sharpe ratio over 3+ years on multiple securities"
+  transaction_cost_and_fill_considerations: "Assume 2 bp bid-ask spread; 1-2 bp slippage on fills; 0.1-0.5 bp commission"
+  robustness_checks:
+    - "Test on multiple timeframes (5-min, 15-min, hourly, daily)"
+    - "Test on multiple asset classes"
+  rejection_criteria: "Win rate < 51% or Sharpe < 0.3 after costs"
+  failure_modes:
+    - "Breakouts frequently whipsaw (false breaks); stop-outs are common"
+    - "Tight stops are often hit by intra-bar noise before reversal"
+  freshness_concerns: "Modern markets may have faster reversals due to automation; 2008 methodology may not adapt"
+  unresolved_questions:
+    - "Is 1-tick stop placement realistic, or does slippage reduce edge to zero?"
+
+- id: HPTS-H-006
+  title: "Swing entry on Fibonacci retracements improves risk/reward over trailing-bar entry"
+  status: proposed
+  derived_from: [HPTS-C6-002]
+  statement: "Entering on 38.2% or 50% Fibonacci retracement of prior swing with stop below prior swing low generates higher average risk/reward (1:3 to 1:5) than trailing-bar entry, with only slightly lower win rate (50-52%)"
+  proposed_mechanism: "Retracement entry occurs after partial pullback, allowing larger stop without excessive risk; reduces whipsaw probability"
+  applicable_markets_and_regimes: "Trending markets with clear swings"
+  assumptions:
+    - "Fibonacci retracement levels are significant support/resistance"
+    - "Retracement entries have fewer false breaks than breakout entries"
+  data_requirements:
+    - "Prior swing high/low and 38.2%, 50% levels"
+    - "Entry and exit prices"
+  baseline_or_null_hypothesis: "Random entry with 50% win rate; 1:1 average risk/reward"
+  validation_approach: "Compare win rate and risk/reward of retracement entries vs. trailing-bar entries over same period"
+  transaction_cost_and_fill_considerations: "Limit orders at retracement levels; assume 1-2 bp slippage"
+  robustness_checks:
+    - "Test on multiple timeframes and markets"
+    - "Compare 38.2% vs. 50% retracements"
+  rejection_criteria: "Average risk/reward < 2:1 or win rate < 49%"
+  failure_modes:
+    - "Retracement may not materialize; price may reverse before hitting target level"
+    - "Entry is slower (order may not fill until retracement is complete)"
+  freshness_concerns: "Depends on Fibonacci level validity; subjective interpretation"
+  unresolved_questions:
+    - "Are 38.2% or 50% retracements optimal, or market-dependent?"
+
+- id: HPTS-H-007
+  title: "Fixed-dollar-risk position sizing maintains consistent portfolio drawdown"
+  status: proposed
+  derived_from: [HPTS-C6-003]
+  statement: "Position size = fixed_risk / (entry - stop), where fixed_risk is constant dollar amount, maintains maximum single-trade drawdown at 1-2% of portfolio across different setups with varying stop distances"
+  proposed_mechanism: "Proportional sizing normalizes risk exposure; prevents over-concentration when stops are tight"
+  applicable_markets_and_regimes: "Universal; applies to all strategies"
+  assumptions:
+    - "Stops are executed at specified prices"
+    - "Portfolio is sufficiently diversified"
+  data_requirements:
+    - "Entry price, stop price, fixed risk amount, portfolio size"
+  baseline_or_null_hypothesis: "Fixed share count; single-trade risk varies with stop distance; potential for large drawdown on tight-stop trade with large move against position"
+  validation_approach: "Backtest: compare max drawdown and portfolio volatility of fixed-risk vs. fixed-share sizing over multiple years"
+  transaction_cost_and_fill_considerations: "Assumed in sizing formula"
+  robustness_checks:
+    - "Test with different fixed-risk levels (0.5%, 1%, 2% of portfolio)"
+    - "Test with correlated positions"
+  rejection_criteria: "Max drawdown > 15% or portfolio volatility increases significantly"
+  failure_modes:
+    - "Does not account for correlation; multiple correlated losses can exceed intended drawdown"
+    - "Assumes stops are executed; may fail during gap events"
+  freshness_concerns: "Position sizing is well-understood; no freshness risk"
+  unresolved_questions:
+    - "What is the optimal fixed-risk percentage? Does it vary with market volatility?"
+
+- id: HPTS-H-008
+  title: "Minimum 1:2 risk/reward ratio ensures positive expectancy with moderate win rate"
+  status: proposed
+  derived_from: [HPTS-C7-002]
+  statement: "Enforcing minimum 1:2 risk/reward (target is 2x the stop distance) ensures positive expected value at 50% win rate; median win rate in real trading is 45-55%"
+  proposed_mechanism: "Expected value = (win_rate * reward) - (1 - win_rate) * risk; with 1:2 ratio and 50% win rate, EV = +0.5 units per trade"
+  applicable_markets_and_regimes: "Universal filter; applies to all strategies"
+  assumptions:
+    - "Average win rate is at least 50%"
+    - "Risk and reward are accurately estimated"
+  data_requirements:
+    - "Entry, stop, and target prices"
+  baseline_or_null_hypothesis: "Trade without risk/reward filter; average win rate 45%; negative expectancy"
+  validation_approach: "Calculate realized win rate and average risk/reward on historical trades; verify EV is positive"
+  transaction_cost_and_fill_considerations: "Included in target calculation (reduce target by 2-3 bp for costs)"
+  robustness_checks:
+    - "Test different minimum risk/reward ratios (1:1.5, 1:2, 1:3)"
+  rejection_criteria: "Realized win rate < 48% or realized R/R < 1.8:1"
+  failure_modes:
+    - "Win rate often lower than 50% in live trading due to slippage and selection bias"
+    - "Target placement may be overly optimistic"
+  freshness_concerns: "Basic expectancy concept; no freshness risk"
+  unresolved_questions:
+    - "What is the realistic win rate for different entry types (breakout, retracement, momentum)?"
+
+- id: HPTS-H-009
+  title: "Multiple-unit exits (partial profit-taking) improve trading psychology without reducing edge"
+  status: proposed
+  derived_from: [HPTS-C7-001]
+  statement: "Exiting 50% of position at 50% of target, then remaining 50% at full target improves risk/reward perception and reduces early-exit pressure, with no degradation of final outcome vs. single exit at full target"
+  proposed_mechanism: "Locking in partial gains reduces emotional pressure to exit early; remaining half can reach full target without psychological interference"
+  applicable_markets_and_regimes: "Behavioral benefit; mathematics are neutral"
+  assumptions:
+    - "Traders can avoid early exit once first tranche is profitable"
+    - "Transaction costs on partial exit are acceptable"
+  data_requirements:
+    - "Entry, first exit (50% target), second exit (full target) prices"
+  baseline_or_null_hypothesis: "Single exit at full target; no intermediate exits"
+  validation_approach: "Compare final outcome (total P&L) of multi-unit exits vs. single exit on same trades; should be similar minus transaction costs"
+  transaction_cost_and_fill_considerations: "Assume 1 bp cost per partial exit"
+  robustness_checks:
+    - "Test different exit splits (30/70, 40/60, 50/50)"
+  rejection_criteria: "Net cost of multiple exits > 0.5% of average trade profit"
+  failure_modes:
+    - "Partial exits lock in suboptimal profits; remaining position size may be too small to capture remaining move"
+    - "Psychological benefit is subjective; does not apply to discretion-free automated systems"
+  freshness_concerns: "Psychological concepts; no freshness risk"
+  unresolved_questions:
+    - "Is the psychological benefit quantifiable? Can it be measured?"
+
+- id: HPTS-H-010
+  title: "Confluence of momentum, pattern, price, and time signals identifies higher-probability setups"
+  status: proposed
+  derived_from: [HPTS-C7-004, HPTS-C1-001]
+  statement: "Trades with 3+ confluent signals (e.g., momentum aligned, Elliott pattern complete, price at Fibonacci level, time band converge) have 55%+ win rate; trades with 1-2 signals have 48-50% win rate"
+  proposed_mechanism: "Multiple independent signals reduce noise and false-signal probability; higher confluences indicate genuinely high-probability setup"
+  applicable_markets_and_regimes: "All strategies; confluence is always beneficial"
+  assumptions:
+    - "Signal types are independent indicators"
+    - "Signal types are truly predictive (not hindsight-biased)"
+  data_requirements:
+    - "Classification of each trade by number of confluent signals"
+    - "Realized outcome and win rate for each group"
+  baseline_or_null_hypothesis: "All signals equally predictive; no win rate difference by confluence"
+  validation_approach: "Backtest: stratify trades by confluence count; measure win rate differential and calculate Sharpe impact"
+  transaction_cost_and_fill_considerations: "Higher-confluence trades may have more specific entry prices (limit order execution risk)"
+  robustness_checks:
+    - "Verify that signal types are not correlated artifacts"
+    - "Test different confluence thresholds (2, 3, 4 signals)"
+  rejection_criteria: "Win rate difference < 3% or gain insufficient to compensate for missed opportunities"
+  failure_modes:
+    - "Confluence can be subjective (was the signal truly present?)"
+    - "Overly selective approach may miss many tradeable moves"
+  freshness_concerns: "Confluence concept is sound; no freshness risk"
+  unresolved_questions:
+    - "How to objectively measure and weight different signal types?"
+    - "Is there an optimal confluence threshold?"

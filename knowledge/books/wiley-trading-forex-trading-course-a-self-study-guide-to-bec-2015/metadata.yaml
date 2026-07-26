@@ -1,0 +1,65 @@
+schema_version: "1.0"
+prompt_version: "1.0"
+book_id: "wiley-trading-forex-trading-course-a-self-study-guide-to-bec-2015"
+sources:
+  - relative_path: "Forex Trading Course - A Self Study Guide (2015).pdf"
+    absolute_path: 'C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical Trading\_KNOWLEDGE_EXTRACTION\inventory.yaml'
+    sha256: "not_computed_at_extraction_time"
+title: "Wiley Trading: Forex Trading Course: A Self-Study Guide to Becoming a Successful Currency Trader"
+authors: ["Abe Cofnas"]
+edition: "2nd Edition"
+publication_year: 2015
+publisher_or_identifier: "John Wiley & Sons"
+format: "pdf"
+language: "en"
+page_count: 243
+chapter_count: 20
+extraction_quality: "high"
+ocr_quality: "high"
+processing_status: "audited"
+timestamps:
+  extraction_started: "2026-07-25T00:27:09Z"
+  extraction_completed: "2026-07-25T02:00:00Z"
+duplicate_relationships: []
+limitations_and_warnings:
+  - "Book published in 2015; FX market microstructure, broker regulations, and interest rate environment have evolved significantly"
+  - "Bitcoin chapter (Ch 20) added for 2nd edition; nascent crypto market analysis not current with 2026 standards"
+  - "Housing data emphasis reflects pre-post-2008 recovery focus; current relevance depends on macro regime"
+  - "Central bank names and policy stances reflect 2015 landscape (Yellen, Draghi, Kuroda tenure)"
+scores:
+  source_credibility:
+    score: 4
+    justification: "Wiley-published trading course by professional trader; reputable publisher but trading advice inherently speculative."
+  citation_quality:
+    score: 3
+    justification: "Some academic citations (housing wealth effect); mostly empirical examples and anecdotes from 2000-2015."
+  reproducibility:
+    score: 2
+    justification: "Trading strategies described qualitatively; no backtested results or code; sentiment analysis techniques are loosely defined."
+  likely_freshness:
+    score: 2
+    justification: "2015 publication; interest rates, regulatory environment, broker fees, and market regimes have shifted substantially."
+  system_engineering_relevance:
+    score: 3
+    justification: "Chapters on risk management, sim-to-live transitions, and discipline map to trading system safety and risk controls."
+  grid_relevance:
+    score: 2
+    justification: "Focus on directional trend and carry trades; limited explicit grid or range-trading strategies."
+  stock_strategy_relevance:
+    score: 1
+    justification: "Forex-specific; stock section minimal (Ch 5 mentions equities correlation, no stock-specific strategies)."
+  backtesting_relevance:
+    score: 3
+    justification: "Discusses simulation vs. live trading, challenge-based progression; no formalized backtesting methodology or validation framework."
+  live_execution_relevance:
+    score: 4
+    justification: "Extensive guidance on execution, position sizing, leverage, stops, carry trades, sentiment-driven entries; practical trader perspective."
+  risk_relevance:
+    score: 4
+    justification: "Risk per trade, stop-loss strategies, leverage caps for beginners, drawdown psychology, carry-trade crash risks well covered."
+  data_quality_relevance:
+    score: 3
+    justification: "Emphasis on economic calendar data (housing, inflation, employment); housing MEWs, sentiment search-term analysis; data freshness warnings needed."
+  machine_learning_relevance:
+    score: 1
+    justification: "No ML or advanced statistical methods; sentiment analysis via web search frequency is domain-based heuristic, not ML."

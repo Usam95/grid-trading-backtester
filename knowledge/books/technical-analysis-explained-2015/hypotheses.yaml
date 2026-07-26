@@ -1,0 +1,458 @@
+- id: "TAE-HYP-001"
+  title: "RSI mean reversion at extremes"
+  status: "proposed"
+  derived_from:
+    - "TAE-C13-001"
+    - "TAE-C13-002"
+  statement: "When RSI(14) > 70, price will revert downward by at least 1% within 5 bars; when RSI < 30, price will revert upward by at least 1% within 5 bars."
+  proposed_mechanism: "Overbought/oversold conditions trigger profit-taking or short-covering."
+  applicable_markets_and_regimes: "Equities in range-bound or mean-reversion environments; ineffective in strong trends."
+  assumptions:
+    - "RSI period = 14 bars"
+    - "No gap fills or limit moves prevent mean reversion"
+  data_requirements:
+    - "OHLC bars"
+    - "RSI(14) computed from close"
+  baseline_or_null_hypothesis: "RSI at extreme levels has no predictive power; reversals occur at same frequency as non-extreme readings."
+  validation_approach: "Backtest: identify RSI > 70 and < 30 points; measure % reversals within 5 bars; compare win rate to random entry."
+  transaction_cost_and_fill_considerations: "Entry slippage 1-2 ticks; exit at 1% profit may miss longer moves; tight stops needed to limit losses."
+  robustness_checks:
+    - "Test on multiple timeframes (5min, 1H, daily)"
+    - "Test on different asset classes"
+    - "Vary RSI period and threshold"
+  rejection_criteria: "If win rate < 50% or payoff ratio < 1.2 over >1000 trades, hypothesis rejected."
+  failure_modes:
+    - "RSI whipsaw in strong trends"
+    - "Slippage exceeds 1% profit target"
+  freshness_concerns: "2015 text; modern high-frequency trading may reduce mean reversion periods."
+  unresolved_questions:
+    - "Are RSI extremes more predictive after specific market structure shifts?"
+    - "Does regime (VIX, volatility) affect success rate?"
+
+- id: "TAE-HYP-002"
+  title: "MA crossover trend identification"
+  status: "proposed"
+  derived_from:
+    - "TAE-C11-001"
+    - "TAE-CROSS-001"
+  statement: "When SMA(10) crosses above SMA(50), initiate long; when SMA(10) crosses below SMA(50), initiate short. Hold until opposite crossover."
+  proposed_mechanism: "MA crossover signals trend initiation; golden cross (fast above slow) indicates bullish momentum."
+  applicable_markets_and_regimes: "Trending markets; breakdowns in range-bound/choppy conditions."
+  assumptions:
+    - "SMA periods: 10 (fast), 50 (medium)"
+  data_requirements:
+    - "OHLC bars; closing price for SMA"
+  baseline_or_null_hypothesis: "MA crossovers have no predictive power; random entry yields same risk-adjusted returns."
+  validation_approach: "Backtest crossover signals; measure win rate, Sharpe, maximum drawdown vs buy-and-hold."
+  transaction_cost_and_fill_considerations: "Slippage 1-3 ticks on entry; MA lag means entry after trend already started."
+  robustness_checks:
+    - "Test periods: (10,50), (20,100), (5,20)"
+    - "Compare SMA vs EMA"
+  rejection_criteria: "If Sharpe < 0.5 or win rate < 45% over >500 trades, reject."
+  failure_modes:
+    - "Late entry due to MA lag"
+    - "Whipsaws in choppy markets"
+  freshness_concerns: "Heavily studied; unlikely to be profitable alone in modern markets."
+  unresolved_questions:
+    - "Does combining MA with volume confirmation improve results?"
+
+- id: "TAE-HYP-003"
+  title: "Trendline break as reversal signal"
+  status: "proposed"
+  derived_from:
+    - "TAE-C6-001"
+    - "TAE-CROSS-001"
+  statement: "When price closes below (in uptrend) or above (in downtrend) a 2+ bar trendline, reversal probability is >60%."
+  proposed_mechanism: "Trendline break signals loss of momentum; price authority shifts."
+  applicable_markets_and_regimes: "Defined trends; breaks in choppy/sideways markets are noise."
+  assumptions:
+    - "Trendline drawn on swing lows (uptrend) or highs (downtrend)"
+  data_requirements:
+    - "OHLC bars; clear swing definitions"
+  baseline_or_null_hypothesis: "Trendline breaks are noise; reversals occur at same frequency as before break."
+  validation_approach: "Identify trendlines; measure reversal success after break."
+  transaction_cost_and_fill_considerations: "Entry at break may be late; volatility spike increases slippage."
+  robustness_checks:
+    - "Test on daily, weekly timeframes"
+    - "Vary trendline parameters"
+  rejection_criteria: "If reversal occurs < 60% of the time after break, reject."
+  failure_modes:
+    - "False breaks (price pierces, recovers above trendline)"
+  freshness_concerns: "Subjective trendline drawing; different analysts may draw differently."
+  unresolved_questions:
+    - "Does automation improve consistency?"
+
+- id: "TAE-HYP-004"
+  title: "Volume surge confirms breakout"
+  status: "proposed"
+  derived_from:
+    - "TAE-C7-001"
+    - "TAE-CROSS-001"
+  statement: "Breakout with volume > 2x SMA(20) has >70% success rate (continues beyond entry + 1%)."
+  proposed_mechanism: "High volume confirms conviction; breakout on low volume is suspect."
+  applicable_markets_and_regimes: "All market conditions; more reliable in liquid instruments."
+  assumptions:
+    - "Support/resistance defined by prior swing highs/lows"
+    - "Volume SMA = 20-day average"
+  data_requirements:
+    - "OHLC + Volume"
+  baseline_or_null_hypothesis: "Volume at breakout uncorrelated with success."
+  validation_approach: "Identify breakouts; separate high-volume vs low-volume; measure win rates."
+  transaction_cost_and_fill_considerations: "High volume = better fills; slippage minimal."
+  robustness_checks:
+    - "Test volume threshold (1.5x, 2x, 3x SMA)"
+  rejection_criteria: "If high-volume breakouts < 70% success rate, reject."
+  failure_modes:
+    - "Volume spike on failed breakout (head-fake)"
+  freshness_concerns: "Modern markets: HFT may mask real volume."
+  unresolved_questions:
+    - "Does volume concentration matter more than aggregate volume?"
+
+- id: "TAE-HYP-005"
+  title: "Head-and-shoulders pattern reversal"
+  status: "proposed"
+  derived_from:
+    - "TAE-C8-001"
+  statement: "After H&S pattern, neckline break predicts 60%+ reversal within 10 bars; target = H&S height."
+  proposed_mechanism: "Distribution at resistance; price exhaustion at head."
+  applicable_markets_and_regimes: "Trending markets near reversals."
+  assumptions:
+    - "H&S criteria: shoulders at similar height, head clearly above, neckline horizontal"
+  data_requirements:
+    - "OHLC bars; clear candlestick visualization helpful"
+  baseline_or_null_hypothesis: "H&S patterns random; neckline break has no predictive power."
+  validation_approach: "Identify H&S patterns; measure reversal % and price target accuracy."
+  transaction_cost_and_fill_considerations: "Entry at neckline break; slippage and stop placement critical."
+  robustness_checks:
+    - "Test on different timeframes"
+    - "Vary shoulder symmetry tolerance"
+  rejection_criteria: "If reversal < 60% or target accuracy < 50%, reject."
+  failure_modes:
+    - "H&S may be false (followed by continuation)"
+  freshness_concerns: "Heavily studied pattern; algorithmic recognition possible."
+  unresolved_questions:
+    - "Does failed H&S predict continuation?"
+
+- id: "TAE-HYP-006"
+  title: "Bollinger Band extreme reversion"
+  status: "proposed"
+  derived_from:
+    - "TAE-C12-001"
+  statement: "When price touches upper BB, next 5-bar close < open (reversal) in 65%+ of cases."
+  proposed_mechanism: "Volatility-adjusted overbought/oversold; mean reversion to middle band."
+  applicable_markets_and_regimes: "Range-bound markets; ineffective in strong trends."
+  assumptions:
+    - "BB parameters: SMA(20) + 2*StDev"
+  data_requirements:
+    - "OHLC; volatility"
+  baseline_or_null_hypothesis: "BB touches uncorrelated with mean reversion."
+  validation_approach: "Track BB touches; measure reversal frequency."
+  transaction_cost_and_fill_considerations: "Entry challenging (price already at extreme); tight stops needed."
+  robustness_checks:
+    - "Test BB periods (10, 15, 20, 30)"
+    - "Test multiples (1.5, 2, 2.5 SD)"
+  rejection_criteria: "If reversal < 65%, reject."
+  failure_modes:
+    - "Breakout through BB in strong trend"
+  freshness_concerns: "Heavily studied; potential for regime shifts."
+  unresolved_questions:
+    - "Does volatility level determine BB touch predictability?"
+
+- id: "TAE-HYP-007"
+  title: "MACD signal crossover predicts trend change"
+  status: "proposed"
+  derived_from:
+    - "TAE-C14-001"
+  statement: "When MACD crosses above Signal line, trend up (win rate 55%+); when below, trend down (55%+)."
+  proposed_mechanism: "MACD momentum change precedes price change."
+  applicable_markets_and_regimes: "All regimes; less effective in choppy/sideways."
+  assumptions:
+    - "MACD = EMA(12) - EMA(26); Signal = EMA(9)"
+  data_requirements:
+    - "Closing prices for EMA computation"
+  baseline_or_null_hypothesis: "MACD crossovers random; win rate = 50%."
+  validation_approach: "Backtest MACD crossover signals; measure win rate and payoff."
+  transaction_cost_and_fill_considerations: "Entry delay (~1 bar) due to lag in MACD computation."
+  robustness_checks:
+    - "Test EMA periods"
+  rejection_criteria: "If win rate < 55% or Sharpe < 0.3, reject."
+  failure_modes:
+    - "False crosses in choppy markets"
+  freshness_concerns: "Heavily studied; unlikely to be profitable alone."
+  unresolved_questions:
+    - "Does MACD histogram divergence improve signals?"
+
+- id: "TAE-HYP-008"
+  title: "Support/resistance holds as price anchor"
+  status: "proposed"
+  derived_from:
+    - "TAE-C5-001"
+    - "TAE-CROSS-002"
+  statement: "Identified support (prior swing low) holds price bounce in 65%+ of tests; resistance in 65%+."
+  proposed_mechanism: "Psychological price levels; order clustering."
+  applicable_markets_and_regimes: "Range-bound and trending."
+  assumptions:
+    - "Support = prior swing low; Resistance = prior swing high (within last 20-50 bars)"
+  data_requirements:
+    - "OHLC bars"
+  baseline_or_null_hypothesis: "Support/resistance are noise."
+  validation_approach: "Identify S&R levels; count tests and measure hold rate."
+  transaction_cost_and_fill_considerations: "Entry at S/R tested; stop just below/above level."
+  robustness_checks:
+    - "Test age of prior swing"
+    - "Test across asset classes"
+  rejection_criteria: "If hold rate < 65%, reject."
+  failure_modes:
+    - "Regime shift breaks historical S/R levels"
+  freshness_concerns: "Algorithmic trading may mask S/R order clustering."
+  unresolved_questions:
+    - "Does order book imbalance predict S/R penetration?"
+
+- id: "TAE-HYP-009"
+  title: "Relative strength predicts outperformance"
+  status: "proposed"
+  derived_from:
+    - "TAE-C19-001"
+    - "TAE-C32-001"
+  statement: "Stocks with rising RS vs S&P 500 outperform market by >2% annually."
+  proposed_mechanism: "RS captures relative momentum; outperformers cluster when rising RS."
+  applicable_markets_and_regimes: "Bull markets; breaks down in risk-off regimes."
+  assumptions:
+    - "RS = stock price / S&P 500 close"
+  data_requirements:
+    - "Individual stock prices; S&P 500 level"
+  baseline_or_null_hypothesis: "RS uncorrelated with future outperformance."
+  validation_approach: "Rank stocks by RS; buy top 10%; hold 6 months; measure return vs market."
+  transaction_cost_and_fill_considerations: "Monthly rebalancing; turnover costs."
+  robustness_checks:
+    - "Test different ranking periods (1mo, 3mo, 6mo)"
+    - "Test portfolio sizes"
+  rejection_criteria: "If alpha < 2% or Sharpe similar to market, reject."
+  failure_modes:
+    - "Concentration risk; mean reversion"
+  freshness_concerns: "Modern markets: factor rotation may have arbitraged RS signal."
+  unresolved_questions:
+    - "Does combining RS with valuation metrics improve results?"
+
+- id: "TAE-HYP-010"
+  title: "Market breadth predicts trend sustainability"
+  status: "proposed"
+  derived_from:
+    - "TAE-C27-001"
+  statement: "When A/D ratio > 2.0 for 5+ days, uptrend continues without pullback in 65%+ of cases."
+  proposed_mechanism: "Broad participation signals strength; few stocks leading signals weakness."
+  applicable_markets_and_regimes: "Bull markets; less useful in bear/sideways."
+  assumptions:
+    - "A/D ratio = # advancing / # declining"
+  data_requirements:
+    - "Advancing and declining issues counts"
+  baseline_or_null_hypothesis: "A/D ratio uncorrelated with trend continuation."
+  validation_approach: "Track daily A/D ratio; compare to price; measure continuation rate."
+  transaction_cost_and_fill_considerations: "Signal latency: A/D data often delayed."
+  robustness_checks:
+    - "Test different thresholds"
+    - "Test divergence detection"
+  rejection_criteria: "If continuation < 65%, reject."
+  failure_modes:
+    - "Data delays; sector rotations"
+  freshness_concerns: "Modern markets: passive fund dominance may mask breadth divergences."
+  unresolved_questions:
+    - "Does breadth matter more in mid/small-cap indexes?"
+
+- id: "TAE-HYP-011"
+  title: "OBV divergence predicts momentum change"
+  status: "proposed"
+  derived_from:
+    - "TAE-C26-001"
+  statement: "When price makes new high but OBV does not (bearish divergence), downtrend follows within 10 bars in 60%+ of cases."
+  proposed_mechanism: "Divergence signals weakening conviction; volume fails to confirm price move."
+  applicable_markets_and_regimes: "Trending markets near reversals."
+  assumptions:
+    - "OBV = cumulative sum of volume on up/down days"
+    - "Divergence = price new high but OBV < prior high"
+  data_requirements:
+    - "OHLC + Volume"
+  baseline_or_null_hypothesis: "OBV divergences uncorrelated with reversals."
+  validation_approach: "Identify divergences; measure follow-through accuracy."
+  transaction_cost_and_fill_considerations: "Entry on divergence confirmation; stop above prior high."
+  robustness_checks:
+    - "Test on multiple timeframes"
+    - "Test bullish divergences"
+  rejection_criteria: "If predictive power < 60%, reject."
+  failure_modes:
+    - "Volume spikes late"
+  freshness_concerns: "Heavily studied; reduced edge in modern markets."
+  unresolved_questions:
+    - "Does order flow imbalance predict OBV divergence?"
+
+- id: "TAE-HYP-012"
+  title: "Interest rate rise predicts equity decline"
+  status: "proposed"
+  derived_from:
+    - "TAE-C31-001"
+  statement: "When 10Y Treasury yield rises >50bps in one month, S&P 500 declines >2% within 1-2 months in 60%+ of cases."
+  proposed_mechanism: "Rising rates reduce equity valuations; cost of capital increases."
+  applicable_markets_and_regimes: "Across all regimes; effect strongest in valuation-driven declines."
+  assumptions:
+    - "10Y yield proxy for equity discount rate"
+  data_requirements:
+    - "Daily 10Y Treasury yield; S&P 500 prices"
+  baseline_or_null_hypothesis: "Rate changes uncorrelated with equity returns."
+  validation_approach: "Track yield changes; measure SPX returns over following 1-2 months."
+  transaction_cost_and_fill_considerations: "Macro signal; use as filter, not sole signal."
+  robustness_checks:
+    - "Test different rate thresholds"
+    - "Test time lags"
+  rejection_criteria: "If correlation < 0.6 or predictive power < 60%, reject."
+  failure_modes:
+    - "Lag/lag variation; Fed surprises"
+  freshness_concerns: "2015 text predates 2022 hiking cycle; efficacy may have changed."
+  unresolved_questions:
+    - "Does real rate matter more than nominal?"
+
+- id: "TAE-HYP-013"
+  title: "Sentiment contrarian signal"
+  status: "proposed"
+  derived_from:
+    - "TAE-C29-001"
+  statement: "When AAII bullish % > 70%, S&P 500 declines >1% within 5 trading days in 60%+ of cases."
+  proposed_mechanism: "Crowd psychology peaks before reversals; extremes unsustainable."
+  applicable_markets_and_regimes: "Near tops (70% bulls) and bottoms (20% bulls)."
+  assumptions:
+    - "AAII sentiment survey (weekly)"
+  data_requirements:
+    - "Weekly AAII % bulls data"
+  baseline_or_null_hypothesis: "Sentiment uncorrelated with returns; extremes are noise."
+  validation_approach: "Track AAII weekly; measure S&P 500 returns in following 5 days."
+  transaction_cost_and_fill_considerations: "Signal latency (weekly); not for day trading."
+  robustness_checks:
+    - "Test different thresholds"
+    - "Test time lags"
+  rejection_criteria: "If contrarian predictive power < 60%, reject."
+  failure_modes:
+    - "Extended market movements despite extreme sentiment"
+  freshness_concerns: "Sentiment surveys have evolved; data availability changed."
+  unresolved_questions:
+    - "Does social media sentiment now dominate?"
+
+- id: "TAE-HYP-014"
+  title: "Junk bond OAS predicts equity risk-off"
+  status: "proposed"
+  derived_from:
+    - "TAE-C28-001"
+  statement: "When HY-OAS widens > 100bps in one month, S&P 500 returns -2%+ within 1 month in 65%+ of cases."
+  proposed_mechanism: "Rising yield spreads signal risk appetite loss; equity decline follows."
+  applicable_markets_and_regimes: "Risk-off regimes; less predictive during rallies."
+  assumptions:
+    - "HY-OAS sourced from ICE/BoAML"
+  data_requirements:
+    - "Daily HY-OAS data; SPX prices"
+  baseline_or_null_hypothesis: "OAS uncorrelated with equity returns."
+  validation_approach: "Track OAS changes; measure SPX returns in following month."
+  transaction_cost_and_fill_considerations: "Use as macro filter; better for exits."
+  robustness_checks:
+    - "Test different widening thresholds"
+  rejection_criteria: "If predictive power < 65%, reject."
+  failure_modes:
+    - "OAS widens after equity decline (lagging)"
+  freshness_concerns: "2015 text; current OAS dynamics differ."
+  unresolved_questions:
+    - "Does investment-grade spread matter as much?"
+
+- id: "TAE-HYP-015"
+  title: "Major averages divergence as reversal warning"
+  status: "proposed"
+  derived_from:
+    - "TAE-C21-001"
+  statement: "When S&P 500 at new high but Dow or Nasdaq does not, divergence indicates reversal risk within 20 bars (60%+)."
+  proposed_mechanism: "Weak internals signal underlying weakness; leaders failing."
+  applicable_markets_and_regimes: "Trending market tops/bottoms."
+  assumptions:
+    - "New high defined as prior 50-bar high"
+  data_requirements:
+    - "Daily closes: SPX, DJI, CCMP"
+  baseline_or_null_hypothesis: "Divergences uncorrelated with reversals."
+  validation_approach: "Identify divergences; measure reversal rate within 20 bars."
+  transaction_cost_and_fill_considerations: "Macro signal; entry/exit via index futures or ETFs."
+  robustness_checks:
+    - "Test different look-back periods"
+  rejection_criteria: "If reversal rate < 60%, reject."
+  failure_modes:
+    - "Divergences persist without reversal"
+  freshness_concerns: "Modern markets: mega-cap concentration affects divergence signal."
+  unresolved_questions:
+    - "Does sector-level divergence predict reversal?"
+
+- id: "TAE-HYP-016"
+  title: "Multi-indicator confirmation improves signals"
+  status: "proposed"
+  derived_from:
+    - "TAE-CROSS-001"
+  statement: "When trendline break + MA crossover + MACD crossover + volume surge occur within 5 bars, win rate > 70%; single indicator < 55%."
+  proposed_mechanism: "Multiple convergent confirmations reduce false signals; specificity increases."
+  applicable_markets_and_regimes: "All regimes; higher bar reduces drawdowns."
+  assumptions:
+    - "Trendline: 2+ touches"
+    - "MA: SMA(10), SMA(50)"
+  data_requirements:
+    - "OHLC + Volume"
+  baseline_or_null_hypothesis: "Multiple confirmations not more predictive than single indicator."
+  validation_approach: "Backtest each indicator alone vs all-combined; measure win rates."
+  transaction_cost_and_fill_considerations: "Entry delay (waiting for confirmations); fewer signals but higher quality."
+  robustness_checks:
+    - "Test different indicator combinations"
+  rejection_criteria: "If combined win rate < 70%, reject."
+  failure_modes:
+    - "All indicators align in false breakouts"
+  freshness_concerns: "Heavily studied; likely arbitraged."
+  unresolved_questions:
+    - "What is optimal subset for current regime?"
+
+- id: "TAE-HYP-017"
+  title: "Primary reversal checklist accuracy"
+  status: "proposed"
+  derived_from:
+    - "TAE-C35-001"
+  statement: "When all checklist items met (trendline + MA + divergence + volume + sentiment extreme), reversal follows in 75%+ of cases."
+  proposed_mechanism: "Convergence of multiple independent factors signals strong reversal probability."
+  applicable_markets_and_regimes: "At market peaks/bottoms."
+  assumptions:
+    - "Checklist: trendline break, MA crossover, momentum divergence, volume, sentiment extreme"
+  data_requirements:
+    - "OHLC, Volume, sentiment"
+  baseline_or_null_hypothesis: "Checklist items independent; simultaneous occurrence random."
+  validation_approach: "Track checklist occurrences; measure reversal rate."
+  transaction_cost_and_fill_considerations: "Entry at checklist completion; may be late but high confidence."
+  robustness_checks:
+    - "Test subsets of checklist"
+  rejection_criteria: "If reversal rate < 75%, reject."
+  failure_modes:
+    - "Checklist items cluster but reversal delayed"
+  freshness_concerns: "Conceptual framework; modern factors may differ."
+  unresolved_questions:
+    - "Does regime affect checklist accuracy?"
+
+- id: "TAE-HYP-018"
+  title: "Candlestick pattern reversals"
+  status: "proposed"
+  derived_from:
+    - "TAE-C16-001"
+  statement: "Hammer at support followed by next-bar close > open predicts 5-bar rally in 60%+ of cases; Shooting star at resistance predicts decline."
+  proposed_mechanism: "Candlestick wicks reveal intrabar rejection of price levels."
+  applicable_markets_and_regimes: "Near known support/resistance in trending markets."
+  assumptions:
+    - "Hammer: small body, lower shadow > 2x body"
+  data_requirements:
+    - "OHLC bars"
+  baseline_or_null_hypothesis: "Candlestick patterns uncorrelated with reversal; 50% random."
+  validation_approach: "Identify patterns; measure follow-through accuracy."
+  transaction_cost_and_fill_considerations: "Entry after pattern completion; 1+ bar lag."
+  robustness_checks:
+    - "Test on intraday timeframes"
+    - "Vary shadow length definition"
+  rejection_criteria: "If predictive power < 60%, reject."
+  failure_modes:
+    - "False signals in choppy markets"
+  freshness_concerns: "Algorithmic execution may suppress wick formations."
+  unresolved_questions:
+    - "Does high-volume candlestick improve predictability?"

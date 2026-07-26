@@ -1,0 +1,187 @@
+- applicable_markets_and_regimes: Trending FX pairs during Asia/London/NY sessions
+  assumptions:
+  - Trend is identifiable and stable across TFs
+  - Support levels cluster at Fibonacci retracements
+  - Multi-TF confluence reduces whipsaw
+  baseline_or_null_hypothesis: Win rate from random entries
+  data_requirements:
+  - OHLC data multiple timeframes (1H, 4H, 1D)
+  - Historical support/resistance extraction
+  - Trade entry/exit price and time
+  derived_from:
+  - FOREX5H-C2-003
+  - FOREX5H-C6-012
+  - FOREX5H-C4-006
+  failure_modes:
+  - Trend reversal after entry
+  - Stops run before recovery
+  - Spread widens on news
+  freshness_concerns: Broker spreads and slippage have evolved since 2010; current
+    liquidity better than then
+  id: FOREX5H-HYP-001
+  proposed_mechanism: Confluence of trend context (higher TF) + entry timing (lower
+    TF) + technical level (support) reduces noise
+  rejection_criteria: Win rate < 50% OR Sharpe < 0.5 OR max drawdown > 15%
+  robustness_checks:
+  - Walk-forward validation
+  - Out-of-sample test on held-back year
+  - Sensitivity to TF period selection
+  statement: Swing trades that enter at support levels aligned with multi-TF uptrend
+    achieve higher win rate than random entries
+  status: proposed
+  title: Multi-timeframe trend + support-based swing entries improve win rate vs.
+    price-only entries
+  transaction_cost_and_fill_considerations: Assume 2 pip spread + 1 pip slippage;
+    stops at support within 10 pips
+  unresolved_questions:
+  - What TF combination is optimal?
+  - How tight can stops be without excessive whipsaw?
+  - Does 2x range profit target hold across all pairs?
+  validation_approach: Backtest swing strategy with and without multi-TF filter; compare
+    win rate, Sharpe, and max drawdown
+- applicable_markets_and_regimes: FX pairs in strong trend vs. range environments
+  assumptions:
+  - Breakouts continue (trending regime)
+  - Pullback reversals exist (choppy regime)
+  - Regime identification is reliable
+  baseline_or_null_hypothesis: Win rate is equal across regime
+  data_requirements:
+  - Historic OHLC
+  - Regime labels (trending vs. choppy)
+  - Volume data (where available)
+  derived_from:
+  - FOREX5H-C6-010
+  - FOREX5H-C6-011
+  failure_modes:
+  - Regime identification lags
+  - Breakout false
+  freshness_concerns: Market regime behavior (trend duration, range size) may have
+    evolved
+  id: FOREX5H-HYP-002
+  proposed_mechanism: Momentum captures full trend move; swings recover from pullback;
+    different regimes favor different approaches
+  rejection_criteria: No statistically significant difference (p > 0.05)
+  robustness_checks:
+  - Subsample by year and pair
+  - Sensitivity to trend/range detection
+  statement: Momentum trades (breakout + 2x range target) capture more profit in trending
+    regimes than swing trades; vice versa in ranges
+  status: proposed
+  title: Momentum breakout entries outperform swing entries in trending vs. choppy
+    regimes
+  transaction_cost_and_fill_considerations: Same as HYP-001
+  unresolved_questions:
+  - How to detect regime in real time?
+  - Can machine learning improve regime detection?
+  validation_approach: Backtest momentum and swing separately in trending vs. ranging
+    regimes; measure win rate and Sharpe
+- applicable_markets_and_regimes: FX spot; EUR/USD, GBP/USD, USD/JPY, AUD/USD
+  assumptions:
+  - Volume concentrates in London/NY
+  - Off-session volume is too thin
+  - Trader can work those hours
+  baseline_or_null_hypothesis: Win rate equal across all sessions
+  data_requirements:
+  - Tick data by session
+  - Volume/spread by session
+  - Trade performance by session
+  derived_from:
+  - FOREX5H-C7-013
+  - FOREX5H-C7-014
+  failure_modes:
+  - Best trade occurs in off-session
+  - Trader fatigue limits edge during prime times
+  freshness_concerns: Session importance may have shifted with electronic platforms
+    and 24/5 retail access
+  id: FOREX5H-HYP-003
+  proposed_mechanism: Prime sessions have higher volume, tighter spreads, faster fills;
+    off-session trades have wider spreads and lower probability
+  rejection_criteria: Sharpe(prime sessions) <= Sharpe(all sessions) within 10%
+  robustness_checks:
+  - Test across multiple pairs and years
+  statement: Part-time traders trading only during London (08:00-17:00 GMT) and NY
+    (13:00-22:00 GMT) sessions achieve better risk-adjusted returns than trying all
+    sessions
+  status: proposed
+  title: Trading only during London/NY sessions improves win rate and Sharpe vs. 24/5
+    coverage
+  transaction_cost_and_fill_considerations: Spreads widen significantly in Asian/overnight
+    sessions; slippage higher
+  unresolved_questions:
+  - Is Tokyo session ignored because it's too thin, or because Asian risk events are
+    unpredictable?
+  - Can a scalper succeed in Asian session?
+  validation_approach: Backtest same strategy on same pairs across all sessions vs.
+    prime sessions only; measure Sharpe and win rate
+- applicable_markets_and_regimes: All strategies, all conditions
+  assumptions:
+  - 2% per trade is calibrated
+  - Losses cluster (drawdown is series of losses, not single blowout)
+  - Trader follows plan during drawdown
+  baseline_or_null_hypothesis: Same expectancy with larger risk (e.g., 5% or 10% per
+    trade)
+  data_requirements:
+  - Trade-by-trade P&L log
+  - Sequence of wins/losses
+  derived_from:
+  - FOREX5H-C4-007
+  failure_modes:
+  - Gap loss exceeds 2% stop
+  - Trader over-leverages to chase losses
+  freshness_concerns: Leverage availability and broker stop guarantees have changed
+  id: FOREX5H-HYP-004
+  proposed_mechanism: 'Geometric mean and recovery math: after N consecutive 2% losses,
+    recovery requires fewer winning trades than larger losses'
+  rejection_criteria: Drawdown > 25% or recovery time > 100 trades
+  robustness_checks:
+  - Sensitivity to win rate (50%, 55%, 60%)
+  - Sensitivity to average W/L ratio
+  statement: Limiting per-trade risk to 2% of account keeps max drawdown under 20%
+    (at 10 consecutive losses) and enables recovery to ATH
+  status: proposed
+  title: 2% risk rule prevents catastrophic drawdown and preserves recovery capacity
+  transaction_cost_and_fill_considerations: Position size adjusted for each trade
+    risk level
+  unresolved_questions:
+  - Is 2% optimal, or just a rule of thumb?
+  - Does optimal % depend on win rate?
+  validation_approach: 'Monte Carlo simulation: shuffle trade sequence, measure max
+    drawdown and recovery time under 2% vs. other risk levels'
+- applicable_markets_and_regimes: FX pairs 2 hours before/after major US, EU, UK economic
+    releases
+  assumptions:
+  - News volatility is unpredictable
+  - Slippage costs exceed expected edge
+  - Trader can identify major news ahead of time
+  baseline_or_null_hypothesis: Trading through news has same win rate as trading outside
+    news
+  data_requirements:
+  - Economic calendar (release times, importance)
+  - Tick data around news releases
+  - Trade execution prices and fills
+  derived_from:
+  - FOREX5H-C9-009
+  failure_modes:
+  - Major move starts well after news (delayed impact)
+  - Trader needs to trade for time constraint
+  freshness_concerns: News algos and market microstructure have evolved
+  id: FOREX5H-HYP-005
+  proposed_mechanism: News creates temporary volatility spike, slippage, and stop
+    runs; signal is obscured; staying flat avoids whipsaw
+  rejection_criteria: Win rate(no news) < Win rate(with news) or avg trade duration
+    around news > 1 hour
+  robustness_checks:
+  - Test different 'quiet zone' windows (1H, 2H, 3H pre/post)
+  - Separate US, EU, UK news
+  statement: Trading 0-2 hours before and after major economic news (NFP, Fed, ECB
+    decisions) generates more false stops and slippage than planned benefit; staying
+    flat during news preserves capital
+  status: proposed
+  title: Avoiding news-time trading reduces max loss and drawdown without significant
+    opportunity cost
+  transaction_cost_and_fill_considerations: Measure slippage spike around news times
+  unresolved_questions:
+  - Does size of news matter more than event type?
+  - Are Fed decisions different from lower-tier data?
+  validation_approach: 'Backtest strategy on same setups with and without news blackout;
+    compare win rate, avg loss, and # of whipsaws'

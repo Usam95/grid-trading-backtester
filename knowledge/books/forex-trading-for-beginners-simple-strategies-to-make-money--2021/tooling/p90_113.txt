@@ -1,0 +1,691 @@
+===== PAGE 90 START =====
+Chapter 9: Cryptocurrency in Forex
+Trading
+A cryptocurrency is a digital currency that acts as a medium of exchange.
+Currencies have gone through a series of changes since the barter system in
+the Stone Age period, to the paper currency in later years.
+The term 'crypto' in cryptocurrency comes from the word 'cryptography.'
+Cryptography is a technique of using encryption and decryption as a means to
+safeguard communication in the company of third parties with ill motives. In
+order to work, cryptography requires a computational algorithm, a public key
+that the trader shares with everybody, and a private key, which acts like the
+trader’s digital signature, which the trader keeps secret.
+In Forex Trading, forex traders use cryptocurrencies as modes of payments
+and as trading instruments, forming currency pairs with other
+cryptocurrencies and currencies.
+===== PAGE 90 END =====
+
+===== PAGE 91 START =====
+At this point, the future of currency could be cryptocurrencies. There are two
+major cryptocurrencies in the market: the bitcoin and ether. The bitcoin is a
+type of digital currency that is independent of a central authority. That is, the
+central bank does not regulate the distribution of bitcoins in the market.
+Instead, bitcoin uses a blockchain to carry out transactions on a peer-to-peer
+network.
+Bitcoins started circulating in 2009, and its success has generated several
+competing cryptocurrencies called 'altcoins' or alternative coins. Altcoins
+include Litecoin (LTC), Namecoin, Peercoin (PPCoin), Ripple, EOS, and
+Cardano, among thousands of other cryptocurrencies currently in existence.
+Ether is a type of currency that the Ethereum network acknowledges.
+Ethereum runs on blockchain technology to establish an open-source platform
+to create and redistribute applications that are decentralized, or independent
+of central authority.
+Bitcoin and ether are the most significant and most valuable cryptocurrencies
+in the international market. While bitcoins transactions are manual, ether
+transactions can be both manual and automatic. A trader can use bitcoins for
+transactions involving goods and services, whereas ether uses blockchain to
+create ledgers that activate operations once a trader meets the required
+conditions.
+Litecoin is similar to bitcoin in that Litecoin relies on an open-source global
+payment network that is not under any central authority's regulation.
+However, Litecoin has a more rapid block generation rate compared to
+bitcoin, since Litecoin uses a different algorithm.
+Namecoin is more of an experimental open-source technology that boosts
+security, independence from a central regulating authority, censorship
+resistance, speed of internet infrastructure such as the Domain Name System
+(DNS), and privacy. Traders can use Namecoin to record and transfer
+random keys or names in a safeguarded manner. It also has the ability to
+attach data to the random names. In that regard, Namecoin offers advanced
+privacy competences.
+Peercoin (PPCoin) is one of the leading forms of cryptocurrencies with
+regard to market capitalization. It is the first digital currency that employs a
+combination of proof-of-work and proof-of-stake. The proof-of-stake
+algorithm formulates from the coins that individual traders hold. A trader
+===== PAGE 91 END =====
+
+===== PAGE 92 START =====
+holding 2% of the currency should receive a reward of 2% of all proof-of-
+stake coin blocks.
+The proof-of-work blocks are less rewarding because the portion of the
+proof-of-work algorithm requires intensive energy for generating blocks
+compared to the minimal energy the proof-of-stake algorithm uses to create
+blocks. Consequently, the Peercoin network will become more energy-
+efficient as proof-of-stake rewards do not need a lot of processing power.
+Ripple is both a cryptocurrency and a payment system. With regard to
+Ripple’s cryptocurrency aspect, it follows an algorithm like every other
+cryptocurrency. Ripple’s payment system makes it possible for users to
+transfer money in any currency to another user on the Ripple network in a
+matter of seconds. That means that Ripple transactions are much faster than
+other crypto coins, including bitcoin.
+EOS is a robust infrastructure for decentralized applications that is
+blockchain-based and facilitates the development hosting and performance of
+economic-scale decentralized applications (dApps) on its platform. EOS
+uses the proof-of-stake idea to make instant high-level decisions among
+designated stakeholders.
+Cardano is both a cryptocurrency and a decentralized platform that authorizes
+transactions without high-energy costs. Cardano seeks to safeguard the
+privacy of traders while being regulator-friendly. The platform uses the
+Ouroboros Pos algorithm to authenticate transactions.
+Why use cryptocurrencies?
+Little to No Operation Costs : When traders use traditional ways of
+carrying out transactions using paper currencies, they lose some amount of
+money when transferring currencies to or from bank accounts.
+Cryptocurrencies have the lowest transaction fees, which amount to only
+about $2. An individual may encounter only three transaction fees. The
+charges include the exchange fees, the network fees, and the digital wallet
+fees when a person wants to store his or her crypto coins in the digital
+wallet.
+24/7 Access to Money : Unlike using banks, individuals can access
+cryptocurrencies anytime, any day. Given that cryptocurrencies are not
+subject to any central authority, an individual can have access to the crypto
+coins any time of the day, even in the middle of the night.
+===== PAGE 92 END =====
+
+===== PAGE 93 START =====
+Similarly, an individual can make unlimited purchases and withdrawals. That
+is contrary to using bank services where the bank places limits on the amount
+of money an individual can spend within 24-hours.
+Available for Anyone : Billions of people around the world do not have
+access to bank accounts. However, many people have access to mobile
+phones and can use cryptocurrencies and blockchain technology to execute
+financial transactions through biometric, thus promoting prosperity.
+Additionally, the process of signing up to use cryptocurrencies is brief and
+requires no paperwork.
+Fast International Transactions : Unlike in banks, where transferring
+money from one place to another can take hours, transferring
+cryptocurrencies is a matter of seconds. That is because when moving
+cryptocurrency from one place to another, transactions do not need to go
+through all of the same checks and balances processes that banks follow
+before depositing funds.
+Cryptocurrency transfers, whether within a country or outside the country, are
+quick and instant and do not require any transaction costs. Additionally,
+individuals can track their transactions in the blockchain.
+High Privacy Levels : With cryptocurrencies, an individual does not have to
+provide personal information. That is contrary to banks, where individuals
+have to provide extensive personal data.
+Moreover, individuals can carry out safe transactions because of the
+encryptions that go into the code of cryptocurrencies. Therefore, traders can
+have confidence in the cryptocurrencies security guarantee as more people
+use the specific blockchain.
+People Have Control Over Their Own Money : Cryptocurrencies are not
+subject to the rules and regulations that the banks and other financial
+institutions enforce. If an individual remembers the password or the
+passphrase of his or her digital wallet, the cryptocurrencies are entirely
+under the control of the individual, and no one else can have access to the
+crypto coins.
+Cryptocurrencies allow individuals to carry out trade with other people
+independently, without the presence of a third party or bank interference.
+That is because transactions with cryptocurrencies are peer-to-peer, meaning
+from people to people.
+===== PAGE 93 END =====
+
+===== PAGE 94 START =====
+Reliable Alternative to Unstable Currencies : Cryptocurrencies does not
+bring about inflation and economic instability that individuals often
+experience from using traditional paper currencies. While not all individuals
+are subject to the incredible rates of inflation, other individuals can benefit
+greatly from shifting to use cryptocurrencies.
+Many countries around the world allow the use of cryptocurrency, which is
+not affected by forex rates and interest rates. In fact, cryptocurrency offers
+more solidity and assurance to people living in economically unstable
+countries.
+Accountability of Individuals and Companies : Regrettably, there are
+several business entities and big industries out in the business world, which
+allow corrupt and illegal business tendencies. Individuals want to ensure that
+they carry out their trades with honesty and integrity, upholding the trading
+rights and following the rules of conduct. However, trusting that a company
+or an individual has integrity based on the information they provide about
+themselves is not a reliable way to know the morals of their real practices.
+Luckily, cryptocurrency introduces the blockchain technology that will
+change the way individuals and companies practice a trade — blockchain
+technology, which is not subject to change, unlike the traditional paper
+currency. Cryptocurrencies and blockchain technologies make companies and
+individuals answerable to clients. Moreover, traders get the opportunity to
+know more about the companies they trade with.
+Strengthen E-Commerce : Given that many people like to carry out most of
+their transactions online nowadays, cryptocurrencies provide a safe option
+for shoppers to buy as many things as they would want, without concerns for
+fraud.
+Cryptocurrencies not only reduce the risk of fraud for online shoppers, but
+they also protect the business vendors and merchandisers. Cryptocurrency
+transactions are permanent. That is because the cryptocurrency's electronic
+network ledger records the transactions. As a result, the transactions become
+irreversible and unchangeable, thus mitigating risk.
+Additionally, using cryptocurrency creates endless opportunities for global
+commerce.
+Secure Handling of Smart Contracts : Blockchain technology enables
+individuals to computerize practically every physical object or service in the
+===== PAGE 94 END =====
+
+===== PAGE 95 START =====
+blockchain. For example, when selling property, an individual can enter the
+value of the property into the blockchain and sell the property through
+automatic or smart contracts.
+Consequently, banks, notaries, and financial advisors will no longer be
+necessary because individuals are able to carry out trades in faster and
+inexpensive ways. Additionally, an individual can securely manage his or her
+personal information in the blockchain and use it for taking loans, insurances,
+or even purchasing travel tickets.
+Governments can also use automatic or smart contracts when giving out
+permits, when holding elections, and when collecting taxes, among other
+government tasks. Blockchain technology will also ensure transparency in
+government operations.
+What are the disadvantages of using cryptocurrencies?
+To begin with, cryptocurrency is a concept that is difficult to understand.
+People who are not tech-savvy may not understand how the blockchains
+work, or how blockchains store cryptocurrencies. In that regard, individuals
+are cautious of taking advantage of the benefits that cryptocurrency can offer.
+As such, most people do not know the benefits of using cryptocurrency.
+However, it appears that, that more and more people are acquiring
+information about the digital currency. The response, therefore, is slow
+because people are not yet ready to make the switch from using banks to
+using cryptocurrency.
+As more individuals enter into the cryptocurrency domain by acquiring their
+crypto every day, there is still a long way to go and a lot of work to do with
+regard to the teaching people how cryptocurrencies work. Consequently, a
+cryptocurrency needs to circulate the money market more, so that people can
+have exposure to it and they can begin to accept to use it
+The other significant drawback that cryptocurrencies have is the challenge of
+constant fluctuations in their market prices. As a result, traders find it
+challenging to use the crypto because traders can never be entirely sure what
+the value of the crypto will be in the upcoming days.
+Additionally, most traders do not accept digital money. That is because the
+concept of digital money is still new, and many traders do not trust digital
+money yet. What's more, many companies have not embraced the use of
+digital funds, even though cryptocurrency is a growing trend. The reason for
+===== PAGE 95 END =====
+
+===== PAGE 96 START =====
+that could be that companies are not willing to take a risk with the constantly
+changing prices. In addition, companies may not be aware of how
+cryptocurrency can generate profits.
+Lastly, most people may not know where to get cryptocurrencies, how to
+store, and how to use the cryptos. Although people can search for information
+on cryptos online, the idea is that no person, young and old, should have any
+challenges when it comes to dealing with cryptocurrencies. Instead, the trade
+should become an organic or natural part of people's lives, the same way that
+paper currency is.
+In conclusion, the rate at which the world is becoming technologically
+interconnected calls for a complete transformation in the process of buying
+and selling products and services. Cryptocurrencies are one of the ground-
+breaking innovations in the context of technological interconnectedness that
+will revolutionize global forex trade.
+Consequently, more traders will accept cryptocurrencies, and more people
+will switch to using cryptos. In that way, cryptocurrencies have a huge
+potential to become the most widely used medium of exchange in the future.
+Chapter 10: Examples of Trade
+===== PAGE 96 END =====
+
+===== PAGE 97 START =====
+Forex trade involves a trader going long for the first currency and short for
+the second one. He or she purchases the first currency using money and then
+waits before selling it to make a profit. The trade takes place utilizing the
+current rates of exchange at the time of the transaction. Thus, the fluctuations
+in the exchange rates determine if the value of a particular currency is high or
+low. It helps a trader decide when to enter or exit a trade, or when to buy or
+sell a currency.
+For example, a trader followed the prevailing GBP/USD exchange rates and
+paid USD 24,200 to purchase GBP 20,000 in mid-January 2017. The value
+of the British pound increased over the following months against the dollar.
+The trader then decided to sell the £20,000 that he has for approximately
+$27,000. He or she closed out his or her position and received USD 27,000.
+Thus, he or she made a profit of USD 2,800 because initially, he or she
+started with USD 24,200 and closed out with USD 27,000.
+A trader can utilize various strategies and means to ensure that he or she
+achieves success in Forex Trading. He or she can use trading instruments
+such as disposable risks, leveraged features, spread bets, and CDF contracts.
+===== PAGE 97 END =====
+
+===== PAGE 98 START =====
+A CDF contract is a deal between two sides to trade the difference between
+the closing price and opening price of a contract. It stands for 'Contract for
+difference' and is a complicated, advanced, and high-risk instrument as a
+trader can experience a rapid loss due to leveraged features.
+The following are some examples of forex trade and the outcomes that
+indicate a winning or losing trade:
+Example 1
+A trader can calculate his or her profits and losses when he or she closes out
+a forex trade. He or she finds the difference between the price of buying and
+selling the currency and multiplies it by the transaction size. The difference
+will determine whether he or she experiences a winning or a losing trade.
+For instance, a trader purchases Euros (EUR/USD) at 1.2166 and later sells
+them at 1.2156. The transaction size of that trade is 100,000 Euros. He or she
+will calculate the profit using the formula: ($1.2166 - $1.2156) × 100,000.
+This will lead to $0.001 × 100,000 = $100. Hence, his or her profit from that
+forex trade will be $100.
+Likewise, the forex trader will calculate a loss if he or she sold the Euros
+(EUR/USD) at 1.2060 and buy them at 1.2070. He or she will use the
+formula ($1.2060 - $1.2070) × 100,000. This will give -$0.001 × 100,000 =
+-$100. Thus, he or she will have a loss of $100 from that trade.
+Moreover, the trader can use the current bid to find out his or her unrealized
+losses and profits on open positions. He or she substitutes that bid
+accordingly in the formula to calculate the unrealized profit or loss. For
+example, if he or she purchased Euros at 1.2166, and the current rate of a bid
+is 1.2116, then his or her unrealized loss is $50. The calculation is ($1.2161
+- $1.2166) × 100,000= -$0.0005 × 100,000 = $50. If he or she sold the
+Euros at 1.2060 and the current bid rate is 1.2055, the unrealized profit here
+is $50: ($1.2060 - $1.2055) × 100,000= $0.0005 × 100,000= $50.
+The trader subtracts any extra charges in the transactions like commissions,
+to find out his or her exact profits and losses.
+Example 2
+===== PAGE 98 END =====
+
+===== PAGE 99 START =====
+A trader can transact in the forex market in terms of the amount of money he
+or she is willing to risk. He or she takes a certain amount from his or her
+investments fund account and uses it to trade. He or she can win and double
+the initial risked amount or not succeed and end up losing the money. For
+instance, a trader has $10,000 in his or her account as the money available as
+a disposable risk. During an investment, he or she decides to use $2,000 and
+ventures that amount in the forex trade.
+The trader researches and finds out that the chances of achieving a profit goal
+of interest are 70%. He or she can then choose to invest that amount in the
+trade in two ways. First, he or she can risk the entire $2,000 and form a
+profit goal of $2,000 while going long at the opening. Additionally, he or she
+can also set a stop loss of $2,000 in the trade. If the deal succeeds, he or she
+wins an additional $2,000 in profits. Nonetheless, he or she may also lose
+the business, and the entire invested amount since the risk of failing, in this
+case, is at 30%.
+The second way that the trader can invest the money is to split it and risk
+only $200 per trade. He or she also modifies the profit goal to $200. Thus, he
+or she can make ten trades and significantly reduce the chances of losing the
+entire $2,000 since the risk associated here is less than 1%.
+Example 3
+A forex trader can also use a leveraged instrument to trade, which provides
+him or her with a trading margin. He or she makes a profit if the trade moves
+in his or her direction margin. Conversely, he or she loses the deal if it
+pushes against the trader. For instance, a trader with an investment amount of
+$6,000 trades on a margin of 1:50. This margin means that he or she can
+practically manage a capital of $300,000.
+A beginning trader utilizes a smaller margin of 1:20 to minimize the risks
+associated with contrasting trade moves that can result in a 100% loss of
+capital. Thus, he or she uses a margin of 1:20 with the initial money of
+$6,000, which enables him or her to control $120,000. He or she decides to
+bet that the USD will fall against the Euro and then enters a trade on a long
+side to transact the EUR/USD. The current exchange rate of the EUR/USD is
+1.405, while he or she will practically be trading $120,000 to Euros. He or
+she calculates it by the 120,000/1.405 = 71,174 Euros.
+===== PAGE 99 END =====
+
+===== PAGE 100 START =====
+Forex Trading involves several strategies that a trader can employ in the
+market. He or she can study the various ways of Forex Trading and select the
+ones that best suit his or her profit goal and trading tactics.
+===== PAGE 100 END =====
+
+===== PAGE 101 START =====
+Chapter 11: Mistake That Beginners Make
+in Forex Trading
+All traders have passed through the beginners' phase, and they have made
+their share of newbie mistakes. Most traders continue to make mistakes as
+they venture deep into trading, but smart ones view these mistakes as learning
+opportunities rather than sulk over then. People can be very emotional where
+their money is concerned, but it is important for traders to detach themselves
+from this mindset so that they can make rational decisions.
+The occasional lapse is forgivable, but at the end of it all, the trader’s money
+is at stake, so he or she should work hard to protect it and grow it. If you are
+===== PAGE 101 END =====
+
+===== PAGE 102 START =====
+new to trading, you can learn from those who have gone ahead of you and
+avoid some of the common mistakes that they have made which include:
+1. Trading Without Much Knowledge
+The first mistake that people make when they decide to try Forex Trading is
+getting into the forex market without proper knowledge of how to maneuver
+and make money. Forex Trading is something that takes years to master. In
+addition to trading knowledge, experts in trading have vast experience in
+trading. Although newbies might have the former and not the latter, they can
+still succeed in trading but with proper planning and guidance.
+Investing in the forex market is similar to investing in a business. People
+hardly invest in sectors or businesses that they have little knowledge. They
+usually take their time to study how to conduct business in a particular area.
+People interested in Forex Trading should also treat trading as a business that
+they are interested in investing in. They should not forget that they need to
+protect their capital just as they would if they were putting it in a business
+venture by stocking up on information.
+New traders can gather information from trading books, articles, and any
+other material available that touches on the subject. There are also people
+who offer classes in the form of webinars and seminars. Beginners can also
+practice with demo accounts. Successful traders are well informed; they
+know the markets they operate in as well as indicators and strategies for
+investing in the stock market.
+2. Trading Without a Plan
+Trading plans are very crucial in investing in the financial markets. They
+offer a trader with a guideline of how they will invest their money in the
+forex market. More specifically, they detail the amount of money a trader is
+willing to put in a trade, the market conditions that are favorable for a person
+to trade, the duration of stay in the market and the exact time to get out of the
+market either after experiencing a loss or even after making a profit. Without
+such guidelines, traders conduct their business blindly with no focus.
+Many new beginners in Forex Trading are guilty of this mistake. They enter
+the forex market without any plan and wonder why they keep failing in the
+trade. New beginners can formulate trading plans then test them in a demo
+===== PAGE 102 END =====
+
+===== PAGE 103 START =====
+account. They can keep adjusting their plans as they see fit until they are
+ready to test in the real market.
+Once a trader begins to use his plan, he should ensure that he follows it. This
+way, he is able to remain rational when trading and keep his emotions at bay.
+The stop loss and stop profit serve to guide the trader on when to exit the
+market to avoid losing money and when a trade has been exhausted. More
+importantly, as traders write down their plans, they should focus on the right
+goals. If chasing after huge profits are all a trader wants, then he or she is
+bound to get disappointed. Setting realistic goals is crucial, even if it means
+making a little consistent profit.
+3. Lack of Money Management
+New traders are at free will to decide how much they are willing to invest in
+a trade. However, a number of beginners overleverage their capital. They put
+money that they cannot afford to lose in a single trade and risk a huge
+percentage of their portfolio or investment in the trade. Since making profits
+is never guaranteed, there is always the risk of losing money or the entire
+investment if one is not careful about how they manage their money.
+New traders should calculate how much money they are willing to risk in a
+single trade according to their risk appetite. They should not make some
+decisions on a whim. The best way is to have a guideline from the beginning,
+in the form of a trading plan. A trader should know how many trades he or
+she should enter at any one single time. Without understanding, his or her
+risk/reward ratio, or win/loss ratio, a trader can end up investing his or her
+capital in the wrong way and lose the entire investment.
+Therefore, it is crucial that traders and especially the new ones to learn a
+few money management skills before they join the market; otherwise, they
+may not survive in trading.
+4. Overtrading
+Some new traders are very fond of overtrading. This can mean that they
+either trade with money that they do not have or risk a big portion of their
+investment in a single trade. Insufficient capitalization is dangerous and is
+ill-advised. Traders should only trade with money that they have and not
+money that does not exist or money they have borrowed.
+===== PAGE 103 END =====
+
+===== PAGE 104 START =====
+It is always devastating for a trader to lose money that they did not have. This
+often leads to them borrowing money elsewhere to compensate for their loss,
+or they have to struggle to get back above the margins. Even when a trader
+begins to make money, they should have a guideline of how much of their
+profit they should reinvest back in the market and how much of their capital
+they should put back.
+Another mistake new beginner is fond of making is trading when the markets
+are not favorable as stipulated in their trading plan. When traders deviate
+from their plans and get into markets that they should not, then it means that
+they are overtrading. New traders should not assume that their strategies are
+faulty when the markets do not favor even if it is for a long while. Instead of
+getting into shaky water, new traders should always choose to save their
+money over spending it then losing some of it.
+5. Trading Without a Stop Loss
+A stop loss is very important as it acts as a warning sign to a trader and tells
+him or her when to stop trading because of the risk of losing further amounts
+with an investment. Due to possibly a lack of experience, some beginners
+never know when to cut their losses and move on to the next trade. When they
+start losing money, they always think that they can recover their money, so
+they continue trading despite their margins running out.
+Other traders may have stop losses, but they do not have the discipline to
+stick to them. This group is no different from the one without a stop loss.
+Another set of traders may be tempted to move their stop loss in the negatives
+or readjust it to accommodate more losses when they trade, but this is also
+ill-advised. Traders should always move stop losses upwards and in the
+direction of a win rather than down and to an even larger loss position.
+6. Ignoring News and Market Trends
+New traders should also stick to their plans when they venture or approach
+trading markets. However, their plans should be flexible to accommodate
+market conditions as well as any news or events that might affect the
+movement of the market. For example, a trader might spot a good USD to
+EUR exchange. However, something might happen in Europe that might blow
+up the deal without the trader’s knowledge. Without this information, from let
+us say the balance trade report from Europe, a trader cannot make an
+===== PAGE 104 END =====
+
+===== PAGE 105 START =====
+informed decision. Traders are supposed to make event calendars as they
+catch up with their daily news, this way, they are able to monitor and keep in
+mind what could affect their future trading decisions as well as any
+curveballs that they might encounter. Various tools can assist traders to check
+on prevailing ranges and trends. Understanding the history of a certain market
+can also help a trader know what the future market might look like.
+7. Trading with Emotions
+Trading with emotions or gut feelings is very common with all traders, not
+just new ones. Rather than use hunches, traders should study markets and
+read the statistics in order to make rational decisions. When the market
+seems to be favorable, it is very easy for a trader to put in more money or
+stay for a bit longer.
+This is risky because trading markets can sometimes be volatile; they can
+change in an instant or overnight, leaving a trader in regret. It is important for
+beginners to stick to their trading plan. They should know when to collect
+their profit bags and leave. Similarly, when a new trader encounters a loss,
+they also take a break from the market but not a long one. Refraining from
+trading or sulking over previous losses is emotional trading. Even expert
+traders make losses and mistakes, but they always choose to pick up the
+pieces and move on to another trader rather than seat down and sulk.
+If a trader is also too cautious, they can miss great deals that are within their
+trading plans. This fear can also make a trader deviate from his or her plan
+and try out trades that are not within the plan. This decision has the potential
+to lead to even further losses. In most cases, a good trading plan can recover
+losses. If this does not happen, then the trader can pull away from the forex
+market, assess their plan, or look for the problem in their plan, then adjust
+accordingly and get back into the game.
+8. Adding to a Losing Trade
+Sometimes beginners in trading are tempted to continue adding to an
+unprofitable trade, but eventually, even they can attest that this is a wrong
+move. No matter how sure a trader is about the next move in the market,
+multiplying losses is never a good idea. In most cases, it leaves the trader in
+a deeper loss position. Most traders in this situation are also incapable of
+making unbiased decisions that are within their trading plans. It is always
+===== PAGE 105 END =====
+
+===== PAGE 106 START =====
+better for the trader to close with a negative position than to increase their
+loss. It is okay to step back and regroup. The trader can also try another trade
+or wait for the market to be favorable again.
+As earlier deduced, it is never a good idea to move the stop loss in an effort
+to avoid closing at a loss. New traders must learn the discipline of sticking to
+their plans and observing any guidelines that they had set before entering the
+market. Traders should also refrain from revenging on the market. Revenge
+trades can even make a trader double or triple the current loss that they have.
+9. Choosing the Wrong Broker
+The first and probably the most critical decision for a new trader is choosing
+a good broker. Giving money to another person is the first and biggest gamble
+that a trader will ever make. Whichever company the trader decides to give
+his or her trading capital should be legit. There have been incidents of
+people giving away their money to scammers.
+A good broker should allow a trader to trade freely with his or her money
+and withdraw it whenever he or she wishes to do so. The first step in
+choosing the right broker is to look for one that matches your needs. If you
+have a small amount of capital, you should look at brokers who allow trading
+in micro-lots. The broker should also be regulated in the country they operate
+in and have a stable financial system.
+It is important to carry a background check on the broker by researching on
+reviews about the broker. A trader should also check whether a broker
+allows them to deal directly with the market, or they normally redirect them
+to a dealing desk. He should also look at the willingness of the broker to
+address his concerns. Once the trader is okay with the above, he can open a
+demo account to test whether the broker offers what they say they offer. Smart
+traders do not deposit their entire trading capital with a broker; instead, they
+test the water first to assess the broker’s availability, support, and
+accessibility to their money. If a broker proves worthy, a trader can go ahead
+and deposit the rest of his money.
+===== PAGE 106 END =====
+
+===== PAGE 107 START =====
+Chapter 12: How to Make Money with
+Forex Trading to Create Passive Income
+According to experts in the field of Forex Trading, it is possible to create a
+passive income through this form of financial trading. However, before
+jumping headlong into this type of financial trading, prospective traders need
+to ask themselves whether it is suitable for them, in addition to learning as
+much as possible about this line of business.
+A passive income is the income stream traders or investors get at regular
+intervals and require little or no effort on their part to maintain it. Some of
+the common types of passive income include dividends from stock owned in
+a listed corporation, rental income, and interest income from bonds.
+Other less common forms of passive income include royalties from a music
+record or publishing a book, or dividends from a non-listed company run by
+===== PAGE 107 END =====
+
+===== PAGE 108 START =====
+a family member or friend. Passive income may also arise from a new
+business model or income from a multi-level marketing network, where the
+income originates from other people's activities.
+Some internet marketers, such as affiliate marketers, also receive passive
+income from internet traffic that continues to stream in from blogs they posted
+a long time ago. Nowadays, traders can make a passive income through the
+forex market.
+In fact, one does not have to participate directly in the trading process or
+have tons of experience in this field of business. Forex traders can earn a
+passive income from this form of financial trading in several ways, with
+some requiring more work or input from the trader. Some of these include:
+Forex Signals
+These are short messages new traders can use to determine the best currency
+to trade and the right time to trade. Traders can receive important trading
+information through email, text messages, or any other type of
+communication, including social media platforms such as TX forums,
+Twitter, and other leading financial trading platforms.
+These signals or messages are usually brief snippets of information, which
+instruct users to take specific actions, such as purchasing EUR/USD at a
+certain price. Sometimes, these signals feature various types of orders, such
+as a market order, pending order, or limit order. There are tons of sites that
+teach traders how to read and understand forex signals.
+These signals can also be premium or free, with the former leading to better
+trades. Many providers of forex signals freely send important trading
+information to investors to boost their reputation in the financial trading
+industry. Forex signals are also great for people who want to earn a passive
+income trading options but do not have the time or opportunity to learn much
+about Forex Trading.
+However, it is important to perform adequate research into providers of
+forex signals to avoid losing money. Forex traders, however, should
+approach these signals with utmost caution to make a good passive income.
+Forex Robots
+===== PAGE 108 END =====
+
+===== PAGE 109 START =====
+One of the best ways to make a passive income from the forex market is using
+a tool known as a forex robot, which performs automated trades on a trader's
+behalf. Once traders set up these forex robots, they do not have to do much
+else; however, they should keep an eye on the trades the forex robots are
+making for them.
+To get started, traders need to perform adequate research into the software
+available for forex robots. They need to choose software that will meet their
+needs, in addition to being reliable when it comes to executing the right forex
+trades. After setting up this software, it will make forex trades based on
+preset signals.
+In addition, it will use its acquired knowledge to purchase or sell at specific
+times, earning users a passive income in the process. However, it is
+important to understand that not all forex robots make passive income for
+investors as claimed. In the same way that a human can make a losing trade, a
+forex robot can also make the same mistake.
+It is also important to understand that many so-called forex robots are frauds,
+which is why respected news platforms such as the Wall Street Journal and
+Forbes refuse to promote or advertise them. Unfortunately, this is particularly
+true when it comes to free forex robots. Therefore, new forex traders should
+analyze testimonials and reviews carefully before entrusting their investment
+to a forex robot.
+Fortunately, several leading sites focus on reviewing different trading
+platforms. These sites try to give an honest opinion of different investment
+platforms and outline all the benefits and limitations of each platform. They
+also offer a detailed analysis of how these platforms work and how traders
+can get started on them, which is especially helpful to new traders.
+Social Trading
+The social trading network works in the same way as a social networking
+platform. Instead of sharing selfies or pictures of pets playing the piano,
+however, social traders share important information about forex or financial
+trades. This allows others to copy them and make passive income as well.
+New forex traders simply need experienced traders they trust and copy their
+trading strategies to make money. In addition to making a passive income,
+===== PAGE 109 END =====
+
+===== PAGE 110 START =====
+they will also learn when, why, and how successful traders make their
+trading moves, which will give them more insight and understanding into the
+forex industry.
+However, finding traders, they can trust and emulate is not as easy as it may
+sound. New traders need to set aside adequate time to perform thorough
+research into different social trading platforms, in addition to learning more
+about forex traders they want to work with and copy.
+In certain situations, they might need to spend some money on the trader
+whose trading strategies they copy. However, this commission is negligible
+and not a big concern for new traders who want to make a passive income.
+Forex Trading is something that most people looking for ways to make some
+extra cash look into.
+However, most of them do not know where to start. This discussion provides
+three great ideas for Forex Trading beginners to consider. Each of the options
+above requires a different investment in terms of time and effort. The most
+important thing to remember is that beginners should perform adequate
+research before picking a trading platform or strategy to use.
+Nowadays, Forex Trading is one of the best ways for people to make a
+passive income working online. Millions of traders are earning a passive or
+active income every day through Forex Trading. This line of business is just
+like any other online money-making concept, but its profit potential is
+unrivaled. With modern technological advances and the availability of
+detailed information, anyone can make a passive income through Forex
+Trading.
+===== PAGE 110 END =====
+
+===== PAGE 111 START =====
+Conclusion
+Thank you for making it through to the end of Forex Trading for Beginners:
+Simple Strategies to Make Money with Forex Trading: The Best Guide with
+Basics, Secrets Tactics, and Psychology to Big Profit and Income from the
+Financial Market. Let us hope it was informative and able to provide you
+with all of the tools you need to achieve your goals, whatever they may be.
+Now you know that the word 'forex' is short for 'foreign exchange,' and it
+involves converting one currency into another for reasons including tourism,
+trading, and business. The foreign exchange market is a global forum for
+exchanging substantial national currencies against each other.
+The foreign exchange market is open to all types of traders, and it is more
+accessible than any other online trading platform in the world. An individual
+can start trading with as little as $100. Therefore, foreign exchange markets
+have lower exchange capital prerequisites compared to other financial
+markets.
+Forex Trading happens over the interbank market, which is a channel through
+which currency trading happens 5 days a week, 24 hours a day. It is one of
+the biggest trading markets in the world, with a worldwide daily turnover
+estimated to be more than $5 trillion.
+If the currency pair of EUR/USD, which refers to Euro/US Dollar, was
+trading at 1.0914/1.0916, for example, investors planning to open a long
+position on the Euro would purchase one Euro for 1.0916 US dollars. They
+will then hold on to the currency and hope that its value will increase, and
+then sell it back to the market once it appreciates. On the other hand,
+investors looking to open a short position on the Euro will sell one Euro for
+1.0914 US dollars, with the expectation that its value will depreciate. If their
+expectations come true, they will buy it back at the lower rate and make a
+profit.
+Brokers are the intermediaries who link investors with their capital. Some
+traders may choose to invest in the forex trade, and therefore they will
+invariably become in need of a foreign exchange broker.
+The account balance is the amount of equity or capital available in your
+brokerage account due to investment in the currency market. It is essential to
+===== PAGE 111 END =====
+
+===== PAGE 112 START =====
+have such an account to enable the foreign exchange broker to carry out the
+buying and selling executions on your behalf.
+A Forex Trading platform is a standard provision from most forex brokers to
+their clients, investors, or other retail traders. It also acts as a source of
+commission for the forex brokers by charging an access fee to use it. After
+seeking a foreign exchange broker, most traders will get a couple of trading
+platform recommendations from these same brokers.
+Forex Trading signals are guidelines and recommendations that help
+inexperienced forex traders to open Forex Trading positions. The signals are
+a type of system that forex traders use to make crucial decisions about their
+trade. In that regard, Forex Trading signals provide details about how to
+open a new Forex Trade.
+To the uninitiated, navigating the forex market successfully can seem like a
+difficult task. However, success is possible if one takes the right steps and
+trains properly. Just like training for a marathon, training is essential to
+winning in Forex Trading. Success requires targeted effort, practice,
+patience, and time.
+Your next step should be to get a Forex Trading account, implement the
+strategies within the pages of this book, and start smiling all the way to the
+bank.
+Finally, if you found this book useful in any way, a review on Amazon is
+always appreciated!
+===== PAGE 112 END =====

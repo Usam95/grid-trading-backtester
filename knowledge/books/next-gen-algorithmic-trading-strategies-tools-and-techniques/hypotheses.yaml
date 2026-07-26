@@ -1,0 +1,129 @@
+- id: NEXTGEN-HYP-001
+  title: "Electronic trading latency advantage enables algorithmic profitability"
+  status: "proposed"
+  derived_from:
+    - NEXTGEN-C1-001
+  statement: "Algorithmic trading strategies generate alpha via speed advantages (sub-100ms execution) that preclude profitable human intervention."
+  proposed_mechanism: "Algorithms detect market microstructure patterns, execute orders, and capture profit before human traders perceive opportunity."
+  applicable_markets_and_regimes: "equities (high-volume, electronic-trading dominant); crypto_spot (continuous trading)"
+  assumptions:
+    - "Latency advantage persists with increasing algo adoption"
+    - "Execution infrastructure remains stable"
+  data_requirements: "order book tick data (≤1ms), execution latency telemetry, order flow toxicity metrics"
+  baseline_or_null_hypothesis: "Algorithmic speed provides no edge; returns explained by noise or bias"
+  validation_approach: "Backtest with realistic latency models; measure Sharpe vs. human-speed baseline (1000ms)"
+  transaction_cost_and_fill_considerations: "Market impact = a*sqrt(size/ADV); adverse selection = b*vix*imbalance"
+  robustness_checks: "Vary execution latency ±20ms; stress 10x volume; simulate broker API failures"
+  rejection_criteria: "Backtest Sharpe <0.5 after latency penalty"
+  failure_modes: "Latency increases unexpectedly; broker connectivity failure; competing algos exploit patterns"
+  freshness_concerns: "Algo adoption increased; latency advantages may have eroded; market structure changed"
+  unresolved_questions: "What is minimum latency threshold? How much does circuit-breaker insertion cost?"
+
+- id: NEXTGEN-HYP-002
+  title: "Technical indicator ensembles generate above-benchmark stock signals"
+  status: "proposed"
+  derived_from:
+    - NEXTGEN-C4-001
+    - NEXTGEN-C6-001
+  statement: "Combining three+ uncorrelated indicators via ensemble voting produces >55% signal accuracy on 5-day stock holds."
+  proposed_mechanism: "Each indicator captures different microstructure (momentum, reversion, volatility); ensemble voting filters noise."
+  applicable_markets_and_regimes: "equities, trending markets (ADX >25)"
+  assumptions:
+    - "Historical indicator parameters remain optimal"
+    - "Indicator signals are approximately uncorrelated"
+  data_requirements: "3+ years daily OHLCV; RSI, MACD, Bollinger Band parameters"
+  baseline_or_null_hypothesis: "Indicator ensemble performance equals buy-and-hold benchmark"
+  validation_approach: "Walk-forward on 5-year data (1-year train, 1-month test); measure Sharpe and Calmar"
+  transaction_cost_and_fill_considerations: "5bps commission + 2bps spread per trade; avoid penny stocks"
+  robustness_checks: "Vary ensemble voting threshold; test on sector subsets; test 2023-2024 data"
+  rejection_criteria: "Walk-forward Sharpe <0.8 after costs; max drawdown >30%; win rate <52%"
+  failure_modes: "Indicators lag during crashes; ensemble overfits voting; signals correlated"
+  freshness_concerns: "Technical analysis effectiveness declined due to algo saturation"
+  unresolved_questions: "What ensemble voting rule is optimal? How frequently reoptimize parameters?"
+
+- id: NEXTGEN-HYP-003
+  title: "Walk-forward validation reduces overfitting by >40%"
+  status: "proposed"
+  derived_from:
+    - NEXTGEN-C5-001
+    - NEXTGEN-C5-002
+  statement: "Rolling walk-forward windows show <30% Sharpe degradation vs. >50% for single train/test split."
+  proposed_mechanism: "Rolling windows simulate regime changes; repeated reoptimization captures drift; no look-ahead bias"
+  applicable_markets_and_regimes: "all markets, all regimes (non-stationary markets benefit most)"
+  assumptions:
+    - "Market regimes stationary within rolling windows"
+    - "Parameters reoptimized frequently to track regimes"
+  data_requirements: "3+ years daily OHLCV; parameter optimization history"
+  baseline_or_null_hypothesis: "Walk-forward validation provides no additional value"
+  validation_approach: "Compare single train/test split vs. 12-month rolling walk-forward; measure degradation"
+  transaction_cost_and_fill_considerations: "Include realistic costs in both methods"
+  robustness_checks: "Vary window size (6-month, 12-month, 24-month); measure information decay"
+  rejection_criteria: "Degradation <10% (no overfitting); out-of-sample Sharpe <0.5"
+  failure_modes: "Reoptimization lags regime changes; window resets introduce shock"
+  freshness_concerns: "Validation methodology stable; low freshness risk"
+  unresolved_questions: "What is optimal train/test ratio? Should overlapping windows be used?"
+
+- id: NEXTGEN-HYP-004
+  title: "Slippage model with market impact improves backtest fidelity by >20%"
+  status: "proposed"
+  derived_from:
+    - NEXTGEN-C8-002
+  statement: "Realistic slippage (impact + adverse selection) reduces backtest/live correlation error by >20% vs. flat models."
+  proposed_mechanism: "Market impact scales with order size; adverse selection correlates with volatility and imbalance."
+  applicable_markets_and_regimes: "equities (illiquid/mid-cap); high-volatility periods"
+  assumptions:
+    - "Impact elasticity stable (impact ~ sqrt(size/volume))"
+    - "Adverse selection uncorrelated with entry price"
+  data_requirements: "high-frequency order-book snapshots; historical fill data; per-trade size/price"
+  baseline_or_null_hypothesis: "Flat-rate slippage equals realistic model"
+  validation_approach: "Backtest with (a) flat, (b) sqrt impact only, (c) full model; compare to live execution"
+  transaction_cost_and_fill_considerations: "Base spread + market impact + adverse selection"
+  robustness_checks: "Stress impact elasticity ±30%; test different market cap buckets"
+  rejection_criteria: "Backtest/live correlation <0.6; impact estimate ±50% of empirical"
+  failure_modes: "Impact model breaks during flash crash; adverse selection overfits historical imbalances"
+  freshness_concerns: "Market microstructure shifted (maker-taker fees, RegSHO); impact function changed"
+  unresolved_questions: "How to estimate elasticity without order book data? Can ML improve adverse selection prediction?"
+
+- id: NEXTGEN-HYP-005
+  title: "Portfolio diversification reduces 95% drawdown by 30%+"
+  status: "proposed"
+  derived_from:
+    - NEXTGEN-C9-001
+  statement: "4+ uncorrelated strategies (correlation <0.3) achieve 95% VaR 30-40% lower than best single strategy."
+  proposed_mechanism: "Return correlation inversely affects portfolio volatility; uncorrelated strategies hedge during regimes."
+  applicable_markets_and_regimes: "multi-asset (equities + crypto + bonds); normal markets"
+  assumptions:
+    - "Correlation structure stable within 1-year windows"
+    - "Strategies deployable simultaneously without conflicts"
+  data_requirements: "daily returns for 4+ strategies (3+ years each); rolling 252-day correlation matrix"
+  baseline_or_null_hypothesis: "Diversification provides no drawdown benefit"
+  validation_approach: "Backtest portfolio vs. best single; measure 95% VaR on rolling windows"
+  transaction_cost_and_fill_considerations: "Rebalancing costs if strategies drift"
+  robustness_checks: "Stress correlation breakdown; test with 2-3 strategies; backtest 2008/2020/2022 crises"
+  rejection_criteria: "Drawdown reduction <15%; correlation spike >0.8 during tail events"
+  failure_modes: "Systemic event causes all strategies to fail (correlation → 1.0)"
+  freshness_concerns: "Correlation structures shifted due to index ETF adoption"
+  unresolved_questions: "What is minimum correlation threshold? Should tail-hedge assets be added?"
+
+- id: NEXTGEN-HYP-006
+  title: "Broker API latency <50ms permits HFT-grade execution"
+  status: "proposed"
+  derived_from:
+    - NEXTGEN-C7-001
+    - NEXTGEN-C8-001
+  statement: "Sub-100ms strategies require broker API p99 <50ms to achieve <1bps slippage on mid-cap equities."
+  proposed_mechanism: "Latency chain: signal → API call → routing → matching → confirmation. Must total <50ms."
+  applicable_markets_and_regimes: "equities (mid-cap, liquid); high-volume periods"
+  assumptions:
+    - "Network latency stable (<10ms)"
+    - "Broker processing <20ms"
+    - "Order book doesn't gap during execution window"
+  data_requirements: "broker API latency telemetry (p50, p99); order book movement speed"
+  baseline_or_null_hypothesis: "API latency has no impact on execution slippage"
+  validation_approach: "Measure broker latencies over 1 month; correlate with execution slippage"
+  transaction_cost_and_fill_considerations: "Include network, broker, exchange, feedback loop latencies"
+  robustness_checks: "Test during high-volatility (latency spikes); stress broker failover"
+  rejection_criteria: "API p99 >100ms; correlation between latency and slippage <0.5"
+  failure_modes: "API latency increases unexpectedly; order rejected, retry loop adds latency"
+  freshness_concerns: "Broker infrastructure and latency profiles change frequently"
+  unresolved_questions: "What is typical broker p99 latency in 2024? Can latency be reliably predicted?"

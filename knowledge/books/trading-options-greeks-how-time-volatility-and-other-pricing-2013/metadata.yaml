@@ -1,0 +1,69 @@
+schema_version: "1.0"
+prompt_version: "1.0"
+book_id: trading-options-greeks-how-time-volatility-and-other-pricing-2013
+title: "Trading Option Greeks: How Time, Volatility, and Other Pricing Factors Drive Profits"
+authors:
+  - "Dan Passarelli"
+edition: "Second Edition"
+publication_year: 2012
+publisher_or_identifier: "John Wiley & Sons, Inc. (Bloomberg Financial Series)"
+format: pdf
+language: en
+page_count: 345
+chapter_count: 17
+extraction_quality: high
+ocr_quality: high
+processing_status: "audited"
+extraction_timestamp: "2026-07-24T23:39:40Z"
+sources:
+  - absolute_path: "C:\\Users\\W4TV5V8\\PROJECTS\\Codex\\Research\\Books_03_07_26\\Algorithmical Trading\\_KNOWLEDGE_EXTRACTION\\inventory.yaml"
+    relative_path: "inventory.yaml"
+    sha256: "unknown"
+
+scores:
+  source_credibility:
+    score: 5
+    justification: "Bloomberg Press/Wiley publication by Dan Passarelli, a recognized derivatives expert; second edition indicates maturity and market validation."
+  citation_quality:
+    score: 4
+    justification: "Book provides worked examples and references underlying pricing models; limited external citations but author expertise is well-established."
+  reproducibility:
+    score: 3
+    justification: "Greek calculations reproducible via pricing models; specific hedge ratios and portfolio management require live market context."
+  likely_freshness:
+    score: 3
+    justification: "Published 2012; volatility regimes, regulatory environment (Dodd-Frank), and market structure have evolved; Greeks framework remains evergreen."
+  system_engineering_relevance:
+    score: 4
+    justification: "Directly relevant to backtester/live-trading system design; Greeks management is core to execution, risk, and P&L systems."
+  grid_relevance:
+    score: 3
+    justification: "Grid strategies benefit from volatility and Greeks management; book focuses on directional options but concepts transfer."
+  stock_strategy_relevance:
+    score: 4
+    justification: "Vertical spreads, covered calls, collars, synthetics are heavily used in stock strategies; dividend/early-exercise considerations critical."
+  backtesting_relevance:
+    score: 5
+    justification: "Comprehensive treatment of Greeks dynamics, theta decay, gamma scalping, and volatility term structure essential for backtest realism."
+  live_execution_relevance:
+    score: 5
+    justification: "Delta-neutral management, real-time hedge ratios, slippage/fill considerations directly guide live trading infrastructure."
+  risk_relevance:
+    score: 5
+    justification: "Thorough coverage of gamma/vega/theta risk, skew, margin/leverage effects, and catastrophic failure modes in options trading."
+  data_quality_relevance:
+    score: 4
+    justification: "Discusses volatility skew, dividend adjustments, interest-rate impacts; highlights data dependencies and measurement pitfalls."
+  machine_learning_relevance:
+    score: 2
+    justification: "Book is classical options theory; no ML content; useful as domain knowledge for feature engineering and validation."
+
+limitations_and_warnings:
+  - "2012 publication; post-2008 crisis regulatory environment (Dodd-Frank, central clearing) differs materially from book's context."
+  - "Broker APIs, margin requirements, commissions, and transaction costs have evolved; examples use historical rates."
+  - "Volatility smile/skew models in the book are empirical observations; no discussion of stochastic volatility or jump models."
+  - "Early exercise decisions (Chapter 8) depend on dividend scheduling and carry rates; requires live reconciliation."
+  - "Interest-rate assumptions (rho) are low-rate era (2012); framework is sound but coefficient magnitudes have shifted."
+  - "Index options, equity options examples may not reflect current market microstructure (tick sizes, spreads, liquidity concentrations)."
+
+duplicate_relationships: []

@@ -1,0 +1,212 @@
+- id: "OVAP-R001"
+  title: "Dynamic Greeks computation with real-time vol surface"
+  status: "proposed"
+  derived_from: ["OVAP-C8-I006", "OVAP-C8-I005"]
+  derivation_type: "agent_inference"
+  rationale: "Greeks depend on current implied vol surface; static vol breaks hedging. Requirement: system computes Greeks at every trade"
+  applies_to:
+    strategy: ["shared"]
+    lifecycle: ["backtest", "live"]
+    asset_class: ["equities", "crypto_spot"]
+    concern: ["execution", "data", "reproducibility"]
+  requirement: "System shall compute Delta, Gamma, Theta, Vega, Rho at <50ms latency using live vol surface; update interval <= 100ms"
+  acceptance_tests: "Given live vol data, Greeks computed vs benchmark Black-Scholes; max error <0.1%; P&L drift <0.01% over hour"
+  failure_prevented: "Position hedging failure; P&L gaps between reported and realized Greeks"
+  capability_enabled: null
+  assumptions: ["Vol surface is observable and stable within 100ms", "Underlying price/rates available", "Greeks model (BS) adequate"]
+  open_questions: ["Handling overnight vol gaps?", "Integration with broker Greeks API?", "Extrapolation at vol surface edges?"]
+  dependencies: ["data_pipeline_live_vol_surface", "market_data_integration", "backend_compute_platform"]
+  verification_needed: "Unit test Greeks vs closed-form formulas; integration test vs broker API; backtest P&L reconciliation"
+  priority_hint: "correctness"
+
+- id: "OVAP-R002"
+  title: "Transaction cost modeling for option entry/exit"
+  status: "proposed"
+  derived_from: ["OVAP-C5-I026", "OVAP-C4-I025"]
+  derivation_type: "agent_inference"
+  rationale: "Bid-ask spreads, commissions, and market impact consume 1-5% per round-trip. Backtester must model realistically or strategies appear profitable but fail in live"
+  applies_to:
+    strategy: ["stock_signal"]
+    lifecycle: ["backtest"]
+    asset_class: ["equities"]
+    concern: ["simulation", "data"]
+  requirement: "Backtester shall model bid-ask as function of spread, liquidity, contract size, moneyness; apply realistic commissions; measure fill slippage"
+  acceptance_tests: "Compare backtest P&L vs live P&L; reconcile within 2%; verify strategy remains profitable after costs"
+  failure_prevented: "False positive strategies; over-optimization; live trading losses"
+  capability_enabled: null
+  assumptions: ["Historical bid-ask data available", "Cost model valid across time periods", "Commissions do not change drastically"]
+  open_questions: ["How to handle intraday volatility of spreads?", "Forward-test on live market?", "Cost model generalization?"]
+  dependencies: ["historical_bid_ask_data_feeds", "market_microstructure_model", "fill_simulation_engine"]
+  verification_needed: "Backtest on instruments with known live results; measure final P&L prediction error; stakeholder sign-off on cost assumptions"
+  priority_hint: "correctness"
+
+- id: "OVAP-R003"
+  title: "Ratio spread position limits with margin checks"
+  status: "proposed"
+  derived_from: ["OVAP-C12-I012"]
+  derivation_type: "agent_inference"
+  rationale: "Ratio spreads (sell far, buy near at different quantities) create unlimited loss on adverse moves. Requires tight position limits and margin reconciliation"
+  applies_to:
+    strategy: ["shared"]
+    lifecycle: ["backtest", "live"]
+    asset_class: ["equities"]
+    concern: ["risk", "monitoring"]
+  requirement: "System shall enforce max position size limits on ratio spreads; compute worst-case margin requirement (max loss + buffer); reject orders exceeding limits"
+  acceptance_tests: "Place ratio spread order; verify order rejected if margin insufficient; verify limits scale with account size"
+  failure_prevented: "Account blowout from unexpected margin calls; losses on tail events"
+  capability_enabled: null
+  assumptions: ["Broker margin rules known and stable", "Worst-case loss can be computed", "Account funding is monitored"]
+  open_questions: ["How to handle exotic spread combinations?", "Real-time margin sync with broker?", "Margin buffer sizing?"]
+  dependencies: ["margin_calculator", "broker_integration", "position_database"]
+  verification_needed: "Paper trade ratio spreads; verify limits enforced; stress test tail scenarios"
+  priority_hint: "operability"
+
+- id: "OVAP-R004"
+  title: "American option exercise model with rational exerciser assumptions"
+  status: "proposed"
+  derived_from: ["OVAP-C16-I015", "OVAP-C16-I016"]
+  derivation_type: "agent_inference"
+  rationale: "American options behave differently from European; early exercise risk must be priced and hedged. Backtester requires American option pricing model"
+  applies_to:
+    strategy: ["stock_signal"]
+    lifecycle: ["backtest"]
+    asset_class: ["equities"]
+    concern: ["simulation", "data"]
+  requirement: "Backtester shall implement American option pricing with binomial/trinomial model or approximation (e.g., Barone-Adesi-Whaley); flag exercises and adjust P&L"
+  acceptance_tests: "Price American put vs European; verify early exercise premium > 0; reconcile with benchmark (e.g., QuantLib)"
+  failure_prevented: "Mispricing of American option P&L; hedging errors on early exercise"
+  capability_enabled: null
+  assumptions: ["Dividend dates are known", "Exercise is rational (intrinsic > continuation)", "Model parameters (rates, div yield) accurate"]
+  open_questions: ["How to validate exercise model against market data?", "Computational cost at scale?", "Parameter sensitivity?"]
+  dependencies: ["pricing_library", "dividend_data_feed", "backtest_engine"]
+  verification_needed: "Unit test pricing vs benchmark; integration test with historical American option prices; paper trade comparison"
+  priority_hint: "operability"
+
+- id: "OVAP-R005"
+  title: "Volatility clustering adjustment for risk forecasting"
+  status: "proposed"
+  derived_from: ["OVAP-C19-I019"]
+  derivation_type: "agent_inference"
+  rationale: "Realized vol exhibits clustering (high vol today => high vol tomorrow). Ignoring clustering under-estimates tail risk and margin requirements"
+  applies_to:
+    strategy: ["shared"]
+    lifecycle: ["backtest", "live"]
+    asset_class: ["equities"]
+    concern: ["risk", "monitoring"]
+  requirement: "Risk system shall compute conditional vol forecasts (e.g., GARCH, regime-conditional model) and use for VaR/margin; update daily"
+  acceptance_tests: "Compute VaR using static vol vs GARCH vol; verify GARCH VaR is higher during vol spikes; backtest VaR accuracy"
+  failure_prevented: "Underestimated margin requirements during crisis periods; unexpected liquidations"
+  capability_enabled: null
+  assumptions: ["Vol clustering is statistically significant and persistent", "GARCH/regime model parameters updatable", "Historical vol data available"]
+  open_questions: ["Regime detection method?", "Parameter estimation window?", "Forecast horizon optimization?"]
+  dependencies: ["volatility_forecasting_model", "risk_dashboard", "margin_engine"]
+  verification_needed: "Backtest VaR forecast accuracy during known market stress events; compare vs 2008 crisis"
+  priority_hint: "research_quality"
+
+- id: "OVAP-R006"
+  title: "Dynamic margin requirement calculation with gamma sensitivity"
+  status: "proposed"
+  derived_from: ["OVAP-C8-I006", "OVAP-C23-I023"]
+  derivation_type: "agent_inference"
+  rationale: "Gamma makes positions non-linear; static margin inadequate. Margin must scale with gamma and potential vol moves"
+  applies_to:
+    strategy: ["shared"]
+    lifecycle: ["backtest", "live"]
+    asset_class: ["equities"]
+    concern: ["risk", "monitoring"]
+  requirement: "Margin engine shall compute margin as function of Gamma + expected_vol_move + scenario_analysis; update in real-time; flag if insufficient"
+  acceptance_tests: "Margin requirement increases when gamma is high; decreases when gamma is low; margin is sufficient in 99% of daily scenarios"
+  failure_prevented: "Margin call surprises; forced liquidations at bad prices"
+  capability_enabled: null
+  assumptions: ["Daily vol moves are bounded (e.g., ±50 IV points)", "Gamma sensitivity is accurately modeled", "Broker accepts dynamic margin"]
+  open_questions: ["Vol move scenarios to use?", "How to bound worst case?", "Broker coordination challenges?"]
+  dependencies: ["greek_computation", "vol_scenario_generator", "broker_margin_api"]
+  verification_needed: "Historical margin vs realized margin check; stress test with extreme vol moves"
+  priority_hint: "operability"
+
+- id: "OVAP-R007"
+  title: "High-frequency vol surface refresh and arbitrage detection"
+  status: "proposed"
+  derived_from: ["OVAP-C7-I004", "OVAP-C23-I023"]
+  derivation_type: "agent_inference"
+  rationale: "Vol surface changes intra-day; stale surface creates mispricing arbitrage. System must detect arb and alert traders"
+  applies_to:
+    strategy: ["shared"]
+    lifecycle: ["backtest", "live"]
+    asset_class: ["equities", "crypto_spot"]
+    concern: ["execution", "data", "reproducibility"]
+  requirement: "Data pipeline shall refresh vol surface every 30 seconds; arbitrage detection monitors for put-call parity violations and stale prices; alerts within 5 seconds"
+  acceptance_tests: "Inject synthetic vol arb; verify detection <5s; test across underlyings with varying liquidity"
+  failure_prevented: "Missing arbitrage opportunities; leaving money on table; unhedged risk exposure"
+  capability_enabled: null
+  assumptions: ["Vol input sources are reliable", "Arb detection algorithm is robust to noise", "Traders can execute within 5s"]
+  open_questions: ["Optimal surface refresh frequency?", "Handling illiquid tenors?", "Cross-asset arbitrage detection?"]
+  dependencies: ["market_data_pipeline", "vol_surface_construction", "alerting_system"]
+  verification_needed: "Backtest on historical vol data; measure arb frequency and size; live trading validation"
+  priority_hint: "research_quality"
+
+- id: "OVAP-R008"
+  title: "Dividend event handling in option valuation"
+  status: "proposed"
+  derived_from: ["OVAP-C16-I016"]
+  derivation_type: "agent_inference"
+  rationale: "Dividends create discontinuities in stock price and affect option value. Pricing and hedging must account for dividend risk"
+  applies_to:
+    strategy: ["stock_signal"]
+    lifecycle: ["backtest"]
+    asset_class: ["equities"]
+    concern: ["simulation", "data"]
+  requirement: "Backtester shall integrate dividend calendar; adjust stock price for dividend on ex-date; recompute Greeks and option prices post-dividend"
+  acceptance_tests: "Run backtest across dividend-paying stocks; verify P&L matches market (known dividend events); option Greeks change on ex-date"
+  failure_prevented: "P&L surprises from unexpected dividend adjustments; hedging slippage"
+  capability_enabled: null
+  assumptions: ["Dividend calendar is accurate and complete", "Dividend amounts are predictable", "Ex-date rules are standard"]
+  open_questions: ["Special dividend handling?", "Dividend prediction models?", "Cross-market dividend variation?"]
+  dependencies: ["dividend_data_feed", "pricing_library", "backtest_engine"]
+  verification_needed: "Integration test with known dividend events; paper trade validation"
+  priority_hint: "research_quality"
+
+- id: "OVAP-R009"
+  title: "Realized vs implied vol tracking for strategy validation"
+  status: "proposed"
+  derived_from: ["OVAP-C13-I030"]
+  derivation_type: "agent_inference"
+  rationale: "Many strategies profit when realized vol > implied vol (long gamma). System must track both and alert when assumption breaks"
+  applies_to:
+    strategy: ["shared"]
+    lifecycle: ["live"]
+    asset_class: ["equities"]
+    concern: ["monitoring", "alpha"]
+  requirement: "Dashboard shall compute and display realized vol (historical), implied vol (current), and RV-IV gap; alert if gap reverses unexpectedly"
+  acceptance_tests: "Dashboard updates daily; alerts triggered when RV < IV by threshold amount; traders acknowledge alerts"
+  failure_prevented: "Strategy assumption breakdown not noticed; continued position holding in losing regime"
+  capability_enabled: null
+  assumptions: ["Realized vol computed accurately from price data", "Implied vol from reliable vol surface", "Threshold tunable by trader"]
+  open_questions: ["Optimal vol estimation window?", "Alert threshold sizing?", "Handling vol surface artifacts?"]
+  dependencies: ["data_pipeline", "vol_computation_library", "dashboard_frontend"]
+  verification_needed: "Backtest alert accuracy; trader feedback on utility"
+  priority_hint: "research_quality"
+
+- id: "OVAP-R010"
+  title: "Option parity bound validation in pricing"
+  status: "proposed"
+  derived_from: ["OVAP-C2-I002"]
+  derivation_type: "agent_inference"
+  rationale: "Put-call parity and intrinsic/extrinsic bounds are mathematical laws. Prices violating bounds indicate data errors or arb opportunities"
+  applies_to:
+    strategy: ["shared"]
+    lifecycle: ["backtest", "live"]
+    asset_class: ["equities"]
+    concern: ["data", "execution"]
+  requirement: "Data validation shall check all option prices against parity and bounds; log violations; alert if violation exceeds tolerance (e.g., 0.1% of price)"
+  acceptance_tests: "Inject synthetic parity violation; verify detection and logging; false alert rate < 0.1%"
+  failure_prevented: "Bad data fed to models; false pricing signals; arb execution on stale/bad data"
+  capability_enabled: null
+  assumptions: ["Parity bounds are computed correctly", "Price sources are synchronized", "Tolerance thresholds are tuned"]
+  open_questions: ["How to handle bid-ask crossing errors?", "Multi-exchange price reconciliation?", "Tolerance tuning strategy?"]
+  dependencies: ["market_data_validation", "parity_checker", "alerting_system"]
+  verification_needed: "Validation against known good data; production monitoring of violation frequency"
+  priority_hint: "research_quality"
+
+
+

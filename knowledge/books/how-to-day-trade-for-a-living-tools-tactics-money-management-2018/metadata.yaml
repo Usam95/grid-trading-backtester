@@ -1,0 +1,73 @@
+schema_version: "1.0"
+prompt_version: "1.0"
+book_id: how-to-day-trade-for-a-living-tools-tactics-money-management-2018
+title: "How to Day Trade for a Living: Tools, Tactics, Money Management, Discipline and Trading Psychology"
+authors:
+  - "Andrew Aziz, Ph.D."
+edition: "First Edition"
+publication_year: 2018
+publisher_or_identifier: "Bear Bull Traders / Mobilism"
+format: "pdf"
+language: "en"
+page_count: 222
+chapter_count: 9
+extraction_quality: "high"
+ocr_quality: "excellent"
+processing_status: "audited"
+
+sources:
+  - absolute_path: "C:\\Users\\W4TV5V8\\PROJECTS\\Codex\\Research\\Books_03_07_26\\Algorithmical Trading\\_KNOWLEDGE_EXTRACTION\\inventory.yaml"
+    relative_path: "_KNOWLEDGE_EXTRACTION/inventory.yaml"
+    sha256: "unknown"
+
+timestamps:
+  extraction_started: "2026-07-24T23:25:00Z"
+  extraction_completed: "2026-07-24T23:50:00Z"
+  last_validated: "2026-07-24T23:50:00Z"
+
+duplicate_relationships: []
+
+limitations_and_warnings:
+  - "Self-published practitioner book; popular but not peer-reviewed."
+  - "Examples are based on author's trading experience; not independently verified."
+  - "Broker APIs (Interactive Brokers, SureTrader), fees, regulations, and market structure described are subject to rapid change; verify against current primary sources."
+  - "No backtests or empirical studies provided; strategies are presented as author's techniques."
+  - "Some platforms and tools mentioned may be outdated or discontinued."
+
+scores:
+  source_credibility:
+    score: 2
+    justification: "Self-published practitioner book; popular day-trading introduction but lacks peer review or institutional backing."
+  citation_quality:
+    score: 2
+    justification: "Minimal citations; author presents personal trading experience and anecdotes without external references."
+  reproducibility:
+    score: 2
+    justification: "Strategies described conceptually; no code, pseudocode, or detailed algorithms provided for reproduction."
+  likely_freshness:
+    score: 2
+    justification: "Published 2018; broker platforms, regulations, market structure, and HFT landscape have evolved significantly."
+  system_engineering_relevance:
+    score: 3
+    justification: "Describes order types, risk management workflow, and position sizing logic applicable to trading systems; some platform-specific concepts."
+  grid_relevance:
+    score: 2
+    justification: "Focuses on stock day trading; limited relevance to grid strategies (which typically use spot/futures crypto)."
+  stock_strategy_relevance:
+    score: 5
+    justification: "Directly applicable; nine stock intraday trading strategies with entry/exit/risk rules detailed throughout."
+  backtesting_relevance:
+    score: 3
+    justification: "Describes pattern recognition and trade management; lacks formalized rules, parameters, or success rates needed for backtesting."
+  live_execution_relevance:
+    score: 4
+    justification: "Extensive discussion of order types, hotkeys, watchlists, execution timing, and slippage management relevant to live trading."
+  risk_relevance:
+    score: 4
+    justification: "Three-step risk management, stop-loss rules, position sizing, and account management principles throughout."
+  data_quality_relevance:
+    score: 3
+    justification: "Mentions real-time data (NASDAQ Level 2, bid-ask), scanners, and data sources; does not address data validation or gaps."
+  machine_learning_relevance:
+    score: 1
+    justification: "No machine learning, statistical modeling, or optimization discussed; purely technical analysis and manual pattern recognition."

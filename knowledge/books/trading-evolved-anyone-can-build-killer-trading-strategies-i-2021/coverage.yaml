@@ -1,0 +1,151 @@
+book_id: trading-evolved-anyone-can-build-killer-trading-strategies-i-2021
+sections:
+  - ref: "ch01"
+    title: "About this Book"
+    pdf_page_start: 8
+    status: "processed"
+    reason: "Intro/context-setting; establishes book's approach and target audience"
+
+  - ref: "ch02"
+    title: "Systematic Trading"
+    pdf_page_start: 12
+    status: "processed"
+    reason: "Foundational concepts: definitions, principles, vs discretionary trading"
+
+  - ref: "ch03"
+    title: "Developing Trading Models"
+    pdf_page_start: 16
+    status: "processed"
+    reason: "Model framework and design principles; key for system engineering requirements"
+
+  - ref: "ch04"
+    title: "Financial Risk"
+    pdf_page_start: 23
+    status: "processed"
+    reason: "Risk concepts, portfolio risk, drawdown metrics; relevant to risk management"
+
+  - ref: "ch05"
+    title: "Introduction to Python"
+    pdf_page_start: 30
+    status: "processed"
+    reason: "Python setup and basics; foundational for reproducibility and environment setup"
+
+  - ref: "ch06"
+    title: "Bring out the Pandas"
+    pdf_page_start: 46
+    status: "processed"
+    reason: "Pandas data handling; critical for data processing and backtesting infrastructure"
+
+  - ref: "ch07"
+    title: "Backtesting Trading Strategies"
+    pdf_page_start: 65
+    status: "processed"
+    reason: "Backtesting framework and methodology; core research/test infrastructure"
+
+  - ref: "ch08"
+    title: "Analyzing Backtest Results"
+    pdf_page_start: 92
+    status: "processed"
+    reason: "Performance metrics, analysis techniques; key for backtest validation and quality metrics"
+
+  - ref: "ch09"
+    title: "Exchange Traded Funds"
+    pdf_page_start: 112
+    status: "processed"
+    reason: "ETF characteristics and selection; relevant to asset class and product knowledge"
+
+  - ref: "ch10"
+    title: "Constructing ETF Models"
+    pdf_page_start: 123
+    status: "processed"
+    reason: "Systematic approach to ETF-based strategies; relevant to strategy design"
+
+  - ref: "ch11"
+    title: "Equities"
+    pdf_page_start: 128
+    status: "processed"
+    reason: "Equity market concepts and data; foundational for stock strategy implementation"
+
+  - ref: "ch12"
+    title: "Systematic Momentum"
+    pdf_page_start: 133
+    status: "processed"
+    reason: "Momentum strategy design and parameters; high value for strategy hypothesis generation"
+
+  - ref: "ch13"
+    title: "Futures Models"
+    pdf_page_start: 160
+    status: "processed"
+    reason: "Futures-based systematic strategies; relevant to asset class coverage and risk management"
+
+  - ref: "ch14"
+    title: "Futures Modeling and Backtesting"
+    pdf_page_start: 167
+    status: "processed"
+    reason: "Futures-specific backtesting considerations; relevant to multi-asset backtesting infrastructure"
+
+  - ref: "ch15"
+    title: "Futures Trend Following"
+    pdf_page_start: 174
+    status: "processed"
+    reason: "Trend-following implementation on futures; strategy examples and validation"
+
+  - ref: "ch16"
+    title: "Time Return Trend Model"
+    pdf_page_start: 201
+    status: "processed"
+    reason: "Specific trend model implementation; technical strategy details for hypothesis generation"
+
+  - ref: "ch17"
+    title: "Counter Trend Trading"
+    pdf_page_start: 213
+    status: "processed"
+    reason: "Alternative strategy approach; mean-reversion concepts"
+
+  - ref: "ch18"
+    title: "Trading the Curve"
+    pdf_page_start: 224
+    status: "processed"
+    reason: "Fixed income/curve trading concepts; risk and execution considerations"
+
+  - ref: "ch19"
+    title: "Comparing and Combining Models"
+    pdf_page_start: 240
+    status: "processed"
+    reason: "Portfolio construction and model combination; correlation, diversification"
+
+  - ref: "ch20"
+    title: "Performance Visualization and Combinations"
+    pdf_page_start: 245
+    status: "processed"
+    reason: "Reporting and analysis techniques; visualization and decision support"
+
+  - ref: "ch21"
+    title: "You can't beat all of the Monkeys all of the Time"
+    pdf_page_start: 253
+    status: "processed"
+    reason: "Statistical concepts and pitfalls; important for avoiding overfitting and data snooping"
+
+  - ref: "ch22"
+    title: "Guest Chapter: Measuring Relative Performance"
+    pdf_page_start: 266
+    status: "processed"
+    reason: "Performance measurement and attribution; analysis and comparison techniques"
+
+  - ref: "ch23"
+    title: "Importing your Data"
+    pdf_page_start: 278
+    status: "processed"
+    reason: "Data sourcing and import; data quality and integrity checks"
+
+  - ref: "ch24"
+    title: "Data and Databases"
+    pdf_page_start: 298
+    status: "processed"
+    reason: "Database design and data management; infrastructure for research and operations"
+
+  - ref: "ch25"
+    title: "Final Words – Path Forward"
+    pdf_page_start: 315
+    status: "processed"
+    reason: "Concluding remarks; meta-commentary on field and future directions"

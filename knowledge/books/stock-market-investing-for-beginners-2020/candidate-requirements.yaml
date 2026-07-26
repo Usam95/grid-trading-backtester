@@ -1,0 +1,212 @@
+- id: SMIB-R-001
+  title: "Backtester shall enforce stop-loss limits per trade configuration"
+  status: proposed
+  derived_from: [SMIB-C1-013, SMIB-C1-006, SMIB-C1-007]
+  derivation_type: agent_inference
+  rationale: |
+    Book emphasizes pre-trade risk planning and enforced stop-loss discipline as critical to avoiding ruin.
+    Backtester must prevent traders from overriding stops or exceeding configured loss limits, ensuring
+    realistic simulation of real-world constraint.
+  applies_to:
+    strategy: [stock_signal, shared]
+    lifecycle: [backtest]
+    asset_class: [equities, shared]
+    concern: [risk, simulation]
+  requirement: |
+    The backtester shall enforce a user-configured maximum loss per trade and shall not allow
+    simulated trades to exceed this loss via forced liquidation at the configured stop level.
+    Partial fill and gap-through mechanics shall be modeled.
+  acceptance_tests: "Trade with stop at $38 and position of 100 shares shall liquidate at $38 (or worse if gap); realized loss ≤ configured loss."
+  failure_prevented: |
+    Ruin risk from uncontrolled losses; simulated backtest returning unrealistic results if stops are ignored.
+  capability_enabled: |
+    Realistic simulation of trader discipline; risk quantification and validation of risk-reward ratios.
+  assumptions:
+    - "Stop-loss orders will be filled at or beyond specified price (gap risk modeled separately)"
+    - "Trader will not override configured stops in live trading"
+  open_questions:
+    - "How are overnight gaps modeled (historical worst-case, or stochastic simulation)?"
+    - "Are partial fills supported (partial liquidation at stop)?"
+  dependencies:
+    - "Order execution model must support stop-loss mechanics"
+    - "OHLCV data must include intra-bar fills for realism"
+  verification_needed: "Test against known trader logs showing actual stop hits; compare simulated stops vs. live broker fills."
+  priority_hint: safety
+
+- id: SMIB-R-002
+  title: "Backtester shall support multi-timeframe signal definition and alignment testing"
+  status: proposed
+  derived_from: [SMIB-C1-009, SMIB-C1-010, SMIB-C1-016]
+  derivation_type: agent_inference
+  rationale: |
+    Book describes using multiple timeframes (daily, weekly, monthly) to confirm trade signals before entry.
+    Backtester must support defining rules at different timeframes and enforcing alignment (e.g., 'only enter on daily signal if weekly is in uptrend').
+  applies_to:
+    strategy: [stock_signal, shared]
+    lifecycle: [backtest, live]
+    asset_class: [equities, shared]
+    concern: [alpha, simulation]
+  requirement: |
+    The backtester shall support:
+    (1) defining separate entry signals on multiple timeframes (intraday, daily, weekly, monthly)
+    (2) combining signals via logical rules (AND, OR, NOT) to require alignment
+    (3) logging which signals fired and which alignment rule was met for each trade
+    (4) reporting signal quality metrics (win rate, avg-win, avg-loss) by alignment status
+  acceptance_tests: "Define rule: 'enter on daily breakout only if weekly is in uptrend'; rule must be traceable in trade log."
+  failure_prevented: |
+    Backtest using single-timeframe signals that do not reflect live trader behavior (which uses multi-timeframe confirmation).
+  capability_enabled: |
+    Test multi-timeframe strategies; quantify value of alignment (vs. null hypothesis of single-timeframe).
+  assumptions:
+    - "Alignment rules can be specified by user (not hardcoded)"
+    - "Multiple timeframe data is available (daily + weekly + monthly)"
+  open_questions:
+    - "How are alignment rules debugged if a trade fires unexpectedly?"
+    - "Can rule performance be analyzed for regime-dependence?"
+  dependencies:
+    - "OHLCV data at multiple timeframes"
+    - "Event logging system"
+  verification_needed: "Test alignment definition against known manual trades from book author or similar trader; compare rule-based vs. visual chart inspection."
+  priority_hint: alpha
+
+- id: SMIB-R-003
+  title: "Backtester shall support limit order entry strategies with fill-or-no-fill semantics"
+  status: proposed
+  derived_from: [SMIB-C1-010]
+  derivation_type: agent_inference
+  rationale: |
+    Book describes using limit orders to wait for price retracement at support levels; accepting the risk
+    of missing the trade entirely if price does not retrace. This 'limit or nothing' strategy must be
+    simulable with correct fill mechanics.
+  applies_to:
+    strategy: [stock_signal]
+    lifecycle: [backtest, live]
+    asset_class: [equities]
+    concern: [execution, alpha]
+  requirement: |
+    The backtester shall support:
+    (1) placing limit orders (not market orders) at user-specified price levels
+    (2) filling limit order only if historical price reaches limit (intra-bar or inter-bar)
+    (3) not filling if limit is never reached during hold window
+    (4) reporting fill rate (% of limit orders that were filled) and fill slippage
+    (5) reporting 'missed trades' where signal fired but limit was never reached
+  acceptance_tests: "Place limit order at $38 when signal fires at $39; if price reaches $38, fill at $38; if price rises to $40 without touching $38, no fill."
+  failure_prevented: |
+    Unrealistic backtest using market orders when live trader uses limit orders; overstating backtest returns by assuming fills that would not occur.
+  capability_enabled: |
+    Test limit-order-only strategies; measure opportunity cost (regret) of waiting for retracement; optimize limit levels for desired fill rate.
+  assumptions:
+    - "Historical intra-bar prices are available or can be interpolated"
+    - "Limit orders do not interact (no partial fills)"
+  open_questions:
+    - "How to handle limit orders placed EOD vs. intraday?"
+    - "Can limit order timeout (e.g., cancel if not filled within N bars)?"
+  dependencies:
+    - "High-resolution OHLCV or tick data"
+    - "Fill-logic engine that checks intra-bar prices"
+  verification_needed: "Test against actual fill logs from book author or trader; compare simulated limit fills vs. broker fills."
+  priority_hint: research_quality
+
+- id: SMIB-R-004
+  title: "Risk/backtesting shall compute position size from stop-loss level and maximum per-trade loss"
+  status: proposed
+  derived_from: [SMIB-C1-007, SMIB-C1-013]
+  derivation_type: agent_inference
+  rationale: |
+    Book emphasizes defining max loss before position sizing; position size = (max loss) / (stop distance in $).
+    Backtester must compute position size automatically to enforce risk-reward ratio and capital preservation.
+  applies_to:
+    strategy: [stock_signal, shared]
+    lifecycle: [backtest, live]
+    asset_class: [equities, shared]
+    concern: [risk, operations]
+  requirement: |
+    Given:
+    - Entry price (or limit price)
+    - Stop-loss price
+    - Maximum loss per trade (user-configured, e.g., 2% of account)
+    
+    The system shall compute position size (shares or contracts) as:
+      position_size = max_loss / abs(entry_price - stop_price)
+    
+    The system shall apply this position size and report the resulting risk-reward ratio.
+  acceptance_tests: "Entry at $100, stop at $95, max loss $1000: position size = $1000 / $5 = 200 shares."
+  failure_prevented: |
+    Inconsistent position sizing leading to uncontrolled risk; backtest assuming fixed shares instead of risk-based sizing.
+  capability_enabled: |
+    Automatic position sizing based on risk management rules; consistency between backtest and live trading; clear risk-reward ratio calculation.
+  assumptions:
+    - "Position size is computable from stop and max loss"
+    - "Fractional shares are allowed (or rounded consistently)"
+  open_questions:
+    - "How to round position size if result is fractional?"
+    - "How to handle cases where position size would exceed account leverage?"
+  dependencies:
+    - "Account model with cash and margin tracking"
+  verification_needed: "Test against manual position sizing calculations from book author or industry standard."
+  priority_hint: correctness
+
+- id: SMIB-R-005
+  title: "Data integrity: no survivorship bias; handle corporate actions (splits, dividends, spinoffs)"
+  status: proposed
+  derived_from: [SMIB-C1-001, SMIB-C1-014]
+  derivation_type: agent_inference
+  rationale: |
+    Book discusses stock screening and fundamental analysis as entry filters. Backtester must handle
+    delisted stocks and corporate actions to avoid artificial selection bias (only testing survivors).
+  applies_to:
+    strategy: [stock_signal, shared]
+    lifecycle: [backtest]
+    asset_class: [equities]
+    concern: [data, simulation]
+  requirement: |
+    (1) Historical stock prices shall be adjusted for splits, dividends, and spinoffs
+    (2) Delisted/deleveraged stocks shall be modeled in backtest (position liquidated at last valid price, not ignored)
+    (3) Stock data shall include indicator flags (delisted_date, reason, final_price)
+    (4) Backtest shall report number of stocks removed due to delisting or other attrition
+  acceptance_tests: "Stock with 2:1 split at time T: prices before T are adjusted by 0.5; stock delisted on 2024-01-15 shows forced liquidation."
+  failure_prevented: |
+    Survivorship bias: backtests only on winners that are still trading; unrealistic returns from ignoring delisted losses; price mismatch from splits/dividends.
+  capability_enabled: |
+    Realistic backtest including all outcomes (delisting, restructuring); accounting for corporate actions.
+  assumptions:
+    - "Historical corporate action data is available and accurate"
+  open_questions:
+    - "How to handle stock mergers (sudden price discontinuity)?"
+    - "How to model dividend reinvestment?"
+  dependencies:
+    - "Corporate action database (splits, dividends, spinoffs, delistings)"
+  verification_needed: "Compare backtest returns vs. published index returns to validate adjustment accuracy."
+  priority_hint: research_quality
+
+- id: SMIB-R-006
+  title: "Order execution model shall account for bid-ask spreads and fill slippage"
+  status: proposed
+  derived_from: [SMIB-C1-010, SMIB-C1-016]
+  derivation_type: agent_inference
+  rationale: |
+    Book mentions limit orders and market orders; author accepts price slippage on market orders
+    as cost of fast entry. Backtester must model realistic spreads and slippage to avoid overstating returns.
+  applies_to:
+    strategy: [stock_signal, shared]
+    lifecycle: [backtest, live]
+    asset_class: [equities]
+    concern: [execution, simulation]
+  requirement: |
+    (1) Bid-ask spreads shall be modeled based on stock liquidity (or provided in data)
+    (2) Market orders shall fill at mid + spread/2 (or worse for large orders)
+    (3) Limit orders shall fill at limit price if within spread; otherwise no fill
+    (4) Slippage shall be reported per trade and summed for performance attribution
+  acceptance_tests: "Market order to buy: fill at ask price (not mid); limit buy order at $50 with spread of $49.95-$50.05: fill at $50."
+  failure_prevented: |
+    Backtest returns inflated by assuming mid-price fills; unrealistic performance estimates.
+  capability_enabled: |
+    Accurate transaction cost calculation; liquidity-aware strategy testing.
+  assumptions:
+    - "Spread data is available or can be estimated from volume/volatility"
+  open_questions:
+    - "How to model spread widening during market stress?"
+  dependencies:
+    - "Bid-ask or liquidity data"
+  verification_needed: "Compare modeled spreads to actual broker data for representative stocks."
+  priority_hint: correctness

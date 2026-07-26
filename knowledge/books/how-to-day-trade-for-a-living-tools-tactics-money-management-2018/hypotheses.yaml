@@ -1,0 +1,229 @@
+- id: HDTFL-001
+  title: 2% Risk Rule Correlation with Survival
+  status: proposed
+  derived_from:
+  - HDTFL-003
+  - HDTFL-004
+  statement: Traders who enforce 2% max loss per trade have statistically longer survival
+    and lower max drawdown than rule violators.
+  proposed_mechanism: Position sizing constrains per-trade loss magnitude
+  applicable_markets_and_regimes: U.S. equities intraday
+  assumptions:
+  - Tight stops executable
+  - Trader enforces rule
+  - Fee structure stable
+  data_requirements: 6+ months trade logs
+  baseline_or_null_hypothesis: No correlation between adherence and survival
+  validation_approach: Monte Carlo with/without rule
+  transaction_cost_and_fill_considerations: Gap risk exists
+  robustness_checks:
+  - Account size sensitivity
+  - Volatility regime test
+  rejection_criteria:
+  - No correlation
+  - Catastrophic loss despite rule
+  failure_modes:
+  - Gap below stop
+  - Broker halt
+  freshness_concerns: Market structure evolved since 2018
+  unresolved_questions:
+  - Optimal stop method?
+- id: HDTFL-002
+  title: Stocks in Play Improve Expected Payoff
+  status: proposed
+  derived_from:
+  - HDTFL-001
+  - HDTFL-006
+  statement: High-volume low-float stocks show higher payoff than random universe
+  proposed_mechanism: Low-float reduces HFT, creates supply/demand imbalance
+  applicable_markets_and_regimes: U.S. equities intraday
+  assumptions:
+  - Criteria remain predictive
+  - Prices achievable
+  data_requirements: 1-2 years OHLCV, float/cap history
+  baseline_or_null_hypothesis: SiP and random identical payoff
+  validation_approach: Backtest paired comparison
+  transaction_cost_and_fill_considerations: Lower liquidity increases slippage
+  robustness_checks:
+  - Market cap buckets
+  - Volume thresholds
+  rejection_criteria:
+  - Win rate <45%
+  - Info ratio <0.4
+  failure_modes:
+  - Criteria degraded
+  - Algo adoption
+  freshness_concerns: HFT landscape evolved
+  unresolved_questions:
+  - Optimal volume threshold?
+- id: HDTFL-003
+  title: ABCD Pattern Positive Expected Payoff
+  status: proposed
+  derived_from:
+  - HDTFL-012
+  - HDTFL-013
+  statement: ABCD breakout entries achieve reward >= 2x risk on 5-min
+  proposed_mechanism: Pullback reversal + breakout signals trend resumption
+  applicable_markets_and_regimes: 5-minute intraday Stocks in Play
+  assumptions:
+  - Fibonacci holds
+  - Volume is real
+  - Stops executable
+  data_requirements: 1-2 years 5-min OHLCV
+  baseline_or_null_hypothesis: Win rate <45% or Sharpe <0.6
+  validation_approach: Mechanical ABCD detection + backtest
+  transaction_cost_and_fill_considerations: Slippage on breakout
+  robustness_checks:
+  - Fib threshold variance
+  - Volume filter tuning
+  rejection_criteria:
+  - Win rate <45%
+  - Sharpe <0.6
+  - DD >15%
+  failure_modes:
+  - False breakouts
+  - Fib not predictive
+  freshness_concerns: Algos may front-run Fib levels
+  unresolved_questions:
+  - Optimal Fib range?
+- id: HDTFL-004
+  title: Bull Flag Momentum Continuation
+  status: proposed
+  derived_from:
+  - HDTFL-014
+  statement: Flag breakouts signal continuation with positive expectancy
+  proposed_mechanism: Consolidation = accumulation; volume breakout = confirmation
+  applicable_markets_and_regimes: 5-min to 15-min intraday
+  assumptions:
+  - Flag objective
+  - Volume real
+  - Breakouts follow-through
+  data_requirements: 1-2 years intraday OHLCV
+  baseline_or_null_hypothesis: Breakouts reverse >40% or win rate <50%
+  validation_approach: Mechanical flag + volume + breakout test
+  transaction_cost_and_fill_considerations: Slippage on volume breakout
+  robustness_checks:
+  - Consolidation length tuning
+  - Volume multiplier
+  rejection_criteria:
+  - Win rate <50%
+  - Reversals >40%
+  failure_modes:
+  - False volume
+  - Algo front-run
+  freshness_concerns: Volume may be algorithmic noise
+  unresolved_questions:
+  - Optimal range duration?
+- id: HDTFL-005
+  title: VWAP Bounce Mean Reversion
+  status: proposed
+  derived_from:
+  - HDTFL-017
+  - HDTFL-018
+  statement: VWAP bounces with vol >2x achieve payoff >=1.5x risk
+  proposed_mechanism: VWAP = fair value; reversal = overshoot; high vol = conviction
+  applicable_markets_and_regimes: 5-min intraday VWAP resets daily
+  assumptions:
+  - VWAP correct
+  - Vol threshold predictive
+  - Bounces mean-revert
+  data_requirements: 1-2 years 5-min OHLCV + daily vol avg
+  baseline_or_null_hypothesis: Win rate <50% or Sharpe <0.5
+  validation_approach: VWAP + vol filter + exit at 1.5x target
+  transaction_cost_and_fill_considerations: Slippage at VWAP, zero-commission now
+  robustness_checks:
+  - Vol threshold tuning
+  - VWAP tolerance tuning
+  rejection_criteria:
+  - Win rate <50%
+  - Sharpe <0.5
+  failure_modes:
+  - Vol calc lag
+  - VWAP decay near close
+  freshness_concerns: VWAP adoption may have degraded edge
+  unresolved_questions:
+  - Optimal vol threshold?
+- id: HDTFL-006
+  title: Red-to-Green Gap Recovery Pattern
+  status: proposed
+  derived_from:
+  - HDTFL-020
+  statement: Gap-down reversals achieve positive payoff at open breakout
+  proposed_mechanism: Gap = seller exhaustion; reversal = buyer conviction
+  applicable_markets_and_regimes: Intraday first 2-4 hours high volume
+  assumptions:
+  - Gap objective
+  - Open price stable
+  - Recovery mean-reverting
+  data_requirements: 1-2 years daily + intraday OHLCV
+  baseline_or_null_hypothesis: Win rate <45% or fails to close above open >50%
+  validation_approach: Identify red gaps; entry at open breakout; exit 1.5x risk
+  transaction_cost_and_fill_considerations: Gap-at-open may violate stop
+  robustness_checks:
+  - Gap size thresholds
+  - Holding period variants
+  rejection_criteria:
+  - Win rate <45%
+  - Pattern fails >50%
+  failure_modes:
+  - Gap extends
+  - High slippage
+  freshness_concerns: Gap dynamics shifted with extended hours
+  unresolved_questions:
+  - Optimal gap threshold?
+- id: HDTFL-007
+  title: Opening Range Breakout Momentum
+  status: proposed
+  derived_from:
+  - HDTFL-021
+  statement: ORB breakouts signal continuation with positive expectancy
+  proposed_mechanism: Range = price discovery; breakout = conviction + momentum
+  applicable_markets_and_regimes: 5-min to hourly first 4 hours
+  assumptions:
+  - Range objective
+  - Breakouts follow-through
+  data_requirements: 1-2 years intraday OHLCV 5-min granular
+  baseline_or_null_hypothesis: Win rate <45% or reversals >50%
+  validation_approach: Define range; detect breakout; exit at target or 2-hour stop
+  transaction_cost_and_fill_considerations: Slippage on breakout
+  robustness_checks:
+  - Range duration tuning
+  - Target ratio variants
+  rejection_criteria:
+  - Win rate <45%
+  - Sharpe <0.5
+  failure_modes:
+  - False breakouts
+  - Algo front-run
+  freshness_concerns: Opening behavior may have shifted
+  unresolved_questions:
+  - Optimal range duration?
+- id: HDTFL-008
+  title: Workflow Discipline Reduces Catastrophic Loss
+  status: proposed
+  derived_from:
+  - HDTFL-022
+  - HDTFL-023
+  statement: Systematic workflow shows lower max drawdown than discretionary
+  proposed_mechanism: Workflow decouples emotional decision (plan) from mechanical
+    (execution)
+  applicable_markets_and_regimes: Day trading all strategies
+  assumptions:
+  - Adherence measurable
+  - Baseline discipline present
+  data_requirements: Behavioral data 6+ months trade logs plan adherence
+  baseline_or_null_hypothesis: Identical max drawdown and ruin probability
+  validation_approach: Observational study plan adherence vs max drawdown correlation
+  transaction_cost_and_fill_considerations: N/A behavioral
+  robustness_checks:
+  - Experience level stratify
+  - Account size stratify
+  rejection_criteria:
+  - No DD difference
+  - Higher variance in systematic
+  failure_modes:
+  - Adherence measurement error
+  - Survivorship bias
+  freshness_concerns: Behavioral dynamics shifted with retail explosion
+  unresolved_questions:
+  - Measure adherence objectively?

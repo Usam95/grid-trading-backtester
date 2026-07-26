@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Book metadata",
+  "type": "object",
+  "required": ["schema_version", "prompt_version", "book_id", "sources", "title",
+               "format", "processing_status"],
+  "properties": {
+    "schema_version": {"type": "string"},
+    "prompt_version": {"type": "string"},
+    "book_id": {"type": "string"},
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["absolute_path", "sha256"],
+        "properties": {
+          "absolute_path": {"type": "string"},
+          "relative_path": {"type": "string"},
+          "sha256": {"type": "string"}
+        }
+      }
+    },
+    "title": {"type": ["string", "null"]},
+    "authors": {"type": ["string", "array", "null"]},
+    "edition": {"type": ["string", "integer", "null"]},
+    "publication_year": {"type": ["integer", "null"]},
+    "publisher_or_identifier": {"type": ["string", "null"]},
+    "format": {"enum": ["pdf", "epub"]},
+    "language": {"type": ["string", "null"]},
+    "page_count": {"type": ["integer", "null"]},
+    "chapter_count": {"type": ["integer", "null"]},
+    "extraction_quality": {"type": ["string", "null"]},
+    "ocr_quality": {"type": ["string", "null"]},
+    "processing_status": {"enum": ["inventoried", "planned", "extracting",
+                                   "extracted", "synthesized", "audited", "complete", "failed"]},
+    "timestamps": {"type": "object"},
+    "duplicate_relationships": {"type": ["array", "null"]},
+    "scores": {
+      "type": "object",
+      "properties": {
+        "source_credibility": {"type": "object"},
+        "citation_quality": {"type": "object"},
+        "reproducibility": {"type": "object"},
+        "likely_freshness": {"type": "object"},
+        "system_engineering_relevance": {"type": "object"},
+        "grid_relevance": {"type": "object"},
+        "stock_strategy_relevance": {"type": "object"},
+        "backtesting_relevance": {"type": "object"},
+        "live_execution_relevance": {"type": "object"},
+        "risk_relevance": {"type": "object"},
+        "data_quality_relevance": {"type": "object"},
+        "machine_learning_relevance": {"type": "object"}
+      }
+    },
+    "limitations_and_warnings": {"type": ["string", "array", "null"]}
+  }
+}

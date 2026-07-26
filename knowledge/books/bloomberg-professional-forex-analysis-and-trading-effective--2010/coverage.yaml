@@ -1,0 +1,97 @@
+book_id: bloomberg-professional-forex-analysis-and-trading-effective--2010
+sections:
+  - ref: intro
+    title: "Introduction"
+    pdf_page_start: 12
+    status: processed
+    reason: "Outlines three-pillar framework (fundamental, positioning, technical). Core methodology."
+
+  - ref: part1_fundamental
+    title: "Part I: Fundamental Analysis"
+    pdf_page_start: 18
+    status: processed
+    reason: "Section header and context-setting."
+
+  - ref: ch1_ppp
+    title: "Chapter 1: Purchasing Power Parity"
+    pdf_page_start: 22
+    status: processed
+    reason: "PPP theory foundations; exchange-rate valuation methodology for long-term analysis."
+
+  - ref: ch2_reer
+    title: "Chapter 2: Real Exchange Rates and the External Balance"
+    pdf_page_start: 38
+    status: processed
+    reason: "Internal-external balance approach; productivity shocks; terms of trade; fundamental fair-value concepts."
+
+  - ref: ch3_medium_term
+    title: "Chapter 3: Exchange-Rate Determination over the Medium Term: Parity Conditions, Capital Flows, and Current Account"
+    pdf_page_start: 54
+    status: processed
+    reason: "Parity conditions, capital flows, current-account dynamics; medium-term determinants."
+
+  - ref: ch4_regressions
+    title: "Chapter 4: Fair-Value Regressions"
+    pdf_page_start: 70
+    status: processed
+    reason: "Regression-based fair-value modeling (monthly, weekly, daily); EUR/USD, USD/CAD, GBP/USD case studies; confidence intervals and historical misvaluations."
+
+  - ref: part2_positioning
+    title: "Part II: Market Sentiment and Positioning"
+    pdf_page_start: 104
+    status: processed
+    reason: "Section header; positioning analysis framework."
+
+  - ref: ch5_cftc
+    title: "Chapter 5: Futures Non-Commercial Positioning"
+    pdf_page_start: 108
+    status: processed
+    reason: "CFTC speculative positioning data; commercial vs. non-commercial correlation; net position measurement; positioning-price relationship analysis."
+
+  - ref: ch6_risk_reversals
+    title: "Chapter 6: Risk Reversals"
+    pdf_page_start: 128
+    status: processed
+    reason: "Options risk-reversal skew as sentiment indicator; real-time positioning signal complementary to CFTC data."
+
+  - ref: part3_technical
+    title: "Part III: Technical Analysis"
+    pdf_page_start: 144
+    status: processed
+    reason: "Section header; technical analysis framework introduction."
+
+  - ref: ch7_trends
+    title: "Chapter 7: Trend-Following Indicators"
+    pdf_page_start: 148
+    status: processed
+    reason: "Moving averages, DMI, Parabolic SAR, MACD; trend identification and signal generation; lag and whipsaw issues."
+
+  - ref: ch8_oscillators
+    title: "Chapter 8: Oscillators"
+    pdf_page_start: 178
+    status: processed
+    reason: "RSI, stochastic indicators; extreme-level identification; overbought/oversold signals; multi-currency case studies (EUR/USD, GBP/USD, AUD/USD)."
+
+  - ref: ch9_patterns
+    title: "Chapter 9: Technical Pattern Recognition"
+    pdf_page_start: 206
+    status: processed
+    reason: "Head-and-shoulders, key-day reversals, support/resistance, Fibonacci retracements; pattern-based entry/exit triggers."
+
+  - ref: case_studies
+    title: "Case Studies"
+    pdf_page_start: 222
+    status: processed
+    reason: "Worked examples applying combined framework; strategy backtests with real currency data."
+
+  - ref: conclusion
+    title: "Conclusion"
+    pdf_page_start: 256
+    status: processed
+    reason: "Synthesis and forward-looking remarks."
+
+  - ref: index
+    title: "Index"
+    pdf_page_start: 260
+    status: processed
+    reason: "Reference material."

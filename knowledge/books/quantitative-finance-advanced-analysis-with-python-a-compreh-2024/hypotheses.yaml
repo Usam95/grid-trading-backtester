@@ -1,0 +1,217 @@
+- id: QFADV-H1
+  title: "Signal generation complexity reduces alpha through overfitting"
+  status: proposed
+  derived_from:
+    - QFADV-C4-004
+    - QFADV-C4-002
+  statement: |
+    Trading algorithms using complex signal generation models (neural networks, 
+    ensemble methods) achieve higher in-sample performance than simple models, 
+    but out-of-sample performance degradation is larger due to overfitting to 
+    historical market patterns.
+  proposed_mechanism: |
+    Complex models fit both signal and noise in training data. When applied to 
+    new regimes, noise-fitting components fail while signal components remain. 
+    Net effect: lower Sharpe ratio and higher drawdowns in live trading.
+  applicable_markets_and_regimes:
+    - "Equities with moderate volatility"
+    - "Crypto spot with high volatility"
+    - "Trending and range-bound regimes"
+  assumptions:
+    - "Historical data representative of future distributions"
+    - "Model regularization insufficient for regime change"
+    - "Training period captures representative market conditions"
+  data_requirements:
+    - "5+ years historical price and volume data"
+    - "Out-of-sample test periods not used in training"
+    - "Cross-validation using walk-forward methodology"
+  baseline_or_null_hypothesis: |
+    Simple moving average or momentum models show similar out-of-sample 
+    performance to complex models when properly cross-validated.
+  validation_approach: |
+    1. Compare in-sample R² between simple and complex models
+    2. Measure out-of-sample performance degradation
+    3. Apply walk-forward testing with expanding windows
+    4. Stress test during regime changes (2008, 2020, 2022)
+  transaction_cost_and_fill_considerations: |
+    Complex models may generate more frequent signals with smaller expected moves, 
+    making transaction costs more impactful. Paper trading should include realistic 
+    slippage and commissions.
+  robustness_checks:
+    - "Different train/test splits"
+    - "Different historical periods"
+    - "Parameter sensitivity analysis"
+    - "Stress testing with synthetic regimes"
+  rejection_criteria: |
+    If walk-forward out-of-sample Sharpe ratio >= simple model Sharpe ratio 
+    across 3+ independent periods, hypothesis rejected.
+  failure_modes:
+    - "Overfitting penalty absorbed by transaction costs making model non-viable"
+    - "Catastrophic loss during unexpected regime"
+  freshness_concerns: |
+    Market microstructure evolves. Parameters optimal in 2020 may be suboptimal 
+    in 2024. Continuous reoptimization required.
+  unresolved_questions:
+    - "What regularization strength prevents overfitting?"
+    - "How frequently should models be reoptimized?"
+    - "Does ensemble complexity provide diversification benefit?"
+
+- id: QFADV-H2
+  title: "Backtesting implementation fidelity critical to forward performance"
+  status: proposed
+  derived_from:
+    - QFADV-C6-001
+    - QFADV-C8-001
+  statement: |
+    Backtesting results provide optimistic estimates of live performance when 
+    implementation does not faithfully replicate: order execution latency, 
+    market microstructure dynamics, realistic slippage, or fee structures.
+  proposed_mechanism: |
+    Backtester approximations (constant-slippage, no-latency, perfect-fill 
+    assumptions) systematically overestimate profitability. Live implementation 
+    must use realistic models of microstructure.
+  applicable_markets_and_regimes:
+    - "High-frequency strategies most sensitive"
+    - "Illiquid assets or periods of stress"
+    - "Volatile regimes where slippage increases"
+  assumptions:
+    - "Order execution behavior can be accurately modeled"
+    - "Historical microstructure representative of future"
+  data_requirements:
+    - "Tick-level order book data"
+    - "Actual execution latency measurements"
+    - "Fee schedule for each venue"
+  baseline_or_null_hypothesis: |
+    Backtester with simplified assumptions (constant slippage, instant fill) 
+    produces Sharpe ratio within 10% of live results.
+  validation_approach: |
+    1. Compare paper trading results to live trading results
+    2. Decompose performance attribution: signal vs execution quality
+    3. Measure realized slippage against backtested assumption
+    4. Compare actual fills to simulated order execution
+  transaction_cost_and_fill_considerations: |
+    This hypothesis directly addresses transaction costs and fill quality.
+  robustness_checks:
+    - "Test with different broker APIs"
+    - "Measure latency impact under network congestion"
+    - "Stress test during low liquidity periods"
+  rejection_criteria: |
+    If paper trading Sharpe ratio within 15% of live Sharpe ratio over 90-day 
+    period, hypothesis rejected.
+  failure_modes:
+    - "Systemic underestimation of slippage in all strategies"
+    - "Unforeseen microstructure changes"
+  freshness_concerns: |
+    Market structure evolving (tick sizes, market fragmentation, dark pools). 
+    Models should be refreshed annually.
+  unresolved_questions:
+    - "What slippage model best captures behavior across regimes?"
+    - "How to model predatory HFT detection and avoidance?"
+
+- id: QFADV-H3
+  title: "Sentiment signals from public data degrade rapidly as adoption increases"
+  status: proposed
+  derived_from:
+    - QFADV-C7-003
+    - QFADV-C9-003
+  statement: |
+    Trading signals derived from news sentiment or social media sentiment 
+    show significant predictive power when initially deployed, but alpha 
+    decays as more market participants adopt similar strategies.
+  proposed_mechanism: |
+    Early sentiment-signal adopters capture alpha by acting before consensus 
+    forms. As adoption spreads, signal timing lags market moves. Eventually 
+    signal becomes coincident with price moves rather than leading indicator.
+  applicable_markets_and_regimes:
+    - "Equities with event-driven catalysts"
+    - "Crypto with high sentiment sensitivity"
+  assumptions:
+    - "Sentiment data predictive of prices"
+    - "Strategy adoption creates crowding"
+    - "Signal decay monotonic over time"
+  data_requirements:
+    - "High-frequency sentiment data (Twitter, news wires)"
+    - "Price data at sentiment update granularity"
+    - "Multi-year historical data to measure decay"
+  baseline_or_null_hypothesis: |
+    Sentiment signal Sharpe ratio is constant across time periods; no decay 
+    with strategy adoption.
+  validation_approach: |
+    1. Measure signal predictive power in rolling windows (3-month, 6-month)
+    2. Compare early vs recent performance of same signal
+    3. Correlate strategy popularity with signal decay
+    4. Identify inflection point where alpha turns negative
+  transaction_cost_and_fill_considerations: |
+    High-frequency sentiment trading may incur frequent small transaction costs, 
+    requiring alpha threshold before strategy becomes viable.
+  robustness_checks:
+    - "Different sentiment data sources"
+    - "Different time periods"
+    - "Different assets"
+  rejection_criteria: |
+    If sentiment signal maintains Sharpe ratio > 1.0 across 5+ years in 
+    out-of-sample data, hypothesis rejected.
+  failure_modes:
+    - "Sentiment data source becomes unreliable or unavailable"
+    - "Regulatory restriction on sentiment data usage"
+  freshness_concerns: |
+    High freshness risk. Current sentiment data (2024) may have different 
+    predictive power than historical data. Continuous monitoring required.
+  unresolved_questions:
+    - "At what adoption level does alpha fully disappear?"
+    - "What alternative sentiment sources might provide longer-lived edge?"
+
+- id: QFADV-H4
+  title: "Risk assessment parameters must adapt to regime for algorithm stability"
+  status: proposed
+  derived_from:
+    - QFADV-C1-001
+    - QFADV-C8-002
+  statement: |
+    Trading algorithms with fixed risk parameters (position size limits, 
+    drawdown stops, volatility targets) experience unstable behavior during 
+    market regime changes. Algorithms with adaptive risk parameters maintain 
+    stability across regimes.
+  proposed_mechanism: |
+    Fixed risk parameters appropriate for normal regimes become too loose 
+    during volatility spikes and too tight during calm periods. Adaptive 
+    parameters adjust to current regime volatility/correlation, maintaining 
+    consistent risk exposure.
+  applicable_markets_and_regimes:
+    - "All strategies"
+    - "Relevant during regime transitions"
+  assumptions:
+    - "Regime can be detected from recent data"
+    - "Risk parameters can be dynamically adjusted"
+    - "Regime detection does not introduce latency issues"
+  data_requirements:
+    - "Volatility time series"
+    - "Correlation matrices"
+    - "Drawdown histories across regimes"
+  baseline_or_null_hypothesis: |
+    Fixed risk parameters produce stable performance across market regimes 
+    without adaptation.
+  validation_approach: |
+    1. Backtest fixed-parameter algorithm across 2008, 2020, 2022 stress periods
+    2. Measure maximum drawdown vs regime volatility
+    3. Compare to adaptive algorithm performance in same periods
+    4. Validate regime detection accuracy during transitions
+  transaction_cost_and_fill_considerations: |
+    Frequent parameter adjustment might increase market impact if position 
+    sizes change dramatically. Gradual transitions recommended.
+  robustness_checks:
+    - "Different regime detection methods"
+    - "Different adaptation schedules"
+    - "Stress test during flash crashes"
+  rejection_criteria: |
+    If fixed-parameter algorithm maintains Sharpe ratio within 20% of adaptive 
+    algorithm across all stress periods, hypothesis rejected.
+  failure_modes:
+    - "Regime detection lag causes pro-cyclical risk adjustments"
+    - "Parameter adaptation triggers market impact"
+  freshness_concerns: |
+    Regime detection models should be refreshed with recent data to remain 
+    predictive.
+  unresolved_questions:
+    - "What regime detection method optimal?"
+    - "How quickly to adapt parameters without excessive turnover?"

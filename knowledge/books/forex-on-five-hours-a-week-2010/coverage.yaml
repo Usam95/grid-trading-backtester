@@ -1,0 +1,72 @@
+book_id: forex-on-five-hours-a-week-2010
+sections:
+- pdf_page_start: 16
+  reason: Bulls, shorts, fundamental concepts
+  ref: ch01
+  status: processed
+  title: Making Money in Up and Down Markets
+- pdf_page_start: 24
+  reason: Mindset, market analysis framework, time frames
+  ref: ch02
+  status: processed
+  title: Full-Time Trading = Full-Time Job
+- pdf_page_start: 34
+  reason: Market cycles, price action, trend concepts
+  ref: ch03
+  status: processed
+  title: The Wave
+- pdf_page_start: 48
+  reason: Indicators, order entry, stop loss, risk management
+  ref: ch04
+  status: processed
+  title: Objectivity
+- pdf_page_start: 58
+  reason: Fibonacci analysis, entry confirmation
+  ref: ch05
+  status: processed
+  title: The Magic of Lazy Days Lines
+- pdf_page_start: 72
+  reason: Momentum, swing, and range trading setups
+  ref: ch06
+  status: processed
+  title: The Only Entries You Need
+- pdf_page_start: 88
+  reason: Market sessions, financial centers, time-based trading
+  ref: ch07
+  status: processed
+  title: Around the World
+- pdf_page_start: 112
+  reason: Dollar index, currency correlations
+  ref: ch08
+  status: processed
+  title: Market Pulse
+- pdf_page_start: 132
+  reason: Psychological factors, cycles, news impact, time/entry psychology
+  ref: ch09
+  status: processed
+  title: Trading Psychology
+- pdf_page_start: 146
+  reason: 200 SMA, 52-week levels, herd behavior
+  ref: ch10
+  status: processed
+  title: Psychological Numbers
+- pdf_page_start: 152
+  reason: Chart right side, consumer confidence, risk appetite
+  ref: ch11
+  status: processed
+  title: Trading Edge
+- pdf_page_start: 168
+  reason: Broker selection, 2% rule, stop placement, triage
+  ref: ch12
+  status: processed
+  title: Is My Broker Friend or Foe?
+- pdf_page_start: 178
+  reason: Charting tools, profit targets, 15-min setups
+  ref: ch13
+  status: processed
+  title: Embracing Automation
+- pdf_page_start: 194
+  reason: Recommendations, conclusions
+  ref: ch14
+  status: processed
+  title: Raghee Recommends & Final Thoughts

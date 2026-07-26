@@ -1,0 +1,200 @@
+- id: BGTTRADING-REQ-001
+  title: Backtest engine must enforce position sizing limits
+  status: proposed
+  derived_from:
+  - BGTTRADING-SW-006
+  derivation_type: agent_inference
+  rationale: Position sizing (1-2% per trade) is critical control to prevent catastrophic
+    losses; backtest must enforce configured limit
+  applies_to:
+    strategy:
+    - stock_signal
+    - grid
+    lifecycle:
+    - backtest
+    - paper
+    asset_class:
+    - shared
+    concern:
+    - risk
+    - simulation
+  requirement: Backtest engine shall enforce position size limit as configured; shall
+    reject any trade that would exceed limit; shall log rejection reason
+  acceptance_tests:
+  - 'Test with 1% per-trade limit: system rejects 1.5% position'
+  - 'Test with 2% limit: system accepts 1.9% position'
+  - Log shows rejection reason
+  failure_prevented: Catastrophic losses from over-leverage; backtest unrealism
+  capability_enabled: Risk control modeling; drawdown prediction accuracy
+  assumptions:
+  - Position size can be pre-calculated
+  - Limit applies to notional or margin
+  open_questions:
+  - Limit in notional, margin, or % of equity?
+  - Dynamic adjustment needed?
+  dependencies:
+  - Risk model must calculate position size correctly
+  - Limit configuration interface
+  verification_needed: Integration test with various position sizes and limits
+  priority_hint: correctness
+- id: BGTTRADING-REQ-002
+  title: Backtester must support overnight gaps with configurable gap simulation
+  status: proposed
+  derived_from:
+  - BGTTRADING-SW-001
+  derivation_type: agent_inference
+  rationale: Swing trading holds overnight; gaps can trigger stops below simulated
+    price; backtester must model gap risk for realistic drawdown
+  applies_to:
+    strategy:
+    - stock_signal
+    lifecycle:
+    - backtest
+    asset_class:
+    - equities
+    concern:
+    - simulation
+    - reproducibility
+  requirement: Backtester shall support gap simulation on overnight holds; shall apply
+    configured gap probability/magnitude from open price; shall honor stops at open
+    if gapped below stop
+  acceptance_tests:
+  - 'Gap probability 5%: ~1 gap per 20 overnight holds'
+  - 'Gap -3%: position stopped at open -3%'
+  - Stop order honored at open price
+  failure_prevented: Backtest overly optimistic; real trading worse than backtest
+  capability_enabled: Realistic drawdown modeling for swing strategies
+  assumptions:
+  - Gap distribution approximately normal
+  - Gaps random
+  open_questions:
+  - Gap magnitude distribution by asset?
+  - Correlated gaps across portfolio?
+  dependencies:
+  - Historical gap analysis data
+  - Gap simulation module
+  verification_needed: Compare gap frequency and magnitude vs historical data
+  priority_hint: correctness
+- id: BGTTRADING-REQ-003
+  title: Backtest output must include transaction cost breakdown
+  status: proposed
+  derived_from:
+  - BGTTRADING-FX-004
+  derivation_type: agent_inference
+  rationale: High-frequency strategies (scalping) sensitive to costs; hidden costs
+    make backtest unrealistic; must break out spreads, commissions, slippage, taxes
+    separately
+  applies_to:
+    strategy:
+    - grid
+    - stock_signal
+    - shared
+    lifecycle:
+    - backtest
+    - research
+    asset_class:
+    - shared
+    concern:
+    - data
+    - simulation
+    - reproducibility
+  requirement: 'Backtest shall report transaction costs as: total, and itemized by
+    spread, commission, slippage, fees, taxes; as aggregate and as average per trade'
+  acceptance_tests:
+  - Report shows spread cost 40 bps, commission 5 bps, slippage 10 bps
+  - Average spread per trade = total spread / number of trades
+  - Total transaction cost + net return = gross return
+  failure_prevented: Hidden transaction costs make low-alpha strategies appear profitable
+  capability_enabled: Cost transparency; strategy profitability validation
+  assumptions:
+  - Costs calculated consistently
+  - Configuration complete
+  open_questions:
+  - Dynamic spread/commission by venue?
+  - Tax treatment by jurisdiction?
+  dependencies:
+  - Transaction cost configuration
+  - Reporting module
+  verification_needed: Audit output for mathematical consistency
+  priority_hint: correctness
+- id: BGTTRADING-REQ-004
+  title: Live system must enforce trading plan entry/exit rules
+  status: proposed
+  derived_from:
+  - BGTTRADING-FX-006
+  derivation_type: agent_inference
+  rationale: Documented trading plan critical for reproducibility and preventing emotional
+    trading; system must block trades violating plan
+  applies_to:
+    strategy:
+    - shared
+    lifecycle:
+    - live
+    asset_class:
+    - shared
+    concern:
+    - operations
+    - reproducibility
+    - risk
+  requirement: Live trading system shall load configured trading plan; shall validate
+    every order against plan (entry signal required, position size matches limit,
+    risk limit honored); shall log all plan violations; shall alert trader on violation
+  acceptance_tests:
+  - Trade without required entry signal rejected
+  - Position size >limit rejected
+  - Risk >limit rejected
+  - Violation logged with reason
+  failure_prevented: Emotional trading; over-leverage; rule violations
+  capability_enabled: Plan enforcement; audit trail
+  assumptions:
+  - Plan configuration accurate
+  - Signals reliable
+  open_questions:
+  - Override mechanism for emergency?
+  - Plan modification frequency?
+  dependencies:
+  - Plan configuration interface
+  - Order validation module
+  - Logging system
+  verification_needed: Manual testing with various plan violations
+  priority_hint: safety
+- id: BGTTRADING-REQ-005
+  title: System must validate broker API data integrity hourly
+  status: proposed
+  derived_from:
+  - BGTTRADING-DT-004
+  derivation_type: agent_inference
+  rationale: Broker API feeds market data and execution; data errors or gaps break
+    trading; system must detect and alert
+  applies_to:
+    strategy:
+    - shared
+    lifecycle:
+    - live
+    asset_class:
+    - shared
+    concern:
+    - data
+    - operations
+    - risk
+  requirement: 'System shall validate broker API data hourly: check heartbeat, sequence
+    numbers, stale prices (>5min), disconnects; shall alert if validation fails; shall
+    log data quality metrics'
+  acceptance_tests:
+  - 'Heartbeat missing: alert within 1 min'
+  - 'Stale price >5min: alert with staleness time'
+  - 'Disconnect detected: alert immediately'
+  - Hourly report of data quality %
+  failure_prevented: Executing on stale data; trading blind
+  capability_enabled: Data quality monitoring; failure detection
+  assumptions:
+  - Broker provides heartbeat/sequence
+  - Alert delivery reliable
+  open_questions:
+  - Alert delivery method?
+  - Automatic failover to backup broker?
+  dependencies:
+  - Broker API layer
+  - Alerting system
+  verification_needed: Integration test with simulated API failures
+  priority_hint: safety

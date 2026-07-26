@@ -1,0 +1,252 @@
+book_id: "technical-analysis-explained-2015"
+sections:
+  # Front Matter
+  - ref: "preface"
+    title: "Preface"
+    pdf_page_start: 10
+    status: "processed"
+    reason: "Context for TA philosophy and book organization"
+  
+  # Part I: Trend-Determining Techniques
+  - ref: "ch1"
+    title: "1. The Definition and Interaction of Trends"
+    pdf_page_start: 16
+    status: "processed"
+    reason: "Core TA concept; defines uptrend, downtrend, sideways; foundational for all pattern recognition"
+  
+  - ref: "ch2"
+    title: "2. Financial Markets and the Business Cycle"
+    pdf_page_start: 30
+    status: "processed"
+    reason: "Links TA to macroeconomic cycles; relevant for regime identification and backtesting"
+  
+  - ref: "ch3"
+    title: "3. Dow Theory"
+    pdf_page_start: 42
+    status: "processed"
+    reason: "Foundational TA theory; underpin trend confirmation and three-movement rules"
+  
+  - ref: "ch4"
+    title: "4. Typical Parameters for Intermediate Trends"
+    pdf_page_start: 54
+    status: "processed"
+    reason: "Quantitative guidance on trend duration/magnitude; parameter selection for algorithms"
+  
+  - ref: "ch5"
+    title: "5. How to Identify Support and Resistance Zones"
+    pdf_page_start: 68
+    status: "processed"
+    reason: "Key for entry/exit rule definition and grid system design; level identification methodology"
+  
+  - ref: "ch6"
+    title: "6. Trendlines"
+    pdf_page_start: 83
+    status: "processed"
+    reason: "Trendline construction and use; operationalizable pattern for entry/exit signals"
+  
+  - ref: "ch7"
+    title: "7. Basic Characteristics of Volume"
+    pdf_page_start: 110
+    status: "processed"
+    reason: "Volume-price relationships; confirmation signals and divergence detection"
+  
+  - ref: "ch8"
+    title: "8. Classic Price Patterns"
+    pdf_page_start: 128
+    status: "processed"
+    reason: "Head-and-shoulders, triangles, rectangles; core pattern recognition for entry/exit systems"
+  
+  - ref: "ch9"
+    title: "9. Smaller Price Patterns and Gaps"
+    pdf_page_start: 199
+    status: "processed"
+    reason: "Smaller patterns and gap analysis; intraday and swing trading relevance"
+  
+  - ref: "ch10"
+    title: "10. One- and Two-Bar Price Patterns"
+    pdf_page_start: 222
+    status: "processed"
+    reason: "Bar-by-bar pattern recognition; directly applicable to algorithmic trading logic"
+  
+  - ref: "ch11"
+    title: "11. Moving Averages"
+    pdf_page_start: 246
+    status: "processed"
+    reason: "Fundamental indicator; MA crossovers, smoothing, lag characteristics; highly relevant for trend systems"
+  
+  - ref: "ch12"
+    title: "12. Envelopes and Bollinger Bands"
+    pdf_page_start: 259
+    status: "processed"
+    reason: "Volatility bands; overbought/oversold signals; mean reversion trading rules"
+  
+  - ref: "ch13"
+    title: "13. Momentum I: Basic Principles"
+    pdf_page_start: 292
+    status: "processed"
+    reason: "Momentum theory; divergences as reversal signals; foundational for oscillator systems"
+  
+  - ref: "ch14"
+    title: "14. Momentum II: Individual Indicators"
+    pdf_page_start: 324
+    status: "processed"
+    reason: "RSI, MACD, stochastics; specific indicator rules and limitations"
+  
+  - ref: "ch15"
+    title: "15. Momentum III: Individual Indicators"
+    pdf_page_start: 353
+    status: "processed"
+    reason: "Additional indicators (rate of change, etc.); oscillator strategies"
+  
+  - ref: "ch16"
+    title: "16. Candlestick Charting"
+    pdf_page_start: 386
+    status: "processed"
+    reason: "Candlestick pattern recognition; doji, engulfing, hammer patterns; entry/exit rules"
+  
+  - ref: "ch17"
+    title: "17. Point and Figure Charting"
+    pdf_page_start: 414
+    status: "processed"
+    reason: "Alternative charting method; support/resistance from PnF; less relevant for algo systems"
+  
+  - ref: "ch18"
+    title: "18. Miscellaneous Techniques for Determining Trends"
+    pdf_page_start: 436
+    status: "processed"
+    reason: "Less common TA tools; completeness but lower priority"
+  
+  - ref: "ch19"
+    title: "19. The Concept of Relative Strength"
+    pdf_page_start: 468
+    status: "processed"
+    reason: "RS analysis; rotation strategies; portfolio construction"
+  
+  - ref: "ch20"
+    title: "20. Putting the Indicators Together: The DJ Transports 1990-2001"
+    pdf_page_start: 484
+    status: "processed"
+    reason: "Real example of multi-indicator strategy; consolidation and pattern recognition"
+  
+  # Part II: Market Structure
+  - ref: "ch21"
+    title: "21. Price: The Major Averages"
+    pdf_page_start: 512
+    status: "processed"
+    reason: "Index relationships; Dow theory confirmation; regime identification"
+  
+  - ref: "ch22"
+    title: "22. Price: Sector Rotation"
+    pdf_page_start: 538
+    status: "processed"
+    reason: "Sector rotation patterns; portfolio positioning; relative strength application"
+  
+  - ref: "ch23"
+    title: "23. Time: Analyzing Secular Trends for Stocks, Bonds, and Commodities"
+    pdf_page_start: 573
+    status: "processed"
+    reason: "Long-term trend analysis; regime classification; applicable to multi-asset systems"
+  
+  - ref: "ch24"
+    title: "24. Time: Cycles and Seasonal Patterns"
+    pdf_page_start: 604
+    status: "processed"
+    reason: "Cyclical behavior; seasonal effects; cycle-based trading rules; calendar anomalies"
+  
+  - ref: "ch25"
+    title: "25. Practical Identification of Cycles"
+    pdf_page_start: 623
+    status: "processed"
+    reason: "Methodology for finding cycles; spectral analysis concepts; parameter estimation"
+  
+  - ref: "ch26"
+    title: "26. Volume II: Volume Indicators"
+    pdf_page_start: 648
+    status: "processed"
+    reason: "Advanced volume indicators; OBV, accumulation/distribution; confirmation signals"
+  
+  - ref: "ch27"
+    title: "27. Market Breadth"
+    pdf_page_start: 666
+    status: "processed"
+    reason: "Breadth indicators; advance/decline; market health assessment; divergence signals"
+  
+  # Part III: Other Aspects
+  - ref: "ch28"
+    title: "28. Indicators and Relationships That Measure Confidence"
+    pdf_page_start: 686
+    status: "processed"
+    reason: "Market confidence measures; risk-on/off regimes; position sizing considerations"
+  
+  - ref: "ch29"
+    title: "29. The Importance of Sentiment"
+    pdf_page_start: 707
+    status: "planned_targeted_read"
+    reason: "Sentiment indicators; contrarian approach; less directly operationalizable"
+  
+  - ref: "ch30"
+    title: "30. Integrating Contrary Opinion and Technical Analysis"
+    pdf_page_start: 726
+    status: "planned_targeted_read"
+    reason: "Contrarian TA synthesis; lower priority for algorithmic systems"
+  
+  - ref: "ch31"
+    title: "31. Why Interest Rates Affect the Stock Market"
+    pdf_page_start: 752
+    status: "processed"
+    reason: "Interest rate regime effects; macro factor for equity TA; risk management consideration"
+  
+  - ref: "ch32"
+    title: "32. Using Technical Analysis to Select Individual Stocks"
+    pdf_page_start: 766
+    status: "processed"
+    reason: "Stock selection methodology; individual security TA; sector rotation application"
+  
+  - ref: "ch33"
+    title: "33. Technical Analysis of International Stock Markets"
+    pdf_page_start: 774
+    status: "planned_targeted_read"
+    reason: "International market patterns; potentially outdated with market globalization; lower priority"
+  
+  - ref: "ch34"
+    title: "34. Automated Trading Systems"
+    pdf_page_start: 780
+    status: "processed"
+    reason: "System design principles; rule formalization; backtesting and optimization caveats"
+  
+  - ref: "ch35"
+    title: "35. Checkpoints for Identifying Primary Stock Market Peaks and Troughs"
+    pdf_page_start: 786
+    status: "processed"
+    reason: "Market timing checklist; peak/trough identification; multi-indicator synthesis"
+  
+  # Back Matter
+  - ref: "epilogue"
+    title: "Epilogue"
+    pdf_page_start: 766
+    status: "processed"
+    reason: "Summary and forward-looking comments on TA relevance"
+  
+  - ref: "appendix_elliott"
+    title: "Appendix: The Elliott Wave"
+    pdf_page_start: 768
+    status: "planned_targeted_read"
+    reason: "Elliott Wave Theory; complex and qualitative; lower priority for algorithmic systems"
+  
+  - ref: "glossary"
+    title: "Glossary"
+    pdf_page_start: 774
+    status: "processed"
+    reason: "Reference material; terminology standardization"
+  
+  - ref: "bibliography"
+    title: "Bibliography"
+    pdf_page_start: 780
+    status: "processed"
+    reason: "External references; source credibility assessment"
+  
+  - ref: "index"
+    title: "Index"
+    pdf_page_start: 786
+    status: "processed"
+    reason: "Reference only"

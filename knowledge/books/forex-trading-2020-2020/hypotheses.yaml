@@ -1,0 +1,154 @@
+- id: FOREX-HYP-001
+  title: "Three-level trend lines reduce false signals"
+  status: proposed
+  derived_from: ["FOREX-C2-003"]
+  statement: "Filtering technical signals by timeframe (short/medium/long-term trend lines) reduces false breakout signals and improves win rate."
+  proposed_mechanism: "Longer timeframes filter intraday noise; signals aligned across multiple timeframes have higher conviction."
+  applicable_markets_and_regimes: "Applies to trending regimes in forex; less effective in choppy/ranging markets."
+  assumptions:
+    - "Forex pairs exhibit multi-scale structure with noise at short timeframes"
+    - "Traders using similar timeframes create reinforced support/resistance"
+  data_requirements:
+    - "OHLCV bars at 15-min, 60-min, 4-hour, daily timeframes"
+    - "At least 2 years historical data"
+  baseline_or_null_hypothesis: "Random entry at trend line breakouts performs no better than buy-and-hold."
+  validation_approach: "Backtest channel breakouts with and without multi-timeframe filtering; compare Sharpe ratio and win rate."
+  transaction_cost_and_fill_considerations: "Assume bid-ask spread of 1-2 pips for major pairs; slippage on entries ~0.5-1 pip."
+  robustness_checks:
+    - "Test across multiple currency pairs (EURUSD, GBPUSD, USDJPY, AUDUSD)"
+    - "Test across market regimes (trending, ranging, volatile)"
+    - "Test with different lookback periods for trend identification"
+  rejection_criteria: "Hypothesis rejected if backtest Sharpe ratio < 0.5 or win rate < 45%."
+  failure_modes:
+    - "Whipsaw trades at trend line bounces"
+    - "Failed breakouts that reverse before target"
+    - "Regime shifts that invalidate trend structures"
+  freshness_concerns: "Forex market structure, broker spreads, and volume have changed since 2020."
+  unresolved_questions:
+    - "What is the optimal lookback period for trend identification?"
+    - "Do trend lines on 4-hour charts outperform daily charts?"
+
+- id: FOREX-HYP-002
+  title: "Automated systems outperform manual trading on discipline"
+  status: proposed
+  derived_from: ["FOREX-C3-001", "FOREX-C4-003"]
+  statement: "Algorithmic trading systems that remove emotional bias and enforce trading rules achieve higher Sharpe ratio and lower drawdown than manual trading."
+  proposed_mechanism: "Automated systems execute all signals mechanically, avoiding emotional override of stop-losses; consistent rule execution improves risk-adjusted returns."
+  applicable_markets_and_regimes: "Applies across forex, cryptos, and equities; more effective in high-frequency environments."
+  assumptions:
+    - "Trading rules are well-specified and have positive edge"
+    - "Emotional bias is a significant source of trading losses"
+    - "Machine execution is faster and more reliable than human execution"
+  data_requirements:
+    - "Backtest data with slippage and real commission models"
+    - "Comparison of manual vs. algorithmic P&L over 6+ months"
+  baseline_or_null_hypothesis: "Emotional and automated traders achieve equivalent risk-adjusted returns after costs."
+  validation_approach: "Compare backtest Sharpe ratios; compare live trading results (manual log vs. automated); measure drawdown profiles."
+  transaction_cost_and_fill_considerations: "Automated systems incur API fees, execution latency; manual trading incurs platform fees and behavioral slippage."
+  robustness_checks:
+    - "Test on multiple strategies (trend-following, mean reversion, grid)"
+    - "Test under high-volatility and low-volatility regimes"
+    - "Measure max drawdown and recovery time"
+  rejection_criteria: "Hypothesis rejected if automated Sharpe < manual Sharpe by >10% or if drawdown is not reduced."
+  failure_modes:
+    - "Overfitted strategies that break in live markets"
+    - "API crashes or connection failures"
+    - "Execution gaps during news events"
+  freshness_concerns: "Broker connectivity, API reliability, and execution quality have improved since 2020."
+  unresolved_questions:
+    - "What level of emotional override is typical for manual traders?"
+    - "How much of performance difference is due to consistency vs. lower latency?"
+
+- id: FOREX-HYP-003
+  title: "Channel breakout strategy outperforms random entry"
+  status: proposed
+  derived_from: ["FOREX-C4-001"]
+  statement: "Trading price channel breakouts generates positive expected return greater than transaction costs and slippage."
+  proposed_mechanism: "Breakout signals exhaustion of supply/demand equilibrium; new directional trend follows with persistence."
+  applicable_markets_and_regimes: "Effective in trending and breakout regimes; fails in range-bound or whipsaw environments."
+  assumptions:
+    - "Channel boundaries reflect significant support/resistance"
+    - "Breakouts are followed by continuation moves (not reversals)"
+    - "Breakout magnitude is exploitable above transaction costs"
+  data_requirements:
+    - "OHLCV bars at entry timeframe (4-hour, daily, or higher)"
+    - "At least 500 trades for statistical significance"
+  baseline_or_null_hypothesis: "Random entries achieve same return as channel breakouts (null) or breakouts achieve 50% win rate."
+  validation_approach: "Backtest breakout entries with defined channel parameters; measure PnL, win rate, Sharpe ratio."
+  transaction_cost_and_fill_considerations: "1-2 pips entry slippage, 1-2 pips exit slippage, 1-2 pip spread; assume 4-5 pips round-trip cost."
+  robustness_checks:
+    - "Test with different channel definitions (Donchian, regression bands)"
+    - "Test with different breakout confirmation rules"
+    - "Test on multiple pairs and timeframes"
+  rejection_criteria: "Hypothesis rejected if backtest win rate < 45%, Sharpe < 0.3, or PnL < transaction costs * N_trades."
+  failure_modes:
+    - "False breakouts that reverse immediately"
+    - "Gaps overnight that skip entry level"
+    - "Low volatility periods with few breakouts"
+  freshness_concerns: "Forex volatility and mean-reversion characteristics have changed since 2020."
+  unresolved_questions:
+    - "What is the optimal channel lookback period?"
+    - "Should breakout entries be filtered by ATR or volatility regime?"
+
+- id: FOREX-HYP-004
+  title: "COT report positioning predicts short-term forex moves"
+  status: proposed
+  derived_from: ["FOREX-C5-003"]
+  statement: "CFTC COT report net positioning of commercial vs. non-commercial traders predicts next-week forex returns."
+  proposed_mechanism: "Large institutional traders lead price discovery; COT positioning reflects their directional bias and predicts short-term moves."
+  applicable_markets_and_regimes: "Applicable to major currency pairs with deep COT data; less effective in crisis periods."
+  assumptions:
+    - "COT positioning is public by Friday close for previous Tuesday"
+    - "Institutional traders' positioning leads retail and predicts direction"
+    - "COT effect persists week-to-week with lag"
+  data_requirements:
+    - "CFTC COT reports (weekly)"
+    - "OHLCV forex data for next 5 trading days post-report"
+    - "At least 3+ years of paired COT/price data"
+  baseline_or_null_hypothesis: "COT positioning has zero predictive power; returns are random walk."
+  validation_approach: "Build linear/logistic model: COT net position → next-week return direction. Measure R^2, correlation, win rate on holdout test set."
+  transaction_cost_and_fill_considerations: "Entry Friday close, exit end of next Friday; 2-3 pips round-trip cost; assume entry fill at Friday close."
+  robustness_checks:
+    - "Test with different lag structures (report → same-day entry vs. Monday entry)"
+    - "Test with different position size weighting schemes"
+    - "Test on different pairs"
+  rejection_criteria: "Hypothesis rejected if correlation < 0.1 or if backtest Sharpe < 0.2 (after costs)."
+  failure_modes:
+    - "COT data is lagged (report is for Tuesday; published Friday)"
+    - "Extreme volatility or geopolitical events override COT signal"
+    - "Regime change invalidates historical relationships"
+  freshness_concerns: "COT positioning patterns may have changed post-2020; cryptocurrency growth has shifted market structure."
+  unresolved_questions:
+    - "Is the COT effect immediate (Friday) or delayed (Monday)?"
+    - "Does the effect vary by currency pair or regime?"
+
+- id: FOREX-HYP-005
+  title: "Carry trade interest erodes low-volatility position returns"
+  status: proposed
+  derived_from: ["FOREX-C4-004"]
+  statement: "Forex pairs with negative carry (e.g., long USDJPY) lose money to overnight swap costs if price moves are insufficient."
+  proposed_mechanism: "Overnight swap rates reflect interest rate differentials; negative carry reduces profitability unless price move exceeds swap cost."
+  applicable_markets_and_regimes: "Applies to low-volatility regimes where swap costs are material relative to daily ranges."
+  assumptions:
+    - "Broker swap rates are stable and publicly quoted"
+    - "Swap cost is accrued daily at quoted rate"
+    - "Low volatility regime persists for multiple days"
+  data_requirements:
+    - "Broker swap rates for each pair"
+    - "Daily ATR (Average True Range) for price move estimation"
+  baseline_or_null_hypothesis: "Swap costs are negligible and do not affect strategy selection."
+  validation_approach: "Calculate expected daily swap cost vs. average daily PnL; measure if negative-carry pairs underperform positive-carry pairs in same regime."
+  transaction_cost_and_fill_considerations: "Typical swap rates: 1-5 pips per night per million units; varies by pair and broker."
+  robustness_checks:
+    - "Test across currency pairs with different interest rate differentials"
+    - "Test in low-volatility vs. high-volatility regimes"
+    - "Verify swap rates across different brokers"
+  rejection_criteria: "Hypothesis rejected if carry cost differential < 5% of strategy PnL."
+  failure_modes:
+    - "Swap rates change due to central bank policy shifts"
+    - "Broker suspends carry (e.g., during crisis)"
+    - "Strategy timing changes during carry-sensitive periods"
+  freshness_concerns: "Swap rates and central bank policy have changed materially since 2020."
+  unresolved_questions:
+    - "Should strategies filter for positive-carry pairs only?"
+    - "How much volatility is needed to overcome swap costs?"

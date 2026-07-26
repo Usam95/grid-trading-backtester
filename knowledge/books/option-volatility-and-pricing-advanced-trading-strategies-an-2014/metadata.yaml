@@ -1,0 +1,87 @@
+schema_version: "1.0"
+prompt_version: "1.0"
+book_id: "option-volatility-and-pricing-advanced-trading-strategies-an-2014"
+title: "Option Volatility and Pricing: Advanced Trading Strategies"
+authors: ["Sheldon Natenberg"]
+publisher: "McGraw-Hill"
+edition: "Second Edition (2014)"
+publication_year: 2014
+isbn: "978-0071818673"
+language: "English"
+format: "pdf"
+page_count: 588
+chapter_count: 24
+processing_status: "audited"
+extraction_quality: "high"
+ocr_quality: "high"
+extraction_timestamps:
+  start: "2025-03-07T10:00:00Z"
+  end: "2025-03-07T14:30:00Z"
+synthesis_timestamp: "2025-03-07T15:00:00Z"
+
+sources:
+  - absolute_path: "C:\\Users\\W4TV5V8\\.copilot\\session-state\\a55e8123-c79b-4d55-ace8-c7dd582db539\\files\\tooling\\_KNOWLEDGE_EXTRACTION\\books\\option-volatility-and-pricing-advanced-trading-strategies-an-2014\\source.pdf"
+    relative_path: "books/option-volatility-and-pricing-advanced-trading-strategies-an-2014/source.pdf"
+    sha256: "tbd"
+    format: "pdf"
+
+scores:
+  source_credibility:
+    score: 5
+    justification: "Reputable McGraw-Hill publisher; Sheldon Natenberg is recognized authority in options trading"
+  citation_quality:
+    score: 4
+    justification: "Well-structured chapters with worked examples; references mathematical foundations"
+  reproducibility:
+    score: 4
+    justification: "Greeks formulas and spread mechanics are reproducible; vol clustering empirically verifiable"
+  likely_freshness:
+    score: 3
+    justification: "2014 publication; core options theory is durable; broker APIs and regulations have evolved"
+  system_engineering_relevance:
+    score: 5
+    justification: "Directly addresses Greeks computation, spread logic, risk controls applicable to platforms"
+  grid_backtest_relevance:
+    score: 5
+    justification: "Greeks, spreads, transaction costs, margin all critical for realistic grid backtesting"
+  grid_live_trading_relevance:
+    score: 5
+    justification: "Greeks refresh, rehedging, vol surface dynamics, margin constraints directly applicable"
+  stock_backtest_relevance:
+    score: 5
+    justification: "American options, dividends, early exercise essential for equity options backtesting"
+  stock_live_trading_relevance:
+    score: 5
+    justification: "Assignment risk, Greeks, margin directly relevant to equity options live trading"
+  risk_framework_relevance:
+    score: 5
+    justification: "Greeks-based risk accounting, margin, gamma risk, VaR all covered"
+  data_quality_framework_relevance:
+    score: 4
+    justification: "Implies vol surface quality requirements; transaction cost data needs; bid-ask tracking"
+  machine_learning_relevance:
+    score: 2
+    justification: "Limited coverage of ML approaches; vol forecasting identified as open problem"
+
+key_topics:
+  - "Option Pricing Fundamentals"
+  - "Forward and Futures Contracts"
+  - "Put-Call Parity and Arbitrage"
+  - "Greek Letters (Delta, Gamma, Theta, Vega, Rho)"
+  - "Implied Volatility Term Structure and Skew"
+  - "Volatility Measurement and Forecasting"
+  - "Spread Strategies (Vertical, Horizontal, Calendar)"
+  - "Early Exercise and American Options"
+  - "Binomial and Black-Scholes Models"
+  - "Model Assumptions and Violations"
+  - "Volatility Clustering and Dynamics"
+  - "Jump Risk and Fat Tails"
+  - "Transaction Costs and Liquidity"
+  - "Margin and Leverage"
+
+limitations_and_warnings: |
+  2014 publication; broker APIs, commission structure, and margin rules have evolved.
+  Limited coverage of machine learning, modern execution algorithms, cryptocurrency.
+  Assumes efficient markets; practical hedging may differ from theoretical predictions.
+  Vol forecasting identified as open problem; no definitive solution provided.
+  Dividend policies and corporate actions change annually; requires current calendars.

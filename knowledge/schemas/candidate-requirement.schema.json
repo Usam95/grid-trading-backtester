@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Candidate requirement record",
+  "type": "object",
+  "required": ["id", "title", "status", "derived_from", "derivation_type",
+               "rationale", "requirement", "priority_hint"],
+  "properties": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9._-]+$"},
+    "title": {"type": "string", "minLength": 1},
+    "status": {"const": "proposed"},
+    "derived_from": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "derivation_type": {"enum": ["direct_book_recommendation", "agent_inference"]},
+    "rationale": {"type": "string", "minLength": 1},
+    "applies_to": {
+      "type": "object",
+      "properties": {
+        "strategy": {"type": "array", "items": {"enum": ["grid", "stock_signal", "portfolio", "shared", "other"]}},
+        "lifecycle": {"type": "array", "items": {"enum": ["research", "backtest", "paper", "live"]}},
+        "asset_class": {"type": "array", "items": {"enum": ["crypto_spot", "crypto_futures", "equities", "shared", "other"]}},
+        "concern": {"type": "array", "items": {"enum": ["data", "simulation", "execution", "risk", "monitoring", "operations", "alpha", "reproducibility"]}}
+      }
+    },
+    "requirement": {"type": "string", "minLength": 1},
+    "acceptance_tests": {"type": ["string", "array", "null"]},
+    "failure_prevented": {"type": ["string", "null"]},
+    "capability_enabled": {"type": ["string", "null"]},
+    "assumptions": {"type": "array", "items": {"type": "string"}},
+    "open_questions": {"type": ["string", "array", "null"]},
+    "dependencies": {"type": ["string", "array", "null"]},
+    "verification_needed": {"type": ["string", "null"]},
+    "priority_hint": {"enum": ["safety", "correctness", "operability", "research_quality", "alpha"]}
+  }
+}

@@ -1,0 +1,138 @@
+- id: OPTBEG-REQ-001
+  title: "System shall implement position-size calculator per 1% rule"
+  status: proposed
+  derived_from:
+    - OPTBEG-C7-001
+  derivation_type: direct_book_recommendation
+  rationale: "Book explicitly prescribes 1% risk per trade as essential survival rule; this is foundational to loss containment and must be enforced before live trading"
+  applies_to:
+    strategy: [stock_signal, grid, other]
+    lifecycle: [backtest, paper, live]
+    asset_class: [equities, crypto_futures, shared]
+    concern: [risk, execution, operations]
+  requirement: "System shall accept entry_price, stop_loss_price, and account_risk_dollars; compute max_position_size = account_risk / abs(entry - stop); reject orders exceeding computed size"
+  acceptance_tests:
+    - "Given account=10k, entry=100, stop=99, system computes max_size=10000 shares (10k risk / 1 loss)"
+    - "Given account=100k, entry=50, stop=48, system computes max_size=50000 shares (50k risk / 2 loss)"
+    - "System rejects any position order with size > computed max_size"
+  failure_prevented: "Uncontrolled position sizing leads to account ruin on loss streaks"
+  capability_enabled: "Trader can confidently place trades knowing loss is bounded"
+  assumptions:
+    - "Stop-loss price is firm (not advisory)"
+    - "Account risk is in same currency as position"
+    - "No slippage beyond stop-loss price"
+  open_questions:
+    - "Should system allow partial stops?"
+    - "How to handle gap risk past stop-loss?"
+  dependencies:
+    - "Market data feed must provide current price"
+    - "Order management system must track stop-loss orders"
+  verification_needed: "Live trading small account; verify no position exceeds 1% loss on execution"
+  priority_hint: safety
+
+- id: OPTBEG-REQ-002
+  title: "System shall validate stop-loss price is set before order submission"
+  status: proposed
+  derived_from:
+    - OPTBEG-C7-001
+  derivation_type: direct_book_recommendation
+  rationale: "Book emphasizes stop-loss as prerequisite for 1% rule; system must enforce this discipline to prevent uncontrolled losses"
+  applies_to:
+    strategy: [shared, other]
+    lifecycle: [paper, live]
+    asset_class: [equities, shared]
+    concern: [risk, execution, operations]
+  requirement: "System shall reject any buy/sell order unless stop_loss_price field is provided and spread is at least 0.5%"
+  acceptance_tests:
+    - "Buy order at 100 without stop_loss: REJECT"
+    - "Buy order at 100 with stop_loss=100.50: REJECT (spread too small)"
+    - "Buy order at 100 with stop_loss=99: ACCEPT (1 percent spread)"
+  failure_prevented: "Undefended positions; trader forgets to place stop"
+  capability_enabled: "Discipline: every trade has exit boundary defined upfront"
+  assumptions:
+    - "Stop-loss price is market order"
+    - "No flash crashes bypass stop-loss"
+  dependencies:
+    - "Order management system; risk control layer"
+  verification_needed: "Paper trading: ensure every submitted order has stop"
+  priority_hint: correctness
+
+- id: OPTBEG-REQ-003
+  title: "System shall track implied volatility for covered call strike selection"
+  status: proposed
+  derived_from:
+    - OPTBEG-C10-001
+  derivation_type: agent_inference
+  rationale: "Covered call premiums are highest when IV is elevated; book recommends this strategy for income, but strike selection requires IV data to optimize premium"
+  applies_to:
+    strategy: [stock_signal, other]
+    lifecycle: [backtest, paper, live]
+    asset_class: [equities, other]
+    concern: [data, simulation, alpha]
+  requirement: "System shall retrieve implied_volatility for each option chain leg; display historical IV percentile; suggest call strikes with highest theta when IV is elevated"
+  acceptance_tests:
+    - "Given option chain for SPY, system retrieves IV for each strike"
+    - "System computes IV percentile over 252-day window"
+    - "System recommends 5-10 percent OTM call when IV >= 50th percentile"
+  failure_prevented: "Trader sells calls into IV crush; actual premium collection much lower than backtest"
+  capability_enabled: "Trader can time covered call rolls to high-IV windows"
+  dependencies:
+    - "Options market data feed"
+    - "Black-Scholes or volatility model"
+    - "Historical IV database"
+  verification_needed: "Backtest: compare covered call returns with vs. without IV filter"
+  priority_hint: research_quality
+
+- id: OPTBEG-REQ-004
+  title: "System shall enforce max leverage limit in live trading"
+  status: proposed
+  derived_from:
+    - OPTBEG-C21-001
+  derivation_type: direct_book_recommendation
+  rationale: "Book warns leverage amplifies losses and forces margin calls; system must prevent traders from exceeding configurable leverage limits"
+  applies_to:
+    strategy: [shared, other]
+    lifecycle: [paper, live]
+    asset_class: [equities, crypto_futures, shared]
+    concern: [risk, execution, operations]
+  requirement: "System shall track account leverage; reject any order that would push leverage > max_leverage_limit (default 1.5x)"
+  acceptance_tests:
+    - "Account equity 100k; long 120k; leverage = 1.2x; next 20k order would push to 1.4x: ACCEPT"
+    - "Account equity 100k; long 120k; leverage = 1.2x; next 50k order would push to 1.7x: REJECT"
+    - "System displays current leverage on dashboard"
+  failure_prevented: "Trader builds excessive leverage; drawdown triggers margin call; forced liquidation spirals"
+  capability_enabled: "Risk limits enforced automatically; trader cannot exceed policy"
+  dependencies:
+    - "Real-time position tracking"
+    - "Margin requirement data from broker"
+    - "Order submission gateway"
+  verification_needed: "Live trading: monitor leverage spikes; confirm rejections prevent over-leverage"
+  priority_hint: safety
+
+- id: OPTBEG-REQ-005
+  title: "System shall track Greeks in backtest and live runs"
+  status: proposed
+  derived_from:
+    - OPTBEG-C14-001
+  derivation_type: direct_book_recommendation
+  rationale: "Book introduces Greeks as core risk measures; backtester must compute Greeks to validate strategies match design assumptions"
+  applies_to:
+    strategy: [stock_signal, other]
+    lifecycle: [backtest, live]
+    asset_class: [equities, shared]
+    concern: [data, simulation, risk]
+  requirement: "Backtester shall compute and log delta, theta for each option position; summary report shall show portfolio Greeks"
+  acceptance_tests:
+    - "Covered call position: long 100 shares (delta=100), short 1 call (delta=-40) = net delta 60"
+    - "At-the-money put spread shows net delta 0 but theta positive"
+    - "Backtest output includes daily Greeks summary"
+  failure_prevented: "Trader builds positions without understanding delta/theta exposure"
+  capability_enabled: "Risk transparency; trader can see net directional and gamma risk"
+  dependencies:
+    - "Option pricing library"
+    - "Historical option prices and implied vol"
+  verification_needed: "Backtest on known option strategies; verify Greeks match textbook values"
+  priority_hint: correctness
+
+
+

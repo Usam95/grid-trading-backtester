@@ -1,0 +1,169 @@
+schema_version: "1.0"
+prompt_version: "1.0"
+book_id: the-options-course-high-profit-and-low-stress-trading-method-2005
+title: "The Options Course: High Profit & Low Stress Trading Methods"
+authors:
+  - "George A. Fontanills"
+  - "Richard Cawood"
+edition: "Second Edition"
+publication_year: 2005
+publisher_or_identifier: "John Wiley & Sons, Inc."
+isbn: "0-471-66851-6"
+format: "pdf"
+language: "English"
+page_count: 593
+chapter_count: 19
+extraction_quality: "good"
+ocr_quality: "good"
+processing_status: "audited"
+
+sources:
+  - absolute_path: "C:\\Users\\W4TV5V8\\PROJECTS\\Codex\\Research\\Books_03_07_26\\Algorithmical Trading\\OPTIONS\\The Options Course High Profit and Low Stress Trading Methods.pdf"
+    relative_path: "OPTIONS\\The Options Course High Profit and Low Stress Trading Methods.pdf"
+    sha256: "44e6e75edb294be4034ccf428bf8331b4a8b393ad23ca72e975eef044447affc"
+
+extraction_summary:
+  total_insights: 31
+  total_hypotheses: 4
+  total_requirements: 6
+  sections_processed: 25
+  extraction_start: "2026-01-15T00:00:00Z"
+  extraction_end: "2026-01-15T02:30:00Z"
+  extractor: "WORKER_BOT_v1"
+
+timestamps:
+  inventoried_at: "2026-01-15T00:00:00Z"
+  extraction_started: "2026-01-15T00:00:00Z"
+  extraction_completed: "2026-01-15T02:30:00Z"
+  synthesis_completed: "2026-01-15T02:35:00Z"
+
+duplicate_relationships: []
+
+limitations_and_warnings:
+  - "Publication year 2005: broker platforms, margin rules, technology references are dated."
+  - "No backtests or performance data presented in original book; strategies are conceptual only."
+  - "Regime detection heuristics (support/resistance) are subjective; robust statistical regime filters recommended."
+  - "Volatility surface treatment simplistic (assumes flat IV); smile/skew critical in practice."
+  - "Multi-leg execution costs and slippage underestimated in book narrative; empirical testing essential."
+  - "No treatment of dynamic hedging, correlation hedging, or portfolio-level optimization."
+  - "Earnings volatility patterns are time-dependent; 2005 patterns may not hold in 2025."
+  - "Margin rules and regulatory environment significantly changed post-2005 (Dodd-Frank, market structure reforms)."
+
+scores:
+  source_credibility:
+    score: 4
+    justification: "Established publisher (Wiley), known author in options trading community; content reflects 2005 understanding of markets."
+  citation_quality:
+    score: 2
+    justification: "Limited citations to academic sources; strategies presented as author's framework, not peer-reviewed research."
+  reproducibility:
+    score: 2
+    justification: "No backtests, parameter guidance, or algorithmic specifications provided; strategies require subjective implementation."
+  likely_freshness:
+    score: 1
+    justification: "21 years old (publication 2005); broker APIs, margin rules, market structure significantly changed; only core concepts (Greeks, strategy payoffs) remain fresh."
+  system_engineering_relevance:
+    score: 4
+    justification: "Clear process description, risk management philosophy, adjustment mechanics applicable to automated systems."
+  grid_relevance:
+    score: 4
+    justification: "Range-bound strategy focus, theta optimization, volatility harvesting directly applicable to grid trading."
+  stock_strategy_relevance:
+    score: 5
+    justification: "Book focuses on equities and index options; all strategies directly applicable to stock options."
+  backtesting_relevance:
+    score: 4
+    justification: "Greeks, time decay, IV concepts implementable in backtest; lacks quantitative specifications and regime formalization."
+  live_execution_relevance:
+    score: 3
+    justification: "Execution requirements clear; broker platform and order routing details outdated; risk management applicable."
+  risk_relevance:
+    score: 5
+    justification: "Extensive risk management emphasis: Greeks, margin, position sizing, adjustment protocols."
+  data_quality_relevance:
+    score: 3
+    justification: "Requires accurate IV surface, historical prices, volume; book does not specify data quality standards or sources."
+  machine_learning_relevance:
+    score: 1
+    justification: "No machine learning techniques discussed; manual, rule-based decision-making emphasized."
+
+key_concepts_extracted:
+  - "Vertical spreads (bull call, bear call, bull put, bear put)"
+  - "Straddles and strangles (long and short variants)"
+  - "Greeks (delta, gamma, theta, vega, rho) and their operational meaning"
+  - "Theta decay and its non-linear acceleration near expiration"
+  - "Implied volatility surface and volatility trading"
+  - "Range detection and market regime identification"
+  - "Position adjustments and rolling strategies"
+  - "Multi-leg order execution and coordinated entry"
+  - "Margin requirements and capital constraints"
+  - "Earnings volatility patterns and economic calendar events"
+  - "Support and resistance levels"
+  - "Position sizing and risk limits"
+  - "Psychological discipline and process adherence"
+
+insights_summary:
+  count: 31
+  record_types:
+    BOOK_CLAIM: 31
+    AGENT_INFERENCE: 0
+    TEST_HYPOTHESIS: 0
+    IMPLEMENTATION_IDEA: 0
+    WARNING_OR_FAILURE_MODE: 0
+  confidence_distribution:
+    high: 0
+    medium: 31
+    low: 0
+  applicability_by_strategy:
+    stock_signal: 28
+    portfolio: 4
+    shared: 5
+  applicability_by_lifecycle:
+    research: 8
+    backtest: 18
+    paper: 3
+    live: 12
+  applicability_by_concern:
+    alpha: 14
+    risk: 12
+    execution: 8
+    data: 6
+    reproducibility: 4
+    monitoring: 3
+    operations: 2
+
+hypotheses_summary:
+  count: 4
+  status_all: "proposed"
+  topics:
+    - "Vertical spreads outperformance"
+    - "Volatility mean reversion"
+    - "Theta-positive strategy superiority in ranges"
+    - "Regime detection improving trade success"
+
+requirements_summary:
+  count: 6
+  priority_hints:
+    correctness: 4
+    safety: 1
+    operability: 1
+  applies_to_lifecycle:
+    backtest: 4
+    live: 5
+    research: 1
+  applies_to_concern:
+    correctness: 4
+    execution: 2
+    simulation: 2
+    risk: 2
+    operations: 1
+
+validation_status: "pending"
+validation_errors: []
+
+notes: |
+  Extraction completed per WORKER_PROMPT.md contract. Book provides comprehensive taxonomy of options strategies and risk management principles. No quantitative validation provided in original source; all hypotheses and requirements are proposed candidates requiring empirical verification. 
+  
+  Regime detection and volatility forecasting are key dependencies for live deployment; book treatment is heuristic-based, not algorithmic. Recommend robust statistical regime detection and IV surface modeling as implementation priorities.
+  
+  Broker and margin rule specifics (Chapter 12, 14) are 2005-dated; must be cross-checked against current regulations and broker documentation before use.

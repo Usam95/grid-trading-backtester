@@ -1,0 +1,261 @@
+- id: LEARNALGO-H1
+  title: "Supply-demand equilibrium drives short-term price movements in liquid markets"
+  status: "proposed"
+  derived_from:
+    - LEARNALGO-C1-002
+  statement: "Price discovery efficiency (driven by market participant information access and speed) enables mean-reversion strategies to exploit temporary deviations from equilibrium"
+  proposed_mechanism: "When supply/demand imbalance causes price deviation, faster participants identify and trade the deviation, reverting price toward equilibrium. Modern markets execute this mechanism faster due to technology."
+  validation_approach: "Backtest mean-reversion strategy on liquid equities; measure outperformance vs. buy-and-hold. Verify correlation between strategy returns and volatility (regime proxy)."
+  applicable_markets_and_regimes: "Equities, liquid futures; most effective in low-volatility regimes"
+  assumptions:
+    - "Equilibrium price model (bid-ask midpoint) is valid"
+    - "Execution latency < 10ms for signal capture"
+  data_requirements: "Real-time order book snapshots, trade data, price tick data"
+  robustness_checks:
+    - "Out-of-sample walk-forward test over 2+ years"
+    - "Stress test during flash crashes (high volatility spikes)"
+  failure_modes:
+    - "Regime shift: mean-reversion fails in trending markets"
+    - "Liquidity evaporation: large orders face market impact"
+
+- id: LEARNALGO-H2
+  title: "Momentum strategies capture trending price behavior via volatility-scaled position sizing"
+  status: "proposed"
+  derived_from:
+    - LEARNALGO-C4-001
+  statement: "Momentum strategy risk-adjusted returns improve when position size scales inversely with realized volatility, stabilizing portfolio volatility across market conditions"
+  proposed_mechanism: "Larger positions in low-volatility regimes, smaller positions in high-volatility regimes, maintains constant portfolio volatility target. Reduces drawdowns during volatility spikes."
+  validation_approach: "Implement strategy with and without volatility scaling. Compare Sharpe ratios, max drawdowns."
+  applicable_markets_and_regimes: "Equities, crypto spot; trending markets"
+  assumptions:
+    - "Historical volatility predicts near-term realized volatility"
+    - "Position scaling does not trigger liquidity constraints"
+  data_requirements: "Daily returns, intraday volatility estimates, position sizes"
+  robustness_checks:
+    - "Compare different volatility estimators (realized, GARCH, Parkinson)"
+  failure_modes:
+    - "Volatility clustering: static scaling insufficient during regime transitions"
+    - "Survivor bias: backtesting on surviving stocks excludes delistings"
+
+- id: LEARNALGO-H3
+  title: "Statistical arbitrage via cointegration identifies tradeable mean-reverting spreads"
+  status: "proposed"
+  derived_from:
+    - LEARNALGO-C5-001
+    - LEARNALGO-C5-002
+  statement: "Cointegration tests identify pairs with stable price spreads; trading when spreads deviate from historical mean captures predictable price corrections"
+  proposed_mechanism: "Cointegrated pairs share long-term equilibrium relation; temporary deviations revert predictably. TWAP/VWAP execution captures this reversion."
+  validation_approach: "Identify cointegrated pairs (ADF test on residuals). Backtest mean-reversion entry on spread deviation."
+  applicable_markets_and_regimes: "Equities pairs (same sector), crypto spot pairs"
+  assumptions:
+    - "Cointegration relation remains stable over backtest period"
+    - "Bid-ask spreads do not exceed expected mean-reversion profit"
+  data_requirements: "Minute-bar price data, order book data, exchange execution reports"
+  robustness_checks:
+    - "Re-estimate cointegration quarterly; drop stale pairs"
+    - "Test transaction costs at realistic scale"
+  failure_modes:
+    - "Structural break: cointegration relation deteriorates"
+    - "Overfitting: selecting pairs with spurious past correlations"
+
+- id: LEARNALGO-H4
+  title: "Technical indicators (SMA, RSI, MACD) generate valid signals only in mean-reverting regimes"
+  status: "proposed"
+  derived_from:
+    - LEARNALGO-C2-001
+    - LEARNALGO-C2-002
+  statement: "Overbought/oversold signals produce false positives during trending markets; signal reliability improves with regime detection filters"
+  proposed_mechanism: "RSI overbought threshold (70) assumes mean-reversion; in trending markets, prices remain overbought. Volatility-based regime filter identifies suitable signal regimes."
+  validation_approach: "Backtest RSI strategy with and without regime filter. Measure precision on 50+ equities across market regimes."
+  applicable_markets_and_regimes: "Equities, cryptocurrencies; regime-dependent"
+  assumptions:
+    - "Indicator parameters (RSI period=14, SMA period=20) generalize across instruments"
+    - "Volatility regime proxy (Bollinger Band width) is predictive"
+  data_requirements: "Daily OHLCV data, volatility estimates"
+  robustness_checks:
+    - "Cross-validate on out-of-sample periods"
+    - "Test sensitivity to indicator parameter choices"
+  failure_modes:
+    - "Parameter overfitting: optimal RSI period varies across regimes"
+    - "Regime identification lag: regime filter signals too late"
+
+- id: LEARNALGO-H5
+  title: "Machine learning models trained on technical indicators overfit without rigorous out-of-sample validation"
+  status: "proposed"
+  derived_from:
+    - LEARNALGO-C3-002
+  statement: "Supervised learning models require walk-forward cross-validation and strict temporal separation to avoid data leakage and forward-bias"
+  proposed_mechanism: "Data leakage creates artificially high backtest returns. Walk-forward validation ensures model trains only on past data, validates on unseen future periods."
+  validation_approach: "Implement walk-forward test: partition data into 10 windows; train on window N, test on window N+1. Compare walk-forward Sharpe vs. simple backtest (should be 30-50% lower)."
+  applicable_markets_and_regimes: "All equities and crypto; all regimes"
+  assumptions:
+    - "Model performance stationary across windows"
+    - "Feature engineering does not leak future information"
+  data_requirements: "Historical price, volume, technical indicators; 3+ years minimum"
+  robustness_checks:
+    - "Inspect train/test date separation programmatically"
+    - "Ablate features; verify each contributes predictive power"
+  failure_modes:
+    - "Overfitting collapse: backtest shows 2.0+ Sharpe, live trading generates losses"
+    - "Regime non-stationarity: model trained on bull market fails in bear market"
+
+- id: LEARNALGO-H6
+  title: "Position sizing inversely scaled to drawdown risk reduces portfolio volatility and improves Sharpe ratio"
+  status: "proposed"
+  derived_from:
+    - LEARNALGO-C6-001
+  statement: "Kelly Criterion or fractional Kelly sizing adapts position size based on strategy win rate and payoff distribution"
+  proposed_mechanism: "Larger positions when drawdown risk is low, smaller positions when drawdown risk is high. Maintains constant portfolio volatility target."
+  validation_approach: "Backtest: fixed size vs. volatility-scaled vs. Kelly-sized. Compare Sharpe ratios, max drawdowns. Paper trade for 1+ months to validate live execution."
+  applicable_markets_and_regimes: "Equities, futures, crypto; all regimes"
+  assumptions:
+    - "Historical volatility predicts near-term realized volatility"
+    - "Position scaling does not trigger liquidity constraints"
+  data_requirements: "Strategy returns, daily equity curve, historical max drawdown estimates"
+  robustness_checks:
+    - "Stress test: market gap events (opening limit down)"
+    - "Test with realistic portfolio constraints (max leverage, margin buffer)"
+  failure_modes:
+    - "Estimation error: estimated drawdown underestimates true risk"
+    - "Regime change: historical volatility irrelevant in new regime"
+
+- id: LEARNALGO-H7
+  title: "Real-time risk controls (position limits, Greeks hedging) prevent catastrophic losses but introduce execution constraints"
+  status: "proposed"
+  derived_from:
+    - LEARNALGO-C6-002
+  statement: "Automated position limits and circuit breaker logic reduce tail risk but may force suboptimal exits and trading halts"
+  proposed_mechanism: "Risk controls trigger automatic order cancellation or liquidation on breach. Reduces worst-case loss but introduces execution slippage and opportunity cost."
+  validation_approach: "Simulate risk control breaches in backtest; measure frequency of triggers and slippage. Compare max drawdown with/without controls. Live trade with conservative limits."
+  applicable_markets_and_regimes: "All; critical for derivatives"
+  assumptions:
+    - "Risk limit thresholds calibrated to acceptable tail loss"
+    - "Order cancellation/liquidation executes without excessive slippage"
+  data_requirements: "Intraday P&L, position tracking, market depth data"
+  robustness_checks:
+    - "Stress test: simultaneous limit breaches across multiple strategies"
+    - "Measure correlation between limit triggers and market stress events"
+  failure_modes:
+    - "Circuit breaker whipsaw: limit trigger during volatile move, then reverses"
+    - "Inadequate limits: controls breached by larger-than-expected moves"
+
+- id: LEARNALGO-H8
+  title: "Modular system architecture with decoupled data/signal/execution layers enables independent testing and rapid strategy iteration"
+  status: "proposed"
+  derived_from:
+    - LEARNALGO-C7-001
+  statement: "Separating signal generation from execution via OMS gateway allows testing without live connectivity and testing different execution algorithms"
+  proposed_mechanism: "Data layer provides normalized market data; signal layer generates orders; execution layer routes to exchanges. Each layer testable independently."
+  validation_approach: "Implement trading system with modular layers. Measure signal latency isolated, backtest consistency, time to deploy new strategy."
+  applicable_markets_and_regimes: "All; foundational architecture principle"
+  assumptions:
+    - "OMS gateway latency < 10ms"
+    - "Data layer normalization is correct and complete"
+  data_requirements: "System architecture documentation, deployment metrics"
+  robustness_checks:
+    - "Chaos engineering: inject order rejections, network delays, feed gaps"
+    - "Load test: 1000s of concurrent orders, measure latency distribution"
+  failure_modes:
+    - "Coupling creep: data layer becomes entangled with signal layer"
+    - "Execution gateway bottleneck: OMS latency exceeds strategy signal decay"
+
+- id: LEARNALGO-H9
+  title: "FIX protocol reliable message delivery and sequencing essential for order integrity in high-frequency trading"
+  status: "proposed"
+  derived_from:
+    - LEARNALGO-C8-001
+  statement: "FIX message sequencing ensures order lifecycle consistency; message loss causes duplicate fills or order rejections"
+  proposed_mechanism: "FIX sequence numbers enable client-side reconstruction of lost messages; heartbeat monitoring detects connection loss. Client must implement idempotent order handling."
+  validation_approach: "Deploy FIX connectivity to exchange. Inject message losses and sequence gaps. Verify no duplicate fills and complete order lifecycle tracking."
+  applicable_markets_and_regimes: "Derivatives (futures, options); equities; critical for compliance"
+  assumptions:
+    - "FIX exchange implementation follows FIX specification"
+    - "Network is non-Byzantine"
+  data_requirements: "FIX message logs, execution reports, order history reconciliation"
+  robustness_checks:
+    - "Stress test: simultaneous network glitches and order rate spikes"
+    - "Compliance audit: verify audit trail matches regulatory requirements"
+  failure_modes:
+    - "Sequence number wraparound: exchanges and client disagree on sequence"
+    - "Heartbeat timeout false positive: triggers reconnection despite live connection"
+
+- id: LEARNALGO-H10
+  title: "Event-driven backtester produces realistic results vs. for-loop simplified simulator"
+  status: "proposed"
+  derived_from:
+    - LEARNALGO-C9-001
+  statement: "Event-driven simulation models partial fills and execution latency realistic to live trading, while for-loop backtester assumes instant execution"
+  proposed_mechanism: "Event-driven simulates order book state and matches orders against LOB. For-loop skips LOB dynamics."
+  validation_approach: "Implement same strategy in for-loop and event-driven backtester. Compare returns, max drawdown. Verify event-driven aligns with paper trading."
+  applicable_markets_and_regimes: "All; most critical for high-frequency strategies"
+  assumptions:
+    - "Order book reconstruction captures liquidity accurately"
+    - "Latency model is calibrated to live network"
+  data_requirements: "Tick-by-tick market data with timestamps, order book snapshots, latency calibration data"
+  robustness_checks:
+    - "Cross-validate event-driven results vs. paper trading"
+    - "Sensitivity analysis: vary latency assumptions ±50%"
+  failure_modes:
+    - "Order book reconstruction errors: missing trades or stale quotes"
+    - "Latency model mismatch: assumed latency much lower than real"
+
+- id: LEARNALGO-H11
+  title: "Transaction cost estimation (commissions, slippage, bid-ask spread) must scale with order size and market conditions"
+  status: "proposed"
+  derived_from:
+    - LEARNALGO-C9-002
+  statement: "Accurate transaction cost modeling is essential to bridging backtest-to-live gap; costs scale non-linearly with order size"
+  proposed_mechanism: "Commission: flat or basis-point fee. Slippage: fraction of average true range (ATR); large orders face worse execution. Bid-ask spread captured from market data."
+  validation_approach: "Measure realized costs in paper trading (3+ months); calibrate model to match observed slippage. Apply to backtest; verify results within 5-10% of paper trading."
+  applicable_markets_and_regimes: "All; critical for frequent strategies"
+  assumptions:
+    - "Market impact scales linearly with order size"
+    - "Bid-ask spread representative of typical execution"
+  data_requirements: "Paper trading execution reports, market data with spreads, realized fills"
+  robustness_checks:
+    - "Test cost model on different asset classes"
+    - "Sensitivity: vary commission/slippage ±50%"
+  failure_modes:
+    - "Backtest-to-live gap: costs underestimated, live trading unprofitable"
+    - "Overly pessimistic costs: backtest shows poor returns but live is better"
+
+- id: LEARNALGO-H12
+  title: "Profit decay (alpha decay) in live trading requires continuous strategy re-optimization and diversification"
+  status: "proposed"
+  derived_from:
+    - LEARNALGO-C10-001
+    - LEARNALGO-C10-002
+  statement: "Strategy returns decline as exposures become crowded; monitoring alpha decay enables timely re-optimization or strategy retirement"
+  proposed_mechanism: "Track strategy Sharpe ratio daily; detect slope change in cumulative alpha. When Sharpe < 0.5, trigger parameter re-optimization."
+  validation_approach: "Deploy 2+ strategies in parallel; monitor Sharpe daily. Disable and re-optimize when Sharpe drops below threshold for 5+ days."
+  applicable_markets_and_regimes: "All live trading; mandatory for deployed strategies"
+  assumptions:
+    - "Sharpe ratio is stable estimator over 20+ trading days"
+    - "Re-optimization does not overfit to recent performance"
+  data_requirements: "Daily P&L, rolling Sharpe estimates, regime indicators"
+  robustness_checks:
+    - "Walk-forward test: re-optimize quarterly with out-of-sample validation"
+    - "Test regime identification: VIX spikes, correlation matrix changes"
+  failure_modes:
+    - "Overfitting during re-optimization: parameter tweaks reduce live Sharpe further"
+    - "Strategy crowding: alpha decays faster than re-optimization can adapt"
+
+- id: LEARNALGO-H13
+  title: "Portfolio diversification across strategies, asset classes, and time horizons reduces concentration risk"
+  status: "proposed"
+  derived_from:
+    - LEARNALGO-C10-003
+  statement: "Combining momentum, mean-reversion, and arbitrage strategies with uncorrelated assets reduces correlation and smooths portfolio volatility"
+  proposed_mechanism: "Low-correlation strategies offset drawdowns; uncorrelated asset classes hedge each other. True diversification requires correlation < 0.3."
+  validation_approach: "Backtest single strategy vs. diversified portfolio. Measure correlation matrix stability. Stress test replay of 2008, 2020 crashes."
+  applicable_markets_and_regimes: "All portfolios; most critical during market dislocations"
+  assumptions:
+    - "Historical correlations stationary across regimes"
+    - "Diversification benefit persists in tail events"
+  data_requirements: "Strategy returns, asset class returns, correlation matrix, stress scenario data"
+  robustness_checks:
+    - "Principal component analysis: verify correlation structure"
+    - "Extreme value theory: model tail dependencies"
+  failure_modes:
+    - "Correlation breakdown: asset classes correlate to 0.9 during stress"
+    - "Strategy crowding: common exposures cause synchronized drawdowns"

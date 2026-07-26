@@ -1,0 +1,94 @@
+schema_version: "1.0"
+prompt_version: "1.0"
+book_id: advanced-techniques-in-day-trading-a-practical-guide-to-high-2021
+sources:
+  - absolute_path: "C:\\Users\\W4TV5V8\\PROJECTS\\Codex\\Research\\Books_03_07_26\\Algorithmical Trading\\_BOOKS\\advanced-techniques-in-day-trading-a-practical-guide-to-high-2021.pdf"
+    relative_path: "Books_03_07_26/Algorithmical Trading/_BOOKS/advanced-techniques-in-day-trading-a-practical-guide-to-high-2021.pdf"
+    sha256: "PENDING_VERIFICATION"
+    format: "pdf"
+title: "Advanced Techniques in Day Trading: A Practical Guide to High Probability Day Trading Strategies and Methods"
+authors: ["Andrew Aziz"]
+edition: "First"
+publication_year: 2021
+publisher_or_identifier: "Self-published"
+format: "pdf"
+language: "English"
+page_count: 406
+chapter_count: 1
+extraction_quality: high
+ocr_quality: high
+processing_status: "audited"
+extraction_timestamp: "2025-07-24T23:39:40Z"
+synthesis_timestamp: "2025-07-24T23:52:00Z"
+extractor_agent: "ADTDT-WORKER-001"
+duplicate_relationships: []
+limitations_and_warnings:
+  - "Book is self-published practitioner guide; author credentials not independently verified"
+  - "No empirical backtests or statistical validation provided in book"
+  - "Broker APIs, market structure, regulations, and trading platforms referenced are subject to rapid change; freshness risk flagged throughout"
+  - "Strategies are intraday US equity-specific; generalization to other asset classes not tested"
+  - "Pre-market trading availability and short-sale restrictions have evolved since 2021 publication"
+  - "Some claims (float thresholds, candlestick pattern predictive power, Fibonacci levels) require independent validation"
+  - "Book assumes technical analysis (support/resistance, candlesticks) is predictive; readers skeptical of TA will find limited academic backing"
+  - "Order book microstructure (Level 2 signals) may be gamed by modern algorithmic traders more than in 2021"
+
+scores:
+  source_credibility:
+    score: 2
+    justification: "Self-published; practitioner-based without third-party validation or academic peer review."
+  citation_quality:
+    score: 1
+    justification: "Minimal external citations; primarily author assertion and worked examples; no academic or industry references."
+  reproducibility:
+    score: 2
+    justification: "Strategies described qualitatively; no detailed backtesting methodology, dataset descriptions, or results provided; manual pattern identification introduces bias."
+  likely_freshness:
+    score: 2
+    justification: "2021 publication; broker APIs, market structure, regulations, and trading platform features have evolved significantly by 2025; needs quarterly verification."
+  system_engineering_relevance:
+    score: 3
+    justification: "Risk management framework (position sizing, stop losses, daily limits) and platform requirements (latency, Level 2) are directly engineering-relevant; execution logistics well-described."
+  grid_relevance:
+    score: 1
+    justification: "Intraday breakout/momentum strategies; no grid or ranging-market content; risk framework partially generalizable."
+  stock_strategy_relevance:
+    score: 4
+    justification: "Five core strategies are directly applicable to intraday equity backtesting and live trading; high relevance for stock algo research."
+  backtesting_relevance:
+    score: 3
+    justification: "Strategies are backtestable; however, lack of statistical rigor and author data makes independent validation necessary; candlestick/support/resistance rules must be formalized."
+  live_execution_relevance:
+    score: 4
+    justification: "Extensive coverage of platform requirements, order execution, hotkeys, risk enforcement; directly applicable to live trading system design."
+  risk_relevance:
+    score: 5
+    justification: "Comprehensive risk framework (position sizing, per-trade limits, daily limits, overnight rules) is core strength; essential for live trading platform."
+  data_quality_relevance:
+    score: 3
+    justification: "Emphasizes real-time Level 2 data, float/market cap accuracy, pre-market data; however, broker API discontinuation and float data staleness are risks."
+  machine_learning_relevance:
+    score: 1
+    justification: "Book is traditional technical analysis; no machine learning, statistical modeling, or feature engineering; not applicable to ML research."
+
+keywords:
+  - "day trading"
+  - "intraday strategies"
+  - "candlestick patterns"
+  - "support and resistance"
+  - "VWAP"
+  - "position sizing"
+  - "risk management"
+  - "stock selection"
+  - "low-float trading"
+  - "ABCD pattern"
+  - "fallen angel"
+  - "bull flag"
+  - "opening range breakout"
+  - "Nasdaq Level 2"
+  - "pre-market trading"
+
+toc_verified: true
+toc_sections: 8
+full_content_extracted: true
+extraction_batches: 8
+

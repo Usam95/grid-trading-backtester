@@ -1,0 +1,84 @@
+schema_version: "1.0"
+prompt_version: "1.0"
+book_id: bloomberg-professional-forex-analysis-and-trading-effective--2010
+title: "Bloomberg Professional: Forex Analysis and Trading: Effective Top-Down Strategies Combining Fundamental, Position, and Technical Analyses"
+authors:
+  - T. J. Marta
+  - Joseph Brusuelas
+edition: "1st edition"
+publication_year: 2009
+publisher_or_identifier: "Bloomberg Press"
+format: pdf
+language: en
+page_count: 274
+chapter_count: 1
+extraction_quality: good
+ocr_quality: good
+processing_status: audited
+sources:
+  - absolute_path: 'C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical Trading\_KNOWLEDGE_EXTRACTION\books\bloomberg-professional-forex-analysis-and-trading-effective--2010'
+    relative_path: 'bloomberg-professional-forex-analysis-and-trading-effective--2010'
+    sha256: null
+
+timestamps:
+  extraction_started: "2026-07-25T00:44:34Z"
+  extraction_completed: "2026-07-25T02:15:00Z"
+
+duplicate_relationships: []
+
+limitations_and_warnings:
+  - "Publication year 2009: forex market microstructure, regulations (MiFID, Dodd-Frank), and broker infrastructure have changed significantly since publication. FX market structure post-2010 financial crisis differs from book's context."
+  - "Book references CFTC positioning data and risk reversals as of 2009; market accessibility, data availability, and trading venues have evolved."
+  - "Fair-value regression models use historical data 1993-2009; parameter stability and forward applicability require validation against current market data."
+  - "Technical analysis methodology is descriptive; book does not claim profitability. Backtests in case studies are illustrative, not performance guarantees."
+  - "No discussion of regulatory restrictions on retail FX trading post-Dodd-Frank (USA) or MiFID II (Europe)."
+
+scores:
+  source_credibility:
+    score: 4
+    justification: "Bloomberg Press and Wiley publication; authors have institutional FX research/trading backgrounds; reputable publisher and author credentials."
+  
+  citation_quality:
+    score: 3
+    justification: "Includes economic theory citations and CFTC data references; limited external academic citations; mostly author-developed frameworks."
+  
+  reproducibility:
+    score: 3
+    justification: "Fair-value regression methodology is transparent; technical indicators are standard; positioning and risk-reversal definitions are public; data availability is the main constraint."
+  
+  likely_freshness:
+    score: 1
+    justification: "Published 2009; FX market structure, regulations, broker APIs, and trading technology have changed fundamentally post-2010 financial crisis."
+  
+  system_engineering_relevance:
+    score: 3
+    justification: "Positions framework, data structures, and risk metrics are relevant to live trading system design; less direct relevance to backtesting infrastructure."
+  
+  grid_relevance:
+    score: 2
+    justification: "Book focuses on directional analysis and trend-following; grid strategy is inherently range-bound; technical indicators and oscillators have tangential relevance."
+  
+  stock_strategy_relevance:
+    score: 1
+    justification: "Book is entirely FX/currency-focused; equity market structure, liquidity, and behavior differ significantly."
+  
+  backtesting_relevance:
+    score: 3
+    justification: "Fair-value regressions and technical indicators can be backtested; case studies show example backtests; methodology is actionable for backtest design."
+  
+  live_execution_relevance:
+    score: 4
+    justification: "Positioning analysis, sentiment indicators, and entry/exit frameworks are directly applicable to live trading; risk management discussion is practical."
+  
+  risk_relevance:
+    score: 4
+    justification: "Drawdown analysis, position sizing rationale, and market regime discussion provide risk control perspectives; oscillator whipsaw risks highlighted."
+  
+  data_quality_relevance:
+    score: 3
+    justification: "Discusses CFTC data delays, risk-reversal skew measurement, and price-action reliability; data freshness and lag issues addressed."
+  
+  machine_learning_relevance:
+    score: 1
+    justification: "Book pre-dates modern ML in finance; no discussion of ML feature engineering, model validation, or data-driven discovery methods."
+

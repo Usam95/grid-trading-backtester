@@ -1,0 +1,255 @@
+- id: HDTFL-REQ-001
+  title: Watchlist Scanner with Volume Radar
+  status: proposed
+  derived_from:
+  - HDTFL-009
+  - HDTFL-010
+  derivation_type: direct_book_recommendation
+  rationale: Stocks in Play detection via scanner enables stock selection prerequisite
+  applies_to:
+    strategy:
+    - stock_signal
+    lifecycle:
+    - research
+    asset_class:
+    - equities
+    concern:
+    - data
+  requirement: 'Scanner shall identify Stocks in Play: gap >5%, rel vol rank >8, real-time
+    volume alerts 3-10x daily avg'
+  acceptance_tests:
+  - Alerts within 1 min pre-market
+  - Updates every 60 sec
+  failure_prevented: Low-volume/HFT-dominated stock selection
+  capability_enabled: Pre-market SiP watchlist build
+  assumptions:
+  - API stable
+  - Consistent volume calc
+  open_questions:
+  - Optimal thresholds?
+  dependencies:
+  - Data feed
+  verification_needed: Integration test current providers
+  priority_hint: research_quality
+- id: HDTFL-REQ-002
+  title: 'Risk Engine: 2% Loss Limit per Trade'
+  status: proposed
+  derived_from:
+  - HDTFL-003
+  - HDTFL-004
+  derivation_type: direct_book_recommendation
+  rationale: 2% rule foundational; enforcement prevents ruin
+  applies_to:
+    strategy:
+    - shared
+    lifecycle:
+    - research
+    asset_class:
+    - equities
+    concern:
+    - risk
+  requirement: Enforce max loss per trade = (account * 0.02) / stop_distance; block
+    if exceeded; exit at stop immediately
+  acceptance_tests:
+  - Position size calc correct
+  - Entry blocked if >2%
+  - Exit <100ms of stop
+  failure_prevented: Oversizing, ruin, catastrophic DD
+  capability_enabled: Scalable risk management
+  assumptions:
+  - Stop executable
+  - Account tracked
+  open_questions:
+  - Gap-at-open buffer?
+  dependencies:
+  - Account tracking
+  - OMS
+  - Stop execution
+  verification_needed: Monte Carlo DD test with/without rule
+  priority_hint: safety
+- id: HDTFL-REQ-003
+  title: 'Pattern Detection: ABCD Fibonacci Reversal'
+  status: proposed
+  derived_from:
+  - HDTFL-012
+  - HDTFL-013
+  derivation_type: direct_book_recommendation
+  rationale: ABCD objective mechanizable primary entry strategy
+  applies_to:
+    strategy:
+    - stock_signal
+    lifecycle:
+    - backtest
+    asset_class:
+    - equities
+    concern:
+    - alpha
+  requirement: 'Detect ABCD: A->B rally, B->C pullback 50-61.8% Fib, C->D breakout
+    above B; entry D stop below C'
+  acceptance_tests:
+  - Points within 2 bars
+  - Fib 50-61.8% validated
+  - Entry on breakout vol >1.5x
+  failure_prevented: Unvalidated entry, false ABCD
+  capability_enabled: Objective high-confidence entry
+  assumptions:
+  - Fib 50-61.8% predictive
+  - Vol real
+  open_questions:
+  - Fib 48-63% better?
+  dependencies:
+  - 5-min OHLCV
+  - Vol data
+  verification_needed: Backtest vs manual review
+  priority_hint: correctness
+- id: HDTFL-REQ-004
+  title: VWAP Support/Resistance Detection
+  status: proposed
+  derived_from:
+  - HDTFL-017
+  - HDTFL-018
+  derivation_type: direct_book_recommendation
+  rationale: VWAP mechanical fair-value anchor mean-reversion entry
+  applies_to:
+    strategy:
+    - stock_signal
+    lifecycle:
+    - backtest
+    asset_class:
+    - equities
+    concern:
+    - alpha
+  requirement: Compute VWAP daily; entry at VWAP +/- 0.5% vol >2x 20-day SMA; exit
+    1.5x target or VWAP breach
+  acceptance_tests:
+  - VWAP correct
+  - Entry within 1 bar
+  - Vol >2x validated
+  - Exit <100ms
+  failure_prevented: Unanchored entry, false reversals
+  capability_enabled: Mean-reversion strategy mechanical confirmation
+  assumptions:
+  - VWAP consistent
+  - Vol threshold predictive
+  open_questions:
+  - Tolerance +/- 0.2% better?
+  dependencies:
+  - OHLCV + vol
+  - 20-day SMA history
+  verification_needed: Backtest parameter sensitivity
+  priority_hint: correctness
+- id: HDTFL-REQ-005
+  title: Order Latency and Platform Integration
+  status: proposed
+  derived_from:
+  - HDTFL-009
+  derivation_type: direct_book_recommendation
+  rationale: Sub-100ms latency enables fast entry/exit intraday
+  applies_to:
+    strategy:
+    - shared
+    lifecycle:
+    - live
+    asset_class:
+    - equities
+    concern:
+    - execution
+  requirement: Order latency <100ms, Level 2 within 50ms, hotkeys <200ms, fills confirmed
+    <100ms
+  acceptance_tests:
+  - Latency <100ms live test
+  - Level 2 <50ms
+  - Hotkey <200ms
+  failure_prevented: Slippage, missed entry/exit
+  capability_enabled: Reliable fast execution
+  assumptions:
+  - Broker API stable
+  - Network <20ms
+  open_questions:
+  - Which brokers <100ms?
+  dependencies:
+  - Broker API
+  - Platform
+  - Network
+  verification_needed: Integration test current brokers
+  priority_hint: operability
+- id: HDTFL-REQ-006
+  title: Trade Journal and Workflow Enforcement
+  status: proposed
+  derived_from:
+  - HDTFL-022
+  - HDTFL-023
+  derivation_type: direct_book_recommendation
+  rationale: 5-phase workflow foundational; enforcement prevents out-of-plan revenge
+    trading
+  applies_to:
+    strategy:
+    - shared
+    lifecycle:
+    - live
+    asset_class:
+    - equities
+    concern:
+    - operations
+  requirement: 'Enforce phases: watchlist (7-9 AM), plan (pre-9:30), execute plan-only
+    (block out-of-plan), exit at target/stop, review end-of-day'
+  acceptance_tests:
+  - Watchlist timestamped
+  - Plan logged
+  - Out-of-plan blocked or flagged
+  - Trade journal auto-populated
+  - Daily stats generated
+  failure_prevented: Out-of-plan, revenge, overconfidence, wishful thinking
+  capability_enabled: Workflow adherence measurement behavioral feedback
+  assumptions:
+  - Trader plans
+  - Reviews stats
+  open_questions:
+  - Measure adherence objective?
+  dependencies:
+  - Trade logging
+  - Plan storage
+  - OMS
+  - Analytics
+  verification_needed: Usability test; adherence vs DD correlation
+  priority_hint: research_quality
+- id: HDTFL-REQ-007
+  title: Candlestick and Volume Pattern Alerts
+  status: proposed
+  derived_from:
+  - HDTFL-011
+  - HDTFL-014
+  - HDTFL-015
+  - HDTFL-016
+  - HDTFL-020
+  - HDTFL-021
+  derivation_type: direct_book_recommendation
+  rationale: Pattern alerts enable multi-strategy entry signal
+  applies_to:
+    strategy:
+    - stock_signal
+    lifecycle:
+    - research
+    asset_class:
+    - equities
+    concern:
+    - alpha
+  requirement: 'Alert: bull flag, reversal, MA cross (9/20 5-min, 20/50 daily), red-to-green,
+    ORB; UI + audio'
+  acceptance_tests:
+  - Patterns detected within 1 bar
+  - Alerts <1 sec latency
+  failure_prevented: Missed signals, false matches
+  capability_enabled: Multi-strategy entry signal generation
+  assumptions:
+  - Detection objective
+  - Vol consistent
+  open_questions:
+  - MA periods optimal?
+  dependencies:
+  - OHLCV
+  - Vol data
+  - Detection engine
+  - Alerts
+  verification_needed: Backtest accuracy vs manual
+  priority_hint: research_quality

@@ -1,0 +1,379 @@
+book_id: how-to-day-trade-for-a-living-tools-tactics-money-management-2018
+sections:
+  - ref: "CH01-intro"
+    title: "Chapter 1: Introduction"
+    pdf_page_start: 8
+    status: "processed"
+    reason: "Author motivation and overview; establishes trading discipline philosophy."
+
+  - ref: "CH02-how"
+    title: "Chapter 2: How Day Trading Works"
+    pdf_page_start: 17
+    status: "processed"
+    reason: "Defines day trading, swing trading, long/short mechanics, retail vs. institutional, HFT context, and stock selection criteria."
+
+  - ref: "CH02-01-daytrading-vs-swingtrading"
+    title: "Chapter 2.1: Day Trading vs. Swing Trading"
+    pdf_page_start: 18
+    status: "processed"
+    reason: "Distinguishes intraday vs. multi-day holding; time horizon implications."
+
+  - ref: "CH02-02-buylong-sellshort"
+    title: "Chapter 2.2: Buying Long, Selling Short"
+    pdf_page_start: 21
+    status: "processed"
+    reason: "Mechanics of going long and short; profit/loss scenarios."
+
+  - ref: "CH02-03-retail-vs-institutional"
+    title: "Chapter 2.3: Retail vs. Institutional Traders"
+    pdf_page_start: 24
+    status: "processed"
+    reason: "Discusses competitive landscape; volume and execution differences."
+
+  - ref: "CH02-04-hft"
+    title: "Chapter 2.4: High Frequency Trading (HFT)"
+    pdf_page_start: 27
+    status: "processed"
+    reason: "HFT impact on retail trading; algorithmic dominance (60% of volume); need to avoid heavily traded stocks."
+
+  - ref: "CH02-05-trade-best"
+    title: "Chapter 2.5: Trade the Best, Leave the Rest"
+    pdf_page_start: 30
+    status: "processed"
+    reason: "Stock selection principle; focus on high relative volume stocks independent of market."
+
+  - ref: "CH03-risk"
+    title: "Chapter 3: Risk and Account Management"
+    pdf_page_start: 35
+    status: "processed"
+    reason: "Foundational risk principles, three-step risk management, trading psychology."
+
+  - ref: "CH03-01-threestep"
+    title: "Chapter 3.1: Three-Step Risk Management"
+    pdf_page_start: 41
+    status: "processed"
+    reason: "Core risk framework: entry, stop-loss, position sizing; risk per trade rules."
+
+  - ref: "CH03-02-psychology"
+    title: "Chapter 3.2: Trading Psychology"
+    pdf_page_start: 43
+    status: "processed"
+    reason: "Emotional discipline, fear/greed, patience, consistency; psychological barriers to profitability."
+
+  - ref: "CH04-findstocks"
+    title: "Chapter 4: How to Find Stocks for Trades"
+    pdf_page_start: 49
+    status: "processed"
+    reason: "Stock in Play definition, float/market cap, gappers, scanners, planning trades."
+
+  - ref: "CH04-01-stocksinplay"
+    title: "Chapter 4.1: Stocks in Play"
+    pdf_page_start: 51
+    status: "processed"
+    reason: "Definition: high relative volume, independent of sector/market, fundamental catalysts; minimum 500k avg daily volume."
+
+  - ref: "CH04-02-float-marketcap"
+    title: "Chapter 4.2: Float and Market Cap"
+    pdf_page_start: 55
+    status: "processed"
+    reason: "Float classification impacts volatility and tradability; market cap relevance."
+
+  - ref: "CH04-03-premarketgappers"
+    title: "Chapter 4.3: Pre-Market Gappers"
+    pdf_page_start: 58
+    status: "processed"
+    reason: "Identifying stocks gapping up/down; news triggers and watchlist building."
+
+  - ref: "CH04-04-realtime-scans"
+    title: "Chapter 4.4: Real Time Intraday Scans"
+    pdf_page_start: 61
+    status: "processed"
+    reason: "Volume radar, momentum scanner, reversal scanners for intraday stock discovery."
+
+  - ref: "CH04-05-planning"
+    title: "Chapter 4.5: Planning the Trade Based on Scanners"
+    pdf_page_start: 65
+    status: "processed"
+    reason: "Converting scanner alerts into watchlists and trade plans."
+
+  - ref: "CH05-tools"
+    title: "Chapter 5: Tools and Platforms"
+    pdf_page_start: 67
+    status: "processed"
+    reason: "Brokers, platforms, data sources, indicators, order types, hotkeys, community."
+
+  - ref: "CH05-01-brokers"
+    title: "Chapter 5.1: What Broker to Use?"
+    pdf_page_start: 68
+    status: "processed"
+    reason: "Interactive Brokers and SureTrader mentioned; platform requirements for retail traders."
+
+  - ref: "CH05-02-platform"
+    title: "Chapter 5.2: Trading Platform"
+    pdf_page_start: 71
+    status: "processed"
+    reason: "Platform features (speed, reliability, order routing)."
+
+  - ref: "CH05-03-data"
+    title: "Chapter 5.3: Real Time Market Data"
+    pdf_page_start: 72
+    status: "processed"
+    reason: "Real-time data feeds; NASDAQ Level 2, bid-ask information."
+
+  - ref: "CH05-04-nasdaq"
+    title: "Chapter 5.4: NASDAQ Level 2 and Bid-Ask"
+    pdf_page_start: 73
+    status: "processed"
+    reason: "Level 2 order book reading; bid-ask spread analysis."
+
+  - ref: "CH05-05-indicators"
+    title: "Chapter 5.5: Indicators on my Charts"
+    pdf_page_start: 75
+    status: "processed"
+    reason: "Chart indicators used: moving averages, VWAP, previous day close."
+
+  - ref: "CH05-06-orders"
+    title: "Chapter 5.6: Buy and Sell Orders"
+    pdf_page_start: 77
+    status: "processed"
+    reason: "Market orders, limit orders, marketable limit orders; execution strategies."
+
+  - ref: "CH05-07-hotkeys"
+    title: "Chapter 5.7: Hotkeys"
+    pdf_page_start: 81
+    status: "processed"
+    reason: "Keyboard shortcuts for rapid order entry and execution."
+
+  - ref: "CH05-08-watchlist"
+    title: "Chapter 5.8: Watchlist and Scanners"
+    pdf_page_start: 85
+    status: "processed"
+    reason: "Building and managing watchlists; scanner integration."
+
+  - ref: "CH05-09-community"
+    title: "Chapter 5.9: Community of Traders"
+    pdf_page_start: 86
+    status: "processed"
+    reason: "Importance of trader community and mentorship; Bear Bull Traders platform."
+
+  - ref: "CH06-candlesticks"
+    title: "Chapter 6: Introduction to Candlesticks"
+    pdf_page_start: 88
+    status: "processed"
+    reason: "Candlestick anatomy, bullish/bearish/indecision candles, basic patterns."
+
+  - ref: "CH06-01-priceaction"
+    title: "Chapter 6.1: Price Action and Mass Psychology"
+    pdf_page_start: 90
+    status: "processed"
+    reason: "Candlestick interpretation as collective trader psychology."
+
+  - ref: "CH06-02-bullish"
+    title: "Chapter 6.2: Bullish Candlesticks"
+    pdf_page_start: 92
+    status: "processed"
+    reason: "Bullish candle formations and interpretation."
+
+  - ref: "CH06-03-bearish"
+    title: "Chapter 6.3: Bearish Candlesticks"
+    pdf_page_start: 94
+    status: "processed"
+    reason: "Bearish candle formations and interpretation."
+
+  - ref: "CH06-04-indecision"
+    title: "Chapter 6.4: Indecision Candlesticks"
+    pdf_page_start: 96
+    status: "processed"
+    reason: "Spinning tops, dojis, shooting stars, hammers; pivot points."
+
+  - ref: "CH06-05-patterns"
+    title: "Chapter 6.5: Candlestick Patterns"
+    pdf_page_start: 101
+    status: "processed"
+    reason: "Complex patterns dismissed as subjective; ABCD pattern introduced."
+
+  - ref: "CH07-strategies"
+    title: "Chapter 7: Most Important Day Trading Strategies"
+    pdf_page_start: 102
+    status: "processed"
+    reason: "Nine core trading strategies with entry/exit/risk rules and examples."
+
+  - ref: "CH07-01-management"
+    title: "Chapter 7.1: Trade Management and Position Sizing"
+    pdf_page_start: 104
+    status: "processed"
+    reason: "Core trade lifecycle: entry, profit-taking, stop-loss, position management."
+
+  - ref: "CH07-02-abcd"
+    title: "Chapter 7.2: Strategy 1 - ABCD Pattern"
+    pdf_page_start: 110
+    status: "processed"
+    reason: "ABCD reversal pattern with specific entry/exit/stop rules."
+
+  - ref: "CH07-03-bullflag"
+    title: "Chapter 7.3: Strategy 2 - Bull Flag Momentum"
+    pdf_page_start: 114
+    status: "processed"
+    reason: "Continuation pattern entry on consolidation breakout."
+
+  - ref: "CH07-04-reversals"
+    title: "Chapter 7.4: Strategies 3 & 4 - Reversal Trading"
+    pdf_page_start: 120
+    status: "processed"
+    reason: "Bottom and top reversal patterns with pivot-level confirmation."
+
+  - ref: "CH07-05-movingaverage"
+    title: "Chapter 7.5: Strategy 5 - Moving Average Trend Trading"
+    pdf_page_start: 133
+    status: "processed"
+    reason: "Trend trading using moving average crossover and pullback entries."
+
+  - ref: "CH07-06-vwap"
+    title: "Chapter 7.6: Strategy 6 - VWAP Trading"
+    pdf_page_start: 140
+    status: "processed"
+    reason: "VWAP as dynamic support/resistance; entry near VWAP with profit targets."
+
+  - ref: "CH07-07-support-resistance"
+    title: "Chapter 7.7: Strategy 7 - Support or Resistance Trading"
+    pdf_page_start: 145
+    status: "processed"
+    reason: "Trading near support/resistance levels identified on daily and intraday charts."
+
+  - ref: "CH07-08-redtogreen"
+    title: "Chapter 7.8: Strategy 8 - Red-to-Green Trading"
+    pdf_page_start: 152
+    status: "processed"
+    reason: "Trading reversals to/from previous day close using high-volume moves."
+
+  - ref: "CH07-09-orb"
+    title: "Chapter 7.9: Strategy 9 - Opening Range Breakouts"
+    pdf_page_start: 155
+    status: "processed"
+    reason: "Opening range and breakout strategies for early market session."
+
+  - ref: "CH07-10-other"
+    title: "Chapter 7.10: Other Trading Strategies"
+    pdf_page_start: 160
+    status: "processed"
+    reason: "Brief mention of other patterns; encouragement to develop personal strategy."
+
+  - ref: "CH07-11-develop"
+    title: "Chapter 7.11: Develop Your Own Strategy"
+    pdf_page_start: 162
+    status: "processed"
+    reason: "Encouragement to personalize and master a few core setups."
+
+  - ref: "CH07-12-timeofday"
+    title: "Chapter 7.12: Trading Based on the Time of Day"
+    pdf_page_start: 164
+    status: "processed"
+    reason: "Intraday session characteristics (open, mid-day, close) and trading implications."
+
+  - ref: "CH08-execution"
+    title: "Chapter 8: Step-by-Step to a Successful Trade"
+    pdf_page_start: 166
+    status: "processed"
+    reason: "Workflow: watchlist → plan → execution → review."
+
+  - ref: "CH08-01-watchlist"
+    title: "Chapter 8.1: Building a Watchlist"
+    pdf_page_start: 167
+    status: "processed"
+    reason: "Pre-market preparation and stock selection before market open."
+
+  - ref: "CH08-02-plan"
+    title: "Chapter 8.2: Trading Plan"
+    pdf_page_start: 168
+    status: "processed"
+    reason: "Entry, exit, stop-loss definition before entering a trade."
+
+  - ref: "CH08-03-execution"
+    title: "Chapter 8.3: Execution"
+    pdf_page_start: 169
+    status: "processed"
+    reason: "Order entry and management during live trading."
+
+  - ref: "CH08-04-review"
+    title: "Chapter 8.4: How Did I Do It?"
+    pdf_page_start: 170
+    status: "processed"
+    reason: "Post-trade review and reflection; self-evaluation."
+
+  - ref: "CH09-next"
+    title: "Chapter 9: Next Steps for Beginner Traders"
+    pdf_page_start: 176
+    status: "processed"
+    reason: "Seven fundamentals, education pathways, mentorship, daily habits."
+
+  - ref: "CH09-01-fundamentals"
+    title: "Chapter 9.1: The Seven Fundamentals for Day Trading"
+    pdf_page_start: 177
+    status: "processed"
+    reason: "Education, simulation, preparation, hard work, patience, discipline, mentorship, reflection."
+
+  - ref: "CH09-02-education"
+    title: "Chapter 9.1.1: Education and Simulated Trading"
+    pdf_page_start: 177
+    status: "processed"
+    reason: "Learning and paper trading before live trading."
+
+  - ref: "CH09-03-preparation"
+    title: "Chapter 9.1.2: Preparation"
+    pdf_page_start: 182
+    status: "processed"
+    reason: "Pre-market daily routine and watchlist preparation."
+
+  - ref: "CH09-04-hardwork"
+    title: "Chapter 9.1.3: Hard Work"
+    pdf_page_start: 187
+    status: "processed"
+    reason: "Consistency and effort required; full-time commitment."
+
+  - ref: "CH09-05-patience"
+    title: "Chapter 9.1.4: Patience"
+    pdf_page_start: 188
+    status: "processed"
+    reason: "Waiting for high-quality setups; avoiding overtrading."
+
+  - ref: "CH09-06-discipline"
+    title: "Chapter 9.1.5: Discipline"
+    pdf_page_start: 189
+    status: "processed"
+    reason: "Following trading plan; emotional control; rule adherence."
+
+  - ref: "CH09-07-mentorship"
+    title: "Chapter 9.1.6: Mentorship and a Community of Traders"
+    pdf_page_start: 191
+    status: "processed"
+    reason: "Importance of learning from experienced traders; community support."
+
+  - ref: "CH09-08-reflection"
+    title: "Chapter 9.1.7: Reflection and Review"
+    pdf_page_start: 193
+    status: "processed"
+    reason: "Daily and weekly review of trades; continuous improvement."
+
+  - ref: "CH09-09-blog"
+    title: "Chapter 9.2: My Daily Blog and YouTube Video Recaps"
+    pdf_page_start: 197
+    status: "processed"
+    reason: "Author's educational content platform (BearBullTraders)."
+
+  - ref: "CH09-10-final"
+    title: "Chapter 9.3: Final Words"
+    pdf_page_start: 202
+    status: "processed"
+    reason: "Closing motivation and encouragement."
+
+  - ref: "APPENDIX-rules"
+    title: "Appendix: Andrew's 11 Rules of Day Trading"
+    pdf_page_start: 205
+    status: "processed"
+    reason: "Summary of key trading rules derived from book."
+
+  - ref: "APPENDIX-glossary"
+    title: "Appendix: Glossary"
+    pdf_page_start: 206
+    status: "processed"
+    reason: "Terminology definitions."

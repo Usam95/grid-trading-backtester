@@ -1,0 +1,92 @@
+[
+  {
+    "id": "QFADV-C1-001",
+    "title": "Algorithmic trading comprises four stages: signal generation, risk assessment, order placement, execution",
+    "confidence": "high",
+    "testability": "high",
+    "claim": "Algorithmic trades involve signal generation (decision-making using market data), risk assessment (adherence to pre-established parameters), order placement (optimal venue selection to minimize impact), and execution (order interaction with market).",
+    "freshness_risk": "low",
+    "evidence_kind": "author_assertion"
+  },
+  {
+    "id": "QFADV-C1-002",
+    "title": "Slippage defined as difference between expected and executed trade price",
+    "confidence": "high",
+    "testability": "medium",
+    "claim": "Slippage represents the difference between the expected price of a trade and the actual executed price. Execution algorithms minimize market impact and slippage by selecting optimal venues and execution strategies.",
+    "freshness_risk": "medium",
+    "evidence_kind": "author_assertion"
+  },
+  {
+    "id": "QFADV-C1-003",
+    "title": "Algorithmic trading emergence driven by computing advancement, financial deregulation, competitive advantage pursuit",
+    "confidence": "medium",
+    "testability": "low",
+    "claim": "Algorithmic trading's growth traces to three convergent trends: advancement of computing power, deregulation of financial markets, and relentless pursuit of competitive advantage.",
+    "freshness_risk": "low",
+    "evidence_kind": "author_assertion"
+  },
+  {
+    "id": "QFADV-C2-001",
+    "title": "Market microstructure encompasses trading mechanisms, participant behavior, order book dynamics",
+    "confidence": "high",
+    "testability": "high",
+    "claim": "Microstructure pertains to processes, mechanisms, and rules that facilitate trading. Encompasses organization of venues, participant behavior, order book dynamics. Order book is real-time database of buy/sell orders enabling study of order flow.",
+    "freshness_risk": "medium",
+    "evidence_kind": "author_assertion"
+  },
+  {
+    "id": "QFADV-C4-001",
+    "title": "Clear objective definition critical to algorithm design; objectives range from profit maximization to impact minimization",
+    "confidence": "high",
+    "testability": "high",
+    "claim": "The cornerstone of robust algorithm design is precise objective definition. In trading, objectives may be profit maximization, market impact minimization, or optimal asset allocation. Objective precision influences every subsequent design decision.",
+    "freshness_risk": "low",
+    "evidence_kind": "conceptual_argument"
+  },
+  {
+    "id": "QFADV-C6-001",
+    "title": "Backtesting is foundational validation method; frameworks available for systematic testing",
+    "confidence": "high",
+    "testability": "high",
+    "claim": "Backtesting frameworks enable systematic testing of strategies against historical data. Performance analysis and optimization techniques critical for evaluating strategy viability before live deployment.",
+    "freshness_risk": "low",
+    "evidence_kind": "author_assertion"
+  },
+  {
+    "id": "QFADV-C7-003",
+    "title": "Sentiment analysis strategies extract trading signals from text data (news, social media)",
+    "confidence": "low",
+    "testability": "medium",
+    "claim": "NLP and sentiment analysis applied to market news and social media data. Sentiment signals can predict short-term price movements. Integration with market prediction models.",
+    "freshness_risk": "high",
+    "evidence_kind": "author_assertion"
+  },
+  {
+    "id": "QFADV-C8-001",
+    "title": "Real-time backtesting simulates live market conditions; paper trading validates execution without real capital",
+    "confidence": "high",
+    "testability": "high",
+    "claim": "Real-time backtesting against live market feeds simulates execution environment. Paper trading deploys algorithm against live data without capital deployment, enabling validation of order logic and latency behavior before live trading.",
+    "freshness_risk": "low",
+    "evidence_kind": "author_assertion"
+  },
+  {
+    "id": "QFADV-C10-001",
+    "title": "Cryptocurrency markets present unique trading characteristics: 24/7 operation, high volatility, evolving regulations",
+    "confidence": "high",
+    "testability": "high",
+    "claim": "Cryptocurrency markets trade 24/7 without traditional market hours. High volatility and rapid innovation. Regulatory environment evolving. Asset class characteristics differ from traditional equities/futures.",
+    "freshness_risk": "high",
+    "evidence_kind": "author_assertion"
+  },
+  {
+    "id": "QFADV-C11-001",
+    "title": "Quantum computing likely future computational platform but practical applications uncertain",
+    "confidence": "low",
+    "testability": "low",
+    "claim": "Quantum computing fundamentals explained. Quantum algorithms for optimization and risk analysis discussed. Future prospects noted but current timeline for practical financial applications unclear.",
+    "freshness_risk": "high",
+    "evidence_kind": "author_assertion"
+  }
+]

@@ -1,0 +1,250 @@
+- id: IBAPI-REQ-001
+  title: "System shall maintain monotonically-increasing order ID counter"
+  status: "proposed"
+  derived_from:
+    - IBAPI-C1-002
+    - IBAPI-C1-005
+  derivation_type: "direct_book_recommendation"
+  rationale: "IB API semantics require order ID to be strictly increasing; failure to maintain this will cause order modifications instead of new orders."
+  applies_to:
+    strategy: ["grid", "stock_signal", "portfolio", "shared"]
+    lifecycle: ["backtest", "paper", "live"]
+    asset_class: ["crypto_spot", "crypto_futures", "equities", "shared"]
+    concern: ["execution", "operations"]
+  requirement: "The live trading system shall maintain a per-account order ID counter that increments by at least 1 for each new order placement; the counter shall be persisted across API reconnects and never be reset without explicit manual intervention."
+  acceptance_tests:
+    - "Place 10 orders sequentially; verify each order ID is > previous ID"
+    - "Disconnect API and reconnect; verify next order ID is > last order ID before disconnect"
+    - "Run two grid strategies on same account; verify order IDs do not collide (requires coordination mechanism)"
+  failure_prevented: "Unintended order modifications (e.g., cancel buy when intending to place new sell)"
+  capability_enabled: "Reliable order placement with clear separation between new orders and order modifications"
+  assumptions:
+    - "Order ID counter starts at 1 or is initialized from last known order ID"
+    - "No external system is placing orders with the same IDs"
+  open_questions:
+    - "How to initialize order ID counter for new account or after extended downtime?"
+    - "What happens if order ID counter exceeds maximum integer value?"
+  dependencies:
+    - "Persistent state management (database/log) for order ID counter"
+  verification_needed: "Run production trading for N days; audit order ID sequence for gaps or resets"
+  priority_hint: "correctness"
+
+- id: IBAPI-REQ-002
+  title: "System shall calculate position size from Available Funds metric, not Buying Power"
+  status: "proposed"
+  derived_from:
+    - IBAPI-C2-001
+    - IBAPI-C2-002
+  derivation_type: "direct_book_recommendation"
+  rationale: "Available Funds accounts for account equity and initial margin requirement; using Buying Power (4x leverage) may lead to overleverage and margin calls."
+  applies_to:
+    strategy: ["grid", "stock_signal", "portfolio", "shared"]
+    lifecycle: ["backtest", "paper", "live"]
+    asset_class: ["equities", "shared"]
+    concern: ["risk", "execution", "operations"]
+  requirement: "The live trading system shall use Available Funds (not Buying Power or gross equity) as the hard constraint for new position size calculations. Maximum position size shall be <= Available Funds / (expected_price * contract_multiplier * margin_buffer_factor)."
+  acceptance_tests:
+    - "Query account Available Funds; place order consuming 95% of Available Funds; verify order accepted"
+    - "Attempt order exceeding Available Funds; verify order rejected with margin error"
+    - "Verify Available Funds formula against account snapshot: For securities, Available Funds == Equity with Loan Value - Initial Margin"
+  failure_prevented: "Oversized orders leading to margin calls or forced liquidation"
+  capability_enabled: "Consistent position sizing across market conditions and account states"
+  assumptions:
+    - "Available Funds is reported accurately and updated in real-time"
+    - "Margin buffer factor (e.g., 20% safety margin) is tunable and not hardcoded"
+  open_questions:
+    - "What is the appropriate margin buffer factor for different asset classes?"
+    - "How often does Initial Margin requirement change intraday?"
+  dependencies:
+    - "Real-time account state API (getCurrentAccountInfo or equivalent)"
+  verification_needed: "Backtest and live trading with position size constraints; verify no margin calls over N months"
+  priority_hint: "safety"
+
+- id: IBAPI-REQ-003
+  title: "System shall check Day Trades Remaining before executing intraday round-trip trades"
+  status: "proposed"
+  derived_from:
+    - IBAPI-C2-003
+  derivation_type: "direct_book_recommendation"
+  rationale: "Pattern-day-trader regulation limits intraday round-trips; violating this limit can result in account restrictions or forced liquidation."
+  applies_to:
+    strategy: ["grid", "stock_signal", "portfolio"]
+    lifecycle: ["backtest", "paper", "live"]
+    asset_class: ["equities"]
+    concern: ["risk", "operations"]
+  requirement: "For US equity accounts with Day Trades Remaining > 0 field, the live trading system shall check this field before submitting any order that would constitute a day trade (buy and sell of same security within same trading day). If Day Trades Remaining == 0, the system shall not execute day trades and shall log a warning."
+  acceptance_tests:
+    - "Query Day Trades Remaining; confirm it is > 0"
+    - "Execute day trade (buy + sell same day); verify Day Trades Remaining decrements"
+    - "Execute 3 day trades on non-PDT account; verify allowed. Attempt 4th day trade on PDT-flagged account; verify rejected"
+  failure_prevented: "Violation of PDT rules leading to account restrictions or forced liquidation"
+  capability_enabled: "Safe intraday trading within regulatory limits"
+  assumptions:
+    - "PDT rule is consistently enforced by IB"
+    - "Day trade definition matches SEC/FINRA definition"
+  open_questions:
+    - "How are complex orders (spreads, collars) counted in PDT logic?"
+    - "Does extended-hours trading (pre-market/post-market) count toward day trades?"
+  dependencies:
+    - "Real-time Day Trades Remaining metric from IB API"
+    - "Trade classification logic to identify day trades"
+  verification_needed: "Backtesting with PDT rules enforced; live trading with monitoring for PDT violations"
+  priority_hint: "safety"
+
+- id: IBAPI-REQ-004
+  title: "System shall use IB Gateway (not TWS) for production deployment"
+  status: "proposed"
+  derived_from:
+    - IBAPI-C1-003
+  derivation_type: "direct_book_recommendation"
+  rationale: "IB Gateway is a lightweight, headless service suitable for production; TWS is a GUI application with higher resource consumption and higher crash risk."
+  applies_to:
+    strategy: ["shared"]
+    lifecycle: ["live"]
+    asset_class: ["shared"]
+    concern: ["operations"]
+  requirement: "The live trading system production deployment shall connect to IB API via IB Gateway, not TWS. The system shall use the IB Gateway configuration option and avoid any GUI components in the API communication path."
+  acceptance_tests:
+    - "Deploy system with IB Gateway; verify API orders are placed successfully"
+    - "Compare resource usage (memory, CPU) between TWS and Gateway deployments; verify Gateway is more lightweight"
+    - "Verify order execution, fills, and account updates are identical between TWS and Gateway"
+  failure_prevented: "Production system crash due to GUI application failure or excessive resource consumption"
+  capability_enabled: "Reliable, lightweight production operation"
+  assumptions:
+    - "IB Gateway API feature parity with TWS (all required order types and account queries supported)"
+    - "Gateway is available for target OS (Windows, Linux, Mac)"
+  open_questions:
+    - "Are there any API features supported by TWS but not by Gateway?"
+    - "What is the recommended hardware spec for Gateway in production?"
+  dependencies:
+    - "IB Gateway installed and configured"
+    - "Firewall/network rules allowing API client to connect to Gateway"
+  verification_needed: "Run production for 1+ weeks with Gateway; monitor for any missing features or connectivity issues"
+  priority_hint: "operability"
+
+- id: IBAPI-REQ-005
+  title: "System shall validate order feasibility using whatIf flag before submission"
+  status: "proposed"
+  derived_from:
+    - IBAPI-C3-001
+    - IBAPI-C3-002
+  derivation_type: "direct_book_recommendation"
+  rationale: "whatIf flag allows pre-trade margin and commission estimation without market impact; system should validate orders before submission to catch errors early."
+  applies_to:
+    strategy: ["grid", "stock_signal", "portfolio", "shared"]
+    lifecycle: ["backtest", "paper", "live"]
+    asset_class: ["crypto_spot", "crypto_futures", "equities", "shared"]
+    concern: ["risk", "execution"]
+  requirement: "The live trading system may use whatIf=true on orders to request pre-trade commission and margin impact. System shall verify returned OrderState contains valid commission and margin fields. System shall reject orders if whatIf response indicates margin violation or cost exceeds expected threshold."
+  acceptance_tests:
+    - "Send whatIf order; verify OrderState returned with commission and margin fields"
+    - "Compare whatIf commission/margin to actual execution; verify variance < 1%"
+    - "Send whatIf order exceeding available funds; verify rejection or error flag in OrderState"
+  failure_prevented: "Margin call or unexpected costs due to incorrect commission/margin estimates"
+  capability_enabled: "Pre-trade risk validation and cost estimation"
+  assumptions:
+    - "whatIf is supported by IB API version in production"
+    - "whatIf responses are fast enough for high-frequency trading"
+  open_questions:
+    - "What is the latency of whatIf response? Is it suitable for high-frequency strategies?"
+    - "Does whatIf response include all commission components (IB markup, exchange fees, clearing fees)?"
+  dependencies:
+    - "whatIf API support in IB API client library"
+    - "Order state parsing to extract commission and margin fields"
+  verification_needed: "Compare whatIf estimates to actual costs over 100+ trades; identify any systematic bias or outliers"
+  priority_hint: "safety"
+
+- id: IBAPI-REQ-006
+  title: "System shall support order modification via order ID resubmission"
+  status: "proposed"
+  derived_from:
+    - IBAPI-C1-005
+  derivation_type: "direct_book_recommendation"
+  rationale: "Order ID can be reused to modify price/quantity without cancellation; this is useful for dynamic price management in grid strategies."
+  applies_to:
+    strategy: ["grid"]
+    lifecycle: ["backtest", "paper", "live"]
+    asset_class: ["crypto_spot", "crypto_futures", "equities", "shared"]
+    concern: ["execution", "operations"]
+  requirement: "The live trading system may resubmit an existing order using the same order ID with modified price or quantity to update the order in-place. System shall verify that only price and quantity fields are modified; order type and action shall not be changed via modification (requires cancel + replace)."
+  acceptance_tests:
+    - "Place order ID 1 with price P1/qty Q1; resubmit with price P2/qty Q1; verify order updated"
+    - "Attempt to modify order type (e.g., limit to stop); verify failure or rejection"
+    - "Modify partially filled order; verify behavior is as expected (new qty replaces old qty vs. incremental)"
+  failure_prevented: "Unintended cancellation or missed fills due to inefficient cancel+replace logic"
+  capability_enabled: "Efficient dynamic price management for grid strategies"
+  assumptions:
+    - "Order modification is atomic (no race conditions with fills)"
+    - "Modification can only change price/quantity, not order type"
+  open_questions:
+    - "Can partially filled order be modified? If so, does new qty replace or increment?"
+    - "Does modification reset time-in-force?"
+  dependencies:
+    - "Order tracking to associate order ID with original order details"
+  verification_needed: "Grid strategy testing with frequent price updates via order modification; verify no unintended cancellations"
+  priority_hint: "operability"
+
+- id: IBAPI-REQ-007
+  title: "System shall implement account state polling with configurable refresh interval"
+  status: "proposed"
+  derived_from:
+    - IBAPI-C2-001
+    - IBAPI-C2-002
+    - IBAPI-C2-003
+    - IBAPI-C2-004
+    - IBAPI-C2-005
+  derivation_type: "agent_inference"
+  rationale: "Account metrics (Available Funds, Buying Power, Day Trades Remaining, Leverage, Margin) are dynamic and critical for position sizing and risk management; system must poll these metrics regularly."
+  applies_to:
+    strategy: ["grid", "stock_signal", "portfolio", "shared"]
+    lifecycle: ["backtest", "paper", "live"]
+    asset_class: ["crypto_spot", "crypto_futures", "equities", "shared"]
+    concern: ["risk", "execution", "monitoring", "operations"]
+  requirement: "The live trading system shall implement periodic polling of account state (Available Funds, Equity with Loan Value, Initial Margin, Maintenance Margin, Day Trades Remaining) from IB API. Polling interval shall be configurable (default 1-5 seconds) and shall account for API rate limits."
+  acceptance_tests:
+    - "Poll account state every 1 second for 1 minute; verify all metrics populated"
+    - "Verify Account State updates reflect position changes and market movements"
+    - "Measure API polling overhead; confirm < 10% of total connection bandwidth"
+  failure_prevented: "Stale account state leading to oversized orders or margin calls"
+  capability_enabled: "Real-time position sizing and risk monitoring"
+  assumptions:
+    - "Account state query is fast (< 100ms)"
+    - "No rate limiting or quota on account state queries"
+  open_questions:
+    - "What is the API rate limit for account state queries?"
+    - "Are there any performance implications of polling account state at high frequency?"
+  dependencies:
+    - "Account state API (getCurrentAccountInfo or subscription-based updates)"
+  verification_needed: "Monitor API connection health and data staleness during live trading"
+  priority_hint: "operability"
+
+- id: IBAPI-REQ-008
+  title: "System shall handle 2015-era API documentation with freshness risk and verify against current API"
+  status: "proposed"
+  derived_from:
+    - IBAPI-C4-001
+    - IBAPI-C4-002
+  derivation_type: "agent_inference"
+  rationale: "The 2015 manual is 11 years old; broker APIs, regulatory framework, and account structures have evolved significantly. System should not assume 2015 semantics without verification."
+  applies_to:
+    strategy: ["shared"]
+    lifecycle: ["research", "backtest", "paper", "live"]
+    asset_class: ["shared"]
+    concern: ["operations", "risk"]
+  requirement: "The system development process shall include a validation phase comparing 2015 IB API documentation against current IB API docs and live testing. For critical features (margin model, order semantics, account metrics), current behavior must be explicitly verified before deployment."
+  acceptance_tests:
+    - "Create a checklist of 20 critical API behaviors from 2015 manual; test each against current API"
+    - "Document any discrepancies between 2015 manual and current API"
+    - "Review post-2015 regulatory changes (Dodd-Frank, MiFID II) and confirm account restrictions align"
+  failure_prevented: "System failure due to relying on outdated API semantics"
+  capability_enabled: "Robust system design based on verified current API"
+  assumptions:
+    - "Current IB API documentation is available and accurate"
+    - "IB provides backwards compatibility or clear migration guidance"
+  open_questions:
+    - "Which 2015 features are deprecated or changed in current API?"
+    - "Are there new features in current API that should be leveraged?"
+  dependencies:
+    - "Access to current IB API documentation and sandbox environment"
+  verification_needed: "Live testing in sandbox/paper trading with current IB API; identify and document any 2015 manual inaccuracies"
+  priority_hint: "correctness"

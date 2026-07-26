@@ -1,0 +1,246 @@
+- id: "MLPRO-REQ-001"
+  title: "Options Greeks computation and hedging framework"
+  status: "proposed"
+  derived_from: ["MLPRO-C26-007"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Book claims Greeks (delta, theta, gamma, vega) quantify option exposures. Live trading system must compute Greeks and use them to hedge portfolio risk."
+  applies_to:
+    strategy: ["stock_signal"]
+    lifecycle: ["live"]
+    asset_class: ["equities"]
+    concern: ["risk"]
+  requirement: "System shall compute option Greeks (delta, theta, gamma, vega) for all open positions using industry-standard models (e.g., Black-Scholes); shall support delta-hedging and Greeks-based rebalancing on configurable intervals."
+  acceptance_tests:
+    - "Greeks computed match market sources (e.g., broker API) within 1% for liquid options"
+    - "Delta-hedge rebalance executes within 1 minute of trigger event"
+    - "Portfolio delta remains within +/-5% of target after rebalance"
+  failure_prevented: "Unhedged directional exposure in large portfolio; gamma risk accumulation; vega risk from IV changes."
+  capability_enabled: "Automated risk management; systematic hedging without manual intervention."
+  assumptions:
+    - "Greeks are computed under Black-Scholes assumptions"
+    - "Liquidity is sufficient for delta-hedging at minimal cost"
+  open_questions:
+    - "Should Greeks use broker-supplied IV or independently computed IV?"
+    - "How to handle options with no liquid price history?"
+  dependencies:
+    - "Real-time market data feed for option prices and implied volatility"
+    - "Order execution system capable of rapid entry/exit"
+  verification_needed: "Unit tests for Greeks calculations; integration test with live option prices; backtesting delta-hedging performance."
+  priority_hint: "safety"
+
+- id: "MLPRO-REQ-002"
+  title: "Options assignment and early exercise handling"
+  status: "proposed"
+  derived_from: ["MLPRO-C31-012", "MLPRO-C32-013"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Book warns that short option positions can be assigned unexpectedly, disrupting portfolio. System must detect assignment notifications and reconcile positions within SLA."
+  applies_to:
+    strategy: ["stock_signal"]
+    lifecycle: ["live"]
+    asset_class: ["equities"]
+    concern: ["execution", "risk"]
+  requirement: "System shall monitor broker-provided assignment notifications; upon assignment, shall update position state and reconcile margin; shall alert operator if assignment violates established position rules."
+  acceptance_tests:
+    - "Assignment notification detected within 5 minutes of broker message"
+    - "Position reconciliation completes within 15 minutes"
+    - "Margin impact calculated correctly and reflected in risk dashboard"
+    - "Alert triggered if assigned quantity exceeds threshold (e.g., 5% of portfolio)"
+  failure_prevented: "Phantom positions; unaccounted short stock; margin call surprises."
+  capability_enabled: "Automated assignment reconciliation; seamless overnight monitoring."
+  assumptions:
+    - "Broker provides assignment notifications in structured format"
+    - "Assignment rules follow OCC standards"
+  open_questions:
+    - "How to forecast assignment probability and plan hedges proactively?"
+    - "Can assignment be fully avoided in multi-leg strategies?"
+  dependencies:
+    - "Broker connectivity with assignment event feeds"
+    - "Position reconciliation and margin calculation engine"
+  verification_needed: "Simulation of random assignment events; reconciliation algorithm testing; live testing during actual assignment windows."
+  priority_hint: "correctness"
+
+- id: "MLPRO-REQ-003"
+  title: "Support and resistance level identification and breakout signal generation"
+  status: "proposed"
+  derived_from: ["MLPRO-C37-016"]
+  derivation_type: "agent_inference"
+  rationale: "Book recommends support/resistance levels and breakouts as entry signals. System should identify levels programmatically and generate signals when price breaks."
+  applies_to:
+    strategy: ["stock_signal"]
+    lifecycle: ["backtest", "live"]
+    asset_class: ["equities"]
+    concern: ["alpha"]
+  requirement: "System shall identify support and resistance levels using local extrema detection (or alternative method); shall generate entry signals when price closes above resistance or below support; shall log level locations for audit and tuning."
+  acceptance_tests:
+    - "Support/resistance levels identified match visual chart inspection (>80% agreement among traders)"
+    - "Breakout signals generated at correct price thresholds"
+    - "Backtest on historical data shows positive Sharpe (>1.0) or outperformance vs benchmark"
+    - "Signal generation code is deterministic and reproducible"
+  failure_prevented: "Manual level identification errors; inconsistent signal timing; false breakout whipsaws."
+  capability_enabled: "Systematic, rule-based entry signal generation; reproducible strategy backtesting."
+  assumptions:
+    - "Support/resistance are stable across market regimes"
+    - "Price action respects identified levels with acceptable frequency"
+  open_questions:
+    - "What is the optimal method for identifying support/resistance? (local extrema, Fibonacci, pivot points, statistical clustering)"
+    - "How to adjust levels dynamically as market structure changes?"
+  dependencies:
+    - "Historical OHLCV data; local extrema detection algorithm"
+    - "Backtesting framework"
+  verification_needed: "Backtest validation; parameter sensitivity analysis; walk-forward testing on out-of-sample periods."
+  priority_hint: "research_quality"
+
+- id: "MLPRO-REQ-004"
+  title: "Technical indicator (RSI, MACD, Bollinger Bands) computation and signal generation"
+  status: "proposed"
+  derived_from: ["MLPRO-C38-017"]
+  derivation_type: "direct_book_recommendation"
+  rationale: "Book describes RSI, MACD, and Bollinger Bands as trading indicators. System must compute these correctly and generate signals based on configurable thresholds."
+  applies_to:
+    strategy: ["stock_signal"]
+    lifecycle: ["backtest", "live"]
+    asset_class: ["equities"]
+    concern: ["alpha"]
+  requirement: "System shall compute RSI (14-day default), MACD (12/26 default), and Bollinger Bands (20-day MA, 2 std dev default) with configurable parameters; shall generate entry/exit signals based on overbought/oversold and crossover thresholds; signals shall be deterministic and reproducible."
+  acceptance_tests:
+    - "Indicator values match market sources (TradingView, Finviz) within 0.1%"
+    - "Signals trigger at correct threshold crossings"
+    - "Backtest shows signal Sharpe > 1.0 or beats naive buy-and-hold"
+    - "Parameter variations are tested; best parameters perform on walk-forward period"
+  failure_prevented: "Miscalculated indicators; inconsistent signal timing; reliance on statistically insignificant patterns."
+  capability_enabled: "Indicator-based systematic strategy; easy parameter tuning and optimization."
+  assumptions:
+    - "Standard indicator definitions are correct (e.g., RSI uses 14-day period)"
+    - "Signals have predictive value after accounting for transaction costs"
+  open_questions:
+    - "Should indicators be computed on intraday data or daily closes only?"
+    - "How to combine multiple indicators (RSI + MACD + BB) without overfitting?"
+  dependencies:
+    - "Historical OHLCV data; indicator computation library (or custom implementation)"
+    - "Backtesting framework"
+  verification_needed: "Indicator computation accuracy tests; backtest validation; sensitivity to parameter changes."
+  priority_hint: "research_quality"
+
+- id: "MLPRO-REQ-005"
+  title: "ML pipeline component decomposition and unit-level validation"
+  status: "proposed"
+  derived_from: ["MLPRO-C11-003", "MLPRO-C11-004"]
+  derivation_type: "agent_inference"
+  rationale: "Book demonstrates ML pipeline decomposition (parking detection). Trading ML systems should similarly decompose into modular components and validate each independently to diagnose failures."
+  applies_to:
+    strategy: ["shared"]
+    lifecycle: ["research", "backtest"]
+    asset_class: ["shared"]
+    concern: ["data", "simulation", "reproducibility"]
+  requirement: "ML signal generation pipeline shall be decomposed into distinct stages (feature extraction, model inference, trade logic); each stage shall have independent test suite measuring precision, recall, and latency; pipeline unit tests shall execute before each backtest run."
+  acceptance_tests:
+    - "Each component has defined inputs, outputs, and acceptance criteria"
+    - "Unit tests exist and pass for >80% of code paths"
+    - "End-to-end backtest Sharpe correlates with component metrics (e.g., model accuracy >70% => backtest Sharpe > 1.0)"
+    - "Component failures are caught before live deployment"
+  failure_prevented: "ML pipeline silent failures; cascading errors from misconfigured features; poor signal quality."
+  capability_enabled: "Debuggable ML systems; systematic diagnosis of strategy underperformance."
+  assumptions:
+    - "Components can be tested independently without full pipeline execution"
+    - "Component metrics are early indicators of end-to-end performance"
+  open_questions:
+    - "What metrics should each component measure? (accuracy, precision, recall, latency, stability)"
+    - "How to measure interaction effects between components?"
+  dependencies:
+    - "Test data and labeled datasets"
+    - "Monitoring and logging framework"
+  verification_needed: "Unit test code review; integration test validation; feedback loop from live trading back to component metrics."
+  priority_hint: "correctness"
+
+- id: "MLPRO-REQ-006"
+  title: "Options strategy definition and backtesting framework support"
+  status: "proposed"
+  derived_from: ["MLPRO-C28-009"]
+  derivation_type: "agent_inference"
+  rationale: "Book describes covered calls, spreads, and collars. Backtesting framework must support multi-leg option strategies with accurate payoff calculations."
+  applies_to:
+    strategy: ["stock_signal"]
+    lifecycle: ["backtest"]
+    asset_class: ["equities"]
+    concern: ["alpha", "simulation"]
+  requirement: "Backtest framework shall support multi-leg option strategies (covered call, vertical spread, collar, calendar spread); shall compute strategy payoff accurately including assignment and early exercise; shall measure max profit/loss, probability of profit, and Greeks for each strategy."
+  acceptance_tests:
+    - "Strategy payoff matches theoretical max profit/loss"
+    - "Backtest results match manual calculation for known strategies"
+    - "Assignment scenarios produce correct final P&L"
+    - "Greeks computed for multi-leg positions match aggregation of legs"
+  failure_prevented: "Inaccurate strategy backtests; wrong P&L attribution; unrealistic profitability claims."
+  capability_enabled: "Systematic options strategy research and optimization."
+  assumptions:
+    - "Standard option contract specs (100-share multiplier, American exercise)"
+    - "Assignment and early exercise can be modeled probabilistically or deterministically"
+  open_questions:
+    - "How to model early exercise in backtest? (always/never/probabilistic)"
+    - "Should backtest include realistic bid/ask spreads for multi-leg entry/exit?"
+  dependencies:
+    - "Options pricing library; options contract management"
+    - "Backtesting engine"
+  verification_needed: "Comparison with OptionLab or other strategy software; live trading reconciliation."
+  priority_hint: "correctness"
+
+- id: "MLPRO-REQ-007"
+  title: "Trading strategy composition from multiple signals"
+  status: "proposed"
+  derived_from: ["MLPRO-C36-015"]
+  derivation_type: "agent_inference"
+  rationale: "Book describes trading as plan-place-execute. System should support combining multiple signal sources and executing unified strategy."
+  applies_to:
+    strategy: ["shared"]
+    lifecycle: ["backtest", "live"]
+    asset_class: ["shared"]
+    concern: ["operations"]
+  requirement: "System shall define trading strategies as composition of multiple signals (entry, exit, stop-loss, risk management); shall support weighted combinations of signals; shall enforce position sizing, stop-loss, and take-profit rules per strategy."
+  acceptance_tests:
+    - "Multiple signal sources can be combined without conflicts"
+    - "Position sizing algorithm allocates capital per strategy"
+    - "Stop-loss orders execute within acceptable latency"
+    - "Backtest combines signals deterministically and reproducibly"
+  failure_prevented: "Over-allocation to single signal; missed stop-loss executions; contradictory position signals."
+  capability_enabled: "Multi-signal systematic trading; decoupled signal generation and execution."
+  assumptions:
+    - "Signals are independent or correlations are modeled"
+    - "Position sizing preserves risk limits"
+  open_questions:
+    - "How to combine conflicting signals from different strategies?"
+    - "What weighting schemes (equal, Sharpe-weighted, Kalman) are most robust?"
+  dependencies:
+    - "Signal generation subsystem; risk management engine"
+    - "Order execution system"
+  verification_needed: "Backtest validation; live execution consistency check."
+  priority_hint: "operability"
+
+- id: "MLPRO-REQ-008"
+  title: "Python code optimization via ctypes for performance-critical paths"
+  status: "proposed"
+  derived_from: ["MLPRO-C6-001"]
+  derivation_type: "agent_inference"
+  rationale: "Book demonstrates ctypes FFI for performance. Live trading systems may benefit from C optimization for tight-loop operations (order matching, indicator computation, risk calculations)."
+  applies_to:
+    strategy: ["shared"]
+    lifecycle: ["live"]
+    asset_class: ["shared"]
+    concern: ["execution"]
+  requirement: "System shall identify and profile performance-critical paths; shall support optional C/C++ implementation via ctypes FFI for compute-heavy functions (e.g., indicator calculations, Greeks computation); shall validate that C and Python implementations produce identical results within numerical precision."
+  acceptance_tests:
+    - "C implementation achieves >10x speedup over Python baseline"
+    - "C and Python produce identical results (< 0.01% difference)"
+    - "C code compiles on supported platforms (Linux, Windows)"
+    - "FFI call overhead is <1% of total function time for realistic data sizes"
+  failure_prevented: "Missed trade signals due to computation latency; slow backtests."
+  capability_enabled: "Fast signal generation and risk calculations in live systems."
+  assumptions:
+    - "Performance bottlenecks are localized and reproducible"
+    - "C expertise is available for optimization"
+  open_questions:
+    - "What is the latency SLA for signal generation?"
+    - "Should optimization prioritize throughput (batch) or latency (single-trade)?"
+  dependencies:
+    - "Profiling tools; C/C++ compiler; ctypes FFI"
+  verification_needed: "Benchmark C vs Python implementations; production latency monitoring."
+  priority_hint: "operability"
+

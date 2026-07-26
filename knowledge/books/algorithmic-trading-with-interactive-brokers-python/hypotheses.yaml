@@ -1,0 +1,179 @@
+- id: "IBKRPY-H-001"
+  title: "Turtle Trading System Profitability in Current Equities Market"
+  status: "proposed"
+  derived_from: ["IBKRPY-C13-012"]
+  statement: "Turtle trend-following system (20-day breakout + ATR stop) produces positive risk-adjusted returns in US equities when tested on 2024-2026 data with current commission/slippage costs."
+  proposed_mechanism: "Trend persistence in equities captured by breakout; ATR-scaled stops adapt to regime; lower commissions (post-2019) improve edge."
+  applicable_markets_and_regimes: "US equities (SPY constituents); valid in trending regimes; may fail in range-bound markets."
+  assumptions:
+    - "Trends persist at 20-day scale in current market regimes"
+    - "ATR captures effective volatility for stop placement"
+    - "Slippage on entry/exit <5 bps average"
+    - "No regime shift in correlation structure"
+  data_requirements:
+    - "Daily OHLCV for 500+ liquid US equities, 2000-2026"
+    - "Corporate actions (splits, dividends) adjusted"
+    - "Survivorship bias corrected (all tickers including delisted)"
+  baseline_or_null_hypothesis: "Random entry/exit produces zero alpha; Turtle outperforms by >5% annualized after costs."
+  validation_approach: "Walk-forward backtest (5Y in-sample, 1Y out-of-sample, rolling); measure Sharpe, max drawdown, hit rate; compare 2019 baseline results to 2024-2026."
+  transaction_cost_and_fill_considerations: "Commission: 0.5-1.0 bps (IB current); slippage: 5-10 bps on breakout entries, 2-5 bps on ATR stops; liquidity filter (volume > 1M shares/day)."
+  robustness_checks:
+    - "Parameter sensitivity: window from 15-30 days, ATR multiple from 1.5-3.0"
+    - "Subsample testing: test on deciles by market cap"
+    - "Regime filtering: test only in VIX regimes >15 vs <15"
+    - "Comparison to buy-and-hold and random entry benchmarks"
+  rejection_criteria: "Out-of-sample Sharpe < 0.5 or max drawdown > 30% or hit rate < 45%; strategy curves upward in out-of-sample (overfitting)."
+  failure_modes:
+    - "Regime shift to mean-reversion dominance; breakouts reversed"
+    - "Increased correlations reduce diversification benefit across stocks"
+    - "Slippage increases due to reduced liquidity or wider spreads"
+    - "Systematic gap between backtested fills and live execution"
+  freshness_concerns: "Market structure and speed changed since 2019; latency of entry signals may have increased; retail participation increased; Turtle signals may be frontrun"
+  unresolved_questions:
+    - "How do Turtle returns vary by sector or market cap tier?"
+    - "What is the optimal rebalance frequency: daily, weekly, or adaptive?"
+    - "How does the system perform during regime changes (e.g., 2020 COVID crash)?"
+
+- id: "IBKRPY-H-002"
+  title: "Bollinger-MFI Mean Reversion Edge in Mean-Reverting Regimes"
+  status: "proposed"
+  derived_from: ["IBKRPY-C13-013"]
+  statement: "Bollinger Bands + MFI mean-reversion system produces positive alpha when applied only to securities in identified mean-reverting regimes (ADF-statistic tested)."
+  proposed_mechanism: "MFI filters false overbought/oversold signals; Bollinger Bands identify regime extremes; reversion accelerates when volume divergence present."
+  applicable_markets_and_regimes: "Mean-reverting regimes (identified via rolling ADF test); sectors: utilities, staples, REITs; excludes momentum stocks."
+  assumptions:
+    - "Mean reversion is regime-dependent and can be identified statistically"
+    - "MFI threshold (>80 overbought, <20 oversold) is predictive"
+    - "Bollinger Band reversal happens within 5-20 days"
+  data_requirements:
+    - "Daily OHLCV, volume data for regime detection"
+    - "20-day rolling ADF test per security"
+    - "MFI calculation from volume data"
+  baseline_or_null_hypothesis: "Mean-reversion returns (mean revert – buy dips – sell rallies) produce zero alpha without MFI filter."
+  validation_approach: "In-sample: identify regime parameters; out-of-sample: apply only to securities where rolling ADF detects mean reversion; measure alpha vs buy-and-hold."
+  transaction_cost_and_fill_considerations: "High turnover (mean reversion generates frequent signals); commission impact material; slippage critical on oversold entries (lower liquidity)."
+  robustness_checks:
+    - "Vary Bollinger Band width (1, 1.5, 2 sigma)"
+    - "Vary MFI threshold (70/30, 80/20, 90/10)"
+    - "Test on regime-subset: include only securities with ADF p-value < 0.1"
+  rejection_criteria: "Mean-reversion signals produce alpha < 2% annualized; slippage on entry > 15 bps; hit rate < 55%."
+  failure_modes:
+    - "Regime identification lags actual regime change; system trades against new trend"
+    - "Volume dries up on mean-reversion triggers (MFI divergence coincides with liquidity drop)"
+    - "Correlation spike during reversions reduces diversification"
+  freshness_concerns: "MFI formula and effective thresholds may shift with trading technology and behavioral changes"
+  unresolved_questions:
+    - "What is the optimal lookback for regime detection?"
+    - "How sensitive is the strategy to transaction costs at different order sizes?"
+
+- id: "IBKRPY-H-003"
+  title: "SimpleAlgo Sentiment-Based Candidate Selection Reduces False Signals"
+  status: "proposed"
+  derived_from: ["IBKRPY-C14-011", "IBKRPY-C14-022"]
+  statement: "Filtering candidates by investor sentiment (before applying breakout signal) reduces false breakout signals by >20% without material reduction in true positives."
+  proposed_mechanism: "Sentiment reflects market regime; optimistic sentiment coincides with continuation patterns; pessimistic sentiment often precedes reversals."
+  applicable_markets_and_regimes: "US equities during trending (bullish) sentiment periods; may not apply during crash regimes."
+  assumptions:
+    - "Sentiment is measurable and predictive of breakout persistence"
+    - "Sentiment data source is reliable and available"
+  data_requirements:
+    - "Investor sentiment index (Investors Intelligence, VIX term structure, put/call ratio, or social sentiment)"
+    - "Alignment of sentiment timing with order execution"
+  baseline_or_null_hypothesis: "Breakout without sentiment filter: X% hit rate; breakout with sentiment filter: >X% hit rate with >70% of original signal volume."
+  validation_approach: "Backtest breakout strategy on two branches: (1) no sentiment filter, (2) with sentiment filter; measure hit rate, average trade duration, and Sharpe."
+  transaction_cost_and_fill_considerations: "Sentiment filtering reduces order volume; lower volume may improve fill quality on breakout entries."
+  robustness_checks:
+    - "Test with multiple sentiment data sources"
+    - "Vary sentiment threshold; measure vs hit rate"
+  rejection_criteria: "Hit rate improvement < 5% or signal volume reduction > 40%."
+  failure_modes:
+    - "Sentiment data is lagging (published with >1-day delay); orders placed on stale sentiment"
+    - "Sentiment regime shift; historical correlation breaks down"
+  freshness_concerns: "Social media sentiment (Twitter, Reddit) available post-2015; historical data sparse; retail trader sentiment may have shifted post-2020"
+  unresolved_questions:
+    - "Which sentiment measure is most predictive: VIX, put/call, institutional flows, or social media?"
+    - "What is the optimal rebalance frequency for sentiment filters: daily, hourly?"
+
+- id: "IBKRPY-H-004"
+  title: "Order Transmit Field as Execution Safety Gate Prevents Systemic Failures"
+  status: "proposed"
+  derived_from: ["IBKRPY-C10-017"]
+  statement: "Requiring transmit=False during order construction and validation, followed by explicit transmit=True only after approval, prevents unintended large orders and systemic failures."
+  proposed_mechanism: "Safety gate delays execution; allows multi-step validation (price check, quantity check, account balance check) before irreversible market submission."
+  applicable_markets_and_regimes: "All live trading strategies; essential for high-volume systems."
+  assumptions:
+    - "Order construction and validation are separable and can be staged"
+    - "Validation latency (<1ms) is acceptable relative to market opportunities"
+  data_requirements:
+    - "Order validation rules (max size, max price delta, account balance)"
+  baseline_or_null_hypothesis: "Systems without staged validation occasionally execute unintended large orders; systems with transmit staging have zero unintended orders."
+  validation_approach: "Code review + integration testing: inject malformed/extreme orders and verify they are rejected before transmit=True."
+  transaction_cost_and_fill_considerations: "Negligible (validation is offline); ensures orders execute at intended price/size."
+  robustness_checks:
+    - "Fault injection tests: corrupt order fields, verify rejection"
+    - "Load tests: verify validation latency remains <1ms at 1000 orders/sec"
+  rejection_criteria: "Any unintended order reaches market; validation latency > 10ms."
+  failure_modes:
+    - "Validation code has bugs; malformed orders pass validation"
+    - "Validation is bypassed due to developer error or timeout"
+    - "Order fields mutated after validation but before transmit"
+  freshness_concerns: null
+  unresolved_questions:
+    - "What are the most effective validation rules to prevent accidental errors?"
+
+- id: "IBKRPY-H-005"
+  title: "Connection Error Recovery in Multithreaded TWS API Requires Explicit Handling"
+  status: "proposed"
+  derived_from: ["IBKRPY-C6-018"]
+  statement: "TWS API client applications must implement explicit connection recovery (reconnection, state sync, callback thread cleanup) to achieve 99.9% uptime in live trading."
+  proposed_mechanism: "Connection loss detected via callback timeout or error callback; recovery initiates reconnection and resynchronizes pending orders and fills."
+  applicable_markets_and_regimes: "All live trading; essential for continuous operation."
+  assumptions:
+    - "IB connection failures are recoverable; order state is recoverable from IB"
+    - "Local state can be reconciled with broker state after reconnection"
+  data_requirements:
+    - "Local order log (orderId, contract, order fields, timestamps)"
+    - "Connection heartbeat mechanism"
+  baseline_or_null_hypothesis: "Without explicit recovery: mean time to failure (MTTF) ~4 hours; with recovery: MTTF > 30 days."
+  validation_approach: "Chaos testing: inject connection failures (network drop, TWS restart) every 5min for 24 hours; measure recovery time and state consistency."
+  transaction_cost_and_fill_considerations: "Recovery delay may cause missed order cancellations or duplicate fills if state reconciliation fails."
+  robustness_checks:
+    - "Test recovery under various scenarios: network drop, TWS restart, API version change"
+    - "Measure reconciliation time and accuracy"
+  rejection_criteria: "MTTF < 24 hours or state inconsistency detected."
+  failure_modes:
+    - "Callback thread hangs during recovery; connection remains dead"
+    - "Order state diverges between local log and broker; duplicate or missed fills"
+    - "Reconnection succeeds but fills from disconnection period lost"
+  freshness_concerns: "IB API versioning; recovery protocol may change"
+  unresolved_questions:
+    - "What is the maximum acceptable recovery time (RTO)?"
+    - "How should orphaned orders (submitted but not confirmed before disconnect) be handled?"
+
+- id: "IBKRPY-H-006"
+  title: "Commission and Slippage Materially Reduce Strategy Alpha"
+  status: "proposed"
+  derived_from: ["IBKRPY-C2-025"]
+  statement: "Realistic transaction costs (IB commissions + market slippage) reduce strategy net alpha by 30-60% compared to backtests ignoring costs."
+  proposed_mechanism: "Each trade incurs bidask spread, commissions, and market impact; high-frequency strategies more sensitive to costs."
+  applicable_markets_and_regimes: "All strategies; higher impact on mean-reversion and signal strategies with frequent trading."
+  assumptions:
+    - "Commission structure has not changed materially since book publication"
+    - "Slippage scales with order size and market conditions"
+  data_requirements:
+    - "Current IB commission schedule (as of 2024)"
+    - "Historical bid-ask spreads for test universe"
+  baseline_or_null_hypothesis: "Zero-cost strategy produces alpha=A%; with realistic costs, alpha=A% * 0.4-0.7."
+  validation_approach: "Backtest with and without costs; measure alpha difference."
+  transaction_cost_and_fill_considerations: "This is the core hypothesis; costs are material and must be validated empirically."
+  robustness_checks:
+    - "Vary commission by 25-50% (account for negotiated rates)"
+    - "Vary slippage by market condition (trending vs choppy)"
+  rejection_criteria: "Cost impact < 10% of alpha (indicates strategy robust to costs)."
+  failure_modes:
+    - "Live slippage exceeds backtest assumption; net returns negative"
+    - "Commission structure changes unfavorably"
+  freshness_concerns: "Commission and slippage are time-series dependent; book cites 2019 rates"
+  unresolved_questions:
+    - "What are the effective slippage rates by order size and market condition?"
+    - "Can execution algorithms (TWAP, VWAP) reduce slippage below backtest assumptions?"

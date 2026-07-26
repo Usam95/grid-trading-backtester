@@ -1,0 +1,66 @@
+schema_version: '1.0'
+prompt_version: '1.0'
+book_id: guide-to-financial-markets
+title: Guide to Financial Markets
+authors:
+- The Economist
+edition: null
+publication_year: null
+publisher_or_identifier: The Economist Newspaper Ltd
+format: pdf
+language: en
+page_count: 322
+chapter_count: 9
+extraction_quality: high
+ocr_quality: null
+processing_status: audited
+sources:
+- absolute_path: C:\Users\W4TV5V8\PROJECTS\Codex\Research\Books_03_07_26\Algorithmical
+    Trading\Guide to Financial Markets.pdf
+  relative_path: Guide to Financial Markets.pdf
+  sha256: aca7656896b6d652e81495345ef05054f884aca2b413fc28dfc26d8121801024
+extraction_timestamp: '2026-07-24T23:16:19.745615Z'
+extraction_agent: copilot-book-worker-v1
+duplicate_relationships: []
+limitations_and_warnings:
+- Educational reference; not a trading strategy guide
+- Few hypotheses/requirements derived; reflects educational focus
+- Market structure and regulatory info reflects publication date
+- No backtests, profit claims, or strategy recommendations
+scores:
+  source_credibility:
+    score: 5
+    justification: The Economist is reputable
+  citation_quality:
+    score: 3
+    justification: Educational overview, author-based
+  reproducibility:
+    score: 2
+    justification: Cannot directly reproduce as requirements
+  likely_freshness:
+    score: 2
+    justification: Market structure may be outdated
+  system_engineering_relevance:
+    score: 4
+    justification: Data structures and mechanics relevant
+  grid_relevance:
+    score: 3
+    justification: Derivatives content relevant
+  stock_strategy_relevance:
+    score: 4
+    justification: Equity mechanics core
+  backtesting_relevance:
+    score: 4
+    justification: Market structure essential
+  live_execution_relevance:
+    score: 4
+    justification: Order books and settlement covered
+  risk_relevance:
+    score: 5
+    justification: Duration, spreads, Greeks discussed
+  data_quality_relevance:
+    score: 4
+    justification: Data structures and corporate actions
+  machine_learning_relevance:
+    score: 1
+    justification: No ML content

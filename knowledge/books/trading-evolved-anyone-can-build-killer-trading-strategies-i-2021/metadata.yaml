@@ -1,0 +1,70 @@
+schema_version: "1.0"
+prompt_version: "1.0"
+book_id: trading-evolved-anyone-can-build-killer-trading-strategies-i-2021
+title: "Trading Evolved: Anyone can Build Killer Trading Strategies in Python"
+authors:
+  - Clenow, Andreas
+edition: null
+publication_year: 2021
+publisher_or_identifier: null
+language: English
+format: pdf
+page_count: 325
+chapter_count: 25
+sources:
+  - absolute_path: "C:\\Users\\W4TV5V8\\PROJECTS\\Codex\\Research\\Books_03_07_26\\Algorithmical Trading\\Trading Evolved Anyone can Build Killer Trading Strategies in Python.pdf"
+    relative_path: "Trading Evolved Anyone can Build Killer Trading Strategies in Python.pdf"
+    sha256: "705e31dbe685515a3897aa6efa6f8ebf46bd56c42baaa13ed4904ab53f282186"
+
+extraction_quality: high
+ocr_quality: good
+processing_status: "audited"
+extraction_timestamp: "2026-07-24T17:52:57Z"
+extraction_completed_timestamp: "2026-07-24T17:52:57Z"
+audit_timestamp: "2026-07-24T18:24:03Z"
+
+duplicate_relationships: []
+limitations_and_warnings:
+  - "PDF text extraction quality is good but some technical content (code) may be imprecise"
+  - "Strategy performance claims in book are historical/illustrative, not guaranteed future results"
+  - "Broker APIs, fees, and market structure may have changed since publication (2021)"
+  - "Python versions and library APIs may have evolved since book publication"
+  - "Data sources and providers mentioned must be validated against current availability"
+
+scores:
+  source_credibility:
+    score: 4
+    justification: "Clenow is established trend-following author; book covers practical trading systems but lacks academic rigor."
+  citation_quality:
+    score: 3
+    justification: "References previous works but limited academic citations; emphasis on practical examples over scholarly sources."
+  reproducibility:
+    score: 4
+    justification: "Author emphasizes accessibility and reproducibility; provides Python code and step-by-step guidance for backtesting setup."
+  likely_freshness:
+    score: 2
+    justification: "Published 2021; broker APIs, data feeds, library versions, market microstructure have evolved significantly since then."
+  system_engineering_relevance:
+    score: 3
+    justification: "Covers Python environment setup, data handling, backtesting architecture, and performance visualization; some engineering principles."
+  grid_relevance:
+    score: 2
+    justification: "Focuses on ETF trend-following and equity momentum; limited direct relevance to grid trading systems."
+  stock_strategy_relevance:
+    score: 4
+    justification: "Strong relevance: covers systematic equity momentum, ETF selection, portfolio construction, backtesting workflows."
+  backtesting_relevance:
+    score: 5
+    justification: "High relevance: entire book dedicated to Python backtesting framework, analysis metrics, risk assessment, model validation."
+  live_execution_relevance:
+    score: 2
+    justification: "Limited coverage; focuses primarily on backtesting research phase, not live execution, slippage modeling, or operational risk."
+  risk_relevance:
+    score: 3
+    justification: "Covers financial risk concepts, portfolio risk, diversification; limited treatment of execution risk or operational failure modes."
+  data_quality_relevance:
+    score: 3
+    justification: "Addresses data sourcing, database design, data integrity checks; practical guidance on avoiding common data pitfalls."
+  machine_learning_relevance:
+    score: 1
+    justification: "No machine learning content; book focuses on rule-based systematic and momentum strategies."

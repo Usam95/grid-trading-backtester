@@ -1,0 +1,135 @@
+- id: "MLAT-H-001"
+  title: "Look-ahead bias materially inflates backtest returns on equity signals"
+  status: "proposed"
+  derived_from: ["MLAT-C8-001"]
+  statement: "Point-in-time data validation (accounting for restatements, splits, asynchronous EPS/price timing) will reduce backtested returns by 5–20% on typical equity factors."
+  proposed_mechanism: "Correlated trades on information not yet publicly available at decision time artificially compress slippage and improve entry/exit prices."
+  applicable_markets_and_regimes: "Equities; all market regimes"
+  assumptions:
+    - "Data provider defaults to non-point-in-time data"
+    - "Earnings releases lag market data availability"
+    - "Stock splits are not synchronized with fundamental data"
+  data_requirements:
+    - "Point-in-time fundamental data (earnings, splits) with release timestamps"
+    - "Market data with exact trade timestamps"
+    - "Historical announcement calendars"
+  baseline_or_null_hypothesis: "Point-in-time validation has negligible effect on backtest returns (< 1%)"
+  validation_approach: "Rerun backtest with conservative lag assumptions (e.g., +1 trading day for EPS); compare returns with/without look-ahead bias controls; audit data timestamps against SEC filing dates"
+  transaction_cost_and_fill_considerations: "Slippage assumptions may overestimate post-lag performance gains; reduced returns may not cover transaction costs"
+  robustness_checks:
+    - "Test multiple lag assumptions (1 day, 2 days, 5 days)"
+    - "Verify on multiple factor types (value, momentum, quality)"
+    - "Compare across market cap segments"
+  rejection_criteria: "If lag adjustment reduces returns < 1%, hypothesis is rejected"
+  failure_modes: "Over-conservative lag assumptions hide real signal"
+  freshness_concerns: "Data provider APIs may have changed availability terms since 2020"
+  unresolved_questions:
+    - "What is the actual lag for each data provider?"
+    - "How much of the lag is intentional (reporting schedule) vs. accidental?"
+
+- id: "MLAT-H-002"
+  title: "Survivorship bias accounts for 2–5% annual return in equity backtests"
+  status: "proposed"
+  derived_from: ["MLAT-C8-002"]
+  statement: "Including delisted, bankrupt, and acquired securities in backtest universe will reduce compound annual returns by 2–5% compared to survivorship-biased universe."
+  proposed_mechanism: "Failed/delisted stocks exhibit worse performance than average survivors; including them lowers portfolio returns and increases observed drawdowns."
+  applicable_markets_and_regimes: "US equities; all market regimes; stronger during recessions"
+  assumptions:
+    - "Historical constituent lists are available"
+    - "Delisting events are properly timestamped"
+  data_requirements:
+    - "Historical S&P 500 / Russell 3000 constituent lists with entry/exit dates"
+    - "Delisting codes and dates"
+    - "Price data for delisted securities"
+  baseline_or_null_hypothesis: "Survivorship bias has negligible effect (< 0.5% CAGR)"
+  validation_approach: "Run factor backtest on full (delisted-inclusive) universe and on current constituents only (survivorship-biased); compare Sharpe, max drawdown, CAGR; measure fraction of portfolio weight in delisted securities at each point in time"
+  transaction_cost_and_fill_considerations: "Delisted securities may have wide bid-ask spreads, low volume; must handle orphaned positions (delisting, bankruptcy)"
+  robustness_checks:
+    - "Sensitivity to different constituents indices (Russell, CRSP)"
+    - "Measure by decile (small-cap stocks have higher bankruptcy rate)"
+  rejection_criteria: "If delisted-adjusted returns differ < 0.5% from biased returns"
+  failure_modes: "Over-correction by assigning zero return to delisted securities"
+  freshness_concerns: "Delisting rates may change; regulatory environment evolves"
+  unresolved_questions:
+    - "How to model bankruptcy/acquisition returns (recovery value)?"
+    - "Should delisted securities be excluded or marked at zero?"
+
+- id: "MLAT-H-003"
+  title: "Ensemble methods (RF, GBM) generalize better than linear models on cross-asset equity signals"
+  status: "proposed"
+  derived_from: ["MLAT-C11-001", "MLAT-C12-001"]
+  statement: "Gradient boosting models (XGBoost, LightGBM) will achieve 10–20% lower out-of-sample prediction error than linear regression on predicting equity returns using nonlinear factors (volatility, seasonality, sentiment)."
+  proposed_mechanism: "Nonlinear interactions among factors (e.g., high-momentum + low-volatility bias) are not captured by linear models; GBM learns these interactions."
+  applicable_markets_and_regimes: "Equities; more pronounced in high-volatility regimes"
+  assumptions:
+    - "Sufficient historical data to avoid overfitting (~500+ days)"
+    - "Hyperparameter tuning is rigorous (cross-validation on OOS data)"
+    - "Nonlinear relationships are stable across train/test split"
+  data_requirements:
+    - "At least 3 years of daily equity price + factor data"
+    - "Multiple factor types (price-based, volume, sentiment, macro)"
+  baseline_or_null_hypothesis: "Linear and ensemble models have equivalent OOS error (< 1% difference)"
+  validation_approach: "Train linear regression, RF, GBM on same feature set; evaluate on hold-out test set using walk-forward methodology; measure MSE, IC, Sharpe ratio of predictions; stress-test on market regime transitions"
+  transaction_cost_and_fill_considerations: "More frequent/volatile predictions from GBM may increase transaction costs; must account for slippage in signal comparison"
+  robustness_checks:
+    - "Test across different market cap segments (micro, small, large)"
+    - "Vary feature engineering approach"
+    - "Sensitivity to hyperparameter tuning budget"
+  rejection_criteria: "If GBM error > linear error or within 1% margin"
+  failure_modes: "GBM overfits to noise; poor performance on new data"
+  freshness_concerns: "GBM implementations and hyperparameter tuning best practices evolve"
+  unresolved_questions:
+    - "How much of GBM advantage is due to feature engineering vs. algorithm?"
+    - "Does advantage persist with adaptive regimes?"
+
+- id: "MLAT-H-004"
+  title: "Time-series CV with walk-forward testing improves backtest reliability"
+  status: "proposed"
+  derived_from: ["MLAT-C6-001"]
+  statement: "Walk-forward (expanding window) cross-validation will reveal 20–40% lower signal performance on truly out-of-sample data compared to random-fold cross-validation."
+  proposed_mechanism: "Random-fold CV allows future information to leak into training; walk-forward respects temporal causality and reveals true generalization."
+  applicable_markets_and_regimes: "All equity strategies; all regimes"
+  assumptions:
+    - "Walk-forward window is sized appropriately (e.g., 252 days train, 21 days test)"
+    - "Signal does not have seasonality that repeats exactly"
+  data_requirements:
+    - "Continuous time-series of at least 5 years"
+    - "No missing data points"
+  baseline_or_null_hypothesis: "Random-fold and walk-forward CV yield similar results (< 5% difference)"
+  validation_approach: "Implement both random-fold and walk-forward CV on same signal; compare average out-of-sample IC, Sharpe, win rate; measure agreement between CV results and live performance"
+  transaction_cost_and_fill_considerations: "Walk-forward may reveal realistic slippage from model changes"
+  robustness_checks:
+    - "Test on multiple factor types"
+    - "Vary train/test window lengths"
+    - "Test on different market regimes"
+  rejection_criteria: "If walk-forward and random-fold results differ < 5%"
+  failure_modes: "Walk-forward window too small; insufficient OOS data for reliable estimate"
+  freshness_concerns: "No acute freshness concern"
+  unresolved_questions:
+    - "What is the optimal train/test window ratio for daily equity signals?"
+
+- id: "MLAT-H-005"
+  title: "Alternative data signal decays as competition increases"
+  status: "proposed"
+  derived_from: ["MLAT-C3-001", "MLAT-C4-001"]
+  statement: "Alternative data factors (satellite imagery, credit card transactions, web traffic) exhibit predictive power decay of 50%+ over 12–24 months as market participants discover and exploit the same signals."
+  proposed_mechanism: "Alpha is competed away; factors become crowded; market adapts to widespread use of alternative data"
+  applicable_markets_and_regimes: "Equities; most pronounced in mega-cap stocks with heavy quant coverage"
+  assumptions:
+    - "Multiple firms are developing signals from the same data source"
+    - "Information takes 1–2 years to fully diffuse"
+  data_requirements:
+    - "3+ years of alternative data + returns history"
+    - "Proxy for market adoption (e.g., fund inflows, academic publications)"
+  baseline_or_null_hypothesis: "Alternative data signal is stable over time (signal decay < 10%)"
+  validation_approach: "Measure rolling 6/12/24-month IC of alternative data factor; compare to traditional factor decay rates; correlate factor decay with market adoption signals"
+  transaction_cost_and_fill_considerations: "Accelerating decay reduces viability of strategy over time"
+  robustness_checks:
+    - "Test on multiple alternative data sources"
+    - "Measure decay timing relative to public awareness"
+  rejection_criteria: "If decay < 20% over 24 months"
+  failure_modes: "Decay may be due to seasonality or regime shift, not crowding"
+  freshness_concerns: "Alternative data landscape changes rapidly; new providers emerge"
+  unresolved_questions:
+    - "Is decay linear or accelerating?"
+    - "Can signals be refreshed by adding new features?"

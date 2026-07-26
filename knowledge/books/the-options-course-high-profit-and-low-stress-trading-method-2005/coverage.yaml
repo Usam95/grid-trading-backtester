@@ -1,0 +1,157 @@
+book_id: the-options-course-high-profit-and-low-stress-trading-method-2005
+sections:
+  - ref: intro
+    title: Introduction
+    pdf_page_start: 1
+    status: processed
+    reason: Foundation for understanding author's approach and philosophy
+
+  - ref: ch1
+    title: "Chapter 1: Options Trading - A Primer"
+    pdf_page_start: 5
+    status: processed
+    reason: Core foundational material on options basics and fundamentals
+
+  - ref: ch2
+    title: "Chapter 2: The Big Picture"
+    pdf_page_start: 16
+    status: processed
+    reason: Market context and macro framework for options trading
+
+  - ref: ch3
+    title: "Chapter 3: Option Basics"
+    pdf_page_start: 42
+    status: processed
+    reason: Essential concepts (calls, puts, strikes, expirations, Greeks)
+
+  - ref: ch4
+    title: "Chapter 4: Basic Trading Strategies"
+    pdf_page_start: 76
+    status: processed
+    reason: Core strategies for options trading execution
+
+  - ref: ch5
+    title: "Chapter 5: Introducing Vertical Spreads"
+    pdf_page_start: 130
+    status: processed
+    reason: Key strategy for low-stress trading; directly relevant to grid framework
+
+  - ref: ch6
+    title: "Chapter 6: Demystifying Delta"
+    pdf_page_start: 164
+    status: processed
+    reason: Greeks and risk management
+
+  - ref: ch7
+    title: "Chapter 7: The Other Greeks"
+    pdf_page_start: 175
+    status: processed
+    reason: Gamma, theta, vega, and rho for comprehensive risk understanding
+
+  - ref: ch8
+    title: "Chapter 8: Straddles, Strangles, and Synthetics"
+    pdf_page_start: 187
+    status: processed
+    reason: Non-directional strategies and volatility trading
+
+  - ref: ch9
+    title: "Chapter 9: Advanced Delta Neutral Strategies"
+    pdf_page_start: 234
+    status: processed
+    reason: Complex directional-agnostic strategies
+
+  - ref: ch10
+    title: "Chapter 10: Trading Techniques for Range-Bound Markets"
+    pdf_page_start: 265
+    status: processed
+    reason: Regime-dependent trading and tactical entry/exit
+
+  - ref: ch11
+    title: "Chapter 11: Increasing Your Profits with Adjustments"
+    pdf_page_start: 311
+    status: processed
+    reason: Trade management and risk adjustment methodology
+
+  - ref: ch12
+    title: "Chapter 12: Choosing the Right Broker"
+    pdf_page_start: 330
+    status: processed
+    reason: Platform/broker-specific; likely outdated (2005); extract execution/data requirements
+
+  - ref: ch13
+    title: "Chapter 13: Processing Your Trade"
+    pdf_page_start: 347
+    status: processed
+    reason: Execution logistics, order types, fills
+
+  - ref: ch14
+    title: "Chapter 14: Margin and Risk"
+    pdf_page_start: 371
+    status: processed
+    reason: Risk control and capital management
+
+  - ref: ch15
+    title: "Chapter 15: A Short Course in Economic Analyses"
+    pdf_page_start: 382
+    status: processed
+    reason: Macro context; extract key regime indicators if present
+
+  - ref: ch16
+    title: "Chapter 16: Mastering the Market"
+    pdf_page_start: 403
+    status: processed
+    reason: Market analysis and timing techniques
+
+  - ref: ch17
+    title: "Chapter 17: How to Spot Explosive Opportunities"
+    pdf_page_start: 415
+    status: processed
+    reason: Entry signal identification and opportunity detection
+
+  - ref: ch18
+    title: "Chapter 18: Tools of the Trade"
+    pdf_page_start: 453
+    status: processed
+    reason: Software/platform tools; likely outdated; extract methodologies
+
+  - ref: ch19
+    title: "Chapter 19: Final Summary"
+    pdf_page_start: 466
+    status: processed
+    reason: Author's synthesis and key takeaways
+
+  - ref: appa
+    title: "Appendix A: Trading Resources"
+    pdf_page_start: 485
+    status: processed
+    reason: References; check for external sources and citations
+
+  - ref: appb
+    title: "Appendix B: Important Charts and Tables"
+    pdf_page_start: 503
+    status: processed
+    reason: Extract key tables and frameworks
+
+  - ref: appc
+    title: "Appendix C: Strategy Reviews"
+    pdf_page_start: 511
+    status: processed
+    reason: Strategy summary; synthesize key trade rules
+
+  - ref: appd
+    title: "Appendix D: Success Guides"
+    pdf_page_start: 527
+    status: processed
+    reason: Checklists and process frameworks
+
+  - ref: glossary
+    title: Glossary
+    pdf_page_start: 533
+    status: processed
+    reason: Terminology reference; extract if non-standard definitions
+
+  - ref: index
+    title: Index
+    pdf_page_start: 557
+    status: low_priority
+    reason: Reference index; used only for targeted lookups

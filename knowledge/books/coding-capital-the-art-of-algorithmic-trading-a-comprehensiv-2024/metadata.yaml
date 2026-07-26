@@ -1,0 +1,70 @@
+schema_version: "1.0"
+prompt_version: "1.0"
+book_id: "coding-capital-the-art-of-algorithmic-trading-a-comprehensiv-2024"
+sources:
+  - absolute_path: "Z:\\ (z-library compilation)"
+    relative_path: "coding-capital-2024.epub"
+    sha256: "unknown"
+title: "Coding Capital: The Art of Algorithmic Trading: A Comprehensive Guide for Algorithmic Trading with Python in 2024"
+authors: ["Strauss, Johann"]
+edition: "2024"
+publication_year: 2024
+publisher_or_identifier: "Reactive Publishing / z-library"
+format: "epub"
+language: "English"
+page_count: 349
+chapter_count: 21
+extraction_quality: "medium"
+ocr_quality: "not_applicable_ebook"
+processing_status: "audited"
+extraction_timestamp: "2026-07-24T18:24:00Z"
+extraction_completed_timestamp: "2026-07-24T18:30:00Z"
+extractor_name: "knowledge-extraction-worker"
+extractor_version: "1.0"
+duplicate_relationships: []
+limitations_and_warnings:
+  - "z-library compilation: source credibility and original publication details require verification"
+  - "Author 'Johann Strauss' may be pseudonym; verify against publisher records"
+  - "Book appears recently published (2024); limited time for review and empirical validation"
+  - "Code examples not independently verified; treat as illustrative only"
+  - "Trading strategies presented without backtesting evidence or performance attribution"
+  - "Broker APIs, fee structures, regulations reflect conditions at publication and require refresh"
+  - "No peer review or academic publication history apparent"
+
+scores:
+  source_credibility:
+    score: 2
+    justification: "z-library origin, pseudonymous author, no apparent peer review or institutional affiliation; treat claims skeptically."
+  citation_quality:
+    score: 2
+    justification: "Sparse citations observed; synthesis style without extensive reference to primary research; external claims need verification."
+  reproducibility:
+    score: 2
+    justification: "Code examples included but not independently reproduced; author methodology not detailed; strategy validation missing."
+  likely_freshness:
+    score: 3
+    justification: "2024 publication claims recent knowledge; however, market data freshness and strategy robustness over time unvalidated."
+  system_engineering_relevance:
+    score: 3
+    justification: "Covers Python trading infrastructure, backtesting, data pipelines, and risk concepts; moderate engineering depth."
+  grid_relevance:
+    score: 3
+    justification: "Discusses grid trading briefly; not primary focus; primarily stock/equity-focused."
+  stock_strategy_relevance:
+    score: 4
+    justification: "Strong focus on stock/equity algorithmic trading; multiple chapters on Python implementation and market dynamics."
+  backtesting_relevance:
+    score: 4
+    justification: "Dedicated chapter on backtesting frameworks and performance optimization; practical guidance."
+  live_execution_relevance:
+    score: 3
+    justification: "Covers infrastructure, real-time data, execution considerations; incomplete treatment of slippage/fill modeling."
+  risk_relevance:
+    score: 3
+    justification: "Chapter on risk management; covers position sizing, stop-loss, drawdown; lacks depth on tail risk or stress scenarios."
+  data_quality_relevance:
+    score: 3
+    justification: "Addresses data sourcing and quality issues; real-time processing chapter; needs vendor-specific verification."
+  machine_learning_relevance:
+    score: 3
+    justification: "Chapter on ML/AI in trading; conceptual treatment; no rigorous validation methodology presented."

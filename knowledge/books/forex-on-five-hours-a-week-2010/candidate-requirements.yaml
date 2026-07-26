@@ -1,0 +1,200 @@
+- acceptance_tests:
+  - 'Test case: Load EUR/USD 1H + 4H; generate signals on 4H close; execute on 1H
+    entry; verify no forward-looking data in 1H bars after 4H signal'
+  - 'Test case: Verify 4H bar close times align to UTC hour boundaries'
+  applies_to:
+    asset_class:
+    - shared
+    concern:
+    - simulation
+    lifecycle:
+    - backtest
+    strategy:
+    - grid
+    - stock_signal
+  assumptions:
+  - Data source provides multiple TF cleanly
+  - Bar alignment is unambiguous (no DST issues)
+  capability_enabled: Swing trading strategies with trend confirmation
+  dependencies:
+  - Backtest engine
+  - Data loader
+  derivation_type: agent_inference
+  derived_from:
+  - FOREX5H-C4-006
+  - FOREX5H-C6-012
+  - FOREX5H-C2-003
+  failure_prevented: Confusion/wrong lookback on multi-TF logic; accidental forward-looking
+    bias in backtest
+  id: FOREX5H-REQ-001
+  open_questions:
+  - How to handle DST transitions?
+  - Should higher TF bars be cached or recomputed?
+  priority_hint: correctness
+  rationale: Multi-TF trading requires access to higher and lower TF data simultaneously;
+    backtester must align bars across TF boundaries
+  requirement: The backtest engine shall load and align OHLC bars from 1H, 4H, 1D
+    data simultaneously; multi-TF indicators shall fire on their respective TF close
+    events; no look-ahead bias shall occur
+  status: proposed
+  title: Backtest engine shall support multi-timeframe signal logic
+  verification_needed: Unit test multi-TF bar alignment
+- acceptance_tests:
+  - 'Test: Account = 10,000 USD, stop loss = 10 pips, 1 USD per pip pair. Compute
+    size = 20 pips * X = 2% * 10,000 = 200 USD. Expect position size 200 pips / (1
+    USD/pip) = 2 micro lots'
+  - 'Test: Trigger over-leverage scenario (stop too tight); verify trade rejection
+    with reason'
+  applies_to:
+    asset_class:
+    - shared
+    concern:
+    - risk
+    lifecycle:
+    - backtest
+    - live
+    strategy:
+    - shared
+  assumptions:
+  - Account equity updates after each trade
+  - Pip value is known for each pair
+  capability_enabled: Consistent risk management across all trades
+  dependencies:
+  - Order entry system
+  - Account equity tracking
+  derivation_type: direct_book_recommendation
+  derived_from:
+  - FOREX5H-C4-007
+  failure_prevented: Account blowup from overleveraged trade
+  id: FOREX5H-REQ-002
+  open_questions:
+  - How to handle stop loss changes mid-trade?
+  - Should martingale increase position into drawdown, or cap position size?
+  priority_hint: safety
+  rationale: Risk management rule must be automatic; no manual override; position
+    size = (account * 2% / pip_loss_to_stop)
+  requirement: The trade execution system shall compute position size such that pip
+    loss to stop loss <= 2% of current account equity; no trade shall be entered if
+    required size is below minimum lot or above maximum leverage
+  status: proposed
+  title: Trading rules shall enforce 2% per-trade risk limit via position sizing
+  verification_needed: Monte Carlo sim with series of losses
+- acceptance_tests:
+  - 'Test: Submit order to buy EUR/USD at 1.0800. Expect fill 1.0802. Record slippage
+    = 2 pips. Aggregate over week: avg slippage = 1.5 pips.'
+  - 'Test: Spread during normal hours 1.5 pips (EURUSD). Spread during Asian session
+    3 pips. Report breakdown by session.'
+  applies_to:
+    asset_class:
+    - shared
+    concern:
+    - execution
+    - monitoring
+    lifecycle:
+    - live
+    strategy:
+    - shared
+  assumptions:
+  - Broker reports fills in real time
+  - Mid-market prices are observable
+  capability_enabled: Broker performance transparency; informed broker selection
+  dependencies:
+  - Broker API
+  - Monitoring system
+  derivation_type: agent_inference
+  derived_from:
+  - FOREX5H-C12-019
+  failure_prevented: Trader unaware of cost drag from bad broker
+  id: FOREX5H-REQ-003
+  open_questions:
+  - How to measure 'expected' price if strategy is discretionary?
+  - Should slippage be risk-adjusted?
+  priority_hint: operability
+  rationale: Broker quality directly impacts edge; slippage and spread are leading
+    indicators of trade-by-trade profitability
+  requirement: 'The live trading system shall record for each order: (a) expected
+    entry price from chart, (b) actual fill price from broker, (c) expected exit price,
+    (d) actual exit fill, (e) mid-market spread at entry, (f) calculated slippage
+    cost in pips and USD; metrics shall be aggregated and reported daily and per-pair'
+  status: proposed
+  title: Broker integration shall measure and report tick-by-tick slippage and spread
+  verification_needed: Compare reported slippage with manually sampled trades
+- acceptance_tests:
+  - 'Test: EUR/USD trade entry 2022-06-15 08:30 UTC. Expected London session tag.
+    Entry bid/ask recorded.'
+  - 'Test: AUD/USD trade entry 2022-06-15 05:00 UTC. Expected Asia session tag.'
+  applies_to:
+    asset_class:
+    - shared
+    concern:
+    - simulation
+    - reproducibility
+    lifecycle:
+    - backtest
+    strategy:
+    - grid
+  assumptions:
+  - Session boundaries are fixed (London 08:00-17:00 GMT, NY 13:00-22:00 GMT)
+  - Daylight saving is handled
+  capability_enabled: Session-level performance analysis; identify best trading times
+  dependencies:
+  - Backtester
+  - Data loader
+  derivation_type: agent_inference
+  derived_from:
+  - FOREX5H-C7-014
+  - FOREX5H-C7-013
+  failure_prevented: Unable to analyze session impact on strategy performance
+  id: FOREX5H-REQ-004
+  open_questions:
+  - What about DST transitions?
+  - Should session overlap be a separate category?
+  priority_hint: research_quality
+  rationale: Session analysis requires knowing which trades occurred in London, NY,
+    Asia; backtester must tag each trade with session
+  requirement: 'For each trade record in backtest output, include: UTC timestamp,
+    converted local time (London, NY, Sydney), FX session label (London, NY, Asia-Pacific,
+    overlap), bid/ask at entry/exit, and slippage assumption used'
+  status: proposed
+  title: Backtester shall include date/time of each trade and session metadata
+  verification_needed: Validate session tags against economic calendar
+- acceptance_tests:
+  - 'Test: NFP scheduled 2022-07-01 13:30 EDT. System blocks orders 2022-07-01 11:30-14:30.
+    Verify log entry.'
+  - 'Test: Order submitted during blackout. Rejected with message ''NFP news blackout
+    active until 14:30''.'
+  applies_to:
+    asset_class:
+    - shared
+    concern:
+    - risk
+    - operations
+    lifecycle:
+    - live
+    strategy:
+    - shared
+  assumptions:
+  - Economic calendar is accurate and updated
+  - '''High'' importance is well-defined'
+  capability_enabled: Automatic risk mitigation during high-volatility windows
+  dependencies:
+  - Economic calendar API
+  - Order entry system
+  derivation_type: direct_book_recommendation
+  derived_from:
+  - FOREX5H-C9-009
+  failure_prevented: Trader over-leveraged during news and hit stop run
+  id: FOREX5H-REQ-005
+  open_questions:
+  - Should blackout duration vary by importance level?
+  - Can the trader override the blackout?
+  priority_hint: safety
+  rationale: News volatility creates uncontrolled risk; systematic blackout reduces
+    whipsaw
+  requirement: The live trading system shall maintain an economic calendar; for each
+    major news event (Impact=High, e.g., NFP, ECB decision), trading shall be disabled
+    from T-2H to T+1H (event time); system shall log rejected orders with reason 'news
+    blackout'
+  status: proposed
+  title: Compliance system shall enforce no-trade windows around major economic news
+  verification_needed: Backtest with and without news blackout; compare drawdown

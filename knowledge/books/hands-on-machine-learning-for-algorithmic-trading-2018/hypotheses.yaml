@@ -1,0 +1,243 @@
+- id: "HYP-GARCH-VOL-001"
+  title: "GARCH conditional volatility improves risk-adjusted returns"
+  status: "proposed"
+  derived_from: ["HOML-C8-009"]
+  statement: "A volatility-adjusted position sizing strategy using GARCH-predicted volatility will achieve higher Sharpe ratio than equal-weighted baseline over 2+ year OOS period"
+  proposed_mechanism: "GARCH captures heteroskedasticity and volatility clustering; conditional positions reduce portfolio volatility during high-vol regimes"
+  applicable_markets: ["equities", "index_futures", "commodity_futures"]
+  assumptions:
+      - "GARCH parameters remain stable across market regimes"
+      - "Conditional volatility forecast has predictive power > 0.05 IC"
+      - "Position adjustment is executable without excessive costs"
+  data_requirements:
+      - "Daily/intraday price series (2+ years)"
+      - "GARCH model: p=1, q=1 baseline"
+      - "Training window: 252+ trading days"
+  baseline_hypothesis: "Equal-weighted portfolio achieves Sharpe of 0.8"
+  proposed_improvement: "GARCH-adjusted portfolio achieves Sharpe of 1.1+"
+  validation_approach: "Walk-forward: train GARCH on 1Y window, apply vol-adjusted sizing to next 3M; repeat quarterly"
+  transaction_cost_considerations: "Position changes proportional to vol changes; estimated 2-5 bps daily rebalancing cost"
+  robustness_checks:
+      - "Test across market regimes (low/high vol periods)"
+      - "Measure sensitivity to GARCH lag order"
+      - "Validate on out-of-sample period (2019-2024)"
+  rejection_criteria: "OOS Sharpe < baseline or IC of vol forecast < 0.01"
+  priority_hint: "correctness"
+
+- id: "HYP-PURGED-CV-002"
+  title: "Purged cross-validation prevents backtest look-ahead bias"
+  status: "proposed"
+  derived_from: ["HOML-C6-007", "HOML-C5-005"]
+  statement: "A ML model trained with purged time-series CV will achieve OOS Sharpe within 10-20% of backtest Sharpe; without purging, degradation exceeds 50%"
+  proposed_mechanism: "Purged CV prevents training on overlapping periods with test set, eliminating look-ahead bias in model selection"
+  applicable_markets: ["equities", "crypto_spot"]
+  assumptions:
+      - "Decision lag (embargoing period) is correctly specified"
+      - "Purging threshold can be enforced in cross-validation loop"
+      - "Sufficient data remains after purging"
+  data_requirements:
+      - "Time-indexed factor and return data (5+ years daily)"
+      - "Known decision lag (e.g., 1-day for earnings factors)"
+  baseline_hypothesis: "Standard 5-fold CV shows Sharpe of 1.5, OOS Sharpe drops to 0.6 (60% degradation)"
+  proposed_improvement: "Purged CV shows Sharpe of 1.2, OOS Sharpe of 1.0 (17% degradation)"
+  validation_approach: "Compare: (1) standard CV, (2) purged CV, (3) walk-forward OOS; measure Sharpe gap"
+  transaction_cost_considerations: "CV cost is offline; no live trading cost impact"
+  robustness_checks:
+      - "Vary embargo period (1, 2, 5 days); measure Sharpe stability"
+      - "Test on different factor types (momentum, value, quality)"
+  rejection_criteria: "OOS Sharpe degradation with purged CV still > 40% or Sharpe variance across embargoing periods too high"
+  priority_hint: "correctness"
+
+- id: "HYP-RF-FACTOR-003"
+  title: "Random Forest feature importance ranks factors more stably than linear regression"
+  status: "proposed"
+  derived_from: ["HOML-C10-011", "HOML-C10-026"]
+  statement: "Top-10 factors by RF permutation importance will correlate >0.7 across consecutive 1-year windows; linear regression factor weights will correlate <0.5"
+  proposed_mechanism: "RF handles non-linear relationships and interactions; captures factor importance independent of multicollinearity"
+  applicable_markets: ["equities"]
+  assumptions:
+      - "Factor definitions are stable"
+      - "Permutation importance captures true relevance"
+      - "Linear model coefficient ranking is unstable due to collinearity"
+  data_requirements:
+      - "20-50 candidate factors"
+      - "5+ years of daily data"
+  baseline_hypothesis: "Linear regression factor weights rank correlation = 0.4 (unstable)"
+  proposed_improvement: "RF permutation importance rank correlation = 0.75 (stable)"
+  validation_approach: "Train RF and regression on each 1-year rolling window; correlate factor rankings across windows"
+  transaction_cost_considerations: "Feature selection is offline; no live cost"
+  robustness_checks:
+      - "Measure RF importance sensitivity to hyperparameters"
+      - "Compare to Ridge/Lasso coefficient rankings"
+  rejection_criteria: "RF rank correlation < 0.6 or gap to linear regression < 0.2"
+  priority_hint: "research_quality"
+
+- id: "HYP-DEFLATED-SR-004"
+  title: "Deflated Sharpe Ratio predicts backtest-to-live performance gap"
+  status: "proposed"
+  derived_from: ["HOML-C5-006"]
+  statement: "Strategies with deflated SR > in-sample SR will achieve live Sharpe within 30% of backtest; those with deflated SR < 0.5*in-sample SR will underperform live by >50%"
+  proposed_mechanism: "Deflated SR accounts for multiple testing bias; low deflated SR indicates overfitting risk"
+  applicable_markets: ["equities"]
+  assumptions:
+      - "Number of trials and autocorrelation can be estimated"
+      - "Deflated SR formula (Bailey et al.) is appropriate"
+      - "Live performance does not suffer from unmodeled regime shift"
+  data_requirements:
+      - "Backtest results from multiple strategy variations (N > 100)"
+      - "Estimated autocorrelation of returns"
+  baseline_hypothesis: "Arbitrary backtest Sharpe of 1.5 with deflated SR of 0.8"
+  proposed_improvement: "Deflated SR > 1.2 predicts live underperformance < 30%"
+  validation_approach: "Retrospectively: apply deflated SR to published strategies; compare to subsequent live performance"
+  transaction_cost_considerations: "Analysis offline; no live cost"
+  robustness_checks:
+      - "Sensitivity to trial count estimate"
+      - "Cross-validate across strategy styles"
+  rejection_criteria: "Deflated SR does not correlate with live performance or does not provide actionable thresholds"
+  priority_hint: "correctness"
+
+- id: "HYP-IC-SHARPE-005"
+  title: "Factor IC > 0.02 (Rank IC) correlates with Sharpe > 0.5 for stock-level strategies"
+  status: "proposed"
+  derived_from: ["HOML-C4-014", "HOML-C4-003"]
+  statement: "Factors with out-of-sample Rank IC > 0.02 will generate stock-level portfolios with Sharpe > 0.5; IC < 0.01 will yield Sharpe < 0.2"
+  proposed_mechanism: "IC directly measures factor predictive power; portfolio Sharpe scales approximately with IC given typical turnover and costs"
+  applicable_markets: ["equities"]
+  assumptions:
+      - "IC measurement covers full cross-section (>500 stocks)"
+      - "Portfolio is 130/30 or similar turnover"
+      - "Costs are <5 bps per trade"
+  data_requirements:
+      - "Factor values and next-period returns (5+ years)"
+      - "Measured via Alphalens tearsheet"
+  baseline_hypothesis: "Typical factor IC = 0.015, portfolio Sharpe = 0.4"
+  proposed_improvement: "IC = 0.03 achieves Sharpe = 1.0"
+  validation_approach: "Backtest multiple factors; plot IC vs. portfolio Sharpe; fit regression"
+  transaction_cost_considerations: "Sharpe estimate must include realistic costs"
+  robustness_checks:
+      - "Test across sectors and market caps"
+      - "Measure IC decay with universe size"
+  rejection_criteria: "IC-Sharpe correlation < 0.5 or regression R^2 < 0.4"
+  priority_hint: "correctness"
+
+- id: "HYP-CROWDING-006"
+  title: "Factor crowding reduces IC by 50% within 3-5 years of academic publication"
+  status: "proposed"
+  derived_from: ["HOML-C4-025"]
+  statement: "A factor IC measured in year 1 after publication will decay to 50% of original by year 3-5; decay correlates with proxy AUM in factor ETFs"
+  proposed_mechanism: "Crowding increases capital seeking same signal, reducing alpha per unit AUM; crowding effect measurable via IC decay"
+  applicable_markets: ["equities"]
+  assumptions:
+      - "Factor IC can be measured consistently post-publication"
+      - "Factor ETF AUM is valid crowding proxy"
+      - "Decay is monotonic and predictable"
+  data_requirements:
+      - "Factor IC time series post-publication (Fama-French factors, recent academic papers)"
+      - "Factor ETF AUM time series"
+  baseline_hypothesis: "Academic factors (Fama-French) show IC decay ~50% over 15 years"
+  proposed_improvement: "IC decay predictable within 3-5 year window; enables optimal deployment timing"
+  validation_approach: "Measure IC of 5-10 published factors; plot against time since publication and ETF AUM"
+  transaction_cost_considerations: "Timing strategy deployment based on crowding estimates"
+  robustness_checks:
+      - "Test across factor families (momentum, value, quality)"
+      - "Exclude confounding effects (regime changes)"
+  rejection_criteria: "No significant correlation between time and IC decay or weak AUM relationship"
+  priority_hint: "research_quality"
+
+- id: "HYP-ENSEMBLE-007"
+  title: "Stacked ensemble of RF, GBM, Linear Reg achieves higher OOS Sharpe than individual models"
+  status: "proposed"
+  derived_from: ["HOML-C11-037"]
+  statement: "A stacked ensemble (meta-learner = Ridge) of base models (RF, GBM, Ridge) will achieve OOS Sharpe 10-20% higher than best individual model"
+  proposed_mechanism: "Ensemble combines complementary strengths of diverse models; meta-learner learns optimal weighting"
+  applicable_markets: ["equities"]
+  assumptions:
+      - "Base models are sufficiently decorrelated (pairwise correlation < 0.7)"
+      - "Meta-learner does not overfit"
+      - "Computational cost is acceptable"
+  data_requirements:
+      - "Factor and return data for base model training"
+      - "Holdout validation set for meta-learner (20% of data)"
+  baseline_hypothesis: "Best individual model (GBM) achieves Sharpe = 1.0"
+  proposed_improvement: "Stacked ensemble achieves Sharpe = 1.15+"
+  validation_approach: "Train base models on train set; evaluate on validation holdout; train meta-learner on validation; test on OOS set"
+  transaction_cost_considerations: "Ensemble execution cost similar to single best model"
+  robustness_checks:
+      - "Measure base model correlation; remove highly correlated models"
+      - "Test meta-learner overfitting via nested CV"
+  rejection_criteria: "Ensemble Sharpe < best individual model or meta-learner highly overfit"
+  priority_hint: "research_quality"
+
+- id: "HYP-COST-IMPACT-008"
+  title: "Realistic cost modeling (commissions + spreads + impact) reduces Sharpe by 40-60%"
+  status: "proposed"
+  derived_from: ["HOML-C5-017"]
+  statement: "Backtest Sharpe without costs vs. with realistic costs (2 bps comm, 1 bps spread, impact model) will differ by 40-60% for typical daily rebalancing strategy"
+  proposed_mechanism: "Transaction costs directly reduce returns; impact scales nonlinearly with position size; most backtests omit or underestimate costs"
+  applicable_markets: ["equities", "crypto_spot"]
+  assumptions:
+      - "Cost model is market-realistic"
+      - "Position sizes and rebalancing frequency are representative"
+      - "Impact model captures market microstructure"
+  data_requirements:
+      - "Backtest with and without cost model"
+      - "Market microstructure data (spreads, volume)"
+  baseline_hypothesis: "Cost-free backtest Sharpe = 1.5"
+  proposed_improvement: "With costs, Sharpe = 0.6-0.9 (40-60% reduction)"
+  validation_approach: "Run backtest two ways; compare Sharpe"
+  transaction_cost_considerations: "This test is specifically about cost impact"
+  robustness_checks:
+      - "Vary cost parameters (1-3 bps, 0.5-2 bps spread)"
+      - "Test across rebalancing frequencies (daily, weekly)"
+  rejection_criteria: "Cost impact < 20% or cost model deemed unrealistic"
+  priority_hint: "correctness"
+
+- id: "HYP-LIQUIDITY-009"
+  title: "Restricting to highly liquid stocks improves strategy IC and Sharpe despite smaller universe"
+  status: "proposed"
+  derived_from: ["HOML-C2-030"]
+  statement: "Strategy using top-500 most liquid stocks will achieve IC 5-10% higher than full 3000-stock universe; Sharpe impact depends on turnover"
+  proposed_mechanism: "Liquid universe has better factor-return relationship (less noise, lower costs); reduced universe size adds diversification drag only if turnover is high"
+  applicable_markets: ["equities"]
+  assumptions:
+      - "Liquidity measured by daily dollar volume or spread"
+      - "Liquid stocks have cleaner factor-return relationship"
+      - "Diversification loss from smaller universe is modest"
+  data_requirements:
+      - "Factor IC measured on full vs. liquid-only universe"
+      - "Backtest results on both universes"
+  baseline_hypothesis: "Full 3000-stock universe: IC = 0.015, Sharpe = 0.5"
+  proposed_improvement: "Top-500 liquid universe: IC = 0.020, Sharpe = 0.65"
+  validation_approach: "Measure Alphalens IC; compare to full backtest Sharpe"
+  transaction_cost_considerations: "Liquid universe reduces execution cost and slippage"
+  robustness_checks:
+      - "Define liquidity threshold sensitivity"
+      - "Test across market caps and sectors"
+  rejection_criteria: "IC improvement in liquid universe < 2% or Sharpe worsens significantly"
+  priority_hint: "research_quality"
+
+- id: "HYP-SENTIMENT-010"
+  title: "Sentiment from news correlates with next-day returns with IC > 0.01 OOS"
+  status: "proposed"
+  derived_from: ["HOML-C13-020"]
+  statement: "Daily sentiment score from news aggregator will have Rank IC > 0.01 with next-day stock returns on OOS data; add sentiment to baseline factor model, improve Sharpe by 5-15%"
+  proposed_mechanism: "News sentiment captures investor psychology; lagged correlation with returns exists but decays with crowding"
+  applicable_markets: ["equities"]
+  assumptions:
+      - "Sentiment extraction is reliable"
+      - "Sentiment is not widely arbitraged"
+      - "Integration with other factors is additive"
+  data_requirements:
+      - "Daily news sentiment scores (year 1+)"
+      - "Next-day returns for IC calculation"
+  baseline_hypothesis: "Sentiment IC = 0.005 (modest signal)"
+  proposed_improvement: "Sentiment IC = 0.015, Sharpe improvement = 10%"
+  validation_approach: "Measure sentiment IC via Alphalens; backtest sentiment-augmented strategy"
+  transaction_cost_considerations: "Sentiment data cost ~$1-5K/month; integration into strategy modest"
+  robustness_checks:
+      - "Measure sentiment IC decay over time (crowding effect)"
+      - "Test across news sources and aggregators"
+  rejection_criteria: "Sentiment IC < 0.003 OOS or Sharpe improvement < 2%"
+  priority_hint: "alpha"
+
+

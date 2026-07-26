@@ -1,0 +1,73 @@
+schema_version: "1.0"
+prompt_version: "1.0"
+book_id: text-mining-of-stocktwits-data-for-predicting-stock-prices-2021
+title: "Text Mining of StockTwits Data for Predicting Stock Prices"
+authors: 
+  - Mukul Jaggi
+  - Priyanka Mandal
+  - Shreya Narang
+  - Usman Naseem
+  - Matloob Khushi
+edition: "1"
+publication_year: 2021
+publisher_or_identifier: "Applied System Innovation, MDPI"
+format: pdf
+language: English
+page_count: 22
+chapter_count: 1
+extraction_quality: high
+ocr_quality: excellent
+processing_status: audited
+sources:
+  - absolute_path: "C:\\Users\\W4TV5V8\\PROJECTS\\IDC-Repos\\app-adas-src\\..."
+    relative_path: "NLP_Trading.pdf"
+    sha256: "unknown"
+timestamps:
+  extracted: 2026-07-24T20:48:40Z
+  created: 2026-07-24T20:48:40Z
+duplicate_relationships: []
+limitations_and_warnings:
+  - "Paper focuses on FAANG stocks; generalization to other asset classes uncertain"
+  - "FinALBERT performance limited due to smaller pre-training dataset and fewer training steps than optimal"
+  - "Labels based on price change, not sentiment; different from typical sentiment-based models"
+  - "Data availability statement points to external repo; reproducibility depends on external source"
+  - "No live trading validation provided; backtesting only"
+  - "Class imbalance in 3-label dataset affects model performance"
+  - "Training times for transformer models are high; computational cost analysis limited"
+scores:
+  source_credibility:
+    score: 4
+    justification: "Published in peer-reviewed journal (Applied System Innovation); University of Sydney affiliation; clear methodology and open code availability."
+  citation_quality:
+    score: 3
+    justification: "Good citations for NLP/finance domain but limited breadth on trading systems and execution."
+  reproducibility:
+    score: 3
+    justification: "Code and data claimed available; labeled dataset created from public sources but dataset size and splitting methodology documented."
+  likely_freshness:
+    score: 2
+    justification: "Published Feb 2021; Twitter/StockTwits APIs and financial datasets may have changed; model performance may degrade with newer data patterns."
+  system_engineering_relevance:
+    score: 3
+    justification: "Covers ML model architecture, hyperparameter tuning, evaluation metrics; lacks production deployment, monitoring, or failure-handling details."
+  grid_relevance:
+    score: 1
+    justification: "Study focuses on stock price prediction via sentiment; not directly applicable to grid/crypto trading strategies."
+  stock_strategy_relevance:
+    score: 5
+    justification: "Core focus: stock price movement prediction using StockTwits social media data; directly relevant for signal generation."
+  backtesting_relevance:
+    score: 4
+    justification: "Provides empirical evaluation methodology on historical data; uses 90/10 train/test split; F1 and precision metrics; no transaction costs or slippage modeled."
+  live_execution_relevance:
+    score: 2
+    justification: "Study provides classification output but not direct trading signals; precision threshold (0.75) mentioned but no risk management or position sizing."
+  risk_relevance:
+    score: 1
+    justification: "No risk analysis, position sizing, drawdown management, or failure modes addressed."
+  data_quality_relevance:
+    score: 4
+    justification: "Addresses data labeling techniques, class imbalance, missing data imputation; preprocessing pipeline documented."
+  machine_learning_relevance:
+    score: 5
+    justification: "Comprehensive ML study: 13+ models tested; compares traditional ML (Naive Bayes, Random Forest, XGBoost) with transformer models (BERT, FinBERT, FinALBERT)."

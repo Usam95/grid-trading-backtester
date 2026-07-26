@@ -1,0 +1,152 @@
+- acceptance_tests:
+  - $5K account max $50 risk per trade
+  - $50K account max $1500 risk per trade
+  applies_to:
+    asset_class:
+    - other
+    concern:
+    - risk
+    lifecycle:
+    - research
+    strategy:
+    - shared
+  capability_enabled: Automatic risk-tier enforcement
+  derivation_type: direct_book_recommendation
+  derived_from:
+  - WTFTC-C3-001
+  - WTFTC-C7-001
+  failure_prevented: Account blow-out from over-leveraging
+  id: REQ-001
+  priority_hint: safety
+  rationale: Book prescribes account-tier-specific position sizing to prevent blow-out.
+  requirement: 'System shall enforce maximum risk per trade as 1-3% of account based
+    on tier: <10K=1%, 10-50K=2%, >50K=3%.'
+  status: proposed
+  title: Position sizing per account tier
+- acceptance_tests:
+  - Trade closes immediately at stop price
+  - All stop closures logged and auditable
+  applies_to:
+    asset_class:
+    - other
+    concern:
+    - risk
+    lifecycle:
+    - live
+    strategy:
+    - shared
+  capability_enabled: Automated stop enforcement
+  derivation_type: direct_book_recommendation
+  derived_from:
+  - WTFTC-C3-003
+  - WTFTC-C3-004
+  failure_prevented: Uncontrolled loss escalation
+  id: REQ-002
+  priority_hint: safety
+  rationale: Book emphasizes hard stops for carry crash protection.
+  requirement: System shall close all open trades at user-defined stop levels; no
+    manual override without confirmation.
+  status: proposed
+  title: Hard stop-loss enforcement
+- acceptance_tests:
+  - Sim P&L matches live within 2%
+  - Minimum 30 sim trades before live escalation
+  applies_to:
+    asset_class:
+    - other
+    concern:
+    - simulation
+    lifecycle:
+    - backtest
+    strategy:
+    - shared
+  capability_enabled: Trader progression and gap measurement
+  derivation_type: agent_inference
+  derived_from:
+  - WTFTC-C3-002
+  failure_prevented: Premature live trading with underestimated costs
+  id: REQ-003
+  priority_hint: correctness
+  rationale: Book emphasizes sim-to-live disconnect; system must allow realistic sim
+    with slippage/commissions.
+  requirement: 'Dual-mode execution: Sim with delayed market data, slippage (1-2 pips),
+    commissions (2-5 USD); P&L logged side-by-side.'
+  status: proposed
+  title: Realistic simulation with live data
+- acceptance_tests:
+  - After 4% loss, new entries rejected
+  - Existing positions remain open
+  - Reset confirms next trading day
+  applies_to:
+    asset_class:
+    - other
+    concern:
+    - risk
+    lifecycle:
+    - live
+    strategy:
+    - shared
+  capability_enabled: Forced discipline and reset
+  derivation_type: direct_book_recommendation
+  derived_from:
+  - WTFTC-C3-001
+  - WTFTC-C7-003
+  failure_prevented: Emotional revenge trading and compounding losses
+  id: REQ-004
+  priority_hint: correctness
+  rationale: Book prescribes daily loss cap to prevent revenge trading.
+  requirement: System shall block new trade entries when cumulative daily loss reaches
+    user cap (e.g., 4%); reset at EOD.
+  status: proposed
+  title: Daily loss cap enforcement
+- acceptance_tests:
+  - Calendar alerts delivered on time
+  - Actual vs consensus logged
+  - Events searchable by currency and impact
+  applies_to:
+    asset_class:
+    - other
+    concern:
+    - data
+    lifecycle:
+    - research
+    strategy:
+    - shared
+  capability_enabled: Data-driven macro trading
+  derivation_type: direct_book_recommendation
+  derived_from:
+  - WTFTC-C2-004
+  failure_prevented: Missed high-impact news and over-leveraging
+  id: REQ-005
+  priority_hint: operability
+  rationale: Book emphasizes economic calendar as essential input for trade timing.
+  requirement: 'System shall integrate real-time economic calendar (high-impact events:
+    employment, CPI, PMI, rate decisions); alert trader 1h and 30m before release.'
+  status: proposed
+  title: Economic calendar integration
+- acceptance_tests:
+  - Dashboard updates daily with latest curves
+  - Carry attractiveness scores sortable
+  - Unwind risk alerts on rising differentials
+  applies_to:
+    asset_class:
+    - other
+    concern:
+    - data
+    lifecycle:
+    - research
+    strategy:
+    - shared
+  capability_enabled: Quantitative carry regime assessment
+  derivation_type: direct_book_recommendation
+  derived_from:
+  - WTFTC-C1-001
+  failure_prevented: Mis-timing carry trades into rate shocks
+  id: REQ-006
+  priority_hint: correctness
+  rationale: Book emphasizes interest rate differentials and carry as core drivers.
+  requirement: 'Dashboard shall display daily: (A) OIS/futures-implied rate curves
+    for major pairs; (B) Interest rate differentials; (C) Carry attractiveness score
+    (differential - volatility - costs).'
+  status: proposed
+  title: Interest rate curves and carry tracking

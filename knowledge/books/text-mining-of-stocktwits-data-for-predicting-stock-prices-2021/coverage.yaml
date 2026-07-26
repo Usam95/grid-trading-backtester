@@ -1,0 +1,139 @@
+book_id: text-mining-of-stocktwits-data-for-predicting-stock-prices-2021
+sections:
+  - ref: "intro"
+    title: "Introduction"
+    pdf_page_start: 0
+    status: processed
+    reason: "Establishes problem statement, research objectives, and three labeling techniques."
+
+  - ref: "lit-review"
+    title: "Literature Review"
+    pdf_page_start: 1
+    status: processed
+    reason: "Surveys prior work on sentiment analysis, BERT/FinBERT/ALBERT models, and stock prediction methods."
+
+  - ref: "research-problems"
+    title: "Research Problems"
+    pdf_page_start: 3
+    status: processed
+    reason: "Defines research questions, aims, and scope focused on combining social sentiment with price changes."
+
+  - ref: "data-collection"
+    title: "Data Collection"
+    pdf_page_start: 4
+    status: processed
+    reason: "Details StockTwits dataset (6.4M messages, 25 companies, 10 years), Yahoo Finance, and external pre-training sources."
+
+  - ref: "labeling-techniques"
+    title: "Labeling Techniques"
+    pdf_page_start: 4
+    status: processed
+    reason: "Describes three labeling approaches based on price change thresholds (binary, 2-label, 3-label with neutral)."
+
+  - ref: "preprocessing"
+    title: "Preprocessing"
+    pdf_page_start: 7
+    status: processed
+    reason: "Addresses Twitter-specific cleaning: tokenization, stop words, contractions, hashtags, URLs, demojization."
+
+  - ref: "data-characteristics"
+    title: "Data Characteristics"
+    pdf_page_start: 7
+    status: processed
+    reason: "Presents class distribution for FAANG subset over 1 and 2-year windows; class imbalance noted."
+
+  - ref: "traditional-ml"
+    title: "Traditional Machine Learning Methods"
+    pdf_page_start: 8
+    status: processed
+    reason: "Covers Naive Bayes, Random Forest, Gradient Boosting, Logistic Regression, XGBoost with TF-IDF features."
+
+  - ref: "bert-finbert"
+    title: "BERT and FinBERT"
+    pdf_page_start: 9
+    status: processed
+    reason: "Describes transformer baselines; FinBERT pre-trained on financial text; implementation details."
+
+  - ref: "finalbertarch"
+    title: "FinALBERT Proposed Model"
+    pdf_page_start: 9
+    status: processed
+    reason: "Novel ALBERT-based model; pre-training on Reuters + AG News + 10% BookCorpus; fine-tuning on labeled StockTwits."
+
+  - ref: "pretraining"
+    title: "FinALBERT Model Pre-Training"
+    pdf_page_start: 10
+    status: processed
+    reason: "Details vocab generation, pre-training data creation (7.4M sentences), and 10k training steps (vs 125k default)."
+
+  - ref: "finetuning"
+    title: "FinALBERT Fine-Tuning"
+    pdf_page_start: 11
+    status: processed
+    reason: "Hyperparameter exploration; optimal: learning_rate=1e-05, batch_size=32, AdamW optimizer with weight decay."
+
+  - ref: "prediction-inference"
+    title: "Prediction and Inference"
+    pdf_page_start: 11
+    status: processed
+    reason: "Testing on 2-week rolling window; precision threshold 0.75 for investment decision."
+
+  - ref: "neural-word-embed"
+    title: "Neural Network Methods with Word Embeddings"
+    pdf_page_start: 11
+    status: processed
+    reason: "BiLSTM, attention, BERT+CNN, Word2Vec+CNN; ablations combining components."
+
+  - ref: "results-tables"
+    title: "Results and Performance Tables"
+    pdf_page_start: 12
+    status: processed
+    reason: "Three comprehensive tables: binary classification, percentage-change 2-label, 3-label; F1 and accuracy per model."
+
+  - ref: "results-discussion"
+    title: "Results on FinancialPhraseBank"
+    pdf_page_start: 15
+    status: processed
+    reason: "FinALBERT achieves 0.83 F1 (2-label) and 0.80 (3-label) on expert-annotated sentiment data."
+
+  - ref: "prediction-case-study"
+    title: "Prediction Case Study (Apple)"
+    pdf_page_start: 15
+    status: processed
+    reason: "2-week predictions for AAPL; precision-recall breakdown; recommendation logic based on threshold."
+
+  - ref: "discussion-labeling"
+    title: "Discussion: Labeling Techniques Evaluation"
+    pdf_page_start: 16
+    status: processed
+    reason: "Analyzes why 2-label percentage change outperforms binary and 3-label; threshold effect on class similarity."
+
+  - ref: "discussion-model-eval"
+    title: "Discussion: Model Evaluation"
+    pdf_page_start: 16
+    status: processed
+    reason: "Compares traditional ML, transformer, and neural models; explains BERT superiority, FinALBERT limitations, Naive Bayes efficiency."
+
+  - ref: "limitations"
+    title: "Limitations"
+    pdf_page_start: 19
+    status: processed
+    reason: "Four main limitations: limited financial datasets, high transformer training time, no sentiment labels, imbalanced classes."
+
+  - ref: "future-work"
+    title: "Future Work"
+    pdf_page_start: 19
+    status: processed
+    reason: "Proposes weekly labeling windows, larger pre-training datasets, albert-xxlarge architecture, ensemble methods."
+
+  - ref: "conclusions"
+    title: "Conclusions"
+    pdf_page_start: 20
+    status: processed
+    reason: "Summarizes findings: price-change labeling novel, 2-label best, BERT competitive with Naive Bayes, transformers slow."
+
+  - ref: "references"
+    title: "References"
+    pdf_page_start: 20
+    status: processed
+    reason: "32 citations including BERT, ALBERT, FinBERT, stock prediction, and sentiment analysis papers."

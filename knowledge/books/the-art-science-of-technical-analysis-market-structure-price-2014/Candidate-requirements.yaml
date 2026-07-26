@@ -1,0 +1,185 @@
+- id: req-01-regime-filter
+  title: Restricting trading to non-equilibrium contexts
+  derivation_type: direct_book_recommendation
+  status: proposed
+  derived_from:
+  - AGSOTA-C1-004
+  - AGSOTA-C7-002
+  rationale: The book explicitly argues that flat equilibrium conditions behave close to random walk and should be filtered out before directional entries are considered.
+  applies_to:
+    strategy:
+    - stock_signal
+    - shared
+    lifecycle:
+    - research
+    - backtest
+    - live
+    asset_class:
+    - shared
+    concern:
+    - alpha
+  requirement: The strategy shall qualify market state before entry and shall not open new positions in flat equilibrium conditions unless the explicit setup is designed for that context.
+  priority_hint: alpha
+- id: req-02-pretrade-risk-definition
+  title: Defining stop before entry
+  derivation_type: direct_book_recommendation
+  status: proposed
+  derived_from:
+  - AGSOTA-C8-002
+  - AGSOTA-C9-001
+  - AGSOTA-C9-003
+  rationale: The book recommends defining the invalidation point first and sizing from stop distance so trade risk is known before any order is sent.
+  applies_to:
+    strategy:
+    - shared
+    lifecycle:
+    - paper
+    - live
+    asset_class:
+    - shared
+    concern:
+    - risk
+    - execution
+  requirement: Every order shall carry a precomputed invalidation point before entry, and position size shall be derived from that stop distance rather than moving the stop to fit desired size.
+  priority_hint: safety
+- id: req-03-trend-continuation-guardrails
+  title: Blocking weak pullback continuations
+  derivation_type: direct_book_recommendation
+  status: proposed
+  derived_from:
+  - AGSOTA-C3-002
+  - AGSOTA-C3-003
+  - AGSOTA-C3-004
+  - AGSOTA-C5-004
+  rationale: Trend-continuation setups are described as lower quality when they appear after climactic action, divergence, or strong countertrend energy in the pullback.
+  applies_to:
+    strategy:
+    - stock_signal
+    lifecycle:
+    - research
+    - backtest
+    - live
+    asset_class:
+    - shared
+    concern:
+    - alpha
+  requirement: A trend-continuation module shall suppress or down-rank entries that occur after climax conditions, clear momentum divergence, or strong countertrend momentum in the pullback.
+  priority_hint: correctness
+- id: req-04-level-modeling
+  title: Modeling support and resistance as zones
+  derivation_type: agent_inference
+  status: proposed
+  derived_from:
+  - AGSOTA-C4-001
+  - AGSOTA-C4-002
+  - AGSOTA-C4-003
+  rationale: Representing support and resistance as zones with test-history preserves the book’s repeated emphasis that levels weaken after multiple probes and should not be modeled as exact ticks.
+  applies_to:
+    strategy:
+    - grid
+    - stock_signal
+    - shared
+    lifecycle:
+    - research
+    - backtest
+    - live
+    asset_class:
+    - shared
+    concern:
+    - data
+    - alpha
+  requirement: Support and resistance shall be represented as zones with test counts and rejection features, and confidence shall be reduced after repeated tests of the same zone.
+  priority_hint: correctness
+- id: req-05-breakout-quality-screen
+  title: Filtering low-quality breakouts
+  derivation_type: direct_book_recommendation
+  status: proposed
+  derived_from:
+  - AGSOTA-C5-001
+  - AGSOTA-C5-002
+  - AGSOTA-C5-003
+  rationale: The breakout chapters stress that directional pressure before the break and fast failure back through the level are key discriminators between valid and low-quality breakouts.
+  applies_to:
+    strategy:
+    - stock_signal
+    lifecycle:
+    - research
+    - backtest
+    - live
+    asset_class:
+    - shared
+    concern:
+    - alpha
+  requirement: Breakout entries shall require pre-break evidence of directional pressure and shall invalidate the breakout if price reverses back through the level within two to three bars.
+  priority_hint: alpha
+- id: req-06-failure-test-management
+  title: Managing failure-test trades tightly
+  derivation_type: direct_book_recommendation
+  status: proposed
+  derived_from:
+  - AGSOTA-C6-001
+  - AGSOTA-C6-002
+  rationale: Failure-test trades are presented as valid only after reversal confirmation, with tight stop placement and fast exit when price fails to accelerate away from the level.
+  applies_to:
+    strategy:
+    - stock_signal
+    lifecycle:
+    - paper
+    - live
+    asset_class:
+    - shared
+    concern:
+    - risk
+    - execution
+  requirement: Failure-test trades shall be entered only after reversal back through the level, shall place the stop beyond the failed excursion, and shall reduce or exit if price does not move away from the level within one to three bars.
+  priority_hint: safety
+- id: req-07-multi-timeframe-linkage
+  title: Linking context and timing across time frames
+  derivation_type: agent_inference
+  status: proposed
+  derived_from:
+  - AGSOTA-C6-005
+  - AGSOTA-C7-004
+  rationale: The framework in the book uses higher-timeframe structure for context and lower-timeframe structure for timing, so the research stack must express that linkage explicitly.
+  applies_to:
+    strategy:
+    - stock_signal
+    - shared
+    lifecycle:
+    - research
+    - backtest
+    - live
+    asset_class:
+    - shared
+    concern:
+    - alpha
+    - reproducibility
+  requirement: The framework shall allow higher-timeframe context to filter or negate lower-timeframe entries and shall allow lower-timeframe structure to time entries into higher-timeframe patterns without assuming the higher frame is always dominant.
+  priority_hint: correctness
+- id: req-08-recordkeeping-schema
+  title: Maintaining analyzable trade records
+  derivation_type: agent_inference
+  status: proposed
+  derived_from:
+  - AGSOTA-C11-002
+  - AGSOTA-C12-002
+  rationale: The book emphasizes detailed post-trade records so outcomes can be compared by setup, regime, and initial risk rather than hidden inside pooled results.
+  applies_to:
+    strategy:
+    - grid
+    - stock_signal
+    - portfolio
+    - shared
+    lifecycle:
+    - research
+    - backtest
+    - paper
+    - live
+    asset_class:
+    - shared
+    concern:
+    - simulation
+    - monitoring
+    - reproducibility
+  requirement: The research and trading process shall persist per-trade records that include setup family, regime/context, entry type, initial R, and final outcome so results can be tested against random baselines and style drift can be detected.
+  priority_hint: research_quality

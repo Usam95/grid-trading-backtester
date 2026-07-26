@@ -1,0 +1,297 @@
+book_id: financial-machina-machine-learning-for-finance-the-quintesse-2024
+sections:
+- ref: ch00
+  title: Title Page
+  epub_chapter_index: 0
+  status: low_priority
+  reason: Front matter
+- ref: ch01
+  title: Dedication
+  epub_chapter_index: 1
+  status: low_priority
+  reason: Front matter
+- ref: ch02
+  title: Epigraph
+  epub_chapter_index: 2
+  status: low_priority
+  reason: Front matter
+- ref: ch03
+  title: Contents
+  epub_chapter_index: 3
+  status: low_priority
+  reason: TOC
+- ref: ch04
+  title: Introduction
+  epub_chapter_index: 4
+  status: processed
+  reason: ''
+- ref: ch05
+  title: 'Chapter 1: Foundations'
+  epub_chapter_index: 5
+  status: processed
+  reason: ''
+- ref: ch06
+  title: 1.1 Evolution of Quant Finance
+  epub_chapter_index: 6
+  status: processed
+  reason: ''
+- ref: ch07
+  title: 1.2 Financial Concepts for Data Scientists
+  epub_chapter_index: 7
+  status: processed
+  reason: ''
+- ref: ch08
+  title: 1.3 Statistical Foundations
+  epub_chapter_index: 8
+  status: processed
+  reason: ''
+- ref: ch09
+  title: 1.4 ML Algorithms
+  epub_chapter_index: 9
+  status: processed
+  reason: ''
+- ref: ch10
+  title: 1.5 Data Management
+  epub_chapter_index: 10
+  status: processed
+  reason: ''
+- ref: ch11
+  title: 'Chapter 2: ML Tools'
+  epub_chapter_index: 11
+  status: processed
+  reason: ''
+- ref: ch12
+  title: 2.1 Computational Environments
+  epub_chapter_index: 12
+  status: processed
+  reason: ''
+- ref: ch13
+  title: 2.2 Data Exploration
+  epub_chapter_index: 13
+  status: processed
+  reason: ''
+- ref: ch14
+  title: 2.3 Feature Selection
+  epub_chapter_index: 14
+  status: processed
+  reason: ''
+- ref: ch15
+  title: 2.4 ML Frameworks
+  epub_chapter_index: 15
+  status: processed
+  reason: ''
+- ref: ch16
+  title: 2.5 Model Deployment
+  epub_chapter_index: 16
+  status: processed
+  reason: ''
+- ref: ch17
+  title: 'Chapter 3: Deep Learning'
+  epub_chapter_index: 17
+  status: processed
+  reason: ''
+- ref: ch18
+  title: 3.1 Neural Networks
+  epub_chapter_index: 18
+  status: processed
+  reason: ''
+- ref: ch19
+  title: 3.2 CNNs
+  epub_chapter_index: 19
+  status: processed
+  reason: ''
+- ref: ch20
+  title: 3.3 RNNs/LSTMs
+  epub_chapter_index: 20
+  status: processed
+  reason: ''
+- ref: ch21
+  title: 3.4 RL for Trading
+  epub_chapter_index: 21
+  status: processed
+  reason: ''
+- ref: ch22
+  title: 3.5 Anomaly Detection
+  epub_chapter_index: 22
+  status: processed
+  reason: ''
+- ref: ch23
+  title: 'Chapter 4: Time Series'
+  epub_chapter_index: 23
+  status: processed
+  reason: ''
+- ref: ch24
+  title: 4.1 TS Concepts
+  epub_chapter_index: 24
+  status: processed
+  reason: ''
+- ref: ch25
+  title: 4.2 Advanced TS
+  epub_chapter_index: 25
+  status: processed
+  reason: ''
+- ref: ch26
+  title: 4.3 ML for TS
+  epub_chapter_index: 26
+  status: processed
+  reason: ''
+- ref: ch27
+  title: 4.4 Forecasting
+  epub_chapter_index: 27
+  status: processed
+  reason: ''
+- ref: ch28
+  title: 4.5 Validation
+  epub_chapter_index: 28
+  status: processed
+  reason: ''
+- ref: ch29
+  title: 'Chapter 5: Risk Management'
+  epub_chapter_index: 29
+  status: processed
+  reason: ''
+- ref: ch30
+  title: 5.1 Credit Risk
+  epub_chapter_index: 30
+  status: low_priority
+  reason: Low grid/stock trading relevance
+- ref: ch31
+  title: 5.2 Market Risk
+  epub_chapter_index: 31
+  status: processed
+  reason: ''
+- ref: ch32
+  title: 5.3 Liquidity Risk
+  epub_chapter_index: 32
+  status: processed
+  reason: ''
+- ref: ch33
+  title: 5.4 Operational Risk
+  epub_chapter_index: 33
+  status: processed
+  reason: ''
+- ref: ch34
+  title: 'Chapter 6: Portfolio Optimization'
+  epub_chapter_index: 34
+  status: processed
+  reason: ''
+- ref: ch35
+  title: 6.1 Modern Portfolio Theory
+  epub_chapter_index: 35
+  status: processed
+  reason: ''
+- ref: ch36
+  title: 6.2 Advanced Construction
+  epub_chapter_index: 36
+  status: processed
+  reason: ''
+- ref: ch37
+  title: 6.3 ML Asset Allocation
+  epub_chapter_index: 37
+  status: processed
+  reason: ''
+- ref: ch38
+  title: 6.4 Trading Strategies
+  epub_chapter_index: 38
+  status: processed
+  reason: ''
+- ref: ch39
+  title: 6.5 Performance Analysis
+  epub_chapter_index: 39
+  status: processed
+  reason: ''
+- ref: ch40
+  title: 'Chapter 7: Algorithmic Trading'
+  epub_chapter_index: 40
+  status: processed
+  reason: ''
+- ref: ch41
+  title: 7.1 Introduction to Algo Trading
+  epub_chapter_index: 41
+  status: processed
+  reason: ''
+- ref: ch42
+  title: 7.2 Strategy Design & Backtesting
+  epub_chapter_index: 42
+  status: processed
+  reason: ''
+- ref: ch43
+  title: 7.3 HFT Algorithms
+  epub_chapter_index: 43
+  status: processed
+  reason: ''
+- ref: ch44
+  title: 'Chapter 8: Alternative Data'
+  epub_chapter_index: 44
+  status: processed
+  reason: ''
+- ref: ch45
+  title: 8.1 Data Fusion
+  epub_chapter_index: 45
+  status: processed
+  reason: ''
+- ref: ch46
+  title: 8.2 Alternative Data PM
+  epub_chapter_index: 46
+  status: processed
+  reason: ''
+- ref: ch47
+  title: 'Chapter 9: Fraud Detection'
+  epub_chapter_index: 47
+  status: low_priority
+  reason: Low grid/stock trading relevance
+- ref: ch48
+  title: 9.1 Understanding Fraud
+  epub_chapter_index: 48
+  status: low_priority
+  reason: Low relevance
+- ref: ch49
+  title: 9.2 Feature Engineering Fraud
+  epub_chapter_index: 49
+  status: low_priority
+  reason: Low relevance
+- ref: ch50
+  title: 9.3 Fraud Detection Models
+  epub_chapter_index: 50
+  status: low_priority
+  reason: Low relevance
+- ref: ch51
+  title: 9.4 Real-Time Fraud
+  epub_chapter_index: 51
+  status: low_priority
+  reason: Low relevance
+- ref: ch52
+  title: Conclusion
+  epub_chapter_index: 52
+  status: low_priority
+  reason: Summary only
+- ref: ch53
+  title: Epilogue
+  epub_chapter_index: 53
+  status: low_priority
+  reason: Closing remarks
+- ref: ch54
+  title: Additional Resources
+  epub_chapter_index: 54
+  status: low_priority
+  reason: References
+- ref: ch55
+  title: Glossary
+  epub_chapter_index: 55
+  status: low_priority
+  reason: Definitions
+- ref: ch56
+  title: Afterword
+  epub_chapter_index: 56
+  status: low_priority
+  reason: Back matter
+- ref: ch57
+  title: Glossary
+  epub_chapter_index: 57
+  status: low_priority
+  reason: Back matter / reference only
+- ref: ch58
+  title: Placeholder
+  epub_chapter_index: 58
+  status: unreadable
+  reason: Not present in book

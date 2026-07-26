@@ -1,0 +1,70 @@
+schema_version: "1.0"
+prompt_version: "1.0"
+book_id: high-probability-trading-strategies-2008
+title: "High Probability Trading Strategies: Entry to Exit Tactics for the Forex, Futures, and Stock Markets"
+authors:
+  - "Robert Miner"
+edition: "1st"
+publication_year: 2008
+publisher_or_identifier: "John Wiley & Sons"
+format: pdf
+language: English
+page_count: 290
+chapter_count: 9
+extraction_quality: high
+ocr_quality: good
+processing_status: audited
+extraction_timestamp: "2026-07-24T22:22:52+02:00"
+extracted_by: "Copilot Worker Agent"
+validation_status: "PASSED"
+sources:
+  - absolute_path: "C:\\Users\\W4TV5V8\\PROJECTS\\Codex\\Research\\Books_03_07_26\\Algorithmical Trading\\_KNOWLEDGE_EXTRACTION\\inventory.yaml"
+    relative_path: "inventory.yaml"
+    sha256: "tbd"
+
+duplicate_relationships: []
+
+limitations_and_warnings:
+  - "Book focuses on discretionary visual-chart analysis; many broker APIs and trading platforms mentioned are dated (published 2008)"
+  - "Real-trader profiles use personal experience; no backtesting results provided"
+  - "Elliott Wave and Fibonacci projections are subjective; success depends on interpretation skill"
+  - "Leverage and margin practices described may not comply with modern regulations"
+  - "Book does not address slippage, order-fill realism, or realistic backtesting"
+
+scores:
+  source_credibility:
+    score: 4
+    justification: "Established trading educator with published methodology; limited external research backing claims"
+  citation_quality:
+    score: 2
+    justification: "Few citations; mostly author assertions and anecdotal trader profiles"
+  reproducibility:
+    score: 2
+    justification: "Visual chart interpretation and subjective pattern recognition not easily reproducible; no code or formal rules"
+  likely_freshness:
+    score: 1
+    justification: "Published 2008; trading platforms, APIs, and market structure significantly changed; regulatory environment evolved"
+  system_engineering_relevance:
+    score: 3
+    justification: "Entry/exit logic and position sizing concepts relevant; lacks formal specification for automated systems"
+  grid_relevance:
+    score: 2
+    justification: "Momentum and multi-timeframe concepts applicable; but no grid-specific strategy discussed"
+  stock_strategy_relevance:
+    score: 4
+    justification: "Pattern recognition and momentum applicable to stocks; multiple examples on stock markets"
+  backtesting_relevance:
+    score: 2
+    justification: "No backtesting methodology, walk-forward validation, or out-of-sample testing discussed"
+  live_execution_relevance:
+    score: 3
+    justification: "Trade management and position sizing discussed; broker order types and latency concerns not addressed"
+  risk_relevance:
+    score: 3
+    justification: "Stop-loss placement and position sizing covered; no portfolio-level risk or correlation analysis"
+  data_quality_relevance:
+    score: 1
+    justification: "No data validation, cleaning, or alignment methodology discussed"
+  machine_learning_relevance:
+    score: 1
+    justification: "No ML concepts; purely manual chart reading and pattern matching"

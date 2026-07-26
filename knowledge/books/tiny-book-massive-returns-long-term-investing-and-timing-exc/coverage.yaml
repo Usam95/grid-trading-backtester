@@ -1,0 +1,187 @@
+book_id: tiny-book-massive-returns-long-term-investing-and-timing-exc
+sections:
+- ref: ch0
+  title: Copyright, Permissions, and Disclaimers
+  epub_chapter_index: 0
+  status: low_priority
+  reason: Front matter / metadata
+- ref: ch1
+  title: Table of Contents
+  epub_chapter_index: 1
+  status: processed
+  reason: Main content extracted and analyzed
+- ref: ch2
+  title: Prologue
+  epub_chapter_index: 2
+  status: processed
+  reason: Main content extracted and analyzed
+- ref: ch3
+  title: Introduction
+  epub_chapter_index: 3
+  status: processed
+  reason: Main content extracted and analyzed
+- ref: ch4
+  title: 'Chapter 1: Understanding ETFs'
+  epub_chapter_index: 4
+  status: processed
+  reason: Main content extracted and analyzed
+- ref: ch5
+  title: 'Chapter 2: Introduction to RSI'
+  epub_chapter_index: 5
+  status: processed
+  reason: Main content extracted and analyzed
+- ref: ch6
+  title: 'Chapter 3: The Diamond Strategy Blueprint'
+  epub_chapter_index: 6
+  status: processed
+  reason: Main content extracted and analyzed
+- ref: ch7
+  title: 'Chapter 4: Applying Diamond Strategy - Case Studies'
+  epub_chapter_index: 7
+  status: processed
+  reason: Main content extracted and analyzed
+- ref: ch8
+  title: 'Case Study 0: ELHA, Greece'
+  epub_chapter_index: 8
+  status: processed
+  reason: Main content extracted and analyzed
+- ref: ch9
+  title: 'Case Study 1: U.S, S&P 500'
+  epub_chapter_index: 9
+  status: processed
+  reason: Empty or minimal content
+- ref: ch10
+  title: 'Case Study 2: U.S, Dow Jones'
+  epub_chapter_index: 10
+  status: processed
+  reason: Main content extracted and analyzed
+- ref: ch11
+  title: 'Case Study 3: U.S, Nasdaq'
+  epub_chapter_index: 11
+  status: processed
+  reason: Main content extracted and analyzed
+- ref: ch12
+  title: 'Case Study 4: Canada, TSX'
+  epub_chapter_index: 12
+  status: processed
+  reason: Main content extracted and analyzed
+- ref: ch13
+  title: 'Case Study 5: Brazil, Bovespa'
+  epub_chapter_index: 13
+  status: processed
+  reason: Main content extracted and analyzed
+- ref: ch14
+  title: 'Case Study 6: Germany, DAX'
+  epub_chapter_index: 14
+  status: processed
+  reason: Main content extracted and analyzed
+- ref: ch15
+  title: 'Case Study 7: France, CAC40'
+  epub_chapter_index: 15
+  status: processed
+  reason: Main content extracted and analyzed
+- ref: ch16
+  title: 'Case Study 8: UK, FTSE 100'
+  epub_chapter_index: 16
+  status: processed
+  reason: Main content extracted and analyzed
+- ref: ch17
+  title: 'Case Study 9: Greece, General Composite'
+  epub_chapter_index: 17
+  status: processed
+  reason: Main content extracted and analyzed
+- ref: ch18
+  title: 'Case Study 10: Japan, Nikkei 225'
+  epub_chapter_index: 18
+  status: processed
+  reason: Main content extracted and analyzed
+- ref: ch19
+  title: 'Case Study 11: China, Shanghai Composite'
+  epub_chapter_index: 19
+  status: processed
+  reason: Main content extracted and analyzed
+- ref: ch20
+  title: 'Case Study 12: India, BSE 30'
+  epub_chapter_index: 20
+  status: processed
+  reason: Main content extracted and analyzed
+- ref: ch21
+  title: 'Case Study 13: Indonesia, JKSE'
+  epub_chapter_index: 21
+  status: processed
+  reason: Main content extracted and analyzed
+- ref: ch22
+  title: 'Case Study 14: Hong Kong, Hang Seng'
+  epub_chapter_index: 22
+  status: processed
+  reason: Main content extracted and analyzed
+- ref: ch23
+  title: 'Case Study 15: Gold Futures'
+  epub_chapter_index: 23
+  status: processed
+  reason: Main content extracted and analyzed
+- ref: ch24
+  title: 'Case Study 16: Brent Oil Futures'
+  epub_chapter_index: 24
+  status: processed
+  reason: Main content extracted and analyzed
+- ref: ch25
+  title: 'Case Study 17: Copper Futures'
+  epub_chapter_index: 25
+  status: processed
+  reason: Main content extracted and analyzed
+- ref: ch26
+  title: 'Case Study 18: Silver Futures'
+  epub_chapter_index: 26
+  status: processed
+  reason: Main content extracted and analyzed
+- ref: ch27
+  title: 'Case Study 19: Bitcoin'
+  epub_chapter_index: 27
+  status: processed
+  reason: Main content extracted and analyzed
+- ref: ch28
+  title: 'Case Study 20: Ethereum'
+  epub_chapter_index: 28
+  status: processed
+  reason: Main content extracted and analyzed
+- ref: ch29
+  title: 'Chapter 5: Diamond Strategy Complete Statistics'
+  epub_chapter_index: 29
+  status: processed
+  reason: Main content extracted and analyzed
+- ref: ch30
+  title: 'Chapter 6: Conclusions and Key Insights'
+  epub_chapter_index: 30
+  status: processed
+  reason: Main content extracted and analyzed
+- ref: ch31
+  title: Epilogue
+  epub_chapter_index: 31
+  status: processed
+  reason: Main content extracted and analyzed
+- ref: ch32
+  title: 'Appendix: Putting Strategy into Practice'
+  epub_chapter_index: 32
+  status: processed
+  reason: Main content extracted and analyzed
+- ref: ch33
+  title: Notes
+  epub_chapter_index: 33
+  status: processed
+  reason: Main content extracted and analyzed
+- ref: ch34
+  title: Additional Material
+  epub_chapter_index: 34
+  status: processed
+  reason: Main content extracted and analyzed
+- ref: ch35
+  title: Additional Material
+  epub_chapter_index: 35
+  status: processed
+  reason: Main content extracted and analyzed
+- ref: ch36
+  title: Additional Material
+  epub_chapter_index: 36
+  status: processed
+  reason: Empty or minimal content

@@ -1,0 +1,140 @@
+book_id: "machine-learning-for-algorithmic-trading-predictive-models-t-2020"
+sections:
+  - ref: "CH1"
+    title: "Chapter 1: Machine Learning for Trading – From Idea to Execution"
+    pdf_page_start: 30
+    status: "processed"
+    reason: "Extracted; covers ML in investment industry, trading evolution, strategy overview."
+    
+  - ref: "CH2"
+    title: "Chapter 2: Market and Fundamental Data – Sources and Techniques"
+    pdf_page_start: 50
+    status: "planned_targeted_read"
+    reason: "High-value for data sourcing; market microstructure, order types, Nasdaq ITCH, API access. Targeted for data-quality insights."
+    
+  - ref: "CH3"
+    title: "Chapter 3: Alternative Data for Finance – Categories and Use Cases"
+    pdf_page_start: 88
+    status: "processed"
+    reason: "Extracted; evaluation criteria for alternative data, sourcing challenges, practical scraping examples."
+    
+  - ref: "CH4"
+    title: "Chapter 4: Financial Feature Engineering – How to Research Alpha Factors"
+    pdf_page_start: 110
+    status: "processed"
+    reason: "Extracted; factor research methodology, alpha engineering (momentum, value, volatility), signal denoising."
+    
+  - ref: "CH5"
+    title: "Chapter 5: Portfolio Optimization and Performance Evaluation"
+    pdf_page_start: 150
+    status: "processed"
+    reason: "Extracted; risk-return metrics, mean-variance optimization, risk parity, backtesting with pyfolio."
+    
+  - ref: "CH6"
+    title: "Chapter 6: The Machine Learning Process"
+    pdf_page_start: 176
+    status: "processed"
+    reason: "Extracted; ML workflow, supervised/unsupervised/reinforcement learning, cross-validation challenges in finance."
+    
+  - ref: "CH7"
+    title: "Chapter 7: Linear Models – From Risk Factors to Return Forecasts"
+    pdf_page_start: 202
+    status: "planned_targeted_read"
+    reason: "Baseline models, linear regression, Fama-French factors, logistic regression for price prediction. Lower priority than ensemble methods."
+    
+  - ref: "CH8"
+    title: "Chapter 8: The ML4T Workflow – From Model to Strategy Backtesting"
+    pdf_page_start: 250
+    status: "processed"
+    reason: "CRITICAL—Extracted; backtesting pitfalls (look-ahead bias, survivorship bias, outlier control), engines (backtrader, Zipline), implementation aspects."
+    
+  - ref: "CH9"
+    title: "Chapter 9: Time-Series Models for Volatility Forecasts and Statistical Arbitrage"
+    pdf_page_start: 284
+    status: "planned_targeted_read"
+    reason: "Covers ARIMA, VAR, cointegration, pairs trading. Time-series validation relevant but lower priority than ML-specific chapters."
+    
+  - ref: "CH10"
+    title: "Chapter 10: Bayesian ML – Dynamic Sharpe Ratios and Pairs Trading"
+    pdf_page_start: 324
+    status: "low_priority"
+    reason: "Bayesian inference, PyMC3 workflow; trading applications to Sharpe ratio and pairs trading. Specialized approach; lower relevance to core grid/stock systems."
+    
+  - ref: "CH11"
+    title: "Chapter 11: Random Forests – A Long-Short Strategy for Japanese Stocks"
+    pdf_page_start: 356
+    status: "processed"
+    reason: "Extracted; decision trees, random forests, hyperparameter tuning, feature importance, OOB testing, end-to-end ML4T workflow with LightGBM."
+    
+  - ref: "CH12"
+    title: "Chapter 12: Boosting Your Trading Strategy"
+    pdf_page_start: 394
+    status: "processed"
+    reason: "Extracted; AdaBoost, gradient boosting, XGBoost/LightGBM/CatBoost, ensemble interpretation, signal evaluation for intraday/daily strategies."
+    
+  - ref: "CH13"
+    title: "Chapter 13: Data-Driven Risk Factors and Asset Allocation with Unsupervised Learning"
+    pdf_page_start: 436
+    status: "planned_targeted_read"
+    reason: "PCA, clustering, hierarchical risk parity. Dimensionality reduction and portfolio construction relevant; lower priority than supervised methods."
+    
+  - ref: "CH14"
+    title: "Chapter 14: Text Data for Trading – Sentiment Analysis"
+    pdf_page_start: 468
+    status: "low_priority"
+    reason: "NLP pipeline, bag-of-words, naive Bayes sentiment classification on news/Twitter. Alternative data method; lower priority than quantitative factors."
+    
+  - ref: "CH15"
+    title: "Chapter 15: Topic Modeling – Summarizing Financial News"
+    pdf_page_start: 492
+    status: "low_priority"
+    reason: "LSI, pLSA, LDA for financial news. Specialized text feature extraction; lower priority for backtesting/execution workflows."
+    
+  - ref: "CH16"
+    title: "Chapter 16: Word Embeddings for Earnings Calls and SEC Filings"
+    pdf_page_start: 512
+    status: "low_priority"
+    reason: "word2vec, GloVe, doc2vec, transformers. Advanced NLP; lower priority than quantitative ML methods."
+    
+  - ref: "CH17"
+    title: "Chapter 17: Deep Learning for Trading"
+    pdf_page_start: 542
+    status: "planned_targeted_read"
+    reason: "Neural network design, TensorFlow/PyTorch, regularization, NN optimization. Foundation for subsequent deep architectures; relevant to model evaluation."
+    
+  - ref: "CH18"
+    title: "Chapter 18: CNNs for Financial Time Series and Satellite Images"
+    pdf_page_start: 580
+    status: "low_priority"
+    reason: "Convolutional neural nets for satellite imagery and 1D time series. Alternative data approach; lower priority for equity/grid execution."
+    
+  - ref: "CH19"
+    title: "Chapter 19: RNNs for Multivariate Time Series and Sentiment Analysis"
+    pdf_page_start: 620
+    status: "low_priority"
+    reason: "LSTM, GRU, backprop-through-time. Specialized for time-series and text; lower priority than ensemble methods for discrete decision tasks."
+    
+  - ref: "CH20"
+    title: "Chapter 20: Autoencoders for Conditional Risk Factors and Asset Pricing"
+    pdf_page_start: 654
+    status: "low_priority"
+    reason: "Dimensionality reduction, variational autoencoders, denoising. Advanced technique; lower priority for backtesting relevance."
+    
+  - ref: "CH21"
+    title: "Chapter 21: Generative Adversarial Nets for Synthetic Time-Series Data"
+    pdf_page_start: 678
+    status: "low_priority"
+    reason: "GANs for synthetic market data generation. Speculative data generation; lower priority for reproducibility/validation focus."
+    
+  - ref: "CH22"
+    title: "Chapter 22: Deep Reinforcement Learning – Building a Trading Agent"
+    pdf_page_start: 708
+    status: "low_priority"
+    reason: "Policy/value functions, Q-learning, dynamic programming. RL for trading agent; lower priority than supervised learning for discrete signals."
+
+coverage_summary:
+  processed_chapters: 8
+  planned_targeted_read_chapters: 5
+  low_priority_chapters: 9
+  total_chapters: 22
+  extraction_focus: "Prioritized ML workflow, feature engineering, backtesting methodology, ensemble methods, and model validation. Deep learning and NLP approaches marked lower priority due to focus on reproducible, validated equity and grid strategies."

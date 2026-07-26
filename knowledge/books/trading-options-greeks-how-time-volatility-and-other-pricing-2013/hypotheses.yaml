@@ -1,0 +1,295 @@
+- id: "TRADEGR-H001"
+  title: "Gamma scalping edge exists in high-volatility regimes"
+  status: "proposed"
+  derived_from:
+    - "TRADEGR-C2-002"
+    - "TRADEGR-C5-002"
+    - "TRADEGR-C10-001"
+  statement: "In equity markets with realized volatility >30%, delta-neutral gamma scalping generates positive alpha net of costs."
+  proposed_mechanism: "High volatility triggers frequent rebalancing; small profits lock in from each trade."
+  applicable_markets_and_regimes: "Equities with liquid options; high-vol regimes"
+  assumptions:
+    - "Transaction costs are low"
+    - "Options priced near Black-Scholes"
+  data_requirements: "High-frequency option bid-ask data; realized volatility; transaction costs"
+  baseline_or_null_hypothesis: "Gamma scalping alpha is indistinguishable from zero."
+  validation_approach: "Backtest gamma scalping on historical options data."
+  transaction_cost_and_fill_considerations: "Bid-ask spreads and commissions must be factored in."
+  robustness_checks:
+    - "Test across multiple stocks"
+    - "Vary rehedging frequency"
+  rejection_criteria: "Sharpe ratio < 1.0 in majority of years."
+  failure_modes:
+    - "Gaps violate continuous hedging"
+    - "Vol smile shifts destroy P&L"
+  freshness_concerns: "Post-2008 commission changes may eliminate edge."
+  unresolved_questions:
+    - "Optimal rehedging frequency?"
+
+- id: "TRADEGR-H002"
+  title: "Calendar spread profits correlate with IV backwardation"
+  status: "proposed"
+  derived_from:
+    - "TRADEGR-C2-004"
+    - "TRADEGR-C6-001"
+  statement: "Long calendar spreads generate positive alpha when IV term structure is backwardated."
+  proposed_mechanism: "Front-month theta decays faster; combined with IV contraction, favors long front."
+  applicable_markets_and_regimes: "Equity options near ATM; elevated near-term uncertainty"
+  assumptions:
+    - "Backwardation persists during holding period"
+    - "Spot stays near strike"
+  data_requirements: "IV term structure history; front/back-month option prices"
+  baseline_or_null_hypothesis: "Calendar spreads are break-even."
+  validation_approach: "Backtest; measure profitability by term structure regime."
+  transaction_cost_and_fill_considerations: "Spread entry/exit costs on both legs."
+  robustness_checks:
+    - "Vary strike and expiration"
+    - "Test across volatility regimes"
+  rejection_criteria: "Negative alpha in backwardated regimes."
+  failure_modes:
+    - "Term structure inverts"
+    - "Spot moves away from strike"
+  freshness_concerns: "QE has compressed term structure volatility."
+  unresolved_questions:
+    - "Minimum backwardation threshold?"
+
+- id: "TRADEGR-H003"
+  title: "Put skew predicts near-term downside volatility"
+  status: "proposed"
+  derived_from:
+    - "TRADEGR-C4-002"
+    - "TRADEGR-C7-001"
+  statement: "IV skew increases forecast higher realized downside volatility within 5-20 trading days."
+  proposed_mechanism: "Options market prices jump risk; skew steepening signals hedging demand."
+  applicable_markets_and_regimes: "Equities and indices with liquid options"
+  assumptions:
+    - "Options reflect information faster than spot"
+  data_requirements: "Intraday IV surface; realized volatility"
+  baseline_or_null_hypothesis: "Skew changes are unpredictable."
+  validation_approach: "Measure correlation between skew changes and realized vol."
+  transaction_cost_and_fill_considerations: "NA - this is a prediction hypothesis."
+  robustness_checks:
+    - "Test across multiple stocks"
+    - "Measure predictive decay over time"
+  rejection_criteria: "Correlation < 0.2."
+  failure_modes:
+    - "Skew driven by liquidity flows, not information"
+  freshness_concerns: "Circuit breakers may have altered dynamics."
+  unresolved_questions:
+    - "Cross-sectional or time-series predictability?"
+
+- id: "TRADEGR-H004"
+  title: "Theta harvesting outperforms in low-vol regimes"
+  status: "proposed"
+  derived_from:
+    - "TRADEGR-C2-004"
+    - "TRADEGR-C6-001"
+  statement: "Short premium strategies (strangles, calendar spreads) generate positive returns when realized vol < 30%."
+  proposed_mechanism: "Theta decay accelerates; if spot doesn't move much, sellers capture premium."
+  applicable_markets_and_regimes: "Stable stocks; low-vol regimes"
+  assumptions:
+    - "Realized vol stays below implied"
+  data_requirements: "Historical and implied volatility"
+  baseline_or_null_hypothesis: "Short premium returns are random."
+  validation_approach: "Backtest; measure returns conditional on vol regime."
+  transaction_cost_and_fill_considerations: "Commission and bid-ask on entry/exit."
+  robustness_checks:
+    - "Test across different regimes"
+  rejection_criteria: "Returns negative or Sharpe < 0.5."
+  failure_modes:
+    - "Vol spikes; losses exceed theta collected"
+  freshness_concerns: "Post-2008 vol volatility has increased."
+  unresolved_questions:
+    - "Optimal strike width for strangles?"
+
+- id: "TRADEGR-H005"
+  title: "Delta-hedging costs decrease with vol clustering"
+  status: "proposed"
+  derived_from:
+    - "TRADEGR-C2-001"
+    - "TRADEGR-C2-002"
+    - "TRADEGR-C5-001"
+  statement: "Delta hedges cost less in high-clustering regimes due to convex transaction cost structure."
+  proposed_mechanism: "Clustering = frequent small rehedges vs infrequent large rehedges; convex costs favor many small trades."
+  applicable_markets_and_regimes: "Any delta-hedged book"
+  assumptions:
+    - "Transaction costs are convex in size"
+  data_requirements: "Intraday prices; delta rebalance logs"
+  baseline_or_null_hypothesis: "Clustering has no impact on costs."
+  validation_approach: "Compare hedging costs in high vs low clustering periods."
+  transaction_cost_and_fill_considerations: "Model convex cost as f(order_size)."
+  robustness_checks:
+    - "Test multiple underlying assets"
+  rejection_criteria: "No significant cost difference."
+  failure_modes:
+    - "Liquidity decreases with clustering; spreads widen"
+  freshness_concerns: "E-trading may have reduced clustering."
+  unresolved_questions:
+    - "Clustering threshold to trigger benefit?"
+
+- id: "TRADEGR-H006"
+  title: "Dividend-adjusted early-exercise boundary predicts assignment"
+  status: "proposed"
+  derived_from:
+    - "TRADEGR-C3-002"
+    - "TRADEGR-C9-001"
+  statement: "American calls near ex-dates have >50% assignment probability if spot > early-exercise boundary."
+  proposed_mechanism: "Exercise captures dividend; incentive strong if dividend > time value."
+  applicable_markets_and_regimes: "High-dividend stocks; pre-ex-dividend period"
+  assumptions:
+    - "Dividends known"
+    - "No surprises"
+  data_requirements: "Dividend schedule; option assignment history"
+  baseline_or_null_hypothesis: "Assignment is random."
+  validation_approach: "Compute boundary; measure assignment correlation."
+  transaction_cost_and_fill_considerations: "NA."
+  robustness_checks:
+    - "Cross-validate on multiple stocks"
+  rejection_criteria: "No correlation between boundary and assignment."
+  failure_modes:
+    - "Special dividends"
+  freshness_concerns: "Dividend policies have changed; buybacks now more common."
+  unresolved_questions:
+    - "Scaling with dividend size?"
+
+- id: "TRADEGR-H007"
+  title: "Vega-neutral rehedging captures IV mean reversion alpha"
+  status: "proposed"
+  derived_from:
+    - "TRADEGR-C2-003"
+    - "TRADEGR-C11-001"
+  statement: "Vega-neutral portfolios capture alpha when IV surface rotations mean-revert."
+  proposed_mechanism: "Rehedging at elevated IV captures subsequent mean reversion."
+  applicable_markets_and_regimes: "Options on equities; high-vol regimes"
+  assumptions:
+    - "IV mean-reverts over 5-30 day horizons"
+  data_requirements: "IV surface history"
+  baseline_or_null_hypothesis: "Rehedging P&L is random."
+  validation_approach: "Measure rehedge P&L vs IV changes."
+  transaction_cost_and_fill_considerations: "Option bid-ask spreads."
+  robustness_checks:
+    - "Test across time periods"
+  rejection_criteria: "Rehedge P&L not significantly positive."
+  failure_modes:
+    - "Volga effects not captured"
+  freshness_concerns: "Central bank intervention altered IV dynamics."
+  unresolved_questions:
+    - "Optimal hedge ratio?"
+
+- id: "TRADEGR-H008"
+  title: "IV term structure steepness drives calendar spread alpha"
+  status: "proposed"
+  derived_from:
+    - "TRADEGR-C4-002"
+  statement: "Calendar spreads outperform when IV term structure is steeper than historical realized term structure."
+  proposed_mechanism: "Excess steepness means-reverts; long back-month benefits."
+  applicable_markets_and_regimes: "Indices and single stocks"
+  assumptions:
+    - "Term structure steepness mean-reverts"
+  data_requirements: "IV term structure; realized volatility history"
+  baseline_or_null_hypothesis: "Steepness is unrelated to returns."
+  validation_approach: "Backtest calendar spreads conditional on steepness."
+  transaction_cost_and_fill_considerations: "Bid-ask on both legs."
+  robustness_checks:
+    - "Test multiple time periods"
+  rejection_criteria: "No correlation."
+  failure_modes:
+    - "Steepness reflects genuine vol expectations"
+  freshness_concerns: "Central bank policy altered term structure."
+  unresolved_questions:
+    - "Optimal steepness metric?"
+
+- id: "TRADEGR-H009"
+  title: "Portfolio gamma concentration predicts tail risk"
+  status: "proposed"
+  derived_from:
+    - "TRADEGR-C2-002"
+    - "TRADEGR-C12-001"
+  statement: "High gamma concentration increases vulnerability to extreme down-moves."
+  proposed_mechanism: "Gamma is convex; concentrated gamma magnifies tail losses."
+  applicable_markets_and_regimes: "Any derivatives portfolio"
+  assumptions:
+    - "Rehedging not possible during extreme move"
+  data_requirements: "Portfolio gamma distribution; stress scenarios"
+  baseline_or_null_hypothesis: "Gamma concentration uncorrelated with tail losses."
+  validation_approach: "Stress test in extreme scenarios."
+  transaction_cost_and_fill_considerations: "NA."
+  robustness_checks:
+    - "Historical stress scenarios (2008, 2020)"
+  rejection_criteria: "No correlation."
+  failure_modes:
+    - "Higher-order Greeks matter"
+  freshness_concerns: "Circuit breakers may interrupt hedging."
+  unresolved_questions:
+    - "Concentration metric?"
+
+- id: "TRADEGR-H010"
+  title: "Bid-ask spread widening correlates with gamma losses"
+  status: "proposed"
+  derived_from:
+    - "TRADEGR-C2-002"
+    - "TRADEGR-C13-001"
+  statement: "Hedging losses increase on days when option spreads widen significantly."
+  proposed_mechanism: "Wide spreads force worse execution; hedge cost increases."
+  applicable_markets_and_regimes: "All options markets"
+  assumptions:
+    - "Spread widening is exogenous"
+  data_requirements: "Bid-ask spread history; hedging P&L"
+  baseline_or_null_hypothesis: "Spreads uncorrelated with hedging losses."
+  validation_approach: "Measure correlation."
+  transaction_cost_and_fill_considerations: "Spread is a direct cost."
+  robustness_checks:
+    - "Test multiple assets"
+  rejection_criteria: "Weak correlation."
+  failure_modes:
+    - "Spread widening and vol spikes simultaneous"
+  freshness_concerns: "Market structure evolved."
+  unresolved_questions:
+    - "Predictable spreads?"
+
+- id: "TRADEGR-H011"
+  title: "Implied correlation overstates realized correlation in crises"
+  status: "proposed"
+  derived_from:
+    - "TRADEGR-C8-001"
+  statement: "During crises, realized equity correlations exceed implied correlations from options."
+  proposed_mechanism: "Crisis spreads correlations faster than options reprice."
+  applicable_markets_and_regimes: "Equity portfolios"
+  assumptions:
+    - "Options market not perfectly efficient"
+  data_requirements: "Single-stock and index options; realized correlations"
+  baseline_or_null_hypothesis: "Options market is efficient."
+  validation_approach: "Measure gap in crisis periods."
+  transaction_cost_and_fill_considerations: "NA."
+  robustness_checks:
+    - "Test multiple crisis periods"
+  rejection_criteria: "Gap not significant."
+  failure_modes:
+    - "Convergence too quick"
+  freshness_concerns: "Post-2008 circuit breakers may have reduced surprises."
+  unresolved_questions:
+    - "Early detection possible?"
+
+- id: "TRADEGR-H012"
+  title: "Optimal delta-hedging frequency balances gamma and theta"
+  status: "proposed"
+  derived_from:
+    - "TRADEGR-C2-002"
+    - "TRADEGR-C2-004"
+  statement: "Optimal rehedging frequency is ~weekly in normal vol, daily in high vol."
+  proposed_mechanism: "Frequency trades off transaction costs vs gamma/theta."
+  applicable_markets_and_regimes: "Any delta-hedged position"
+  assumptions:
+    - "Costs proportional to size"
+  data_requirements: "Gamma, theta, transaction costs"
+  baseline_or_null_hypothesis: "Frequency has no optimal value."
+  validation_approach: "Backtest different frequencies; optimize total cost."
+  transaction_cost_and_fill_considerations: "Model costs explicitly."
+  robustness_checks:
+    - "Test across vol regimes"
+  rejection_criteria: "No clear optimum."
+  failure_modes:
+    - "Optimal frequency varies with regime"
+  freshness_concerns: "E-trading reduced costs; optimal frequency higher now."
+  unresolved_questions:
+    - "Regime-dependent optimization?"

@@ -1,0 +1,200 @@
+- id: OPTCOURSE-REQ-001
+  title: Greeks calculation accuracy
+  status: proposed
+  derived_from:
+    - OPTCOURSE-ch6-011
+    - OPTCOURSE-ch6-012
+  derivation_type: direct_book_recommendation
+  rationale: Greeks-based position sizing and risk management depend on calculation accuracy for reliable backtesting
+  applies_to:
+    strategy:
+      - stock_signal
+    lifecycle:
+      - backtest
+    asset_class:
+      - equities
+    concern:
+      - simulation
+      - data
+  requirement: Shall calculate delta, gamma, theta, vega, rho with accuracy within 0.01% of market data for backtesting validation
+  acceptance_tests:
+    - validate_against_market_prices
+    - compare_greek_values_to_bloomberg
+  failure_prevented: Inaccurate Greeks lead to incorrect position sizing
+  capability_enabled: Reliable Greeks-based risk management
+  assumptions:
+    - market_data_available
+    - option_pricing_model_accuracy
+  open_questions: []
+  dependencies: []
+  verification_needed: implementation_review
+  priority_hint: correctness
+
+- id: OPTCOURSE-REQ-002
+  title: Position monitoring and alert system
+  status: proposed
+  derived_from:
+    - OPTCOURSE-ch11-022
+  derivation_type: direct_book_recommendation
+  rationale: Adjustments require timely detection of adverse movement; real-time monitoring prevents forced liquidations
+  applies_to:
+    strategy:
+      - stock_signal
+    lifecycle:
+      - live
+    asset_class:
+      - equities
+    concern:
+      - execution
+      - monitoring
+      - operations
+  requirement: Shall monitor open positions and trigger alerts when price approaches strike levels, defined loss limits, or expiration windows
+  acceptance_tests:
+    - alert_triggers_at_price_thresholds
+    - alert_latency_under_100ms
+  failure_prevented: Missed adjustment opportunities; forced liquidations
+  capability_enabled: Proactive position management
+  assumptions:
+    - market_data_real_time
+    - notification_delivery_reliable
+  open_questions: []
+  dependencies: []
+  verification_needed: integration_testing
+  priority_hint: correctness
+
+- id: OPTCOURSE-REQ-003
+  title: Multi-leg order execution
+  status: proposed
+  derived_from:
+    - OPTCOURSE-ch13-026
+  derivation_type: direct_book_recommendation
+  rationale: Partial fills create unintended directional exposure; atomic multi-leg orders minimize risk
+  applies_to:
+    strategy:
+      - stock_signal
+    lifecycle:
+      - live
+    asset_class:
+      - equities
+    concern:
+      - execution
+      - operations
+  requirement: Shall support atomic execution of multi-leg spreads to minimize fill risk and execution slippage
+  acceptance_tests:
+    - all_or_nothing_fill_logic
+    - partial_fill_rejection
+    - leg_coordination_tests
+  failure_prevented: Unintended directional exposure from partial fills
+  capability_enabled: Safe multi-leg spread entry
+  assumptions:
+    - broker_api_supports_spreads
+  open_questions:
+    - fallback_to_sequential_legs_if_spread_unavailable
+  dependencies: []
+  verification_needed: broker_api_testing
+  priority_hint: correctness
+
+- id: OPTCOURSE-REQ-004
+  title: Margin calculation accuracy
+  status: proposed
+  derived_from:
+    - OPTCOURSE-ch14-028
+  derivation_type: direct_book_recommendation
+  rationale: Margin calls can force unwanted liquidations; accurate margin tracking prevents cascading losses
+  applies_to:
+    strategy:
+      - stock_signal
+    lifecycle:
+      - backtest
+      - live
+    asset_class:
+      - equities
+    concern:
+      - risk
+      - monitoring
+      - operations
+  requirement: Shall calculate margin requirements per broker specifications and maintain reserve for adverse moves
+  acceptance_tests:
+    - margin_calc_matches_broker
+    - reserve_maintenance_logic
+    - margin_call_simulation
+  failure_prevented: Margin calls and forced liquidations
+  capability_enabled: Safe leverage management
+  assumptions:
+    - broker_margin_specs_current
+  open_questions:
+    - portfolio_margin_support
+    - reg_t_vs_portfolio_margin_selection
+  dependencies: []
+  verification_needed: broker_documentation_review
+  priority_hint: safety
+
+- id: OPTCOURSE-REQ-005
+  title: Volatility surface representation
+  status: proposed
+  derived_from:
+    - OPTCOURSE-ch2-002
+    - OPTCOURSE-ch7-015
+  derivation_type: direct_book_recommendation
+  rationale: Flat IV assumptions underestimate tail risk and miscalculate Greeks; smile/skew is empirically stable
+  applies_to:
+    strategy:
+      - stock_signal
+    lifecycle:
+      - backtest
+      - live
+    asset_class:
+      - equities
+    concern:
+      - data
+      - simulation
+  requirement: Shall represent implied volatility surface (smile/skew) for accurate option pricing across strikes and maturities
+  acceptance_tests:
+    - iv_surface_calibration
+    - greek_accuracy_across_strikes
+    - tail_risk_modeling
+  failure_prevented: Underestimation of tail risk; inaccurate Greeks in wings
+  capability_enabled: Realistic backtesting and risk management
+  assumptions:
+    - market_data_includes_iv_surface
+  open_questions:
+    - volatility_term_structure_modeling
+    - regime_dependent_smile_changes
+  dependencies:
+    - OPTCOURSE-REQ-001
+  verification_needed: research_paper_validation
+  priority_hint: correctness
+
+- id: OPTCOURSE-REQ-006
+  title: Execution slippage modeling
+  status: proposed
+  derived_from:
+    - OPTCOURSE-ch13-025
+  derivation_type: direct_book_recommendation
+  rationale: Spread orders incur coordinated execution costs often underestimated in backtest; leads to overoptimistic P&L projections
+  applies_to:
+    strategy:
+      - stock_signal
+    lifecycle:
+      - backtest
+      - live
+    asset_class:
+      - equities
+    concern:
+      - execution
+      - simulation
+  requirement: Shall model bid-ask spread impact and fill probability for multi-leg orders based on underlying liquidity
+  acceptance_tests:
+    - spread_slippage_by_liquidity
+    - multi_leg_coordination_cost
+    - backtest_realism_validation
+  failure_prevented: Overestimated backtest P&L due to execution cost underestimation
+  capability_enabled: Realistic backtest and forward performance alignment
+  assumptions:
+    - market_microstructure_data_available
+  open_questions:
+    - dynamic_spread_modeling
+    - liquidity_regime_detection
+  dependencies: []
+  verification_needed: empirical_data_analysis
+  priority_hint: operability

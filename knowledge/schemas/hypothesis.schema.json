@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Hypothesis record",
+  "type": "object",
+  "required": ["id", "title", "status", "derived_from", "statement"],
+  "properties": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9._-]+$"},
+    "title": {"type": "string", "minLength": 1},
+    "status": {"const": "proposed"},
+    "derived_from": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "statement": {"type": "string", "minLength": 1},
+    "proposed_mechanism": {"type": ["string", "null"]},
+    "applicable_markets_and_regimes": {"type": ["string", "array", "null"]},
+    "assumptions": {"type": "array", "items": {"type": "string"}},
+    "data_requirements": {"type": ["string", "array", "null"]},
+    "baseline_or_null_hypothesis": {"type": ["string", "null"]},
+    "validation_approach": {"type": ["string", "null"]},
+    "transaction_cost_and_fill_considerations": {"type": ["string", "null"]},
+    "robustness_checks": {"type": ["string", "array", "null"]},
+    "rejection_criteria": {"type": ["string", "array", "null"]},
+    "failure_modes": {"type": ["string", "array", "null"]},
+    "freshness_concerns": {"type": ["string", "null"]},
+    "unresolved_questions": {"type": ["string", "array", "null"]}
+  }
+}
