@@ -1205,7 +1205,11 @@ function ResearchWorkspace({ research }: { research: ResearchPort }) {
   }
 
   function selectProductionSymbol(symbol: string) {
-    if (!panel) return;
+    if (!panel || panel.datasets.length === 0) {
+      setSelectedSymbol(symbol);
+      setDraft((current) => current ? { ...current, symbol } : current);
+      return;
+    }
     syncSelectedDataset(panel, symbol, 0);
   }
 
@@ -1326,9 +1330,14 @@ function ResearchWorkspace({ research }: { research: ResearchPort }) {
 
   const selected = panel?.datasets.find((item) => item.symbol === selectedSymbol);
   const selectedCatalogSymbol = catalog?.symbols.find((item) => item.symbol === selectedSymbol);
+  const catalogOptions = catalog?.symbols
+    .filter((item) => item.symbol.includes(symbolFilter.trim().toUpperCase()))
+    .sort((left, right) => left.liquidity_rank - right.liquidity_rank)
+    .map((item) => ({ symbol: item.symbol, display_order: item.liquidity_rank })) ?? [];
   const visibleSymbols = panel?.datasets
     .filter((item) => item.symbol.includes(symbolFilter.trim().toUpperCase()))
     .sort((left, right) => left.display_order - right.display_order) ?? [];
+  const symbolOptions = visibleSymbols.length > 0 ? visibleSymbols : catalogOptions;
   const selectedRange = selected?.verified_ranges[selectedVerifiedRangeIndex]
     ?? selected?.verified_ranges[0];
   const selectedRangeDays = selectedRange ? rangeDays(selectedRange.start, selectedRange.end) : 0;
@@ -1415,9 +1424,9 @@ function ResearchWorkspace({ research }: { research: ResearchPort }) {
                 value={selectedSymbol}
                 onChange={(event) => selectProductionSymbol(event.currentTarget.value)}
               >
-                {visibleSymbols.map((item) => (
+                {symbolOptions.map((item) => (
                   <option key={item.symbol} value={item.symbol}>
-                    #{item.display_order} · {item.symbol}
+                    #{item.display_order} · {item.symbol}{visibleSymbols.length === 0 ? " · local archive pending" : ""}
                   </option>
                 ))}
               </select>
@@ -1510,6 +1519,24 @@ function ResearchWorkspace({ research }: { research: ResearchPort }) {
             <ExpandableInfo title="See why the system suggests a certain starting grid">
               <CanonicalAdaptiveCard presentation={canonicalAdaptive} />
             </ExpandableInfo>
+          )}
+
+          {!selected && catalog && (
+            <div className="archive-empty-state">
+              <p><strong>Official catalog loaded:</strong> {catalog.symbols.length} EUR symbols are available, but no verified local dataset is synchronized yet.</p>
+              <div className="action-row">
+                <button disabled={catalogBusy || productionBusy} type="button" onClick={refreshCatalog}>
+                  {catalogBusy ? "Refreshing…" : "Refresh official market list"}
+                </button>
+                <button disabled={panelBusy || productionBusy || catalogBusy} type="button" onClick={refreshPanel}>
+                  {panelBusy ? "Refreshing…" : "Refresh local archive status"}
+                </button>
+                <button disabled={panelBusy || productionBusy || catalogBusy} type="button" onClick={synchronizePanel}>
+                  {productionBusy ? "Synchronizing…" : "Synchronize local archive"}
+                </button>
+              </div>
+              <p>No verified local range is available until the archive is synchronized.</p>
+            </div>
           )}
 
           {selected && (

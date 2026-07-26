@@ -904,6 +904,8 @@ legend b { margin-right: 8px; color: var(--brand-soft); font-size: 11px; letter-
 .job-progress { height: 8px; overflow: hidden; border-radius: 99px; background: #19352a; }
 .job-progress div { height: 100%; background: #7be3aa; transition: width .2s ease; }
 .job-note { padding: 12px; border-left: 2px solid #d5a75f; color: #dcb879; background: #241d11; line-height: 1.5; }
+.archive-empty-state { display: grid; gap: 12px; margin-top: 18px; padding: 16px; border: 1px dashed #a77738; border-radius: 12px; color: #dcb879; background: #241b10; }
+.archive-empty-state p { margin: 0; line-height: 1.5; }
 .job-gates, .job-events { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
 .job-gates > div, .job-events button { display: grid; gap: 5px; padding: 10px; border: 1px solid #315849; border-radius: 8px; color: #a8beb3; background: #0b2119; text-align: left; }
 .job-gates strong, .job-events strong { color: #8df0b8; font-size: 11px; letter-spacing: .08em; }

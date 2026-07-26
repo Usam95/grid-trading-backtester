@@ -987,4 +987,24 @@ describe("typed Studio shell", () => {
     expect(screen.getByText("Refresh local archive status")).toBeTruthy();
     expect(research.getProductionArchive).toHaveBeenCalledOnce();
   });
+
+  it("keeps catalog symbols visible and exposes synchronization when the local archive is empty", async () => {
+    const emptyPanel: FrozenProductionPanel = {
+      ...panel,
+      status: "pending",
+      symbols: [],
+      datasets: [],
+      preview: { ...panel.preview, symbols: [], pending_partitions: 1, verified_partitions: 0 },
+    };
+    const research = {
+      ...researchPort(),
+      getProductionArchive: vi.fn().mockResolvedValue(emptyPanel),
+    };
+    render(<App research={research} />);
+
+    expect(await screen.findByText("Run over local EUR market history")).toBeTruthy();
+    expect(screen.getByRole("option", { name: /ADAEUR · local archive pending/i })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Synchronize local archive" })).toBeTruthy();
+    expect(screen.getByText(/No verified local range is available until the archive is synchronized/i)).toBeTruthy();
+  });
 });
