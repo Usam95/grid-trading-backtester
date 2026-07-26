@@ -197,12 +197,18 @@ const panel: FrozenProductionPanel = {
     verified_ranges: index === 1 ? [{
       start: "2022-01-01T00:00:00Z",
       end: "2024-01-01T00:00:00Z",
+      start_open_price: "110.000000000000000000",
+      end_close_price: "115.500000000000000000",
     }, {
       start: "2025-01-01T00:00:00Z",
       end: "2026-07-22T00:00:00Z",
+      start_open_price: "111.000000000000000000",
+      end_close_price: "118.500000000000000000",
     }] : [{
       start: "2022-01-01T00:00:00Z",
       end: "2026-07-22T00:00:00Z",
+      start_open_price: "100.000000000000000000",
+      end_close_price: "101.500000000000000000",
     }],
     total_rows: 2_000_000 + index,
     stored_bytes: 654321 + index,
@@ -246,7 +252,67 @@ const panel: FrozenProductionPanel = {
 const productionRun: StudioBacktestRun = {
   ...completedRun,
   id: "run-production-001",
-  result: { ...completedRun.result, symbol: "ETHEUR", bars: 1440 },
+  specification: {
+    symbol: "ETHEUR",
+    market_type: "spot",
+    initial_cash: 10000,
+    grid: {
+      levels: 12,
+      lower: 102.12,
+      upper: 119.88,
+      spacing: "arithmetic",
+      direction: "neutral",
+      adaptive: false,
+      stop_loss_frac: 0.12,
+    },
+    sizing: { mode: "fixed_quote", value: 80 },
+    fees: { maker: 0.001, taker: 0.001 },
+    data: { kind: "manifested_parquet", dataset_id: panel.datasets[1].dataset_id },
+    n_trials: 1,
+  },
+  result: {
+    ...completedRun.result,
+    symbol: "ETHEUR",
+    bars: 1440,
+    series: {
+      x: [0, 1, 2, 3, 4, 5],
+      timestamps: [
+        "2025-01-01T00:00:00Z",
+        "2025-01-01T04:00:00Z",
+        "2025-01-01T08:00:00Z",
+        "2025-01-01T12:00:00Z",
+        "2025-01-01T16:00:00Z",
+        "2025-01-01T20:00:00Z",
+      ],
+      price: [111, 112.4, 109.8, 115.1, 117.2, 118.5],
+      equity: [10000, 10010, 10005, 10120, 10210, 10312],
+      drawdown: [0, -0.002, -0.004, -0.001, -0.0005, -0.0018],
+    },
+    grid: {
+      lower: 102.12,
+      upper: 119.88,
+      center: 111,
+      spacing: "arithmetic",
+      direction: "neutral",
+      adaptive: false,
+      source: "static",
+      levels: [102.12, 106.56, 111.0, 115.44, 119.88],
+    },
+    trades: [{
+      side: "LONG",
+      qty: 0.72,
+      entry_price: 109.8,
+      exit_price: 117.2,
+      pnl: 5.32,
+      return_pct: 0.067,
+      bars_held: 2,
+      opened_at: "2025-01-01T08:00:00Z",
+      closed_at: "2025-01-01T16:00:00Z",
+      exit_reason: "limit",
+      entry_x: 2,
+      exit_x: 4,
+    }],
+  },
   provenance: {
     dataset_id: panel.datasets[1].dataset_id,
     manifest_identity: "8".repeat(64),
@@ -270,6 +336,34 @@ const productionRun: StudioBacktestRun = {
     },
     partition_identities: [panel.datasets[1].partitions[0].partition_id],
     quote_asset: "EUR",
+  },
+};
+
+const zeroTradeProductionRun: StudioBacktestRun = {
+  ...productionRun,
+  id: "run-production-zero-001",
+  primary_result: {
+    net_return: 0,
+    final_equity: 10000,
+    max_drawdown: 0,
+    completed_trades: 0,
+    fees_paid: 0,
+    verdict: "Weak",
+  },
+  result: {
+    ...productionRun.result,
+    initial_cash: 10000,
+    final_equity: 10000,
+    fees_paid: 0,
+    metrics: {
+      ...productionRun.result.metrics,
+      total_return: 0,
+      max_drawdown: 0,
+      n_trades: 0,
+      win_rate: 0,
+    },
+    verdict: { label: "Weak", tone: "bad", score: 1, max_score: 7 },
+    trades: [],
   },
 };
 
@@ -767,42 +861,36 @@ describe("typed Studio shell", () => {
     const research = researchPort();
     render(<App research={research} />);
 
-    expect(await screen.findByText("Market & Data")).toBeTruthy();
-    expect(screen.getByText("Grid & Capital")).toBeTruthy();
-    expect(screen.getByText("Costs & Execution")).toBeTruthy();
-    expect(screen.getByText("Risk & Evaluation")).toBeTruthy();
+    fireEvent.click(await screen.findByRole("button", { name: /experiment quickly with synthetic data/i }));
+    expect(await screen.findByText("Try the strategy with fast synthetic data")).toBeTruthy();
+    expect(screen.getByText("Market & scenario")).toBeTruthy();
+    expect(screen.getByText("Grid setup")).toBeTruthy();
+    expect(screen.getByText("Costs")).toBeTruthy();
+    expect(screen.getByText("Safety limits")).toBeTruthy();
 
     fireEvent.change(screen.getByLabelText("Symbol"), {
       target: { value: "ETHUSDT" },
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "Run backtest" }));
+    fireEvent.click(screen.getByRole("button", { name: "Run synthetic backtest" }));
 
     await waitFor(() => expect(research.executeBacktest).toHaveBeenCalledOnce());
     expect(screen.getByText("+3.12%")).toBeTruthy();
     expect(screen.getByText("10,312.00 USDT")).toBeTruthy();
     expect(screen.getByText("run-typed-001")).toBeTruthy();
-    expect(screen.getByText("CANDLE SIMULATION ONLY")).toBeTruthy();
-    expect(screen.getByText("NOT VENUE EXECUTION PROOF")).toBeTruthy();
+    expect(screen.getByText("Show simulation caveats")).toBeTruthy();
   });
 
   it("presents the obligation-backed adaptive initial epoch and activation gates", async () => {
     render(<App research={researchPort()} />);
 
-    expect(await screen.findByText("Adaptive policy characterization")).toBeTruthy();
+    expect(await screen.findByText("Why this starting grid was suggested")).toBeTruthy();
     expect(screen.getByText("RANGE_NORMAL")).toBeTruthy();
-    expect(screen.getAllByText("BOOTSTRAPPING")).toHaveLength(2);
-    expect(screen.getByText(identity("1"))).toBeTruthy();
-    expect(screen.getByText(identity("3"))).toBeTruthy();
-    expect(screen.getByText(identity("6"))).toBeTruthy();
-    expect(screen.getByText(identity("a"))).toBeTruthy();
-    expect(screen.getByText("required_backing_inventory_not_confirmed", { exact: false })).toBeTruthy();
-    expect(screen.getAllByText("BUY")).toHaveLength(3);
-    expect(screen.getAllByText("SELL")).toHaveLength(2);
-    expect(screen.getByText("0.38886 BTC gross", { exact: false })).toBeTruthy();
-    expect(screen.getByText(
-      "canonical seam emits no immediate cancel-all/rebuild transition",
-    )).toBeTruthy();
+    expect(screen.getByText("Needs confirmation")).toBeTruthy();
+    expect(screen.getAllByText("qualified_sideways_range").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("required_backing_inventory_not_confirmed", { exact: false }).length).toBeGreaterThan(0);
+    expect(screen.getByText("0.38886 BTC gross backing inventory")).toBeTruthy();
+    expect(screen.getByText("Show detailed decision evidence")).toBeTruthy();
   });
 
   it("presents separate safety facts without implying command authority", async () => {
@@ -834,49 +922,69 @@ describe("typed Studio shell", () => {
     const research = researchPort();
     render(<App research={research} />);
 
-    expect(await screen.findByText("Run over synchronized EUR history")).toBeTruthy();
-    expect(await screen.findByText("10 fixed EUR datasets")).toBeTruthy();
+    expect(await screen.findByText("Run over local EUR market history")).toBeTruthy();
+    expect(await screen.findByText("Local datasets ready")).toBeTruthy();
     fireEvent.change(screen.getByLabelText("EUR production symbol"), {
       target: { value: "ETHEUR" },
     });
-    expect(screen.getByText("Stable dataset identity · EUR quote asset · Spot production history only")).toBeTruthy();
-    expect(screen.getByText("Official archive availability")).toBeTruthy();
-    expect(screen.getByText("2022-01-01 → 2026-07-21")).toBeTruthy();
+    expect(screen.getByText("Stable local dataset · EUR quote asset · verified Spot production replay only.")).toBeTruthy();
     fireEvent.change(screen.getByLabelText("Verified local range"), {
       target: { value: "1" },
     });
-    fireEvent.change(screen.getByLabelText("UTC start day"), {
-      target: { value: "2025-01-01" },
-    });
-    fireEvent.change(screen.getByLabelText("UTC end day"), {
-      target: { value: "2025-01-02" },
-    });
+    expect(screen.getByText("Replay-start price")).toBeTruthy();
+    expect(screen.getAllByText("111.00 EUR").length).toBeGreaterThan(0);
+    expect((screen.getByLabelText("Lower bound") as HTMLInputElement).value).toBe("102.12");
+    expect((screen.getByLabelText("Upper bound") as HTMLInputElement).value).toBe("119.88");
     fireEvent.click(screen.getByRole("button", { name: "Run production-history backtest" }));
-    expect(await screen.findByText("PRODUCTION HISTORY")).toBeTruthy();
-    expect(screen.getByText("TESTNET HISTORY NOT USED")).toBeTruthy();
-    expect(screen.getByText("f".repeat(64))).toBeTruthy();
+    expect(await screen.findByText("Show technical provenance")).toBeTruthy();
+    expect(screen.getByText("Price path, grid, and executed trades")).toBeTruthy();
+    expect(screen.getByLabelText("Replay price path with grid levels and executed trades")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Zoom in replay chart" })).toBeTruthy();
+    expect(screen.getByText("Visible points: 6 / 6 · Drag to pan · Wheel to zoom")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Zoom in replay chart" }));
+    expect(screen.getByText("Visible points: 4 / 6 · Drag to pan · Wheel to zoom")).toBeTruthy();
     expect(research.executeProductionArchiveBacktest).toHaveBeenCalledOnce();
     expect(screen.getByText("10,312.00 EUR")).toBeTruthy();
     expect(research.executeProductionArchiveBacktest).toHaveBeenCalledWith({
       dataset_id: panel.datasets[1].dataset_id,
-      start: "2025-01-01T00:00:00.000Z",
-      end: "2025-01-03T00:00:00.000Z",
+      start: "2025-01-01T00:00:00Z",
+      end: "2026-07-22T00:00:00Z",
       spec: expect.objectContaining({
         symbol: "ETHEUR",
         data: { kind: "manifested_parquet", dataset_id: panel.datasets[1].dataset_id },
       }),
-      options: expect.anything(),
+      options: {
+        include_trades: true,
+        with_report: false,
+      },
     });
+  });
+
+  it("explains zero-trade production runs using the submitted grid configuration", async () => {
+    const research = {
+      ...researchPort(),
+      executeProductionArchiveBacktest: vi.fn().mockResolvedValue(zeroTradeProductionRun),
+    };
+    render(<App research={research} />);
+
+    expect(await screen.findByText("Run over local EUR market history")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Run production-history backtest" }));
+
+    expect(await screen.findByText("NO ORDER FILLS WERE RECORDED")).toBeTruthy();
+    expect(screen.getByText(/this submitted grid never executed a fill/i)).toBeTruthy();
+    expect(screen.getByText("Submitted bounds")).toBeTruthy();
+    expect(screen.getByText("102.12 → 119.88 EUR")).toBeTruthy();
+    expect(screen.getAllByText(/12 rung prices · arithmetic spacing/i).length).toBeGreaterThan(0);
   });
 
   it("exposes the synchronized ten-symbol EUR production archive in Studio", async () => {
     const research = researchPort();
     render(<App research={research} />);
 
-    expect(await screen.findByText("Ten-symbol EUR production archive")).toBeTruthy();
-    expect(screen.getByText("10 fixed EUR datasets")).toBeTruthy();
-    expect(screen.getByText("123,456,789 bytes")).toBeTruthy();
-    expect(screen.getByText("Exact EUR symbols are frozen by specification, not live ranking.")).toBeTruthy();
+    expect(await screen.findByText("Run over local EUR market history")).toBeTruthy();
+    expect(screen.getByText("Eligible EUR symbols")).toBeTruthy();
+    expect(screen.getByText("Estimated local storage")).toBeTruthy();
+    expect(screen.getByText("Refresh local archive status")).toBeTruthy();
     expect(research.getProductionArchive).toHaveBeenCalledOnce();
   });
 });

@@ -271,7 +271,14 @@ def read_synchronized_production_archive(root: Path) -> dict[str, object]:
     index = _read_index(root)
     if index is None:
         raise ProductionArchiveError("synchronized production archive is not initialized")
-    return index
+    return _build_status(
+        root=root,
+        datasets=cast(list[dict[str, object]], index["datasets"]),
+        sources=cast(list[dict[str, object]], index["sources"]),
+        preview=cast(dict[str, object], index["preview"]),
+        retrieved_at=datetime.fromisoformat(cast(str, index["retrieved_at"])),
+        blocking_reasons=cast(list[str], index["blocking_reasons"]),
+    )
 
 
 def _write_json_atomic(path: Path, payload: Mapping[str, object]) -> None:
@@ -587,34 +594,75 @@ def _source_plans(
     return tuple(plans)
 
 
-def _verified_ranges(partitions: Sequence[Mapping[str, object]]) -> list[dict[str, str]]:
+def _partition_edge_prices(root: Path, partition: Mapping[str, object]) -> tuple[str, str]:
+    parquet_path = root / cast(str, partition["path"])
+    rows = pq.read_table(parquet_path, columns=["open", "close"]).to_pylist()
+    if not rows:
+        raise ProductionArchiveError("verified partition has no rows")
+    return (
+        _canonical_decimal(cast(Decimal, rows[0]["open"])),
+        _canonical_decimal(cast(Decimal, rows[-1]["close"])),
+    )
+
+
+def _verified_ranges(
+    root: Path,
+    partitions: Sequence[Mapping[str, object]],
+) -> list[dict[str, str]]:
     ordered = sorted(
-        (
-            (
-                datetime.fromisoformat(cast(str, item["coverage_start"])),
-                datetime.fromisoformat(cast(str, item["coverage_end"])),
-            )
+        [
+            cast(dict[str, object], item)
             for item in partitions
             if item.get("active") is True and item.get("verification_status") == "verified"
-        ),
-        key=lambda item: item[0],
+        ],
+        key=lambda item: datetime.fromisoformat(cast(str, item["coverage_start"])),
     )
     ranges: list[dict[str, str]] = []
-    for start, end in ordered:
-        if not ranges:
-            ranges.append({"start": start.isoformat(), "end": end.isoformat()})
+    current: dict[str, str] | None = None
+    current_last_partition: dict[str, object] | None = None
+    for partition in ordered:
+        start = datetime.fromisoformat(cast(str, partition["coverage_start"]))
+        end = datetime.fromisoformat(cast(str, partition["coverage_end"]))
+        if current is None:
+            start_open_price, _ = _partition_edge_prices(root, partition)
+            current = {
+                "start": start.isoformat(),
+                "end": end.isoformat(),
+                "start_open_price": start_open_price,
+                "end_close_price": start_open_price,
+            }
+            current_last_partition = partition
             continue
-        last = ranges[-1]
-        last_end = datetime.fromisoformat(last["end"])
+        last_end = datetime.fromisoformat(current["end"])
         if start == last_end:
-            last["end"] = end.isoformat()
-        else:
-            ranges.append({"start": start.isoformat(), "end": end.isoformat()})
+            current["end"] = end.isoformat()
+            current_last_partition = partition
+            continue
+        if current_last_partition is None:
+            raise ProductionArchiveError("verified range assembly lost its last partition")
+        _, end_close_price = _partition_edge_prices(root, current_last_partition)
+        current["end_close_price"] = end_close_price
+        ranges.append(current)
+        start_open_price, _ = _partition_edge_prices(root, partition)
+        current = {
+            "start": start.isoformat(),
+            "end": end.isoformat(),
+            "start_open_price": start_open_price,
+            "end_close_price": start_open_price,
+        }
+        current_last_partition = partition
+    if current is not None:
+        if current_last_partition is None:
+            raise ProductionArchiveError("verified range assembly lost its last partition")
+        _, end_close_price = _partition_edge_prices(root, current_last_partition)
+        current["end_close_price"] = end_close_price
+        ranges.append(current)
     return ranges
 
 
 def _build_status(
     *,
+    root: Path,
     datasets: list[dict[str, object]],
     sources: list[dict[str, object]],
     preview: dict[str, object],
@@ -624,7 +672,7 @@ def _build_status(
     for dataset in datasets:
         partitions = cast(list[dict[str, object]], dataset["partitions"])
         partitions.sort(key=lambda item: (item["month"], item["partition_id"]))
-        dataset["verified_ranges"] = _verified_ranges(partitions)
+        dataset["verified_ranges"] = _verified_ranges(root, partitions)
         dataset["total_rows"] = int(
             sum(
                 int(cast(int | str, item["row_count"]))
@@ -839,6 +887,7 @@ def preview_synchronized_production_archive(
         "symbols": preview_symbols,
     }
     status = _build_status(
+        root=root,
         datasets=datasets,
         sources=[production_source],
         preview=preview,
@@ -1259,6 +1308,7 @@ def synchronize_synchronized_production_archive(
                 _write_index(
                     root,
                     _build_status(
+                        root=root,
                         datasets=datasets,
                         sources=cast(list[dict[str, object]], preview_status["sources"]),
                         preview=preview,

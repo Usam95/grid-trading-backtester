@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
 
 import type {
   BinanceEurResearchCatalog,
@@ -14,6 +14,7 @@ import type {
 } from "./research/port";
 
 type Workspace = "research" | "operations";
+type ResearchMode = "production" | "synthetic";
 
 type Draft = {
   symbol: string;
@@ -105,6 +106,31 @@ function formatBytes(value: number): string {
   return `${new Intl.NumberFormat("en-US").format(value)} bytes`;
 }
 
+function formatCompactNumber(value: number): string {
+  return new Intl.NumberFormat("en", {
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(value);
+}
+
+function formatSignedPercent(value: number): string {
+  return `${value >= 0 ? "+" : ""}${value.toFixed(2)}%`;
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max);
+}
+
+function buildRungPrices(draft: Draft): number[] {
+  const levels = Math.max(2, Math.floor(draft.levels));
+  if (draft.spacing === "geometric" && draft.lower > 0 && draft.upper > 0) {
+    const ratio = Math.pow(draft.upper / draft.lower, 1 / (levels - 1));
+    return Array.from({ length: levels }, (_, index) => draft.lower * Math.pow(ratio, index));
+  }
+  const step = (draft.upper - draft.lower) / (levels - 1);
+  return Array.from({ length: levels }, (_, index) => draft.lower + step * index);
+}
+
 function utcDay(iso: string): string {
   return new Date(iso).toISOString().slice(0, 10);
 }
@@ -115,19 +141,381 @@ function inclusiveEndDay(exclusiveIso: string): string {
   return end.toISOString().slice(0, 10);
 }
 
+function formatUtcDateTime(iso: string): string {
+  const value = new Date(iso);
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "UTC",
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(value);
+  const lookup = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return `${lookup.day} ${lookup.month} ${lookup.year}, ${lookup.hour}:${lookup.minute} UTC`;
+}
+
+function rangeDays(startIso: string, endIso: string): number {
+  return Math.round((new Date(endIso).getTime() - new Date(startIso).getTime()) / 86_400_000);
+}
+
+function rangeLabel(range: { start: string; end: string }): string {
+  return `${formatUtcDateTime(range.start)} → ${formatUtcDateTime(range.end)}`;
+}
+
+function rangeChipLabel(range: { start: string; end: string }): string {
+  return `${utcDay(range.start)} → ${inclusiveEndDay(range.end)} · ${rangeDays(range.start, range.end)} days`;
+}
+
+function anchorDraftToReplayStart(
+  draft: Draft,
+  replayStartPrice: number,
+): Draft {
+  if (!Number.isFinite(replayStartPrice) || replayStartPrice <= 0) {
+    return draft;
+  }
+  const currentCenter = (draft.lower + draft.upper) / 2;
+  const safeCenter = currentCenter > 0 ? currentCenter : replayStartPrice;
+  const lowerOffset = safeCenter > 0
+    ? Math.max(0, (safeCenter - draft.lower) / safeCenter)
+    : 0.08;
+  const upperOffset = safeCenter > 0
+    ? Math.max(0, (draft.upper - safeCenter) / safeCenter)
+    : 0.08;
+  return {
+    ...draft,
+    lower: Number((replayStartPrice * (1 - lowerOffset)).toFixed(8)),
+    upper: Number((replayStartPrice * (1 + upperOffset)).toFixed(8)),
+  };
+}
+
+function isMidnightUtc(iso: string): boolean {
+  const value = new Date(iso);
+  return value.getUTCHours() === 0 && value.getUTCMinutes() === 0 && value.getUTCSeconds() === 0;
+}
+
+function friendlyRangeExplanation(range: { start: string; end: string }): string {
+  if (isMidnightUtc(range.start) && isMidnightUtc(range.end)) {
+    return "This range starts and ends on clean UTC day boundaries, so it behaves like a normal date window.";
+  }
+  return "This range begins or ends mid-day because the first or last verified candle we actually hold does not line up with midnight UTC.";
+}
+
+function NumberField({
+  label,
+  value,
+  onChange,
+  min,
+  step = 1,
+}: {
+  label: string;
+  value: number;
+  onChange(value: number): void;
+  min?: number;
+  step?: number;
+}) {
+  return (
+    <label>
+      {label}
+      <input
+        type="number"
+        value={value}
+        min={min}
+        step={step}
+        onChange={(event) => onChange(event.currentTarget.valueAsNumber)}
+      />
+    </label>
+  );
+}
+
+function ExpandableInfo({
+  title,
+  children,
+  defaultOpen = false,
+}: {
+  title: string;
+  children: ReactNode;
+  defaultOpen?: boolean;
+}) {
+  return (
+    <details className="expandable-info" open={defaultOpen}>
+      <summary>{title}</summary>
+      <div>{children}</div>
+    </details>
+  );
+}
+
+function ModeSelector({
+  mode,
+  onChange,
+}: {
+  mode: ResearchMode;
+  onChange(mode: ResearchMode): void;
+}) {
+  return (
+    <section className="mode-selector" aria-label="Backtest mode">
+      <button
+        type="button"
+        className={mode === "production" ? "mode-card selected" : "mode-card"}
+        onClick={() => onChange("production")}
+      >
+        <div className="mode-card-top">
+          <span className="mode-badge">Production replay</span>
+          <span className="mode-status">{mode === "production" ? "Selected" : "Available"}</span>
+        </div>
+        <strong>Use locally verified EUR history</strong>
+        <p>Pick a real symbol and verified range, then run the strategy on stored production candles.</p>
+      </button>
+      <button
+        type="button"
+        className={mode === "synthetic" ? "mode-card selected" : "mode-card"}
+        onClick={() => onChange("synthetic")}
+      >
+        <div className="mode-card-top">
+          <span className="mode-badge">Synthetic sandbox</span>
+          <span className="mode-status">{mode === "synthetic" ? "Selected" : "Available"}</span>
+        </div>
+        <strong>Experiment quickly with synthetic data</strong>
+        <p>Try parameter ideas fast before spending time on a reality-anchored replay.</p>
+      </button>
+    </section>
+  );
+}
+
+function StrategyFields({
+  configuration,
+  draft,
+  update,
+}: {
+  configuration: StudioConfiguration;
+  draft: Draft;
+  update: <K extends keyof Draft>(key: K, value: Draft[K]) => void;
+}) {
+  return (
+    <div className="sections cleaner">
+      <fieldset>
+        <legend><b>01</b> Market & scenario</legend>
+        <label>Symbol<input aria-label="Symbol" value={draft.symbol} onChange={(e) => update("symbol", e.currentTarget.value.toUpperCase())} /></label>
+        <label>Scenario<select value={draft.regime} onChange={(e) => update("regime", e.currentTarget.value as Draft["regime"])}>{configuration.data_regimes.map((item) => <option key={item}>{item}</option>)}</select></label>
+        <NumberField label="Synthetic bars" min={50} value={draft.bars} onChange={(v) => update("bars", v)} />
+        <NumberField label="Deterministic seed" value={draft.seed} onChange={(v) => update("seed", v)} />
+      </fieldset>
+      <fieldset>
+        <legend><b>02</b> Grid setup</legend>
+        <NumberField label="Initial quote capital" min={1} value={draft.initialCash} onChange={(v) => update("initialCash", v)} />
+        <NumberField label="Lower bound" min={0.01} step={0.01} value={draft.lower} onChange={(v) => update("lower", v)} />
+        <NumberField label="Upper bound" min={0.01} step={0.01} value={draft.upper} onChange={(v) => update("upper", v)} />
+        <NumberField label="Configured rung prices" min={2} value={draft.levels} onChange={(v) => update("levels", v)} />
+        <label>Spacing<select value={draft.spacing} onChange={(e) => update("spacing", e.currentTarget.value as Draft["spacing"])}>{configuration.spacing.map((item) => <option key={item}>{item}</option>)}</select></label>
+        <NumberField label="Fixed quote per order" min={0.01} step={0.01} value={draft.quoteSize} onChange={(v) => update("quoteSize", v)} />
+      </fieldset>
+      <fieldset>
+        <legend><b>03</b> Costs</legend>
+        <NumberField label="Maker fee fraction" min={0} step={0.0001} value={draft.makerFee} onChange={(v) => update("makerFee", v)} />
+        <NumberField label="Taker fee fraction" min={0} step={0.0001} value={draft.takerFee} onChange={(v) => update("takerFee", v)} />
+        <p className="note">The backend applies costs and execution semantics. This view still uses simulated candle execution, not live venue evidence.</p>
+      </fieldset>
+      <fieldset>
+        <legend><b>04</b> Safety limits</legend>
+        <NumberField label="Global stop-loss fraction" min={0} step={0.01} value={draft.stopLoss} onChange={(v) => update("stopLoss", v)} />
+        <p className="note">Static neutral Spot only. No leverage, shorting, adaptive range shifts, compounding, or live activation is available here.</p>
+      </fieldset>
+    </div>
+  );
+}
+
+function ProductionSetupGuidance({
+  draft,
+  selected,
+  selectedCatalogSymbol,
+  selectedRange,
+  catalogRetrievedAt,
+}: {
+  draft: Draft;
+  selected?: FrozenProductionPanel["datasets"][number];
+  selectedCatalogSymbol?: BinanceEurResearchCatalog["symbols"][number];
+  selectedRange?: FrozenProductionPanel["datasets"][number]["verified_ranges"][number];
+  catalogRetrievedAt?: string;
+}) {
+  const centerPrice = (draft.lower + draft.upper) / 2;
+  const replayStartPrice = selectedRange ? Number(selectedRange.start_open_price) : null;
+  const replayEndPrice = selectedRange ? Number(selectedRange.end_close_price) : null;
+  const centerVsReplayStart = replayStartPrice && replayStartPrice > 0
+    ? ((centerPrice - replayStartPrice) / replayStartPrice) * 100
+    : null;
+  const lowerDistance = centerPrice > 0 ? ((draft.lower - centerPrice) / centerPrice) * 100 : 0;
+  const upperDistance = centerPrice > 0 ? ((draft.upper - centerPrice) / centerPrice) * 100 : 0;
+  const rangeWidth = centerPrice > 0 ? ((draft.upper - draft.lower) / centerPrice) * 100 : 0;
+  const rungPrices = buildRungPrices(draft);
+  const lowest = Math.min(...rungPrices);
+  const highest = Math.max(...rungPrices);
+
+  return (
+    <section className="setup-guidance" aria-labelledby="setup-guidance-heading">
+      <div className="result-heading">
+        <div>
+          <p className="eyebrow">Backtest setup context</p>
+          <h3 id="setup-guidance-heading">Configure the grid with market context</h3>
+          <p className="section-copy">
+            This panel now shows the actual replay-start price from the selected verified local range, so you can anchor the grid to the market level that the backtest will really begin from.
+          </p>
+        </div>
+      </div>
+
+      <div className="summary-grid setup-guidance-grid">
+        <article>
+          <span>Replay-start price</span>
+          <strong>{replayStartPrice !== null ? `${replayStartPrice.toFixed(2)} EUR` : "Unavailable"}</strong>
+        </article>
+        <article>
+          <span>Replay-end close</span>
+          <strong>{replayEndPrice !== null ? `${replayEndPrice.toFixed(2)} EUR` : "Unavailable"}</strong>
+        </article>
+        <article>
+          <span>Configured grid center</span>
+          <strong>{centerPrice.toFixed(2)} EUR</strong>
+        </article>
+        <article>
+          <span>Center vs replay start</span>
+          <strong>{centerVsReplayStart !== null ? formatSignedPercent(centerVsReplayStart) : "Unavailable"}</strong>
+        </article>
+      </div>
+
+      <div className="summary-grid setup-guidance-grid secondary">
+        <article>
+          <span>Configured width</span>
+          <strong>{rangeWidth.toFixed(2)}%</strong>
+        </article>
+        <article>
+          <span>Lower vs center</span>
+          <strong>{formatSignedPercent(lowerDistance)}</strong>
+        </article>
+        <article>
+          <span>Upper vs center</span>
+          <strong>{formatSignedPercent(upperDistance)}</strong>
+        </article>
+        <article>
+          <span>Starting candle</span>
+          <strong>{selectedRange ? formatUtcDateTime(selectedRange.start) : "Unavailable"}</strong>
+        </article>
+      </div>
+
+      <div className="ladder-preview-card">
+        <div className="ladder-preview-copy">
+          <span>Mini ladder preview</span>
+          <strong>{draft.levels} configured rung prices · {draft.spacing} spacing</strong>
+          <p>
+            This is a simple visual preview of where the ladder lands between your lower and upper bounds. The highlighted marker is your configured grid center, while the replay-start price above tells you where the selected backtest window actually begins.
+          </p>
+        </div>
+        <div className="ladder-rail" aria-label="Grid rung preview">
+          <div
+            className="ladder-center-marker"
+            style={{ left: `${clamp(((centerPrice - lowest) / Math.max(highest - lowest, 0.000001)) * 100, 0, 100)}%` }}
+          >
+            <span>Center {centerPrice.toFixed(2)}</span>
+          </div>
+          {rungPrices.map((price, index) => {
+            const position = clamp(((price - lowest) / Math.max(highest - lowest, 0.000001)) * 100, 0, 100);
+            const side = price <= centerPrice ? "Buy side" : "Sell side";
+            return (
+              <div
+                key={`${price}-${index}`}
+                className={price <= centerPrice ? "rung-dot buy" : "rung-dot sell"}
+                style={{ left: `${position}%` }}
+                title={`Rung ${index + 1}: ${price.toFixed(2)} EUR · ${side}`}
+              >
+                <span>{index + 1}</span>
+              </div>
+            );
+          })}
+        </div>
+        <div className="ladder-scale">
+          <span>Lower {draft.lower.toFixed(2)}</span>
+          <span>Upper {draft.upper.toFixed(2)}</span>
+        </div>
+      </div>
+
+      <div className="rung-chip-list" aria-label="Rung price list">
+        {rungPrices.map((price, index) => (
+          <span key={`chip-${price}-${index}`} className={price <= centerPrice ? "rung-chip buy" : "rung-chip sell"}>
+            {index + 1}: {price.toFixed(2)}
+          </span>
+        ))}
+      </div>
+
+      <div className="selected-range-card">
+        <div>
+          <span>Replay window</span>
+          <strong>{selectedRange ? `${rangeDays(selectedRange.start, selectedRange.end)} days` : "Not selected"}</strong>
+          <p>{selectedRange ? rangeLabel(selectedRange) : "Choose a verified range to see the exact replay window."}</p>
+        </div>
+        <div>
+          <span>Market quality</span>
+          <strong>{selectedCatalogSymbol ? `#${selectedCatalogSymbol.liquidity_rank} official liquidity rank` : "Waiting for symbol"}</strong>
+          <p>
+            {selectedCatalogSymbol
+              ? `${formatCompactNumber(Number(selectedCatalogSymbol.liquidity.median_daily_quote_volume))} EUR median daily volume · ${selectedCatalogSymbol.liquidity.current_spread_bps} bps spread snapshot.`
+              : "Select a symbol to inspect its stored production history."}
+          </p>
+        </div>
+        <div>
+          <span>Why this helps</span>
+          <strong>Bounds should be intentional</strong>
+          <p>Use the center and percentage offsets to see whether your lower and upper bounds are narrow, balanced, or far away before running the backtest.</p>
+        </div>
+      </div>
+
+      {selected?.symbol && (
+        <div className="symbol-detail-grid setup-detail-grid">
+          <article>
+            <span>Archive availability</span>
+            <strong>{selected.coverage.first_date} → {selected.coverage.last_date}</strong>
+          </article>
+          <article>
+            <span>Active partitions</span>
+            <strong>{selected.partitions.filter((item) => item.active).length}</strong>
+          </article>
+          <article>
+            <span>Stored locally</span>
+            <strong>{formatBytes(selected.stored_bytes)}</strong>
+          </article>
+          <article>
+            <span>Catalog snapshot</span>
+            <strong>{catalogRetrievedAt ? formatUtcDateTime(catalogRetrievedAt) : "Unavailable"}</strong>
+          </article>
+        </div>
+      )}
+    </section>
+  );
+}
+
 function Navigation({ workspace }: { workspace: Workspace }) {
   return (
     <nav aria-label="Studio" className="nav-groups">
       <section aria-labelledby="research-nav">
         <h2 id="research-nav">Research</h2>
-        {['Overview', 'Experiments', 'Candidates', 'Data', 'Learn'].map((item) => (
-          <a className={workspace === "research" && item === "Experiments" ? "active" : ""} href={`#/research/${item.toLowerCase()}`} key={item}>{item}</a>
+        {["Overview", "Experiments", "Candidates", "Data", "Learn"].map((item) => (
+          <a
+            className={workspace === "research" && item === "Experiments" ? "active" : ""}
+            href={`#/research/${item.toLowerCase()}`}
+            key={item}
+          >
+            {item}
+          </a>
         ))}
       </section>
       <section aria-labelledby="operations-nav">
         <h2 id="operations-nav">Operations</h2>
-        {['Command Center', 'Qualification', 'Reconciliation', 'Incidents', 'Evidence & Audit'].map((item) => (
-          <a className={workspace === "operations" && item === "Command Center" ? "active" : ""} href={`#/operations/${item.toLowerCase().replaceAll(' ', '-')}`} key={item}>{item}</a>
+        {["Command Center", "Qualification", "Reconciliation", "Incidents", "Evidence & Audit"].map((item) => (
+          <a
+            className={workspace === "operations" && item === "Command Center" ? "active" : ""}
+            href={`#/operations/${item.toLowerCase().replaceAll(" ", "-")}`}
+            key={item}
+          >
+            {item}
+          </a>
         ))}
       </section>
       <a className="legacy-link" href="/">Open legacy Studio</a>
@@ -152,16 +540,349 @@ function AuthorityHeader({ workspace }: { workspace: Workspace }) {
   );
 }
 
-function NumberField({ label, value, onChange, min, step = 1 }: { label: string; value: number; onChange(value: number): void; min?: number; step?: number }) {
-  return <label>{label}<input type="number" value={value} min={min} step={step} onChange={(event) => onChange(event.currentTarget.valueAsNumber)} /></label>;
+type SubmittedSpecification = {
+  initial_cash?: number;
+  grid?: {
+    lower?: number;
+    upper?: number;
+    levels?: number;
+    spacing?: string;
+  };
+  sizing?: {
+    value?: number;
+  };
+};
+
+type ReplaySeries = {
+  x?: number[];
+  timestamps?: string[];
+  price?: number[];
+};
+
+type ReplayTrade = {
+  side?: string;
+  entry_price?: number;
+  exit_price?: number;
+  opened_at?: string;
+  closed_at?: string;
+  entry_x?: number;
+  exit_x?: number;
+  pnl?: number;
+};
+
+type ReplayGrid = {
+  lower?: number;
+  upper?: number;
+  center?: number;
+  levels?: number[];
+};
+
+function formatChartPrice(value: number, quoteAsset: string): string {
+  const digits = value >= 1000 ? 0 : value >= 100 ? 2 : value >= 1 ? 3 : 5;
+  return `${value.toFixed(digits)} ${quoteAsset}`;
+}
+
+function ReplayVisualization({ run }: { run: StudioBacktestRun }) {
+  const result = run.result as { series?: ReplaySeries; trades?: ReplayTrade[]; grid?: ReplayGrid };
+  const series = result.series;
+  const trades = Array.isArray(result.trades) ? result.trades : [];
+  const grid = result.grid;
+  const quoteAsset = run.provenance?.quote_asset ?? "USDT";
+  const xValues = Array.isArray(series?.x) ? series.x.filter((value) => Number.isFinite(value)) : [];
+  const timestamps = Array.isArray(series?.timestamps) ? series.timestamps : [];
+  const prices = Array.isArray(series?.price) ? series.price.filter((value) => Number.isFinite(value)) : [];
+  const gridLevels = Array.isArray(grid?.levels) ? grid.levels.filter((value) => Number.isFinite(value)) : [];
+  if (prices.length < 2 || xValues.length !== prices.length) {
+    return null;
+  }
+
+  const minVisiblePoints = Math.min(prices.length, Math.max(2, Math.min(24, Math.ceil(prices.length * 0.5))));
+  const [viewport, setViewport] = useState(() => ({
+    startIndex: 0,
+    endIndex: prices.length - 1,
+  }));
+  const dragState = useRef<{ pointerX: number; startIndex: number; endIndex: number } | null>(null);
+
+  useEffect(() => {
+    setViewport({
+      startIndex: 0,
+      endIndex: prices.length - 1,
+    });
+  }, [run.id, prices.length]);
+
+  const boundedViewport = useMemo(() => {
+    const fullStartIndex = 0;
+    const fullEndIndex = prices.length - 1;
+    const requestedCount = Math.max(
+      minVisiblePoints,
+      Math.min(prices.length, viewport.endIndex - viewport.startIndex + 1),
+    );
+    let startIndex = clamp(
+      Math.round(viewport.startIndex),
+      fullStartIndex,
+      Math.max(fullStartIndex, prices.length - requestedCount),
+    );
+    let endIndex = startIndex + requestedCount - 1;
+    if (endIndex > fullEndIndex) {
+      endIndex = fullEndIndex;
+      startIndex = Math.max(fullStartIndex, endIndex - requestedCount + 1);
+    }
+    return { startIndex, endIndex, fullStartIndex, fullEndIndex, visibleCount: requestedCount };
+  }, [minVisiblePoints, prices.length, viewport.endIndex, viewport.startIndex]);
+
+  const visibleIndices = Array.from(
+    { length: boundedViewport.endIndex - boundedViewport.startIndex + 1 },
+    (_, offset) => boundedViewport.startIndex + offset,
+  );
+  const visibleX = visibleIndices.map((index) => xValues[index]);
+  const visiblePrices = visibleIndices.map((index) => prices[index]);
+  const visibleTimestamps = visibleIndices.map((index) => timestamps[index]);
+  const visibleXMin = visibleX[0];
+  const visibleXMax = visibleX[visibleX.length - 1];
+  const visibleTrades = trades.filter((trade) => {
+    const entry = typeof trade.entry_x === "number" ? trade.entry_x : null;
+    const exit = typeof trade.exit_x === "number" ? trade.exit_x : null;
+    return (entry !== null && entry >= visibleXMin && entry <= visibleXMax)
+      || (exit !== null && exit >= visibleXMin && exit <= visibleXMax);
+  });
+  const tradePrices = visibleTrades.flatMap((trade) => [trade.entry_price, trade.exit_price]).filter(
+    (value): value is number => typeof value === "number" && Number.isFinite(value),
+  );
+
+  const width = 920;
+  const height = 320;
+  const padding = { top: 18, right: 18, bottom: 34, left: 56 };
+  const domainXMin = visibleX[0];
+  const domainXMax = visibleX[visibleX.length - 1];
+  const domainPrices = [...visiblePrices, ...gridLevels, ...tradePrices];
+  const minPrice = Math.min(...domainPrices);
+  const maxPrice = Math.max(...domainPrices);
+  const paddedRange = Math.max((maxPrice - minPrice) * 0.08, maxPrice * 0.02, 0.00001);
+  const domainYMin = minPrice - paddedRange;
+  const domainYMax = maxPrice + paddedRange;
+  const plotWidth = width - padding.left - padding.right;
+  const plotHeight = height - padding.top - padding.bottom;
+  const xAt = (value: number) => {
+    if (domainXMax === domainXMin) return padding.left + plotWidth / 2;
+    return padding.left + ((value - domainXMin) / (domainXMax - domainXMin)) * plotWidth;
+  };
+  const yAt = (value: number) => {
+    if (domainYMax === domainYMin) return padding.top + plotHeight / 2;
+    return padding.top + ((domainYMax - value) / (domainYMax - domainYMin)) * plotHeight;
+  };
+  const pricePath = visiblePrices.map((value, index) => `${index === 0 ? "M" : "L"} ${xAt(visibleX[index]).toFixed(2)} ${yAt(value).toFixed(2)}`).join(" ");
+  const firstTimestamp = visibleTimestamps[0];
+  const lastTimestamp = visibleTimestamps[visibleTimestamps.length - 1];
+  const canZoomIn = boundedViewport.visibleCount > minVisiblePoints;
+  const canZoomOut = boundedViewport.visibleCount < prices.length;
+
+  function setViewportByCenter(nextCount: number, centerIndex: number) {
+    const visibleCount = Math.max(minVisiblePoints, Math.min(prices.length, Math.round(nextCount)));
+    const halfSpan = (visibleCount - 1) / 2;
+    let startIndex = Math.round(centerIndex - halfSpan);
+    let endIndex = startIndex + visibleCount - 1;
+    if (startIndex < 0) {
+      startIndex = 0;
+      endIndex = visibleCount - 1;
+    }
+    if (endIndex > prices.length - 1) {
+      endIndex = prices.length - 1;
+      startIndex = Math.max(0, endIndex - visibleCount + 1);
+    }
+    setViewport({ startIndex, endIndex });
+  }
+
+  function zoom(factor: number) {
+    const currentCount = boundedViewport.visibleCount;
+    const centerIndex = boundedViewport.startIndex + (currentCount - 1) / 2;
+    const nextCount = factor < 1
+      ? Math.floor(currentCount * factor)
+      : Math.ceil(currentCount * factor);
+    setViewportByCenter(nextCount, centerIndex);
+  }
+
+  function resetViewport() {
+    setViewport({
+      startIndex: 0,
+      endIndex: prices.length - 1,
+    });
+  }
+
+  function handleWheel(event: React.WheelEvent<SVGSVGElement>) {
+    event.preventDefault();
+    const rect = event.currentTarget.getBoundingClientRect();
+    const relative = clamp((event.clientX - rect.left - padding.left) / plotWidth, 0, 1);
+    const factor = event.deltaY > 0 ? 1.25 : 0.8;
+    const anchorIndex = boundedViewport.startIndex + relative * Math.max(1, boundedViewport.visibleCount - 1);
+    const nextCount = factor < 1
+      ? Math.floor(boundedViewport.visibleCount * factor)
+      : Math.ceil(boundedViewport.visibleCount * factor);
+    setViewportByCenter(nextCount, anchorIndex);
+  }
+
+  function handlePointerDown(event: React.PointerEvent<SVGSVGElement>) {
+    event.currentTarget.setPointerCapture(event.pointerId);
+    dragState.current = {
+      pointerX: event.clientX,
+      startIndex: boundedViewport.startIndex,
+      endIndex: boundedViewport.endIndex,
+    };
+  }
+
+  function handlePointerMove(event: React.PointerEvent<SVGSVGElement>) {
+    if (!dragState.current) return;
+    const deltaPixels = event.clientX - dragState.current.pointerX;
+    const currentCount = dragState.current.endIndex - dragState.current.startIndex + 1;
+    const deltaIndex = Math.round((deltaPixels / plotWidth) * Math.max(1, currentCount - 1));
+    setViewport({
+      startIndex: dragState.current.startIndex - deltaIndex,
+      endIndex: dragState.current.endIndex - deltaIndex,
+    });
+  }
+
+  function handlePointerUp(event: React.PointerEvent<SVGSVGElement>) {
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    dragState.current = null;
+  }
+
+  return (
+    <section className="replay-visualization" aria-labelledby="replay-visualization-heading">
+      <div className="result-heading">
+        <div>
+          <p className="eyebrow">Replay visualization</p>
+          <h3 id="replay-visualization-heading">Price path, grid, and executed trades</h3>
+          <p className="section-copy">
+            The yellow line shows the replayed market price, horizontal lines show the configured grid ladder, and trade markers show where the backtest actually entered and exited.
+          </p>
+        </div>
+      </div>
+
+      <div className="chart-legend">
+        <span><i className="legend-swatch price" />Replay price path</span>
+        <span><i className="legend-swatch grid" />Grid levels</span>
+        <span><i className="legend-swatch buy" />Buy entries</span>
+        <span><i className="legend-swatch sell" />Sell exits</span>
+      </div>
+
+      <div className="chart-toolbar">
+        <div className="chart-toolbar-group">
+          <button type="button" onClick={() => zoom(0.8)} disabled={!canZoomIn} aria-label="Zoom in replay chart">Zoom in</button>
+          <button type="button" onClick={() => zoom(1.25)} disabled={!canZoomOut} aria-label="Zoom out replay chart">Zoom out</button>
+          <button type="button" onClick={resetViewport} disabled={!canZoomOut} aria-label="Reset replay chart zoom">Reset</button>
+        </div>
+        <span className="chart-viewport-label">
+          Visible points: {visiblePrices.length.toLocaleString("en-US")} / {prices.length.toLocaleString("en-US")} · Drag to pan · Wheel to zoom
+        </span>
+      </div>
+
+      <svg
+        className="replay-chart"
+        viewBox={`0 0 ${width} ${height}`}
+        role="img"
+        aria-label="Replay price path with grid levels and executed trades"
+        onWheel={handleWheel}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerLeave={handlePointerUp}
+      >
+        <defs>
+          <linearGradient id="priceGlow" x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0%" stopColor="#f0b90b" stopOpacity="0.65" />
+            <stop offset="100%" stopColor="#fcd535" stopOpacity="1" />
+          </linearGradient>
+        </defs>
+
+        <rect x="0" y="0" width={width} height={height} rx="18" className="chart-bg" />
+
+        {[domainYMin, grid?.lower, grid?.center, grid?.upper, domainYMax]
+          .filter((value): value is number => typeof value === "number" && Number.isFinite(value))
+          .map((value, index) => (
+            <g key={`axis-${index}`}>
+              <line x1={padding.left} x2={width - padding.right} y1={yAt(value)} y2={yAt(value)} className="chart-axis-line" />
+              <text x={14} y={yAt(value) + 4} className="chart-axis-label">{formatChartPrice(value, quoteAsset)}</text>
+            </g>
+          ))}
+
+        {gridLevels.map((level, index) => (
+          <line
+            key={`grid-${index}`}
+            x1={padding.left}
+            x2={width - padding.right}
+            y1={yAt(level)}
+            y2={yAt(level)}
+            className={Math.abs(level - (grid?.center ?? Number.NaN)) < 1e-9 ? "chart-grid-line center" : "chart-grid-line"}
+          />
+        ))}
+
+        <path d={pricePath} className="chart-price-path" />
+
+        {visibleTrades.flatMap((trade, index) => {
+          const entryX = typeof trade.entry_x === "number" ? xAt(trade.entry_x) : null;
+          const entryY = typeof trade.entry_price === "number" ? yAt(trade.entry_price) : null;
+          const exitX = typeof trade.exit_x === "number" ? xAt(trade.exit_x) : null;
+          const exitY = typeof trade.exit_price === "number" ? yAt(trade.exit_price) : null;
+          return [
+            entryX !== null && entryY !== null
+              ? <g key={`entry-${index}`}>
+                <circle cx={entryX} cy={entryY} r="5" className="chart-trade-entry" />
+                <title>{`Buy ${trade.entry_price?.toFixed(5)} ${quoteAsset} · ${trade.opened_at ?? "unknown time"}`}</title>
+              </g>
+              : null,
+            exitX !== null && exitY !== null
+              ? <g key={`exit-${index}`}>
+                <rect x={exitX - 4.5} y={exitY - 4.5} width="9" height="9" rx="2" className="chart-trade-exit" />
+                <title>{`Sell ${trade.exit_price?.toFixed(5)} ${quoteAsset} · ${trade.closed_at ?? "unknown time"}`}</title>
+              </g>
+              : null,
+          ];
+        })}
+
+        {firstTimestamp && <text x={padding.left} y={height - 10} className="chart-time-label">{formatUtcDateTime(firstTimestamp)}</text>}
+        {lastTimestamp && <text x={width - padding.right} y={height - 10} textAnchor="end" className="chart-time-label">{formatUtcDateTime(lastTimestamp)}</text>}
+      </svg>
+
+      <div className="summary-grid">
+        <article><span>Grid range</span><strong>{grid?.lower !== undefined && grid?.upper !== undefined ? `${formatChartPrice(grid.lower, quoteAsset)} → ${formatChartPrice(grid.upper, quoteAsset)}` : "Unavailable"}</strong></article>
+        <article><span>Replay points drawn</span><strong>{prices.length.toLocaleString("en-US")}</strong></article>
+        <article><span>Trades marked</span><strong>{visibleTrades.length.toLocaleString("en-US")}</strong></article>
+        <article><span>Current replay verdict</span><strong>{run.primary_result.verdict}</strong></article>
+      </div>
+    </section>
+  );
 }
 
 function Results({ run }: { run: StudioBacktestRun }) {
   const result = run.primary_result;
   const quoteAsset = run.provenance?.quote_asset ?? "USDT";
+  const specification = run.specification as SubmittedSpecification;
+  const submittedLower = specification.grid?.lower;
+  const submittedUpper = specification.grid?.upper;
+  const submittedLevels = specification.grid?.levels;
+  const submittedSpacing = specification.grid?.spacing;
+  const submittedQuoteSize = specification.sizing?.value;
+  const submittedInitialCash = specification.initial_cash;
+  const submittedCenter = submittedLower !== undefined && submittedUpper !== undefined
+    ? (submittedLower + submittedUpper) / 2
+    : null;
+  const zeroTradeRun = result.completed_trades === 0;
+
   return (
     <section className="results" aria-live="polite">
-      <div className="result-heading"><div><p className="eyebrow">Completed research run</p><h2>{run.result.symbol} primary result</h2></div><span className="verdict">{result.verdict}</span></div>
+      <div className="result-heading">
+        <div>
+          <p className="eyebrow">Completed research run</p>
+          <h2>{run.result.symbol} result</h2>
+          <p className="section-copy">
+            {run.provenance
+              ? "This run replayed locally verified production candles."
+              : "This run used the synthetic research sandbox and conservative candle execution assumptions."}
+          </p>
+        </div>
+        <span className="verdict">{result.verdict}</span>
+      </div>
       <div className="metrics">
         <article className="primary"><span>Net return</span><strong>{formatPercent(result.net_return)}</strong></article>
         <article><span>Final equity</span><strong>{formatMoney(result.final_equity, quoteAsset)}</strong></article>
@@ -169,22 +890,78 @@ function Results({ run }: { run: StudioBacktestRun }) {
         <article><span>Completed trades</span><strong>{result.completed_trades}</strong></article>
         <article><span>Fees paid</span><strong>{formatMoney(result.fees_paid, quoteAsset)}</strong></article>
       </div>
-      <div className="record"><span>Authoritative local record</span><code>{run.id}</code><span>Saved by the research service · {new Date(run.created_at).toLocaleString()}</span></div>
-      <div className="production-provenance">
-        <div><strong>CANDLE SIMULATION ONLY</strong><span>{run.result.simulation?.canonical_core ? "Canonical adaptive core" : "Research candle harness"}</span></div>
-        <div><strong>NOT VENUE EXECUTION PROOF</strong><span>{run.result.simulation?.limitations?.[0] ?? "Candle fills remain conservative assumptions."}</span></div>
+      <div className="record">
+        <span>Authoritative local record</span>
+        <code>{run.id}</code>
+        <span>Saved by the research service · {new Date(run.created_at).toLocaleString()}</span>
       </div>
-      {run.provenance && <div className="production-provenance">
-        <div><strong>PRODUCTION HISTORY</strong><span>Official Binance Spot archive</span></div>
-        <div><strong>TESTNET HISTORY NOT USED</strong><span>Testnet is not profitability evidence</span></div>
-        <div><strong>{run.provenance.symbol}</strong><span>{new Date(run.provenance.requested_start).toISOString()} → {new Date(run.provenance.requested_end).toISOString()} · {run.provenance.candle_count.toLocaleString("en-US")} candles</span></div>
-        <div><strong>Coverage</strong><span>{new Date(run.provenance.coverage.first_verified_open_time).toISOString()} → {new Date(run.provenance.coverage.last_verified_open_time).toISOString()}</span></div>
-        {run.provenance.catalog_identity && <><span>Catalog identity</span><code>{run.provenance.catalog_identity}</code></>}
-        <span>Dataset identity</span><code>{run.provenance.dataset_id}</code>
-        <span>Manifest identity</span><code>{run.provenance.manifest_identity}</code>
-        <span>Partition identities</span><code>{run.provenance.partition_identities.join(", ")}</code>
-        <span>Deterministic backtest fingerprint</span><code>{run.provenance.backtest_fingerprint}</code>
-      </div>}
+      {(submittedLower !== undefined || submittedUpper !== undefined || submittedQuoteSize !== undefined) && (
+        <div className="focus-summary">
+          <div>
+            <strong>Submitted bounds</strong>
+            <span>{submittedLower?.toFixed(2) ?? "—"} → {submittedUpper?.toFixed(2) ?? "—"} {quoteAsset}</span>
+          </div>
+          <div>
+            <strong>Submitted grid center</strong>
+            <span>{submittedCenter !== null ? `${submittedCenter.toFixed(2)} ${quoteAsset}` : "Unavailable"}</span>
+          </div>
+          <div>
+            <strong>Submitted ladder</strong>
+            <span>{submittedLevels ?? "—"} rung prices · {submittedSpacing ?? "—"} spacing</span>
+          </div>
+          <div>
+            <strong>Submitted order sizing</strong>
+            <span>{submittedQuoteSize !== undefined ? formatMoney(submittedQuoteSize, quoteAsset) : "Unavailable"} per order · {submittedInitialCash !== undefined ? formatMoney(submittedInitialCash, quoteAsset) : "—"} starting cash</span>
+          </div>
+        </div>
+      )}
+      <ReplayVisualization run={run} />
+      {zeroTradeRun && (
+        <div className="production-provenance zero-trade-callout">
+          <div>
+            <strong>NO ORDER FILLS WERE RECORDED</strong>
+            <span>This submitted grid never executed a fill during the selected replay window, so the backtest stayed fully in cash.</span>
+          </div>
+          <div>
+            <strong>WHAT THE ZERO RESULT MEANS</strong>
+            <span>0 completed trades and 0 fees means no admitted buy or sell order was executed. Final equity therefore stayed at the starting cash balance.</span>
+          </div>
+          <div>
+            <strong>WHAT TO TRY NEXT</strong>
+            <span>Move the bounds closer to the market you want to replay, narrow the range, or use fewer/wider-spaced rungs so the stored candles are more likely to touch active orders.</span>
+          </div>
+        </div>
+      )}
+      {run.provenance ? (
+        <>
+          <div className="summary-grid">
+            <article><span>History source</span><strong>Official Binance Spot archive</strong></article>
+            <article><span>Symbol</span><strong>{run.provenance.symbol}</strong></article>
+            <article><span>Verified candles</span><strong>{run.provenance.candle_count.toLocaleString("en-US")}</strong></article>
+            <article><span>Selected range</span><strong>{rangeDays(run.provenance.requested_start, run.provenance.requested_end)} days</strong></article>
+          </div>
+          <ExpandableInfo title="Show technical provenance">
+            <div className="production-provenance">
+              <div><strong>PRODUCTION HISTORY</strong><span>Official Binance Spot archive</span></div>
+              <div><strong>TESTNET HISTORY NOT USED</strong><span>Testnet is not profitability evidence</span></div>
+              <div><strong>{run.provenance.symbol}</strong><span>{rangeLabel({ start: run.provenance.requested_start, end: run.provenance.requested_end })} · {run.provenance.candle_count.toLocaleString("en-US")} candles</span></div>
+              <div><strong>Coverage</strong><span>{new Date(run.provenance.coverage.first_verified_open_time).toISOString()} → {new Date(run.provenance.coverage.last_verified_open_time).toISOString()}</span></div>
+              {run.provenance.catalog_identity && <><span>Catalog identity</span><code>{run.provenance.catalog_identity}</code></>}
+              <span>Dataset identity</span><code>{run.provenance.dataset_id}</code>
+              <span>Manifest identity</span><code>{run.provenance.manifest_identity}</code>
+              <span>Partition identities</span><code>{run.provenance.partition_identities.join(", ")}</code>
+              <span>Deterministic backtest fingerprint</span><code>{run.provenance.backtest_fingerprint}</code>
+            </div>
+          </ExpandableInfo>
+        </>
+      ) : (
+        <ExpandableInfo title="Show simulation caveats">
+          <div className="production-provenance">
+            <div><strong>CANDLE SIMULATION ONLY</strong><span>{run.result.simulation?.canonical_core ? "Canonical adaptive core" : "Research candle harness"}</span></div>
+            <div><strong>NOT VENUE EXECUTION PROOF</strong><span>{run.result.simulation?.limitations?.[0] ?? "Candle fills remain conservative assumptions."}</span></div>
+          </div>
+        </ExpandableInfo>
+      )}
     </section>
   );
 }
@@ -195,80 +972,100 @@ function CanonicalAdaptiveCard({
   presentation: CanonicalAdaptivePresentation;
 }) {
   const plan = presentation.derived_plan;
+  const blockedGates = presentation.activation.gates.filter((gate) => gate.outcome !== "PASSED");
+
   return (
-    <section className="production-data" aria-labelledby="adaptive-seam-heading">
+    <section className="insight-card" aria-labelledby="adaptive-seam-heading">
       <div className="result-heading">
         <div>
-          <p className="eyebrow">Canonical exact seam</p>
-          <h2 id="adaptive-seam-heading">Adaptive policy characterization</h2>
-          <p>Quality-approved past-only evidence drives one immutable initial epoch, explicit activation gates, and a fully quantified bootstrap obligation.</p>
+          <p className="eyebrow">Decision insight</p>
+          <h2 id="adaptive-seam-heading">Why this starting grid was suggested</h2>
+          <p className="section-copy">
+            This card explains the current adaptive read in plain language. It does not place orders; it only explains the configuration the canonical seam would accept.
+          </p>
         </div>
         <span className="scope">{presentation.activation.lifecycle}</span>
       </div>
-      <div className="production-provenance">
-        <span>Configuration identity</span>
-        <code>{presentation.configuration.configuration_id}</code>
-        <span>Observation identity</span>
-        <code>{presentation.observation.observation_id}</code>
-        <span>Canonical event identity</span>
-        <code>{presentation.observation.event_id}</code>
-        <span>Activation replay fingerprint</span>
-        <code>{presentation.activation.replay_fingerprint}</code>
-        {plan && <>
-          <span>Grid plan epoch identity</span>
-          <code>{plan.epoch_id}</code>
-          <span>Plan derivation causation</span>
-          <code>{plan.derivation_causation_id}</code>
-        </>}
-        <div>
-          <strong>{presentation.decision.adaptation_state}</strong>
-          <span>{presentation.decision.intent} · {presentation.decision.reason}</span>
-        </div>
-        <div>
-          <strong>OPERATOR INPUTS</strong>
-          <span>{presentation.configuration.operator_inputs.fixed_quote_principal.value} {presentation.configuration.quote_asset} fixed quote principal · {presentation.configuration.operator_inputs.maximum_quote_capital.value} {presentation.configuration.quote_asset} capital envelope · {presentation.configuration.rung_count} rungs</span>
-        </div>
-        <div>
-          <strong>{presentation.activation.lifecycle}</strong>
-          <span>{presentation.activation.ladder_placement_allowed ? "Ladder placement allowed" : "Ladder placement blocked"} · no pending or automatically armed activation</span>
-        </div>
-        <div className="activation-gates" aria-label="Initial activation gates">
-          {presentation.activation.gates.map((gate) => (
-            <div key={gate.name}>
-              <strong>{gate.outcome}</strong>
-              <span>{gate.name} · {gate.reason}</span>
-            </div>
-          ))}
-        </div>
-        {plan && <>
-          <div>
-            <strong>IMMUTABLE INITIAL EPOCH</strong>
-            <span>{plan.derivation_semantics} · bounds {plan.lower.value}–{plan.upper.value} {presentation.configuration.quote_asset} · activation {plan.activation_price.value} · {plan.quantized_rungs.length} rungs</span>
-          </div>
-          <div className="initial-ladder" aria-label="Initial rung ladder">
-            {plan.quantized_rungs.map((rung) => (
-              <div key={rung.index}>
-                <strong>{rung.role}</strong>
-                <span>Rung {rung.index + 1} · {rung.price.value}</span>
-              </div>
-            ))}
-          </div>
-          <div>
-            <strong>BOOTSTRAP OBLIGATION</strong>
-            <span>{plan.bootstrap_obligation?.gross_base_required.value ?? "0"} {presentation.configuration.base_asset} gross · {plan.bootstrap_obligation?.fee_base_coverage.value ?? "0"} conservative base-fee coverage · {plan.maximum_planned_inventory?.value ?? "0"} maximum planned inventory</span>
-          </div>
-        </>}
-        {!plan && <div><strong>NO EPOCH DERIVED</strong><span>Activation was rejected before acquisition; a fresh explicit attempt is required.</span></div>}
-        <div>
-          <strong>LEGACY COMPARISON</strong>
-          <span>{presentation.legacy_comparison.bounded_bars} bars · adaptive {presentation.legacy_comparison.legacy_spacing} legacy grid · effective ATR multiplier {presentation.legacy_comparison.effective_atr_multiplier} · {presentation.legacy_comparison.cancelled_orders} cancellation events</span>
-        </div>
-        <ul>
-          {presentation.legacy_comparison.semantic_differences.map((difference) => (
-            <li key={difference}>{difference}</li>
-          ))}
-        </ul>
+      <div className="summary-grid">
+        <article><span>Current mode</span><strong>{presentation.decision.adaptation_state}</strong></article>
+        <article><span>Intent</span><strong>{presentation.decision.intent}</strong></article>
+        <article><span>Reason</span><strong>{presentation.decision.reason}</strong></article>
+        <article><span>Bootstrap</span><strong>{presentation.activation.ladder_placement_allowed ? "Ready" : "Needs confirmation"}</strong></article>
       </div>
+      {plan && (
+        <div className="focus-summary">
+          <div>
+            <strong>Suggested initial range</strong>
+            <span>{plan.lower.value} → {plan.upper.value} {presentation.configuration.quote_asset} around activation {plan.activation_price.value}</span>
+          </div>
+          <div>
+            <strong>Operator sizing</strong>
+            <span>{presentation.configuration.operator_inputs.fixed_quote_principal.value} {presentation.configuration.quote_asset} per order · {presentation.configuration.rung_count} rungs</span>
+          </div>
+          <div>
+            <strong>Bootstrap obligation</strong>
+            <span>{plan.bootstrap_obligation?.gross_base_required.value ?? "0"} {presentation.configuration.base_asset} gross backing inventory</span>
+          </div>
+        </div>
+      )}
+      <div className="gate-strip">
+        {presentation.activation.gates.map((gate) => (
+          <article key={gate.name} className={gate.outcome === "PASSED" ? "gate gate-pass" : "gate gate-warn"}>
+            <strong>{gate.outcome}</strong>
+            <span>{gate.name}</span>
+            <p>{gate.reason}</p>
+          </article>
+        ))}
+      </div>
+      <ExpandableInfo title="Show detailed decision evidence">
+        <div className="production-provenance">
+          <span>Configuration identity</span>
+          <code>{presentation.configuration.configuration_id}</code>
+          <span>Observation identity</span>
+          <code>{presentation.observation.observation_id}</code>
+          <span>Canonical event identity</span>
+          <code>{presentation.observation.event_id}</code>
+          <span>Activation replay fingerprint</span>
+          <code>{presentation.activation.replay_fingerprint}</code>
+          {plan && <>
+            <span>Grid plan epoch identity</span>
+            <code>{plan.epoch_id}</code>
+            <span>Plan derivation causation</span>
+            <code>{plan.derivation_causation_id}</code>
+          </>}
+          <div>
+            <strong>Operator inputs</strong>
+            <span>{presentation.configuration.operator_inputs.fixed_quote_principal.value} {presentation.configuration.quote_asset} fixed quote principal · {presentation.configuration.operator_inputs.maximum_quote_capital.value} {presentation.configuration.quote_asset} capital envelope · {presentation.configuration.rung_count} rungs</span>
+          </div>
+          {plan && <>
+            <div>
+              <strong>Immutable initial epoch</strong>
+              <span>{plan.derivation_semantics} · bounds {plan.lower.value}–{plan.upper.value} {presentation.configuration.quote_asset} · activation {plan.activation_price.value} · {plan.quantized_rungs.length} rungs</span>
+            </div>
+            <div className="initial-ladder" aria-label="Initial rung ladder">
+              {plan.quantized_rungs.map((rung) => (
+                <div key={rung.index}>
+                  <strong>{rung.role}</strong>
+                  <span>Rung {rung.index + 1} · {rung.price.value}</span>
+                </div>
+              ))}
+            </div>
+          </>}
+          {blockedGates.length > 0 && <div>
+            <strong>Why placement is blocked</strong>
+            <span>{blockedGates.map((gate) => `${gate.name}: ${gate.reason}`).join(" · ")}</span>
+          </div>}
+          <div>
+            <strong>Legacy comparison</strong>
+            <span>{presentation.legacy_comparison.bounded_bars} bars · adaptive {presentation.legacy_comparison.legacy_spacing} legacy grid · effective ATR multiplier {presentation.legacy_comparison.effective_atr_multiplier} · {presentation.legacy_comparison.cancelled_orders} cancellation events</span>
+          </div>
+          <ul>
+            {presentation.legacy_comparison.semantic_differences.map((difference) => (
+              <li key={difference}>{difference}</li>
+            ))}
+          </ul>
+        </div>
+      </ExpandableInfo>
     </section>
   );
 }
@@ -277,6 +1074,7 @@ function ResearchWorkspace({ research }: { research: ResearchPort }) {
   const [configuration, setConfiguration] = useState<StudioConfiguration>();
   const [draft, setDraft] = useState<Draft>();
   const [run, setRun] = useState<StudioBacktestRun>();
+  const [mode, setMode] = useState<ResearchMode>("production");
   const [error, setError] = useState<string>();
   const [running, setRunning] = useState(false);
   const [catalog, setCatalog] = useState<BinanceEurResearchCatalog>();
@@ -286,21 +1084,27 @@ function ResearchWorkspace({ research }: { research: ResearchPort }) {
   const [symbolFilter, setSymbolFilter] = useState("");
   const [selectedSymbol, setSelectedSymbol] = useState("");
   const [selectedVerifiedRangeIndex, setSelectedVerifiedRangeIndex] = useState(0);
-  const [productionStart, setProductionStart] = useState("2025-01-01");
-  const [productionEnd, setProductionEnd] = useState("2025-01-01");
   const [productionBusy, setProductionBusy] = useState(false);
   const [canonicalAdaptive, setCanonicalAdaptive] =
     useState<CanonicalAdaptivePresentation>();
 
-  function applyVerifiedRange(
-    dataset: FrozenProductionPanel["datasets"][number],
-    rangeIndex = 0,
+  function syncSelectedDataset(
+    nextPanel: FrozenProductionPanel,
+    requestedSymbol?: string,
+    requestedRangeIndex?: number,
   ) {
-    const range = dataset.verified_ranges[rangeIndex];
-    setSelectedVerifiedRangeIndex(rangeIndex);
-    if (!range) return;
-    setProductionStart(utcDay(range.start));
-    setProductionEnd(inclusiveEndDay(range.end));
+    const ordered = nextPanel.datasets
+      .slice()
+      .sort((left, right) => left.display_order - right.display_order);
+    const preferred = ordered.find((dataset) => dataset.symbol === requestedSymbol) ?? ordered[0];
+    if (!preferred) return;
+    const nextRangeIndex = Math.min(
+      requestedRangeIndex ?? 0,
+      Math.max(preferred.verified_ranges.length - 1, 0),
+    );
+    setSelectedSymbol(preferred.symbol);
+    setSelectedVerifiedRangeIndex(nextRangeIndex);
+    setDraft((current) => current ? { ...current, symbol: preferred.symbol } : current);
   }
 
   useEffect(() => {
@@ -314,25 +1118,11 @@ function ResearchWorkspace({ research }: { research: ResearchPort }) {
     research.getEurCatalog().then((value) => {
       if (!current) return;
       setCatalog(value);
-      const selected = [...value.symbols].sort(
-        (left, right) => left.liquidity_rank - right.liquidity_rank,
-      )[0];
-      if (selected) {
-        setSelectedSymbol(selected.symbol);
-        setProductionStart(selected.coverage.last_date);
-        setProductionEnd(selected.coverage.last_date);
-      }
     }).catch((reason: unknown) => current && setError(reason instanceof Error ? reason.message : "EUR catalog unavailable"));
     research.getProductionArchive().then((value) => {
       if (!current) return;
       setPanel(value);
-      const selectedDataset = [...value.datasets].sort(
-        (left, right) => left.display_order - right.display_order,
-      )[0];
-      if (selectedDataset?.verified_ranges[0]) {
-        setSelectedSymbol(selectedDataset.symbol);
-        applyVerifiedRange(selectedDataset);
-      }
+      syncSelectedDataset(value);
     }).catch((reason: unknown) => current && setError(reason instanceof Error ? reason.message : "Production archive unavailable"));
     research.characterizeCanonicalAdaptive({
       symbol: "BTCEUR",
@@ -370,83 +1160,93 @@ function ResearchWorkspace({ research }: { research: ResearchPort }) {
         reason instanceof Error ? reason.message : "Canonical adaptive seam unavailable",
       ));
     const runId = window.location.hash.match(/experiments\/([^/]+)$/)?.[1];
-    if (runId) research.getBacktest(runId).then((value) => current && setRun(value)).catch(() => undefined);
+    if (runId) {
+      research.getBacktest(runId)
+        .then((value) => current && setRun(value))
+        .catch(() => undefined);
+    }
     return () => { current = false; };
   }, [research]);
 
   async function refreshCatalog() {
-    setCatalogBusy(true); setError(undefined);
+    setCatalogBusy(true);
+    setError(undefined);
     try {
-      const value = await research.getEurCatalog(true);
-      setCatalog(value);
-      if (!value.symbols.some((item) => item.symbol === selectedSymbol)) {
-        const selected = value.symbols[0];
-        setSelectedSymbol(selected?.symbol ?? "");
-      }
+      setCatalog(await research.getEurCatalog(true));
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "EUR catalog refresh failed");
-    } finally { setCatalogBusy(false); }
+    } finally {
+      setCatalogBusy(false);
+    }
   }
 
   function selectProductionSymbol(symbol: string) {
-    setSelectedSymbol(symbol);
-    const selected = panel?.datasets.find((item) => item.symbol === symbol);
-    if (selected) {
-      applyVerifiedRange(selected);
-    } else {
-      setSelectedVerifiedRangeIndex(0);
-    }
-    setDraft((current) => current ? { ...current, symbol } : current);
+    if (!panel) return;
+    syncSelectedDataset(panel, symbol, 0);
   }
 
   function selectVerifiedRange(rangeIndex: number) {
     setSelectedVerifiedRangeIndex(rangeIndex);
-    const selected = panel?.datasets.find((item) => item.symbol === selectedSymbol);
-    if (!selected) return;
-    applyVerifiedRange(selected, rangeIndex);
   }
 
   async function refreshPanel() {
-    setPanelBusy(true); setError(undefined);
-    try { setPanel(await research.getProductionArchive(true)); }
-    catch (reason) { setError(reason instanceof Error ? reason.message : "Production archive refresh failed"); }
-    finally { setPanelBusy(false); }
+    setPanelBusy(true);
+    setError(undefined);
+    try {
+      const refreshed = await research.getProductionArchive(true);
+      setPanel(refreshed);
+      syncSelectedDataset(refreshed, selectedSymbol, selectedVerifiedRangeIndex);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Production archive refresh failed");
+    } finally {
+      setPanelBusy(false);
+    }
   }
 
   async function synchronizePanel() {
-    setProductionBusy(true); setError(undefined);
-    try { setPanel(await research.synchronizeProductionArchive()); }
-    catch (reason) { setError(reason instanceof Error ? reason.message : "Production archive synchronization failed"); }
-    finally { setProductionBusy(false); }
+    setProductionBusy(true);
+    setError(undefined);
+    try {
+      const synchronized = await research.synchronizeProductionArchive();
+      setPanel(synchronized);
+      syncSelectedDataset(synchronized, selectedSymbol, selectedVerifiedRangeIndex);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Production archive synchronization failed");
+    } finally {
+      setProductionBusy(false);
+    }
   }
 
   async function submit(event: FormEvent) {
     event.preventDefault();
     if (!draft) return;
-    setRunning(true); setError(undefined);
+    setRunning(true);
+    setError(undefined);
     try {
       const completed = await research.executeBacktest(requestFrom(draft));
       setRun(completed);
       window.history.replaceState(null, "", `#/research/experiments/${completed.id}`);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Backtest failed");
-    } finally { setRunning(false); }
+    } finally {
+      setRunning(false);
+    }
   }
 
   async function runProduction() {
     if (!draft || !panel) return;
     const selectedDataset = panel.datasets.find((item) => item.symbol === selectedSymbol);
-    if (!selectedDataset) return;
-    setProductionBusy(true); setError(undefined);
+    const selectedRange = selectedDataset?.verified_ranges[selectedVerifiedRangeIndex]
+      ?? selectedDataset?.verified_ranges[0];
+    if (!selectedDataset || !selectedRange) return;
+    setProductionBusy(true);
+    setError(undefined);
     try {
       const existing = requestFrom(draft);
-      const start = new Date(`${productionStart}T00:00:00Z`).toISOString();
-      const endInclusive = new Date(`${productionEnd}T00:00:00Z`);
-      const end = new Date(endInclusive.getTime() + 86_400_000).toISOString();
       const request: ProductionArchiveBacktestBody = {
         dataset_id: selectedDataset.dataset_id,
-        start,
-        end,
+        start: selectedRange.start,
+        end: selectedRange.end,
         spec: {
           ...existing.spec,
           symbol: selectedDataset.symbol,
@@ -460,107 +1260,282 @@ function ResearchWorkspace({ research }: { research: ResearchPort }) {
       const completed = await research.executeProductionArchiveBacktest(request);
       setRun(completed);
       window.history.replaceState(null, "", `#/research/experiments/${completed.id}`);
-    } catch (reason) { setError(reason instanceof Error ? reason.message : "Production backtest failed"); }
-    finally { setProductionBusy(false); }
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Production backtest failed");
+    } finally {
+      setProductionBusy(false);
+    }
   }
 
-  if (!draft || !configuration) return <main className="workspace"><p>{error ?? "Loading canonical configuration…"}</p></main>;
-  const update = <K extends keyof Draft>(key: K, value: Draft[K]) => setDraft({ ...draft, [key]: value });
   const selected = panel?.datasets.find((item) => item.symbol === selectedSymbol);
-  const rankedPanelMembers = panel?.datasets
-    .slice()
-    .sort((left, right) => left.display_order - right.display_order) ?? [];
+  const selectedCatalogSymbol = catalog?.symbols.find((item) => item.symbol === selectedSymbol);
   const visibleSymbols = panel?.datasets
     .filter((item) => item.symbol.includes(symbolFilter.trim().toUpperCase()))
     .sort((left, right) => left.display_order - right.display_order) ?? [];
   const selectedRange = selected?.verified_ranges[selectedVerifiedRangeIndex]
     ?? selected?.verified_ranges[0];
-  const selectedRangeStart = selectedRange ? utcDay(selectedRange.start) : undefined;
-  const selectedRangeEnd = selectedRange ? inclusiveEndDay(selectedRange.end) : undefined;
+  const selectedRangeDays = selectedRange ? rangeDays(selectedRange.start, selectedRange.end) : 0;
+  const totalLocalDatasets = panel?.datasets.length ?? 0;
+  const verifiedRangeCount = selected?.verified_ranges.length ?? 0;
+
+  useEffect(() => {
+    if (!selectedRange) return;
+    const replayStartPrice = Number(selectedRange.start_open_price);
+    if (!Number.isFinite(replayStartPrice) || replayStartPrice <= 0) return;
+    setDraft((current) => {
+      if (!current) return current;
+      const anchored = anchorDraftToReplayStart(
+        { ...current, symbol: selected?.symbol ?? current.symbol },
+        replayStartPrice,
+      );
+      if (anchored.symbol === current.symbol
+        && anchored.lower === current.lower
+        && anchored.upper === current.upper) {
+        return current;
+      }
+      return anchored;
+    });
+  }, [selected?.symbol, selectedRange?.start, selectedRange?.end, selectedRange?.start_open_price]);
+
+  if (!draft || !configuration) {
+    return <main className="workspace"><p>{error ?? "Loading canonical configuration…"}</p></main>;
+  }
+
+  const update = <K extends keyof Draft>(key: K, value: Draft[K]) => setDraft({ ...draft, [key]: value });
+
   return (
     <main className="workspace">
-      <div className="page-title"><div><p className="eyebrow">Research · Experiments</p><h1>Static grid backtest</h1><p>Configure one deterministic local experiment. The browser submits work; the research service owns the completed record.</p></div><span className="scope">MIGRATED WORKFLOW</span></div>
-      {canonicalAdaptive && <CanonicalAdaptiveCard presentation={canonicalAdaptive} />}
-      <section className="production-panel" aria-labelledby="production-panel-heading">
-        <div className="result-heading"><div><p className="eyebrow">Synchronized production evidence</p><h2 id="production-panel-heading">Ten-symbol EUR production archive</h2><p>The fixed EUR panel is synchronized from official Binance Spot archives, preserving each symbol’s first available date, immutable monthly partitions, and exact snapshot manifests for local backtests.</p></div><span className="scope">{panel?.status?.toUpperCase() ?? "PENDING"}</span></div>
-        {panel && <div className="catalog-identity">
-          <div><strong>{panel.datasets.length} fixed EUR datasets</strong><span>{panel.preview.pending_partitions} pending partitions · {panel.preview.source_objects} source objects in preview</span></div>
-          <span>Archive identity</span><code>{panel.archive_id}</code>
-          <button disabled={panelBusy || productionBusy || catalogBusy} type="button" onClick={refreshPanel}>{panelBusy ? "Refreshing…" : "Refresh archive preview"}</button>
-          <button disabled={panelBusy || productionBusy || catalogBusy} type="button" onClick={synchronizePanel}>{productionBusy ? "Synchronizing…" : "Synchronize archive"}</button>
-        </div>}
-        {panel && <div className="history-availability" aria-live="polite">
-          <div><span>Acquisition preview</span><strong>{formatBytes(panel.preview.estimated_download_bytes)}</strong></div>
-          <span>{panel.preview.pending_partitions} partitions · {formatBytes(panel.preview.estimated_storage_bytes)} estimated local storage · {panel.sources[0]?.identity}</span>
-        </div>}
-        {rankedPanelMembers.length > 0 && <div className="symbol-evidence">
-          <div><strong>Fixed order panel</strong><span>Exact EUR symbols are frozen by specification, not live ranking.</span></div>
-          {rankedPanelMembers.map((member) => <div key={member.symbol}>
-            <strong>#{member.display_order} · {member.symbol}</strong>
-            <span>{member.coverage.first_date} → {member.coverage.last_date} · {member.partitions.filter((item) => item.active).length} active partitions · {formatBytes(member.stored_bytes)}</span>
-            <span>{member.verified_ranges.length === 0 ? "No verified local range yet" : member.verified_ranges.map((range) => `${new Date(range.start).toISOString()} → ${new Date(range.end).toISOString()}`).join(" · ")}</span>
-            <span>{member.pending_partition_months.length === 0 ? "Immutable monthly archive admitted" : `Pending months: ${member.pending_partition_months.join(", ")}`}</span>
-          </div>)}
-        </div>}
-        {panel && panel.blocking_reasons.length > 0 && <div className="manifest-card">
-          <div><strong>Blocked admissions</strong><span>Missing or invalid local partitions fail closed.</span></div>
-          {panel.blocking_reasons.map((entry) => <span key={entry}>{entry}</span>)}
-        </div>}
-      </section>
-      <section className="production-data" aria-labelledby="production-data-heading">
-        <div className="result-heading"><div><p className="eyebrow">Local backtest snapshot</p><h2 id="production-data-heading">Run over synchronized EUR history</h2><p>Select a verified local EUR dataset window. The backend creates an immutable snapshot manifest, prunes to only required partitions and rows, and refuses incomplete ranges instead of truncating them.</p></div><span className="scope">LOCAL VERIFIED RANGE</span></div>
-        {catalog && <div className="catalog-identity">
-          <div><strong>{catalog.symbols.length} eligible EUR symbols</strong><span>Public compatibility snapshot · {new Date(catalog.retrieved_at).toLocaleString()}</span></div>
-          <span>Catalog identity</span><code>{catalog.catalog_id}</code>
-          <button disabled={catalogBusy || productionBusy} type="button" onClick={refreshCatalog}>{catalogBusy ? "Refreshing…" : "Refresh official catalog"}</button>
-        </div>}
-        <div className="production-controls">
-          <label>Filter symbols<input aria-label="Filter EUR symbols" value={symbolFilter} onChange={(event) => setSymbolFilter(event.currentTarget.value)} placeholder="BTC, ETH…" /></label>
-          <label>EUR production symbol<select aria-label="EUR production symbol" value={selectedSymbol} onChange={(event) => selectProductionSymbol(event.currentTarget.value)}>{visibleSymbols.map((item) => <option key={item.symbol} value={item.symbol}>#{item.display_order} · {item.symbol}</option>)}</select></label>
-          <label>Verified local range<select aria-label="Verified local range" disabled={!selected || selected.verified_ranges.length === 0} value={String(selectedVerifiedRangeIndex)} onChange={(event) => selectVerifiedRange(Number(event.currentTarget.value))}>{selected?.verified_ranges.map((range, index) => <option key={`${range.start}-${range.end}`} value={String(index)}>{utcDay(range.start)} → {inclusiveEndDay(range.end)}</option>) ?? <option value="0">No verified local range</option>}</select></label>
-          <label>UTC start day<input aria-label="UTC start day" type="date" min={selectedRangeStart} max={selectedRangeEnd} value={productionStart} onChange={(event) => setProductionStart(event.currentTarget.value)} /></label>
-          <label>UTC end day<input aria-label="UTC end day" type="date" min={productionStart || selectedRangeStart} max={selectedRangeEnd} value={productionEnd} onChange={(event) => setProductionEnd(event.currentTarget.value)} /></label>
-          <button disabled={productionBusy || !selected || selected.verified_ranges.length === 0} type="button" onClick={runProduction}>Run production-history backtest</button>
+      <div className="page-title">
+        <div>
+          <p className="eyebrow">Research · Experiments</p>
+          <h1>Choose how you want to test the strategy</h1>
+          <p>
+            Start with one path at a time. Use verified EUR market history for reality-anchored replay, or switch to synthetic data when you want fast parameter experiments.
+          </p>
         </div>
-        {selected && <div className="history-availability" aria-live="polite">
-          <div>
-            <span>Official archive availability</span>
-            <strong>{selected.coverage.first_date} → {selected.coverage.last_date}</strong>
+        <span className="scope">{mode === "production" ? "Production replay" : "Synthetic sandbox"}</span>
+      </div>
+
+      <ModeSelector mode={mode} onChange={setMode} />
+
+      {error && <p className="error" role="alert">{error}</p>}
+
+      {mode === "production" ? (
+        <section className="focus-card" aria-labelledby="production-history-heading">
+          <div className="result-heading">
+            <div>
+              <p className="eyebrow">Verified production replay</p>
+              <h2 id="production-history-heading">Run over local EUR market history</h2>
+              <p className="section-copy">
+                Choose a verified local EUR dataset, keep the grid settings visible in the same section, then run an exact replay over stored production candles.
+              </p>
+            </div>
+            <span className="scope">{panel?.status?.toUpperCase() ?? "PENDING"}</span>
           </div>
-          <div>
-            <span>Selected verified local range</span>
-            <strong>{selectedRange ? `${selectedRangeStart} → ${selectedRangeEnd}` : "No verified local range yet."}</strong>
+
+          <div className="summary-grid">
+            <article><span>Eligible EUR symbols</span><strong>{catalog?.symbols.length ?? "—"}</strong></article>
+            <article><span>Local datasets ready</span><strong>{totalLocalDatasets}</strong></article>
+            <article><span>Selected verified windows</span><strong>{verifiedRangeCount}</strong></article>
+            <article><span>Estimated local storage</span><strong>{panel ? formatBytes(panel.preview.estimated_storage_bytes) : "—"}</strong></article>
           </div>
-          <span>{selected.verified_ranges.length === 0 ? "No verified local range yet." : selected.verified_ranges.map((range) => `${new Date(range.start).toISOString()} → ${new Date(range.end).toISOString()}`).join(" · ")}</span>
-        </div>}
-        {selected && <div className="symbol-evidence">
-          <div><strong>{selected.symbol}</strong><span>Stable dataset identity · EUR quote asset · Spot production history only</span></div>
-          <span>{selected.partitions.filter((item) => item.active).length.toLocaleString("en-US")} active monthly partitions</span>
-          <span>{selected.total_rows.toLocaleString("en-US")} verified 1m candles</span>
-          <span>{formatBytes(selected.stored_bytes)} stored locally</span>
-          <span>Pending months: {selected.pending_partition_months.length === 0 ? "none" : selected.pending_partition_months.join(", ")}</span>
-          <span>Latest partition identities</span>
-          {selected.partitions.filter((item) => item.active).slice(-3).map((partition) => <code key={partition.partition_id}>{partition.partition_id}</code>)}
-        </div>}
-        <p className="eligibility-note"><strong>Production history and synthetic scenarios remain separate.</strong> These EUR backtests read only verified local production partitions; they never silently fall back to synthetic or Testnet history.</p>
-        {selected && selected.verified_ranges.length > 0 && <div className="manifest-card">
-          <div><strong>READY FOR SNAPSHOT MANIFESTS</strong><span>{selected.dataset_id}</span></div>
-          <span>Dataset identity</span><code>{selected.dataset_id}</code>
-          <span>Verified partition identities</span><code>{selected.partitions.filter((item) => item.active).map((item) => item.partition_id).join(", ")}</code>
-          {(panel?.blocking_reasons.length ?? 0) > 0 && <p><strong>Blocked:</strong> {panel?.blocking_reasons.join("; ")}</p>}
-        </div>}
-      </section>
-      <form onSubmit={submit}>
-        <div className="sections">
-          <fieldset><legend><b>01</b> Market & Data</legend><label>Symbol<input aria-label="Symbol" value={draft.symbol} onChange={(e) => update("symbol", e.currentTarget.value.toUpperCase())} /></label><label>Market regime<select value={draft.regime} onChange={(e) => update("regime", e.currentTarget.value as Draft["regime"])}>{configuration.data_regimes.map((item) => <option key={item}>{item}</option>)}</select></label><NumberField label="Synthetic bars" min={50} value={draft.bars} onChange={(v) => update("bars", v)} /><NumberField label="Deterministic seed" value={draft.seed} onChange={(v) => update("seed", v)} /></fieldset>
-          <fieldset><legend><b>02</b> Grid & Capital</legend><NumberField label="Initial quote capital" min={1} value={draft.initialCash} onChange={(v) => update("initialCash", v)} /><NumberField label="Lower bound" min={0.01} step={0.01} value={draft.lower} onChange={(v) => update("lower", v)} /><NumberField label="Upper bound" min={0.01} step={0.01} value={draft.upper} onChange={(v) => update("upper", v)} /><NumberField label="Configured rung prices" min={2} value={draft.levels} onChange={(v) => update("levels", v)} /><label>Spacing<select value={draft.spacing} onChange={(e) => update("spacing", e.currentTarget.value as Draft["spacing"])}>{configuration.spacing.map((item) => <option key={item}>{item}</option>)}</select></label><NumberField label="Fixed quote per order" min={0.01} step={0.01} value={draft.quoteSize} onChange={(v) => update("quoteSize", v)} /></fieldset>
-          <fieldset><legend><b>03</b> Costs & Execution</legend><NumberField label="Maker fee fraction" min={0} step={0.0001} value={draft.makerFee} onChange={(v) => update("makerFee", v)} /><NumberField label="Taker fee fraction" min={0} step={0.0001} value={draft.takerFee} onChange={(v) => update("takerFee", v)} /><p className="note">The backend applies costs and execution semantics. This view does not calculate permission or profitability.</p></fieldset>
-          <fieldset><legend><b>04</b> Risk & Evaluation</legend><NumberField label="Global stop-loss fraction" min={0} step={0.01} value={draft.stopLoss} onChange={(v) => update("stopLoss", v)} /><p className="note">Static neutral Spot only. No leverage, shorting, adaptive range, compounding, take-profit, promotion, or online activation is available here.</p></fieldset>
-        </div>
-        {error && <p className="error" role="alert">{error}</p>}
-        <div className="review"><div><strong>Canonical submission</strong><span>{draft.symbol} · {draft.levels} rung prices · {draft.spacing} · seed {draft.seed}</span></div><button disabled={running} type="submit">{running ? "Running…" : "Run backtest"}</button></div>
-      </form>
-      {run && <Results run={run} />}
+
+          <div className="production-controls friendly">
+            <label>
+              Find a symbol
+              <input
+                aria-label="Filter EUR symbols"
+                value={symbolFilter}
+                onChange={(event) => setSymbolFilter(event.currentTarget.value)}
+                placeholder="BTC, ETH…"
+              />
+            </label>
+            <label>
+              EUR production symbol
+              <select
+                aria-label="EUR production symbol"
+                value={selectedSymbol}
+                onChange={(event) => selectProductionSymbol(event.currentTarget.value)}
+              >
+                {visibleSymbols.map((item) => (
+                  <option key={item.symbol} value={item.symbol}>
+                    #{item.display_order} · {item.symbol}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Verified local range
+              <select
+                aria-label="Verified local range"
+                disabled={!selected || selected.verified_ranges.length === 0}
+                value={String(selectedVerifiedRangeIndex)}
+                onChange={(event) => selectVerifiedRange(Number(event.currentTarget.value))}
+              >
+                {selected?.verified_ranges.map((range, index) => (
+                  <option key={`${range.start}-${range.end}`} value={String(index)}>
+                    {rangeChipLabel(range)}
+                  </option>
+                )) ?? <option value="0">No verified local range</option>}
+              </select>
+            </label>
+          </div>
+
+          {selected && selectedRange && (
+            <>
+              <div className="selected-range-card">
+                <div>
+                  <span>Selected market</span>
+                  <strong>{selected.symbol}</strong>
+                  <p>Stable local dataset · EUR quote asset · verified Spot production replay only.</p>
+                </div>
+                <div>
+                  <span>What will run</span>
+                  <strong>{selectedRangeDays} day replay</strong>
+                  <p>{rangeLabel(selectedRange)}</p>
+                </div>
+                <div>
+                  <span>Available locally</span>
+                  <strong>{selected.total_rows.toLocaleString("en-US")} verified 1m candles</strong>
+                  <p>{selected.partitions.filter((item) => item.active).length.toLocaleString("en-US")} active monthly partitions · {formatBytes(selected.stored_bytes)} stored locally</p>
+                </div>
+              </div>
+
+              <ExpandableInfo title="Why this verified range is selectable" defaultOpen>
+                <div className="insight-list">
+                  <p><strong>Official archive availability:</strong> {selected.coverage.first_date} → {selected.coverage.last_date}</p>
+                  <p><strong>Verified local range:</strong> {rangeLabel(selectedRange)}</p>
+                  <p>{friendlyRangeExplanation(selectedRange)}</p>
+                  <p><strong>Safety note:</strong> production-history and synthetic scenarios remain separate. These EUR backtests read only verified local production partitions.</p>
+                </div>
+              </ExpandableInfo>
+            </>
+          )}
+
+          <section className="nested-panel" aria-labelledby="production-grid-settings-heading">
+            <div className="result-heading">
+              <div>
+                <p className="eyebrow">Strategy settings</p>
+                <h3 id="production-grid-settings-heading">Tune the grid for this replay</h3>
+                <p className="section-copy">
+                  These settings drive the backtest that will run over the selected verified production range.
+                </p>
+              </div>
+            </div>
+            <ProductionSetupGuidance
+              draft={draft}
+              selected={selected}
+              selectedCatalogSymbol={selectedCatalogSymbol}
+              selectedRange={selectedRange}
+              catalogRetrievedAt={catalog?.retrieved_at}
+            />
+            <StrategyFields configuration={configuration} draft={draft} update={update} />
+            <div className="review">
+              <div>
+                <strong>Production replay summary</strong>
+                <span>{selected?.symbol ?? draft.symbol} · {draft.levels} rung prices · {draft.spacing} spacing · {selectedRangeDays || "—"} day replay</span>
+              </div>
+              <button
+                className="primary-cta"
+                disabled={productionBusy || !selectedRange}
+                type="button"
+                onClick={runProduction}
+              >
+                {productionBusy ? "Running…" : "Run production-history backtest"}
+              </button>
+            </div>
+          </section>
+
+          {run && <Results run={run} />}
+
+          {canonicalAdaptive && (
+            <ExpandableInfo title="See why the system suggests a certain starting grid">
+              <CanonicalAdaptiveCard presentation={canonicalAdaptive} />
+            </ExpandableInfo>
+          )}
+
+          {selected && (
+            <>
+              <ExpandableInfo title="Show selected symbol details">
+                <div className="symbol-detail-grid">
+                  <article><span>Liquidity rank</span><strong>#{selected.display_order}</strong></article>
+                  <article><span>Coverage</span><strong>{selected.coverage.first_date} → {selected.coverage.last_date}</strong></article>
+                  <article><span>Pending months</span><strong>{selected.pending_partition_months.length === 0 ? "None" : selected.pending_partition_months.length}</strong></article>
+                  <article><span>Verified windows</span><strong>{selected.verified_ranges.length}</strong></article>
+                </div>
+              </ExpandableInfo>
+
+              <ExpandableInfo title="Show archive maintenance and technical evidence">
+                <div className="action-row">
+                  <button disabled={catalogBusy || productionBusy} type="button" onClick={refreshCatalog}>
+                    {catalogBusy ? "Refreshing…" : "Refresh official market list"}
+                  </button>
+                  <button disabled={panelBusy || productionBusy || catalogBusy} type="button" onClick={refreshPanel}>
+                    {panelBusy ? "Refreshing…" : "Refresh local archive status"}
+                  </button>
+                  <button disabled={panelBusy || productionBusy || catalogBusy} type="button" onClick={synchronizePanel}>
+                    {productionBusy ? "Synchronizing…" : "Synchronize local archive"}
+                  </button>
+                </div>
+                <div className="production-provenance">
+                  {catalog && <>
+                    <span>Catalog identity</span>
+                    <code>{catalog.catalog_id}</code>
+                  </>}
+                  <span>Archive identity</span>
+                  <code>{panel?.archive_id}</code>
+                  <span>Dataset identity</span>
+                  <code>{selected.dataset_id}</code>
+                  <span>Latest partition identities</span>
+                  <code>{selected.partitions.filter((item) => item.active).slice(-3).map((partition) => partition.partition_id).join(", ")}</code>
+                  <div><strong>Acquisition preview</strong><span>{panel?.preview.pending_partitions ?? 0} pending partitions · {panel ? formatBytes(panel.preview.estimated_download_bytes) : "—"} estimated download</span></div>
+                  {(panel?.blocking_reasons.length ?? 0) > 0 && <div><strong>Blocked admissions</strong><span>{panel?.blocking_reasons.join("; ")}</span></div>}
+                  <div><strong>Symbol panel</strong><span>{panel?.datasets.map((dataset) => `#${dataset.display_order} ${dataset.symbol}`).join(" · ")}</span></div>
+                </div>
+              </ExpandableInfo>
+            </>
+          )}
+        </section>
+      ) : (
+        <form onSubmit={submit} className="focus-card" aria-labelledby="synthetic-heading">
+          <div className="result-heading">
+            <div>
+              <p className="eyebrow">Quick synthetic sandbox</p>
+              <h2 id="synthetic-heading">Try the strategy with fast synthetic data</h2>
+              <p className="section-copy">
+                This is the fastest way to experiment with ranges, spacing, and fees before you spend time on verified production history.
+              </p>
+            </div>
+            <span className="scope">Fast iteration</span>
+          </div>
+
+          <ExpandableInfo title="When should I use the synthetic sandbox?" defaultOpen>
+            <div className="insight-list">
+              <p>Use it to compare parameter ideas quickly.</p>
+              <p>Do not treat it as venue proof or profitability proof.</p>
+              <p>When you want a reality-anchored replay, switch back to production replay above.</p>
+            </div>
+          </ExpandableInfo>
+
+          <StrategyFields configuration={configuration} draft={draft} update={update} />
+
+          {canonicalAdaptive && (
+            <ExpandableInfo title="See why the system suggests a certain starting grid">
+              <CanonicalAdaptiveCard presentation={canonicalAdaptive} />
+            </ExpandableInfo>
+          )}
+
+          <div className="review">
+            <div>
+              <strong>Synthetic submission summary</strong>
+              <span>{draft.symbol} · {draft.levels} rung prices · {draft.spacing} spacing · seed {draft.seed}</span>
+            </div>
+            <button disabled={running} type="submit">{running ? "Running…" : "Run synthetic backtest"}</button>
+          </div>
+
+          {run && <Results run={run} />}
+        </form>
+      )}
     </main>
   );
 }
@@ -569,6 +1544,7 @@ function OperationsWorkspace({ research }: { research: ResearchPort }) {
   const [presentation, setPresentation] = useState<SafetyPosturePresentation>();
   const [controls, setControls] = useState<OperatorControlsPresentation>();
   const [error, setError] = useState<string>();
+
   useEffect(() => {
     let current = true;
     research.getSafetyPosture()
@@ -583,6 +1559,7 @@ function OperationsWorkspace({ research }: { research: ResearchPort }) {
       ));
     return () => { current = false; };
   }, [research]);
+
   return <main className="workspace empty">
     <p className="eyebrow">Operations · Command Center</p>
     <h1>Deterministic safety posture</h1>

@@ -2453,11 +2453,15 @@ export interface components {
              * Format: date-time
              */
             end: string;
+            /** End Close Price */
+            end_close_price: string;
             /**
              * Start
              * Format: date-time
              */
             start: string;
+            /** Start Open Price */
+            start_open_price: string;
         };
         /** WalkForwardBody */
         WalkForwardBody: {

@@ -1016,6 +1016,8 @@ class ProductionArchivePartitionEvidence(_Block):
 class VerifiedRangeEvidence(_Block):
     start: datetime
     end: datetime
+    start_open_price: str
+    end_close_price: str
 
 
 class SynchronizedProductionDatasetEvidence(_Block):

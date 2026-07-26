@@ -193,7 +193,12 @@ def test_typed_api_exposes_the_synchronized_ten_symbol_eur_archive(tmp_path: Pat
         assert len(archive["datasets"]) == 10
         assert archive["preview"]["pending_partitions"] == 0
         assert archive["datasets"][0]["verified_ranges"] == [
-            {"start": "2024-12-31T00:00:00Z", "end": "2025-02-04T00:00:00Z"}
+            {
+                "start": "2024-12-31T00:00:00Z",
+                "end": "2025-02-04T00:00:00Z",
+                "start_open_price": "100.000000000000000000",
+                "end_close_price": "100.500000000000000000",
+            }
         ]
 
 
