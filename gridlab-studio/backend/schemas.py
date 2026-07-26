@@ -240,6 +240,80 @@ class StudioBacktestRun(_Block):
     provenance: Optional[ProductionDatasetProvenance] = None
 
 
+class ResearchJobRequest(_Block):
+    """A durable local adaptive research command owned by the backend."""
+
+    spec: BacktestRequest
+    dataset_identity: str = Field(min_length=1)
+    venue_rules_identity: str = Field(min_length=1)
+    fee_identity: str = Field(min_length=1)
+    execution_model_identity: str = Field(min_length=1)
+    schema_identity: str = Field(min_length=1)
+    seed: int
+
+
+class ResearchJobIdentity(_Block):
+    code: str
+    configuration: str
+    dataset: str
+    venue_rules: str
+    fees: str
+    execution_model: str
+    schema: str
+    seed: str
+    job: str
+
+
+class ResearchJobGate(_Block):
+    name: str
+    outcome: Literal["PASSED", "FAILED", "NOT_EVALUATED"]
+    reason: str
+    blocking: bool
+
+
+class ResearchJobEvent(_Block):
+    event_id: str
+    kind: str
+    timestamp: datetime
+    label: str
+    epoch_id: Optional[str] = None
+    causal_event_ids: list[str] = Field(default_factory=list)
+    details: dict[str, Any] = Field(default_factory=dict)
+
+
+class ResearchJobVisualization(_Block):
+    price: list[dict[str, Any]]
+    overlays: list[ResearchJobEvent]
+    selected_event_id: Optional[str] = None
+
+
+class ResearchJobResult(_Block):
+    net_return: float
+    final_equity: float
+    max_drawdown: float
+    fees_paid: float
+    completed_cycles: int
+    gates: list[ResearchJobGate]
+    visualization: ResearchJobVisualization
+    inventory_basis: str
+    capital_note: str
+
+
+class ResearchJob(_Block):
+    id: str
+    status: Literal["QUEUED", "RUNNING", "RESUMABLE", "COMPLETED", "CANCELLED", "FAILED"]
+    created_at: datetime
+    updated_at: datetime
+    progress: int = Field(ge=0, le=100)
+    phase: str
+    checkpoint: Optional[str] = None
+    worker_history: list[dict[str, Any]] = Field(default_factory=list)
+    error: Optional[str] = None
+    request: ResearchJobRequest
+    identity: ResearchJobIdentity
+    result: Optional[ResearchJobResult] = None
+
+
 class StudioConfiguration(_Block):
     default_spec: BacktestRequest
     spacing: list[Literal["geometric", "arithmetic"]]

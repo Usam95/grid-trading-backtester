@@ -11,6 +11,8 @@ import type {
   SafetyPosturePresentation,
   StudioBacktestRun,
   StudioConfiguration,
+  ResearchJob,
+  ResearchJobRequest,
 } from "./research/port";
 
 type Workspace = "research" | "operations";
@@ -189,6 +191,25 @@ function Results({ run }: { run: StudioBacktestRun }) {
   );
 }
 
+function ResearchJobCard({ job, onCancel }: { job: ResearchJob; onCancel(): void }) {
+  const [selected, setSelected] = useState<string>();
+  const result = job.result;
+  const event = result?.visualization.overlays.find((item) => item.event_id === selected);
+  return <section className="research-job" aria-labelledby="research-job-heading">
+    <div className="result-heading"><div><p className="eyebrow">Durable adaptive research job</p><h2 id="research-job-heading">{job.status} · {job.phase}</h2></div><span className="scope">{job.progress}%</span></div>
+    <div className="job-progress"><div style={{ width: `${job.progress}%` }} /></div>
+    <div className="production-provenance"><span>Job identity</span><code>{job.identity.job}</code><span>Dataset</span><code>{job.identity.dataset}</code><span>Code · schema · seed</span><code>{job.identity.code} · {job.identity.schema} · {job.identity.seed}</code></div>
+    {job.error && <p className="error" role="alert">{job.error} · prior checkpoints remain available for resume.</p>}
+    {result && <>
+      <div className="metrics"><article className="primary"><span>Net return</span><strong>{formatPercent(result.net_return)}</strong></article><article><span>Completed cycles</span><strong>{result.completed_cycles}</strong></article><article><span>Max drawdown</span><strong>{formatPercent(result.max_drawdown)}</strong></article><article><span>Fees</span><strong>{formatMoney(result.fees_paid)}</strong></article></div>
+      <p className="job-note"><strong>Inventory meaning:</strong> {result.inventory_basis}. <strong>Capital boundary:</strong> {result.capital_note}</p>
+      <div className="job-gates" aria-label="Non-compensating research gates">{result.gates.map((gate) => <div key={gate.name} className={gate.outcome === "PASSED" ? "gate-pass" : "gate-fail"}><strong>{gate.outcome}</strong><span>{gate.name} · {gate.reason}</span></div>)}</div>
+      <div className="job-visualization"><div><strong>Price and causal overlays</strong><span>Past-only adaptation, epoch, transition, fill, cycle, and safety evidence</span></div><div className="job-events">{result.visualization.overlays.map((item) => <button type="button" key={item.event_id} className={item.event_id === selected ? "selected" : ""} onClick={() => setSelected(item.event_id)}><strong>{item.kind}</strong><span>{item.label}</span></button>)}</div>{event && <div className="causal-detail"><strong>Selected evidence · {event.kind}</strong><span>{event.label}</span><code>{event.event_id}</code><span>Causal inputs: {(event.causal_event_ids ?? []).join(", ") || "none"}</span></div>}</div>
+    </>}
+    {!["COMPLETED", "CANCELLED"].includes(job.status) && <button type="button" onClick={onCancel}>Cancel and preserve checkpoint</button>}
+  </section>;
+}
+
 function CanonicalAdaptiveCard({
   presentation,
 }: {
@@ -291,6 +312,8 @@ function ResearchWorkspace({ research }: { research: ResearchPort }) {
   const [productionBusy, setProductionBusy] = useState(false);
   const [canonicalAdaptive, setCanonicalAdaptive] =
     useState<CanonicalAdaptivePresentation>();
+  const [researchJobs, setResearchJobs] = useState<ResearchJob[]>([]);
+  const [researchJobBusy, setResearchJobBusy] = useState(false);
 
   function applyVerifiedRange(
     dataset: FrozenProductionPanel["datasets"][number],
@@ -371,6 +394,7 @@ function ResearchWorkspace({ research }: { research: ResearchPort }) {
       ));
     const runId = window.location.hash.match(/experiments\/([^/]+)$/)?.[1];
     if (runId) research.getBacktest(runId).then((value) => current && setRun(value)).catch(() => undefined);
+    research.getResearchJobs?.().then((value) => current && setResearchJobs(value)).catch(() => undefined);
     return () => { current = false; };
   }, [research]);
 
@@ -431,6 +455,39 @@ function ResearchWorkspace({ research }: { research: ResearchPort }) {
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Backtest failed");
     } finally { setRunning(false); }
+  }
+
+  async function startAdaptiveResearch() {
+    if (!draft || !research.createResearchJob || !research.getResearchJob) return;
+    setResearchJobBusy(true); setError(undefined);
+    try {
+      const baseRequest = requestFrom(draft);
+      const baseSpec = (baseRequest.spec ?? {}) as ResearchJobRequest["spec"];
+      const request: ResearchJobRequest = {
+        spec: { ...baseSpec, initial_cash: draft.initialCash, grid: { ...(baseSpec.grid ?? {}), adaptive: true } } as ResearchJobRequest["spec"],
+        dataset_identity: selected?.dataset_id ?? `admitted-production:${draft.symbol}`,
+        venue_rules_identity: "binance-spot-rules/v1",
+        fee_identity: `maker:${draft.makerFee};taker:${draft.takerFee}`,
+        execution_model_identity: "candle-conservative/v1",
+        schema_identity: "studio-research-job/v1",
+        seed: draft.seed,
+      };
+      const created = await research.createResearchJob(request);
+      setResearchJobs((current) => [created, ...current.filter((item) => item.id !== created.id)]);
+      let latest = created;
+      while (!["COMPLETED", "CANCELLED", "FAILED", "RESUMABLE"].includes(latest.status)) {
+        await new Promise((resolve) => window.setTimeout(resolve, 50));
+        latest = await research.getResearchJob(created.id);
+        setResearchJobs((current) => current.map((item) => item.id === latest.id ? latest : item));
+      }
+    } catch (reason) { setError(reason instanceof Error ? reason.message : "Adaptive research job failed"); }
+    finally { setResearchJobBusy(false); }
+  }
+
+  async function cancelAdaptiveResearch(jobId: string) {
+    if (!research.cancelResearchJob) return;
+    const cancelled = await research.cancelResearchJob(jobId);
+    setResearchJobs((current) => current.map((item) => item.id === cancelled.id ? cancelled : item));
   }
 
   async function runProduction() {
@@ -549,6 +606,12 @@ function ResearchWorkspace({ research }: { research: ResearchPort }) {
           <span>Verified partition identities</span><code>{selected.partitions.filter((item) => item.active).map((item) => item.partition_id).join(", ")}</code>
           {(panel?.blocking_reasons.length ?? 0) > 0 && <p><strong>Blocked:</strong> {panel?.blocking_reasons.join("; ")}</p>}
         </div>}
+      </section>
+      <section className="production-data" aria-labelledby="adaptive-research-heading">
+        <div className="result-heading"><div><p className="eyebrow">Ticket 15 · resumable execution</p><h2 id="adaptive-research-heading">Run adaptive research outside the browser</h2><p>The local service owns execution and SQLite checkpoints. Close this browser, reopen Studio, and reconnect to the same job identity and sealed evidence.</p></div><span className="scope">NO TRADING AUTHORITY</span></div>
+        <p className="job-note">This inventory grid is net-long base exposure. The 250 USDT Azure MVP is a validation/learning vehicle, not infrastructure-net-profitable operation.</p>
+        <button type="button" disabled={researchJobBusy} onClick={startAdaptiveResearch}>{researchJobBusy ? "Research running…" : "Start adaptive research job"}</button>
+        {researchJobs.map((job) => <ResearchJobCard key={job.id} job={job} onCancel={() => cancelAdaptiveResearch(job.id)} />)}
       </section>
       <form onSubmit={submit}>
         <div className="sections">

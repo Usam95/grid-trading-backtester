@@ -8,6 +8,8 @@ config) is surfaced as a clean HTTP 400 so the UI can show a friendly message.
 from __future__ import annotations
 
 import io
+import os
+import threading
 from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
@@ -45,6 +47,8 @@ from backend.schemas import (
     ProductionArchiveBacktestBody,
     MonteCarloBody,
     ProductionDatasetProvenance,
+    ResearchJob,
+    ResearchJobRequest,
     OperatorControlsPresentation,
     RobustnessBody,
     RunBacktestBody,
@@ -61,6 +65,7 @@ from backend.studio_panels import (
     studio_production_panel_repository,
 )
 from backend.studio_runs import SqliteStudioRunStore, studio_run_store
+from backend.research_jobs import build_result, identity_for
 
 FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
 TYPED_FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend-typed-dist"
@@ -77,6 +82,16 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.on_event("startup")
+def resume_local_research_jobs() -> None:
+    """Reconnect unfinished local jobs after a Studio service restart."""
+    database = _research_store_path()
+    with SqliteStudioRunStore(database) as store:
+        unfinished = [job for job in store.list_jobs() if job.status in {"QUEUED", "RUNNING", "RESUMABLE"}]
+    for job in unfinished:
+        threading.Thread(target=_execute_research_job, args=(job.id, job.request, database), daemon=True).start()
 
 
 def _guard(fn, *args, **kwargs):
@@ -337,6 +352,76 @@ def create_studio_backtest(
     )
     store.save(run)
     return run
+
+
+def _research_store_path() -> Path:
+    configured = os.environ.get("GRIDLAB_STUDIO_DATABASE")
+    return Path(configured) if configured else Path(__file__).resolve().parent.parent / ".studio" / "studio.sqlite3"
+
+
+def _execute_research_job(job_id: str, request: ResearchJobRequest, database: Path | None = None) -> None:
+    """Run outside the request/browser lifecycle and checkpoint each phase."""
+    database = database or _research_store_path()
+    try:
+        with SqliteStudioRunStore(database) as store:
+            current = store.get_job(job_id)
+            if current is None or current.status == "CANCELLED":
+                return
+            store.save_job(current.model_copy(update={"status": "RUNNING", "phase": "ADMITTING", "progress": 10, "updated_at": datetime.now(timezone.utc), "checkpoint": "admission", "worker_history": [*current.worker_history, {"phase": "ADMITTING", "checkpoint": "admission"}]}))
+            raw = service.run_backtest(request.spec.to_spec(), with_report=False, include_trades=True)
+            current = store.get_job(job_id)
+            if current is None or current.status == "CANCELLED":
+                return
+            store.save_job(current.model_copy(update={"status": "RUNNING", "phase": "REPLAYING", "progress": 70, "updated_at": datetime.now(timezone.utc), "checkpoint": "canonical-replay", "worker_history": [*current.worker_history, {"phase": "REPLAYING", "checkpoint": "canonical-replay"}]}))
+            result = build_result(request, raw)
+            current = store.get_job(job_id)
+            if current is None or current.status == "CANCELLED":
+                return
+            store.save_job(current.model_copy(update={"status": "COMPLETED", "phase": "SEALED", "progress": 100, "updated_at": datetime.now(timezone.utc), "checkpoint": "sealed-result", "worker_history": [*current.worker_history, {"phase": "SEALED", "checkpoint": "sealed-result"}], "result": result}))
+    except Exception as exc:  # noqa: BLE001
+        with SqliteStudioRunStore(database) as store:
+            current = store.get_job(job_id)
+            if current is not None:
+                store.save_job(current.model_copy(update={"status": "RESUMABLE", "phase": "FAILED", "updated_at": datetime.now(timezone.utc), "error": f"{type(exc).__name__}: {exc}", "checkpoint": "failure", "worker_history": [*current.worker_history, {"phase": "FAILED", "checkpoint": "failure"}]}))
+
+
+@app.post("/api/studio/research/jobs", response_model=ResearchJob, status_code=202)
+def create_research_job(
+    body: ResearchJobRequest,
+    store: SqliteStudioRunStore = Depends(studio_run_store),
+) -> ResearchJob:
+    """Create a durable job; execution belongs to the local research service."""
+    now = datetime.now(timezone.utc)
+    identity = identity_for(body)
+    job = ResearchJob(id=str(uuid4()), status="QUEUED", created_at=now, updated_at=now, progress=0, phase="QUEUED", request=body, identity=identity)
+    store.save_job(job)
+    threading.Thread(target=_execute_research_job, args=(job.id, body, store.database), daemon=True).start()
+    return job
+
+
+@app.get("/api/studio/research/jobs", response_model=list[ResearchJob])
+def list_research_jobs(store: SqliteStudioRunStore = Depends(studio_run_store)) -> list[ResearchJob]:
+    return store.list_jobs()
+
+
+@app.get("/api/studio/research/jobs/{job_id}", response_model=ResearchJob)
+def get_research_job(job_id: str, store: SqliteStudioRunStore = Depends(studio_run_store)) -> ResearchJob:
+    job = store.get_job(job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail="Research job not found")
+    return job
+
+
+@app.post("/api/studio/research/jobs/{job_id}/cancel", response_model=ResearchJob)
+def cancel_research_job(job_id: str, store: SqliteStudioRunStore = Depends(studio_run_store)) -> ResearchJob:
+    job = store.get_job(job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail="Research job not found")
+    if job.status in {"COMPLETED", "CANCELLED"}:
+        return job
+    cancelled = job.model_copy(update={"status": "CANCELLED", "phase": "CANCELLED", "updated_at": datetime.now(timezone.utc), "checkpoint": "cancelled"})
+    store.save_job(cancelled)
+    return cancelled
 
 
 @app.post(

@@ -9,7 +9,7 @@ from collections.abc import Iterator
 from pathlib import Path
 from types import TracebackType
 
-from backend.schemas import StudioBacktestRun
+from backend.schemas import ResearchJob, StudioBacktestRun
 
 
 DEFAULT_DATABASE = Path(__file__).resolve().parent.parent / ".studio" / "studio.sqlite3"
@@ -19,6 +19,7 @@ class SqliteStudioRunStore:
     """Small durable store owned by the local research service, not the browser."""
 
     def __init__(self, database: Path) -> None:
+        self.database = database
         database.parent.mkdir(parents=True, exist_ok=True)
         # FastAPI may enter and exit a sync generator dependency on different
         # worker threads; this connection is still request-scoped.
@@ -32,6 +33,16 @@ class SqliteStudioRunStore:
             )
             """
         )
+        self._connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS studio_research_jobs (
+                job_id TEXT PRIMARY KEY,
+                updated_at TEXT NOT NULL,
+                payload_json TEXT NOT NULL
+            )
+            """
+        )
+        self._connection.commit()
 
     def save(self, run: StudioBacktestRun) -> None:
         self._connection.execute(
@@ -48,6 +59,23 @@ class SqliteStudioRunStore:
         if row is None:
             return None
         return StudioBacktestRun.model_validate(json.loads(row[0]))
+
+    def save_job(self, job: ResearchJob) -> None:
+        self._connection.execute(
+            "INSERT OR REPLACE INTO studio_research_jobs VALUES (?, ?, ?)",
+            (job.id, job.updated_at.isoformat(), job.model_dump_json()),
+        )
+        self._connection.commit()
+
+    def get_job(self, job_id: str) -> ResearchJob | None:
+        row = self._connection.execute(
+            "SELECT payload_json FROM studio_research_jobs WHERE job_id = ?", (job_id,)
+        ).fetchone()
+        return None if row is None else ResearchJob.model_validate(json.loads(row[0]))
+
+    def list_jobs(self) -> list[ResearchJob]:
+        rows = self._connection.execute("SELECT payload_json FROM studio_research_jobs ORDER BY updated_at DESC").fetchall()
+        return [ResearchJob.model_validate(json.loads(row[0])) for row in rows]
 
     def close(self) -> None:
         self._connection.close()

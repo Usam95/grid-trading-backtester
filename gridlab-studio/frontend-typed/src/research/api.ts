@@ -14,6 +14,8 @@ import type {
   SafetyPosturePresentation,
   StudioBacktestRun,
   StudioConfiguration,
+  ResearchJob,
+  ResearchJobRequest,
 } from "./port";
 
 async function jsonResponse<T>(request: Promise<Response>): Promise<T> {
@@ -120,5 +122,23 @@ export class FastApiResearchClient implements ResearchPort {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(request),
     }));
+  }
+
+  async createResearchJob(request: ResearchJobRequest): Promise<ResearchJob> {
+    return jsonResponse(fetch("/api/studio/research/jobs", {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(request),
+    }));
+  }
+
+  async getResearchJobs(): Promise<ResearchJob[]> {
+    return jsonResponse(fetch("/api/studio/research/jobs"));
+  }
+
+  async getResearchJob(jobId: string): Promise<ResearchJob> {
+    return jsonResponse(fetch(`/api/studio/research/jobs/${encodeURIComponent(jobId)}`));
+  }
+
+  async cancelResearchJob(jobId: string): Promise<ResearchJob> {
+    return jsonResponse(fetch(`/api/studio/research/jobs/${encodeURIComponent(jobId)}/cancel`, { method: "POST" }));
   }
 }

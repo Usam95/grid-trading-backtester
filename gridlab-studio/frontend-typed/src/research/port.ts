@@ -2,6 +2,8 @@ import type { components } from "../api/schema";
 
 export type RunBacktestBody = components["schemas"]["RunBacktestBody"];
 export type StudioBacktestRun = components["schemas"]["StudioBacktestRun"];
+export type ResearchJob = components["schemas"]["ResearchJob"];
+export type ResearchJobRequest = components["schemas"]["ResearchJobRequest"];
 export type StudioConfiguration = components["schemas"]["StudioConfiguration"];
 export type BinanceDatasetRequest = components["schemas"]["BinanceDatasetRequest"];
 export type BinanceDatasetPreview = components["schemas"]["BinanceDatasetPreview"];
@@ -37,4 +39,8 @@ export interface ResearchPort {
   executeProductionArchiveBacktest(
     request: ProductionArchiveBacktestBody,
   ): Promise<StudioBacktestRun>;
+  createResearchJob?(request: ResearchJobRequest): Promise<ResearchJob>;
+  getResearchJobs?(): Promise<ResearchJob[]>;
+  getResearchJob?(jobId: string): Promise<ResearchJob>;
+  cancelResearchJob?(jobId: string): Promise<ResearchJob>;
 }

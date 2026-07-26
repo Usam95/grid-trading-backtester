@@ -434,6 +434,61 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/studio/research/jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Research Jobs */
+        get: operations["list_research_jobs_api_studio_research_jobs_get"];
+        put?: never;
+        /**
+         * Create Research Job
+         * @description Create a durable job; execution belongs to the local research service.
+         */
+        post: operations["create_research_job_api_studio_research_jobs_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/studio/research/jobs/{job_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Research Job */
+        get: operations["get_research_job_api_studio_research_jobs__job_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/studio/research/jobs/{job_id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancel Research Job */
+        post: operations["cancel_research_job_api_studio_research_jobs__job_id__cancel_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/studio/safety-posture": {
         parameters: {
             query?: never;
@@ -2072,6 +2127,148 @@ export interface components {
             /** Url */
             url: string;
         };
+        /** ResearchJob */
+        ResearchJob: {
+            /** Checkpoint */
+            checkpoint?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Error */
+            error?: string | null;
+            /** Id */
+            id: string;
+            identity: components["schemas"]["ResearchJobIdentity"];
+            /** Phase */
+            phase: string;
+            /** Progress */
+            progress: number;
+            request: components["schemas"]["ResearchJobRequest"];
+            result?: components["schemas"]["ResearchJobResult"] | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "QUEUED" | "RUNNING" | "RESUMABLE" | "COMPLETED" | "CANCELLED" | "FAILED";
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Worker History */
+            worker_history?: {
+                [key: string]: unknown;
+            }[];
+        };
+        /** ResearchJobEvent */
+        ResearchJobEvent: {
+            /** Causal Event Ids */
+            causal_event_ids?: string[];
+            /** Details */
+            details?: {
+                [key: string]: unknown;
+            };
+            /** Epoch Id */
+            epoch_id?: string | null;
+            /** Event Id */
+            event_id: string;
+            /** Kind */
+            kind: string;
+            /** Label */
+            label: string;
+            /**
+             * Timestamp
+             * Format: date-time
+             */
+            timestamp: string;
+        };
+        /** ResearchJobGate */
+        ResearchJobGate: {
+            /** Blocking */
+            blocking: boolean;
+            /** Name */
+            name: string;
+            /**
+             * Outcome
+             * @enum {string}
+             */
+            outcome: "PASSED" | "FAILED" | "NOT_EVALUATED";
+            /** Reason */
+            reason: string;
+        };
+        /** ResearchJobIdentity */
+        ResearchJobIdentity: {
+            /** Code */
+            code: string;
+            /** Configuration */
+            configuration: string;
+            /** Dataset */
+            dataset: string;
+            /** Execution Model */
+            execution_model: string;
+            /** Fees */
+            fees: string;
+            /** Job */
+            job: string;
+            /** Schema */
+            schema: string;
+            /** Seed */
+            seed: string;
+            /** Venue Rules */
+            venue_rules: string;
+        };
+        /**
+         * ResearchJobRequest
+         * @description A durable local adaptive research command owned by the backend.
+         */
+        ResearchJobRequest: {
+            /** Dataset Identity */
+            dataset_identity: string;
+            /** Execution Model Identity */
+            execution_model_identity: string;
+            /** Fee Identity */
+            fee_identity: string;
+            /** Schema Identity */
+            schema_identity: string;
+            /** Seed */
+            seed: number;
+            spec: components["schemas"]["BacktestRequest"];
+            /** Venue Rules Identity */
+            venue_rules_identity: string;
+        };
+        /** ResearchJobResult */
+        ResearchJobResult: {
+            /** Capital Note */
+            capital_note: string;
+            /** Completed Cycles */
+            completed_cycles: number;
+            /** Fees Paid */
+            fees_paid: number;
+            /** Final Equity */
+            final_equity: number;
+            /** Gates */
+            gates: components["schemas"]["ResearchJobGate"][];
+            /** Inventory Basis */
+            inventory_basis: string;
+            /** Max Drawdown */
+            max_drawdown: number;
+            /** Net Return */
+            net_return: number;
+            visualization: components["schemas"]["ResearchJobVisualization"];
+        };
+        /** ResearchJobVisualization */
+        ResearchJobVisualization: {
+            /** Overlays */
+            overlays: components["schemas"]["ResearchJobEvent"][];
+            /** Price */
+            price: {
+                [key: string]: unknown;
+            }[];
+            /** Selected Event Id */
+            selected_event_id?: string | null;
+        };
         /** RobustnessBody */
         RobustnessBody: {
             base?: components["schemas"]["BacktestRequest"];
@@ -3182,6 +3379,121 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OperatorControlsPresentation"];
+                };
+            };
+        };
+    };
+    list_research_jobs_api_studio_research_jobs_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResearchJob"][];
+                };
+            };
+        };
+    };
+    create_research_job_api_studio_research_jobs_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResearchJobRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResearchJob"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_research_job_api_studio_research_jobs__job_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResearchJob"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cancel_research_job_api_studio_research_jobs__job_id__cancel_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResearchJob"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

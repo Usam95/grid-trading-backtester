@@ -4369,6 +4369,381 @@
         "title": "ProductionPanelSourceEvidence",
         "type": "object"
       },
+      "ResearchJob": {
+        "properties": {
+          "checkpoint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Checkpoint"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "identity": {
+            "$ref": "#/components/schemas/ResearchJobIdentity"
+          },
+          "phase": {
+            "title": "Phase",
+            "type": "string"
+          },
+          "progress": {
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Progress",
+            "type": "integer"
+          },
+          "request": {
+            "$ref": "#/components/schemas/ResearchJobRequest"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ResearchJobResult"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "enum": [
+              "QUEUED",
+              "RUNNING",
+              "RESUMABLE",
+              "COMPLETED",
+              "CANCELLED",
+              "FAILED"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "worker_history": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Worker History",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "created_at",
+          "updated_at",
+          "progress",
+          "phase",
+          "request",
+          "identity"
+        ],
+        "title": "ResearchJob",
+        "type": "object"
+      },
+      "ResearchJobEvent": {
+        "properties": {
+          "causal_event_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Causal Event Ids",
+            "type": "array"
+          },
+          "details": {
+            "additionalProperties": true,
+            "title": "Details",
+            "type": "object"
+          },
+          "epoch_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Epoch Id"
+          },
+          "event_id": {
+            "title": "Event Id",
+            "type": "string"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "title": "Timestamp",
+            "type": "string"
+          }
+        },
+        "required": [
+          "event_id",
+          "kind",
+          "timestamp",
+          "label"
+        ],
+        "title": "ResearchJobEvent",
+        "type": "object"
+      },
+      "ResearchJobGate": {
+        "properties": {
+          "blocking": {
+            "title": "Blocking",
+            "type": "boolean"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "outcome": {
+            "enum": [
+              "PASSED",
+              "FAILED",
+              "NOT_EVALUATED"
+            ],
+            "title": "Outcome",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "outcome",
+          "reason",
+          "blocking"
+        ],
+        "title": "ResearchJobGate",
+        "type": "object"
+      },
+      "ResearchJobIdentity": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "configuration": {
+            "title": "Configuration",
+            "type": "string"
+          },
+          "dataset": {
+            "title": "Dataset",
+            "type": "string"
+          },
+          "execution_model": {
+            "title": "Execution Model",
+            "type": "string"
+          },
+          "fees": {
+            "title": "Fees",
+            "type": "string"
+          },
+          "job": {
+            "title": "Job",
+            "type": "string"
+          },
+          "schema": {
+            "title": "Schema",
+            "type": "string"
+          },
+          "seed": {
+            "title": "Seed",
+            "type": "string"
+          },
+          "venue_rules": {
+            "title": "Venue Rules",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "configuration",
+          "dataset",
+          "venue_rules",
+          "fees",
+          "execution_model",
+          "schema",
+          "seed",
+          "job"
+        ],
+        "title": "ResearchJobIdentity",
+        "type": "object"
+      },
+      "ResearchJobRequest": {
+        "description": "A durable local adaptive research command owned by the backend.",
+        "properties": {
+          "dataset_identity": {
+            "minLength": 1,
+            "title": "Dataset Identity",
+            "type": "string"
+          },
+          "execution_model_identity": {
+            "minLength": 1,
+            "title": "Execution Model Identity",
+            "type": "string"
+          },
+          "fee_identity": {
+            "minLength": 1,
+            "title": "Fee Identity",
+            "type": "string"
+          },
+          "schema_identity": {
+            "minLength": 1,
+            "title": "Schema Identity",
+            "type": "string"
+          },
+          "seed": {
+            "title": "Seed",
+            "type": "integer"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/BacktestRequest"
+          },
+          "venue_rules_identity": {
+            "minLength": 1,
+            "title": "Venue Rules Identity",
+            "type": "string"
+          }
+        },
+        "required": [
+          "spec",
+          "dataset_identity",
+          "venue_rules_identity",
+          "fee_identity",
+          "execution_model_identity",
+          "schema_identity",
+          "seed"
+        ],
+        "title": "ResearchJobRequest",
+        "type": "object"
+      },
+      "ResearchJobResult": {
+        "properties": {
+          "capital_note": {
+            "title": "Capital Note",
+            "type": "string"
+          },
+          "completed_cycles": {
+            "title": "Completed Cycles",
+            "type": "integer"
+          },
+          "fees_paid": {
+            "title": "Fees Paid",
+            "type": "number"
+          },
+          "final_equity": {
+            "title": "Final Equity",
+            "type": "number"
+          },
+          "gates": {
+            "items": {
+              "$ref": "#/components/schemas/ResearchJobGate"
+            },
+            "title": "Gates",
+            "type": "array"
+          },
+          "inventory_basis": {
+            "title": "Inventory Basis",
+            "type": "string"
+          },
+          "max_drawdown": {
+            "title": "Max Drawdown",
+            "type": "number"
+          },
+          "net_return": {
+            "title": "Net Return",
+            "type": "number"
+          },
+          "visualization": {
+            "$ref": "#/components/schemas/ResearchJobVisualization"
+          }
+        },
+        "required": [
+          "net_return",
+          "final_equity",
+          "max_drawdown",
+          "fees_paid",
+          "completed_cycles",
+          "gates",
+          "visualization",
+          "inventory_basis",
+          "capital_note"
+        ],
+        "title": "ResearchJobResult",
+        "type": "object"
+      },
+      "ResearchJobVisualization": {
+        "properties": {
+          "overlays": {
+            "items": {
+              "$ref": "#/components/schemas/ResearchJobEvent"
+            },
+            "title": "Overlays",
+            "type": "array"
+          },
+          "price": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Price",
+            "type": "array"
+          },
+          "selected_event_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Event Id"
+          }
+        },
+        "required": [
+          "price",
+          "overlays"
+        ],
+        "title": "ResearchJobVisualization",
+        "type": "object"
+      },
       "RobustnessBody": {
         "properties": {
           "base": {
@@ -6276,6 +6651,143 @@
           }
         },
         "summary": "Operator Controls"
+      }
+    },
+    "/api/studio/research/jobs": {
+      "get": {
+        "operationId": "list_research_jobs_api_studio_research_jobs_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ResearchJob"
+                  },
+                  "title": "Response List Research Jobs Api Studio Research Jobs Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Research Jobs"
+      },
+      "post": {
+        "description": "Create a durable job; execution belongs to the local research service.",
+        "operationId": "create_research_job_api_studio_research_jobs_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResearchJobRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResearchJob"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Research Job"
+      }
+    },
+    "/api/studio/research/jobs/{job_id}": {
+      "get": {
+        "operationId": "get_research_job_api_studio_research_jobs__job_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResearchJob"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Research Job"
+      }
+    },
+    "/api/studio/research/jobs/{job_id}/cancel": {
+      "post": {
+        "operationId": "cancel_research_job_api_studio_research_jobs__job_id__cancel_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResearchJob"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Cancel Research Job"
       }
     },
     "/api/studio/safety-posture": {
