@@ -76,7 +76,12 @@ async function routeProductionPanel(page: import("@playwright/test").Page) {
           known_gap_dates: [],
           evidence_urls: [`https://data.binance.vision/coverage/${symbol}`],
         },
-        verified_ranges: [{ start: "2022-01-01T00:00:00Z", end: "2026-07-22T00:00:00Z" }],
+        verified_ranges: [{
+          start: "2022-01-01T00:00:00Z",
+          end: "2026-07-22T00:00:00Z",
+          start_open_price: "100.000000000000000000",
+          end_close_price: "101.500000000000000000",
+        }],
         total_rows: 2_000_000,
         stored_bytes: 654321 + index,
         partitions: [{
@@ -130,12 +135,16 @@ test("operator completes and reloads the migrated typed backtest while legacy st
 
   await page.goto("/studio/");
   await expect(page.getByText("NO ONLINE TRADING AUTHORITY")).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Adaptive policy characterization" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Choose how you want to test the strategy" })).toBeVisible();
+  await page.getByText("See why the system suggests a certain starting grid").click();
+  await expect(page.getByRole("heading", { name: "Why this starting grid was suggested" })).toBeVisible();
   await expect(page.locator(".scope", { hasText: "BOOTSTRAPPING" })).toBeVisible();
-  await expect(page.getByText("required_backing_inventory_not_confirmed", { exact: false })).toBeVisible();
+  await expect(page.getByText("Needs confirmation")).toBeVisible();
+  await expect(page.getByText("Show detailed decision evidence")).toBeVisible();
+  await page.getByText("Show detailed decision evidence").click();
+  await expect(page.getByText("bootstrap_inventory_complete: required_backing_inventory_not_confirmed")).toBeVisible();
   await expect(page.getByLabel("Initial rung ladder").getByText("BUY")).toHaveCount(3);
   await expect(page.getByLabel("Initial rung ladder").getByText("SELL")).toHaveCount(2);
-  await expect(page.getByText("Ladder placement blocked", { exact: false })).toBeVisible();
   const configurationIdentity = await page.getByText("Configuration identity")
     .locator("xpath=following-sibling::code[1]").innerText();
   const observationIdentity = await page.getByText("Observation identity")
@@ -150,13 +159,14 @@ test("operator completes and reloads the migrated typed backtest while legacy st
     "Command Center",
   );
 
+  await page.getByRole("button", { name: /experiment quickly with synthetic data/i }).click();
   await page.getByLabel("Symbol", { exact: true }).fill("ETHUSDT");
   await page.getByLabel("Synthetic bars").fill("300");
   await page.getByRole("combobox", { name: "Spacing" }).selectOption("geometric");
-  await page.getByRole("button", { name: "Run backtest" }).click();
+  await page.getByRole("button", { name: "Run synthetic backtest" }).click();
 
   await expect(
-    page.getByRole("heading", { name: "ETHUSDT primary result" }),
+    page.getByRole("heading", { name: "ETHUSDT result" }),
   ).toBeVisible();
   await expect(page.getByText("Authoritative local record")).toBeVisible();
   const runId = await page.locator(".record code").innerText();
@@ -174,7 +184,7 @@ test("operator completes and reloads the migrated typed backtest while legacy st
   await expect(page.getByText("Plan derivation causation")
     .locator("xpath=following-sibling::code[1]")).toHaveText(derivationCausation);
   await expect(
-    page.getByRole("heading", { name: "ETHUSDT primary result" }),
+    page.getByRole("heading", { name: "ETHUSDT result" }),
   ).toBeVisible();
   await expect(page.locator(".record code")).toHaveText(runId);
 
@@ -218,16 +228,16 @@ test("operator sees manifested production-history provenance in the real browser
   }));
 
   await page.goto("/studio/");
-  await expect(page.getByText("2 eligible EUR symbols")).toBeVisible();
-  await expect(page.getByText("Ten-symbol EUR production archive")).toBeVisible();
-  await expect(page.getByText("10 fixed EUR datasets")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Run over local EUR market history" })).toBeVisible();
+  await expect(page.getByText("Eligible EUR symbols")).toBeVisible();
+  await expect(page.getByText("Local datasets ready")).toBeVisible();
   await page.getByLabel("EUR production symbol").selectOption("ETHEUR");
-  await expect(page.getByText("Stable dataset identity · EUR quote asset · Spot production history only")).toBeVisible();
-  await expect(page.getByText("Official archive availability")).toBeVisible();
+  await expect(page.getByText("Stable local dataset · EUR quote asset · verified Spot production replay only.")).toBeVisible();
   await expect(page.getByLabel("Verified local range")).toBeVisible();
   await page.getByRole("button", { name: "Run production-history backtest" }).click();
-  await expect(page.getByText("PRODUCTION HISTORY", { exact: true })).toBeVisible();
-  await expect(page.getByText("TESTNET HISTORY NOT USED")).toBeVisible();
+  await expect(page.getByText("Show technical provenance")).toBeVisible();
   await expect(page.getByText("10,100.00 EUR")).toBeVisible();
+  await page.getByText("Show technical provenance").click();
+  await expect(page.getByText("TESTNET HISTORY NOT USED")).toBeVisible();
   await expect(page.getByText(fingerprint)).toBeVisible();
 });
