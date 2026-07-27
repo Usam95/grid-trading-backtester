@@ -2145,6 +2145,10 @@ export interface components {
             phase: string;
             /** Progress */
             progress: number;
+            /** Replay Result */
+            replay_result?: {
+                [key: string]: unknown;
+            } | null;
             request: components["schemas"]["ResearchJobRequest"];
             result?: components["schemas"]["ResearchJobResult"] | null;
             /**
@@ -2206,6 +2210,11 @@ export interface components {
             configuration: string;
             /** Dataset */
             dataset: string;
+            /**
+             * Dataset Window
+             * @default unspecified
+             */
+            dataset_window: string;
             /** Execution Model */
             execution_model: string;
             /** Fees */
@@ -2224,8 +2233,12 @@ export interface components {
          * @description A durable local adaptive research command owned by the backend.
          */
         ResearchJobRequest: {
+            /** Dataset End */
+            dataset_end?: string | null;
             /** Dataset Identity */
             dataset_identity: string;
+            /** Dataset Start */
+            dataset_start?: string | null;
             /** Execution Model Identity */
             execution_model_identity: string;
             /** Fee Identity */
@@ -2240,10 +2253,27 @@ export interface components {
         };
         /** ResearchJobResult */
         ResearchJobResult: {
+            /** Candle Count */
+            candle_count?: number | null;
             /** Capital Note */
             capital_note: string;
             /** Completed Cycles */
             completed_cycles: number;
+            /**
+             * Data Source
+             * @default synthetic fixture
+             */
+            data_source: string;
+            /** Dataset End */
+            dataset_end?: string | null;
+            /** Dataset Start */
+            dataset_start?: string | null;
+            /** Dataset Symbol */
+            dataset_symbol?: string | null;
+            /** Evidence Identity */
+            evidence_identity?: {
+                [key: string]: string;
+            };
             /** Fees Paid */
             fees_paid: number;
             /** Final Equity */
@@ -2252,6 +2282,8 @@ export interface components {
             gates: components["schemas"]["ResearchJobGate"][];
             /** Inventory Basis */
             inventory_basis: string;
+            /** Manifest Identity */
+            manifest_identity?: string | null;
             /** Max Drawdown */
             max_drawdown: number;
             /** Net Return */

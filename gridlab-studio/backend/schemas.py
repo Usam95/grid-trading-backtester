@@ -245,6 +245,8 @@ class ResearchJobRequest(_Block):
 
     spec: BacktestRequest
     dataset_identity: str = Field(min_length=1)
+    dataset_start: Optional[AwareDatetime] = None
+    dataset_end: Optional[AwareDatetime] = None
     venue_rules_identity: str = Field(min_length=1)
     fee_identity: str = Field(min_length=1)
     execution_model_identity: str = Field(min_length=1)
@@ -256,6 +258,7 @@ class ResearchJobIdentity(_Block):
     code: str
     configuration: str
     dataset: str
+    dataset_window: str = "unspecified"
     venue_rules: str
     fees: str
     execution_model: str
@@ -297,6 +300,13 @@ class ResearchJobResult(_Block):
     visualization: ResearchJobVisualization
     inventory_basis: str
     capital_note: str
+    data_source: str = "synthetic fixture"
+    dataset_symbol: Optional[str] = None
+    dataset_start: Optional[AwareDatetime] = None
+    dataset_end: Optional[AwareDatetime] = None
+    candle_count: Optional[int] = None
+    manifest_identity: Optional[str] = None
+    evidence_identity: dict[str, str] = Field(default_factory=dict)
 
 
 class ResearchJob(_Block):
@@ -312,6 +322,7 @@ class ResearchJob(_Block):
     request: ResearchJobRequest
     identity: ResearchJobIdentity
     result: Optional[ResearchJobResult] = None
+    replay_result: Optional[dict[str, Any]] = None
 
 
 class StudioConfiguration(_Block):

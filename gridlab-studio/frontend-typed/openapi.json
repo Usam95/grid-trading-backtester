@@ -4415,6 +4415,18 @@
             "title": "Progress",
             "type": "integer"
           },
+          "replay_result": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Replay Result"
+          },
           "request": {
             "$ref": "#/components/schemas/ResearchJobRequest"
           },
@@ -4566,6 +4578,11 @@
             "title": "Dataset",
             "type": "string"
           },
+          "dataset_window": {
+            "default": "unspecified",
+            "title": "Dataset Window",
+            "type": "string"
+          },
           "execution_model": {
             "title": "Execution Model",
             "type": "string"
@@ -4608,10 +4625,34 @@
       "ResearchJobRequest": {
         "description": "A durable local adaptive research command owned by the backend.",
         "properties": {
+          "dataset_end": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dataset End"
+          },
           "dataset_identity": {
             "minLength": 1,
             "title": "Dataset Identity",
             "type": "string"
+          },
+          "dataset_start": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dataset Start"
           },
           "execution_model_identity": {
             "minLength": 1,
@@ -4655,6 +4696,17 @@
       },
       "ResearchJobResult": {
         "properties": {
+          "candle_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Candle Count"
+          },
           "capital_note": {
             "title": "Capital Note",
             "type": "string"
@@ -4662,6 +4714,53 @@
           "completed_cycles": {
             "title": "Completed Cycles",
             "type": "integer"
+          },
+          "data_source": {
+            "default": "synthetic fixture",
+            "title": "Data Source",
+            "type": "string"
+          },
+          "dataset_end": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dataset End"
+          },
+          "dataset_start": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dataset Start"
+          },
+          "dataset_symbol": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dataset Symbol"
+          },
+          "evidence_identity": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Evidence Identity",
+            "type": "object"
           },
           "fees_paid": {
             "title": "Fees Paid",
@@ -4681,6 +4780,17 @@
           "inventory_basis": {
             "title": "Inventory Basis",
             "type": "string"
+          },
+          "manifest_identity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Identity"
           },
           "max_drawdown": {
             "title": "Max Drawdown",
@@ -5793,15 +5903,25 @@
             "title": "End",
             "type": "string"
           },
+          "end_close_price": {
+            "title": "End Close Price",
+            "type": "string"
+          },
           "start": {
             "format": "date-time",
             "title": "Start",
+            "type": "string"
+          },
+          "start_open_price": {
+            "title": "Start Open Price",
             "type": "string"
           }
         },
         "required": [
           "start",
-          "end"
+          "end",
+          "start_open_price",
+          "end_close_price"
         ],
         "title": "VerifiedRangeEvidence",
         "type": "object"

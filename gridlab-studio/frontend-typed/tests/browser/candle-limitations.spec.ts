@@ -73,10 +73,12 @@ test("operator sees candle-fill limitations called out in research results", asy
   }));
 
   await page.goto("/studio/");
+  await page.getByRole("button", { name: /Synthetic sandbox Available/ }).click();
   await page.getByLabel("Symbol", { exact: true }).fill("ETHUSDT");
   await page.getByLabel("Synthetic bars").fill("300");
-  await page.getByRole("button", { name: "Run backtest" }).click();
+  await page.getByRole("button", { name: "Run synthetic backtest" }).click();
 
+  await page.locator("summary", { hasText: "Show simulation caveats" }).click();
   await expect(page.getByText("CANDLE SIMULATION ONLY")).toBeVisible();
   await expect(page.getByText("NOT VENUE EXECUTION PROOF")).toBeVisible();
 });

@@ -975,7 +975,7 @@ function ResearchJobCard({ job, onCancel }: { job: ResearchJob; onCancel(): void
   return <section className="research-job" aria-labelledby="research-job-heading">
     <div className="result-heading"><div><p className="eyebrow">Durable adaptive research job</p><h2 id="research-job-heading">{job.status} · {job.phase}</h2></div><span className="scope">{job.progress}%</span></div>
     <div className="job-progress"><div style={{ width: `${job.progress}%` }} /></div>
-    <div className="production-provenance"><span>Job identity</span><code>{job.identity.job}</code><span>Dataset</span><code>{job.identity.dataset}</code><span>Code · schema · seed</span><code>{job.identity.code} · {job.identity.schema} · {job.identity.seed}</code></div>
+    <div className="production-provenance"><span>Job identity</span><code>{job.identity.job}</code><span>Dataset</span><code>{job.identity.dataset}</code><span>Dataset window</span><code>{job.identity.dataset_window}</code><span>Exact evidence identities</span>{Object.entries(result?.evidence_identity ?? {}).map(([name, value]) => <><span key={`${name}-label`}>{name}</span><code key={`${name}-value`}>{value || "—"}</code></>)}{result?.data_source && <><span>Data source</span><strong>{result.data_source}</strong></>}{result?.dataset_start && <><span>Replay window</span><strong>{result.dataset_start} → {result.dataset_end} · {result.candle_count?.toLocaleString("en-US")} candles</strong></>}</div>
     {job.error && <p className="error" role="alert">{job.error} · prior checkpoints remain available for resume.</p>}
     {result && <>
       <div className="metrics"><article className="primary"><span>Net return</span><strong>{formatPercent(result.net_return)}</strong></article><article><span>Completed cycles</span><strong>{result.completed_cycles}</strong></article><article><span>Max drawdown</span><strong>{formatPercent(result.max_drawdown)}</strong></article><article><span>Fees</span><strong>{formatMoney(result.fees_paid)}</strong></article></div>
@@ -1262,14 +1262,19 @@ function ResearchWorkspace({ research }: { research: ResearchPort }) {
   }
 
   async function startAdaptiveResearch() {
-    if (!draft || !research.createResearchJob || !research.getResearchJob) return;
+    if (!draft || !selected || !selectedRange || !research.createResearchJob || !research.getResearchJob) {
+      setError("Choose a symbol with a verified local range before starting adaptive research.");
+      return;
+    }
     setResearchJobBusy(true); setError(undefined);
     try {
       const baseRequest = requestFrom(draft);
       const baseSpec = (baseRequest.spec ?? {}) as ResearchJobRequest["spec"];
       const request: ResearchJobRequest = {
         spec: { ...baseSpec, initial_cash: draft.initialCash, grid: { ...(baseSpec.grid ?? {}), adaptive: true } } as ResearchJobRequest["spec"],
-        dataset_identity: selected?.dataset_id ?? `admitted-production:${draft.symbol}`,
+        dataset_identity: selected.dataset_id,
+        dataset_start: selectedRange.start,
+        dataset_end: selectedRange.end,
         venue_rules_identity: "binance-spot-rules/v1",
         fee_identity: `maker:${draft.makerFee};taker:${draft.takerFee}`,
         execution_model_identity: "candle-conservative/v1",
@@ -1584,7 +1589,7 @@ function ResearchWorkspace({ research }: { research: ResearchPort }) {
         <section className="production-data" aria-labelledby="adaptive-research-heading">
           <div className="result-heading"><div><p className="eyebrow">Ticket 15 · resumable execution</p><h2 id="adaptive-research-heading">Run adaptive research outside the browser</h2><p>The local service owns execution and SQLite checkpoints. Close this browser, reopen Studio, and reconnect to the same job identity and sealed evidence.</p></div><span className="scope">NO TRADING AUTHORITY</span></div>
           <p className="job-note">This inventory grid is net-long base exposure. The 250 USDT Azure MVP is a validation/learning vehicle, not infrastructure-net-profitable operation.</p>
-          <button type="button" disabled={researchJobBusy} onClick={startAdaptiveResearch}>{researchJobBusy ? "Research running…" : "Start adaptive research job"}</button>
+          <button type="button" disabled={researchJobBusy || !selected || !selectedRange} onClick={startAdaptiveResearch}>{researchJobBusy ? "Research running…" : "Start adaptive research job"}</button>
           {researchJobs.map((job) => <ResearchJobCard key={job.id} job={job} onCancel={() => cancelAdaptiveResearch(job.id)} />)}
         </section>
         </>

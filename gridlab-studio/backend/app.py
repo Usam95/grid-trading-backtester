@@ -359,6 +359,23 @@ def _research_store_path() -> Path:
     return Path(configured) if configured else Path(__file__).resolve().parent.parent / ".studio" / "studio.sqlite3"
 
 
+def _research_archive_snapshot(request: ResearchJobRequest) -> tuple[Path, dict[str, object]] | None:
+    """Resolve a real admitted dataset to an immutable local replay snapshot."""
+    if len(request.dataset_identity) != 64:
+        return None
+    if request.dataset_start is None or request.dataset_end is None:
+        raise ValueError("local production research requires dataset_start and dataset_end")
+    if request.dataset_start >= request.dataset_end:
+        raise ValueError("dataset_start must be before dataset_end")
+    snapshot = studio_production_panel_repository().create_snapshot(
+        request.dataset_identity,
+        request.dataset_start,
+        request.dataset_end,
+    )
+    manifest_path = Path(str(snapshot["manifest_path"]))
+    return manifest_path, snapshot
+
+
 def _execute_research_job(job_id: str, request: ResearchJobRequest, database: Path | None = None) -> None:
     """Run outside the request/browser lifecycle and checkpoint each phase."""
     database = database or _research_store_path()
@@ -368,12 +385,32 @@ def _execute_research_job(job_id: str, request: ResearchJobRequest, database: Pa
             if current is None or current.status == "CANCELLED":
                 return
             store.save_job(current.model_copy(update={"status": "RUNNING", "phase": "ADMITTING", "progress": 10, "updated_at": datetime.now(timezone.utc), "checkpoint": "admission", "worker_history": [*current.worker_history, {"phase": "ADMITTING", "checkpoint": "admission"}]}))
-            raw = service.run_backtest(request.spec.to_spec(), with_report=False, include_trades=True)
+            checkpointed = store.get_job(job_id)
+            if checkpointed and checkpointed.replay_result is not None:
+                raw = checkpointed.replay_result
+                evidence = checkpointed.replay_result.get("_research_evidence")
+                raw = {key: value for key, value in raw.items() if key != "_research_evidence"}
+            else:
+                snapshot = _research_archive_snapshot(request)
+                if snapshot is None:
+                    raw = service.run_backtest(request.spec.to_spec(), with_report=False, include_trades=True)
+                    evidence = None
+                else:
+                    manifest_path, snapshot_evidence = snapshot
+                    specification = request.spec.to_spec()
+                    specification["data"] = {"kind": "manifested_parquet", "dataset_id": request.dataset_identity, "start": request.dataset_start.isoformat(), "end": request.dataset_end.isoformat()}
+                    raw = service.run_archive_snapshot_backtest(specification, manifest_path, include_trades=True)
+                    evidence = {"data_source": "verified local production archive", "symbol": snapshot_evidence["symbol"], "start": request.dataset_start, "end": request.dataset_end, "candle_count": raw.get("bars"), "manifest_identity": snapshot_evidence.get("manifest_sha256")}
+                checkpointed = store.get_job(job_id)
+                if checkpointed is None or checkpointed.status == "CANCELLED":
+                    return
+                checkpoint_raw = {**raw, "_research_evidence": evidence}
+                store.save_job(checkpointed.model_copy(update={"status": "RUNNING", "phase": "REPLAYING", "progress": 70, "updated_at": datetime.now(timezone.utc), "checkpoint": "replay-result", "replay_result": checkpoint_raw, "worker_history": [*checkpointed.worker_history, {"phase": "REPLAYING", "checkpoint": "replay-result"}]}))
             current = store.get_job(job_id)
             if current is None or current.status == "CANCELLED":
                 return
             store.save_job(current.model_copy(update={"status": "RUNNING", "phase": "REPLAYING", "progress": 70, "updated_at": datetime.now(timezone.utc), "checkpoint": "canonical-replay", "worker_history": [*current.worker_history, {"phase": "REPLAYING", "checkpoint": "canonical-replay"}]}))
-            result = build_result(request, raw)
+            result = build_result(request, raw, evidence=evidence)
             current = store.get_job(job_id)
             if current is None or current.status == "CANCELLED":
                 return

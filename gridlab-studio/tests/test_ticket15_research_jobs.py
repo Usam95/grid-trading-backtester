@@ -5,7 +5,10 @@ from pathlib import Path
 
 from fastapi.testclient import TestClient
 
-from backend.app import app, resume_local_research_jobs
+from backend.app import _execute_research_job, app, resume_local_research_jobs
+from backend import service
+from backend.research_jobs import identity_for
+from backend.schemas import ResearchJob, ResearchJobRequest
 from backend.studio_runs import SqliteStudioRunStore, studio_run_store
 
 
@@ -97,3 +100,79 @@ def test_service_restart_resumes_unfinished_job(tmp_path: Path, monkeypatch) -> 
         time.sleep(0.02)
     assert resumed is not None
     assert resumed.status == "COMPLETED"
+
+
+def test_admitted_research_job_replays_the_selected_local_archive(
+    tmp_path: Path, monkeypatch
+) -> None:
+    dataset_id = "a" * 64
+    start = "2020-01-03T08:00:00Z"
+    end = "2020-02-01T00:00:00Z"
+    request = ResearchJobRequest.model_validate({
+        "spec": {**SPEC, "symbol": "BTCEUR"},
+        "dataset_identity": dataset_id,
+        "dataset_start": start,
+        "dataset_end": end,
+        "venue_rules_identity": "venue:v1",
+        "fee_identity": "fees:v1",
+        "execution_model_identity": "candle:v1",
+        "schema_identity": "schema:v1",
+        "seed": 7,
+    })
+    snapshot = {
+        "manifest_path": str(tmp_path / "snapshot.json"),
+        "symbol": "BTCEUR",
+        "manifest_sha256": "b" * 64,
+    }
+    calls: list[tuple[dict, Path]] = []
+
+    class FakeArchive:
+        def create_snapshot(self, selected_id, selected_start, selected_end):
+            assert selected_id == dataset_id
+            assert selected_start.isoformat() == "2020-01-03T08:00:00+00:00"
+            assert selected_end.isoformat() == "2020-02-01T00:00:00+00:00"
+            return snapshot
+
+    def fake_archive_backtest(specification, manifest_path, *, include_trades):
+        calls.append((specification, manifest_path))
+        assert include_trades is True
+        return {
+            "metrics": {"total_return": 0.12, "max_drawdown": -0.03},
+            "final_equity": 112.0,
+            "fees_paid": 1.25,
+            "n_closed_trades": 2,
+            "series": {"price": [10.0, 11.0], "equity": [100.0, 112.0], "drawdown": [0.0, -0.03]},
+            "trades": [{"order_id": "archive-fill", "price": "10.50", "quantity": "1", "pnl": "2"}],
+        }
+
+    monkeypatch.setattr("backend.app.studio_production_panel_repository", lambda: FakeArchive())
+    monkeypatch.setattr(service, "run_archive_snapshot_backtest", fake_archive_backtest)
+    database = tmp_path / "studio.sqlite3"
+    job = ResearchJob(
+        id="job-local-archive",
+        status="QUEUED",
+        created_at=request.dataset_start,
+        updated_at=request.dataset_start,
+        request=request,
+        identity=identity_for(request),
+        progress=0,
+        phase="QUEUED",
+    )
+    with SqliteStudioRunStore(database) as store:
+        store.save_job(job)
+    _execute_research_job(job.id, request, database)
+    with SqliteStudioRunStore(database) as store:
+        completed = store.get_job(job.id)
+    assert completed is not None
+    assert completed.status == "COMPLETED"
+    assert completed.result is not None
+    assert completed.result.data_source == "verified local production archive"
+    assert completed.result.dataset_symbol == "BTCEUR"
+    assert completed.result.manifest_identity == "b" * 64
+    assert len(calls) == 1
+    assert calls[0][0]["data"] == {
+        "kind": "manifested_parquet",
+        "dataset_id": dataset_id,
+        "start": "2020-01-03T08:00:00+00:00",
+        "end": "2020-02-01T00:00:00+00:00",
+    }

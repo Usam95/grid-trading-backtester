@@ -7,6 +7,7 @@ import type {
   CanonicalAdaptivePresentation,
   FrozenProductionPanel,
   OperatorControlsPresentation,
+  ResearchJob,
   ResearchPort,
   SafetyPosturePresentation,
   StudioBacktestRun,
@@ -986,6 +987,45 @@ describe("typed Studio shell", () => {
     expect(screen.getByText("Estimated local storage")).toBeTruthy();
     expect(screen.getByText("Refresh local archive status")).toBeTruthy();
     expect(research.getProductionArchive).toHaveBeenCalledOnce();
+  });
+
+  it("starts adaptive research against the selected verified local range", async () => {
+    const research = researchPort();
+    const job = {
+      id: "job-local-archive",
+      status: "COMPLETED",
+      phase: "SEALED",
+      progress: 100,
+      created_at: "2026-07-25T12:00:00Z",
+      updated_at: "2026-07-25T12:00:01Z",
+      checkpoint: "sealed-result",
+      worker_history: [],
+      request: {} as ResearchJob["request"],
+      identity: {
+        job: "job-fingerprint",
+        code: "gridlab/ticket-15/adaptive-research/v1",
+        configuration: "configuration",
+        dataset: panel.datasets[0].dataset_id,
+        dataset_window: "2022-01-01T00:00:00Z..2026-07-22T00:00:00Z",
+        venue_rules: "venue:v1",
+        fees: "fees:v1",
+        execution_model: "candle:v1",
+        schema: "studio-research-job/v1",
+        seed: "seed:7",
+      },
+    } as ResearchJob;
+    research.createResearchJob = vi.fn().mockResolvedValue(job);
+    research.getResearchJob = vi.fn().mockResolvedValue(job);
+    render(<App research={research} />);
+
+    expect(await screen.findByText("Run adaptive research outside the browser")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Start adaptive research job" }));
+    await waitFor(() => expect(research.createResearchJob).toHaveBeenCalledOnce());
+    expect(research.createResearchJob).toHaveBeenCalledWith(expect.objectContaining({
+      dataset_identity: panel.datasets[0].dataset_id,
+      dataset_start: panel.datasets[0].verified_ranges[0].start,
+      dataset_end: panel.datasets[0].verified_ranges[0].end,
+    }));
   });
 
   it("keeps catalog symbols visible and exposes synchronization when the local archive is empty", async () => {
