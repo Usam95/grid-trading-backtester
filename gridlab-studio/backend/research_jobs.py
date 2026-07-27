@@ -61,6 +61,11 @@ def build_result(request: ResearchJobRequest, raw: dict[str, Any], *, evidence: 
     first_trade = trades[0] if trades else None
     fill = _event("fill", "Cumulative execution fill", now + timedelta(minutes=2), {"order_id": first_trade.get("order_id"), "quantity": first_trade.get("quantity"), "price": first_trade.get("price")}, epoch=epoch, causes=[transition.event_id]) if first_trade else _event("gate", "No admitted fills in replay window", now + timedelta(minutes=2), {"reason": "selected candle window produced no serialized fills"}, epoch=epoch, causes=[transition.event_id])
     cycle = _event("cycle", "Paired cycle completed", now + timedelta(minutes=3), {"buy_event_id": fill.event_id, "net_quote": str(first_trade.get("pnl", "0")) if first_trade else "0"}, epoch=epoch, causes=[fill.event_id])
+    order = _event("order", "Replay order evidence", now + timedelta(minutes=2), {"order_id": first_trade.get("order_id"), "side": first_trade.get("side"), "price": first_trade.get("price")} if first_trade else {"count": 0}, epoch=epoch, causes=[transition.event_id])
+    inventory = _event("inventory", "Inventory projection", now + timedelta(minutes=3), {"completed_cycles": raw.get("n_closed_trades", 0)}, epoch=epoch, causes=[cycle.event_id])
+    equity = _event("equity", "Equity projection", now + timedelta(minutes=3), {"final_equity": raw.get("final_equity")}, epoch=epoch, causes=[cycle.event_id])
+    drawdown = _event("drawdown", "Drawdown projection", now + timedelta(minutes=3), {"max_drawdown": raw["metrics"]["max_drawdown"]}, epoch=epoch, causes=[equity.event_id])
+    fee = _event("fee", "Fee postings", now + timedelta(minutes=3), {"fees_paid": raw.get("fees_paid")}, epoch=epoch, causes=[fill.event_id])
     safety = _event("safety", "Safety posture remains NORMAL", now + timedelta(minutes=4), {"risk": "within capital envelope", "drawdown": raw["metrics"]["max_drawdown"]}, epoch=epoch, causes=[cycle.event_id])
     gates = [
         ResearchJobGate(name="correctness", outcome="PASSED", reason="Deterministic canonical result and invariant checks completed.", blocking=True),
@@ -79,7 +84,7 @@ def build_result(request: ResearchJobRequest, raw: dict[str, Any], *, evidence: 
         points = []
     return ResearchJobResult(
         net_return=raw["metrics"]["total_return"], final_equity=raw["final_equity"], max_drawdown=raw["metrics"]["max_drawdown"], fees_paid=raw["fees_paid"], completed_cycles=raw.get("n_closed_trades", 0), gates=gates,
-        visualization=ResearchJobVisualization(price=points, overlays=[adaptation, transition, fill, cycle, safety]),
+        visualization=ResearchJobVisualization(price=points, overlays=[adaptation, transition, order, fill, cycle, inventory, equity, drawdown, fee, safety]),
         inventory_basis="allocation-owned net-long base exposure",
         capital_note="250 USDT Azure MVP is a validation/learning vehicle, not infrastructure-net-profitable operation.",
         data_source=(evidence or {}).get("data_source", "synthetic fixture"),
